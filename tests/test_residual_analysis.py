@@ -76,6 +76,7 @@ class ResidualAnalysisTests(unittest.TestCase):
             envelope_powers=(1, 2, 3),
             slow_time_constants_samples=(1.0, 2.0),
             amplitude_quantiles=(0.5, 0.75),
+            characteristic_bins=4,
             position_bins=4,
         )
         rng = np.random.default_rng(19)
@@ -157,6 +158,10 @@ class ResidualAnalysisTests(unittest.TestCase):
         self.assertEqual(
             report["frozen_reference"]["amplitude_thresholds"],
             frozen["amplitude_thresholds"],
+        )
+        np.testing.assert_array_equal(
+            report["am_am_am_pm_residuals"]["bin_edges"],
+            frozen["characteristic_bin_edges"],
         )
 
     def test_discovery_api_rejects_test_role(self) -> None:

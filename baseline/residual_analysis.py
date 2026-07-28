@@ -18,7 +18,12 @@ from typing import Literal
 
 import numpy as np
 
-from .metrics import as_complex, nmse_pooled_db, welch_numpy
+from .metrics import (
+    as_complex,
+    bin_am_am_am_pm,
+    nmse_pooled_db,
+    welch_numpy,
+)
 
 ResidualSplitRole = Literal["train_oof", "validation_confirmation"]
 
@@ -47,6 +52,7 @@ class ResidualAnalysisSpec:
     envelope_powers: tuple[int, ...] = (1, 2, 3)
     slow_time_constants_samples: tuple[float, ...] = (4.0, 16.0, 64.0, 256.0)
     amplitude_quantiles: tuple[float, ...] = (0.90, 0.95, 0.99)
+    characteristic_bins: int = 32
     position_bins: int = 10
     amplitude_floor_fraction: float = 1e-6
     minimum_time_constants_per_segment: float = 20.0
@@ -100,6 +106,13 @@ class ResidualAnalysisSpec:
             raise ValueError("amplitude_quantiles must lie strictly in (0, 1)")
         if not isinstance(self.position_bins, int) or self.position_bins < 2:
             raise ValueError("position_bins must be an integer of at least two")
+        if (
+            not isinstance(self.characteristic_bins, int)
+            or self.characteristic_bins < 2
+        ):
+            raise ValueError(
+                "characteristic_bins must be an integer of at least two"
+            )
         if (
             not np.isfinite(self.amplitude_floor_fraction)
             or self.amplitude_floor_fraction <= 0.0
@@ -287,6 +300,11 @@ def freeze_residual_reference(
         "mean_input_power": float(np.mean(amplitude**2)),
         "maximum_input_amplitude": maximum,
         "amplitude_floor": spec.amplitude_floor_fraction * maximum,
+        "characteristic_bin_edges": np.linspace(
+            0.0,
+            maximum,
+            spec.characteristic_bins + 1,
+        ),
         "source": "training input only",
     }
 
@@ -583,6 +601,48 @@ def _amplitude_region_diagnostics(
     return result
 
 
+def _characteristic_residuals(
+    x: np.ndarray,
+    y: np.ndarray,
+    prediction: np.ndarray,
+    frozen_reference: dict[str, object],
+) -> dict[str, object]:
+    edges = np.asarray(
+        frozen_reference["characteristic_bin_edges"],
+        dtype=float,
+    )
+    measured = bin_am_am_am_pm(x, y, bins=edges)
+    predicted = bin_am_am_am_pm(x, prediction, bins=edges)
+    phase_residual = np.angle(
+        np.exp(1j * (predicted["am_pm_rad"] - measured["am_pm_rad"]))
+    )
+    return {
+        "bin_edges": edges,
+        "bin_centers": measured["bin_centers"],
+        "count": measured["count"],
+        "measured_output_amplitude_mean": measured["output_amplitude_mean"],
+        "predicted_output_amplitude_mean": predicted[
+            "output_amplitude_mean"
+        ],
+        "output_amplitude_mean_residual": (
+            predicted["output_amplitude_mean"]
+            - measured["output_amplitude_mean"]
+        ),
+        "measured_am_am_gain": measured["am_am_gain"],
+        "predicted_am_am_gain": predicted["am_am_gain"],
+        "am_am_gain_residual": (
+            predicted["am_am_gain"] - measured["am_am_gain"]
+        ),
+        "measured_am_pm_deg": measured["am_pm_deg"],
+        "predicted_am_pm_deg": predicted["am_pm_deg"],
+        "am_pm_residual_rad": phase_residual,
+        "am_pm_residual_deg": np.rad2deg(phase_residual),
+        "bin_definition": (
+            "uniform amplitude edges frozen from training maximum"
+        ),
+    }
+
+
 def _segment_position_diagnostics(
     y: np.ndarray,
     error: np.ndarray,
@@ -845,6 +905,12 @@ def analyze_pa_residuals(
             y,
             error,
             valid,
+            frozen_reference,
+        ),
+        "am_am_am_pm_residuals": _characteristic_residuals(
+            x,
+            y,
+            prediction,
             frozen_reference,
         ),
         "segment_position": _segment_position_diagnostics(
