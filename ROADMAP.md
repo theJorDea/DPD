@@ -8,7 +8,9 @@
 имел test fidelity около −30…−31 dB, а spline-memory DPD уже достигал до
 −32.7 dB на том же evaluator. Новый validation-selected MP forward model
 улучшил measured-output fidelity до −35.10 dB на DPA и −36.99 dB на APA,
-но provisional 10 dB evaluator margin всё ещё не выполнен.
+что даёт только projected arithmetic margin 5.235 dB для DPA и 4.250 dB для
+APA относительно существующих spline-DPD residuals. Поскольку cascade через
+новые frozen MP evaluators ещё не запускался, actual Gate A→B пока не оценён.
 
 ## Правила выполнения
 
@@ -116,12 +118,22 @@ Gate protocol:
    path sensitivity runner.
 3. A0 и A1 сравниваются на validation на одном и том же допустимом support:
    A0 получает тот же symmetric guard crop, что A1.
-4. Сохранить pooled NMSE, OpenDPD-compatible NMSE, common-interior NMSE,
+4. Primary decision metric — pooled complex NMSE на common-interior support.
+   Для каждой проверки заранее определяется
+   \(\Delta=\mathrm{NMSE}_{A1}-\mathrm{NMSE}_{A0}\) в dB, поэтому отрицательное
+   значение означает улучшение A1.
+5. A1 принимается только если одновременно:
+   - fixed GMP recipe даёт \(\Delta_\mathrm{OOF}\le-0.25\) dB и
+     \(\Delta_\mathrm{validation}\le-0.25\) dB на common interior;
+   - fixed MP corroboration даёт \(\Delta_\mathrm{OOF}\le0\) и
+     \(\Delta_\mathrm{validation}\le0\) на common interior;
+   - соответствующие full-record deltas имеют тот же знак улучшения
+     (\(\Delta\le0\)).
+   Любое нарушение, missing/non-finite metric или ничья вне этих условий
+   детерминированно выбирает A0.
+6. Сохранить pooled NMSE, OpenDPD-compatible NMSE, common-interior NMSE,
    boundary residual и rank/conditioning; DPA и APA анализировать отдельно.
-5. A1 принимается как formal-sweep protocol только при устойчивом улучшении,
-   которое не объясняется crop/reset boundary. При малом или нестабильном
-   различии остаётся A0.
-6. Protocol decision и его hashes фиксируются отдельным commit до formal GMP.
+7. Protocol decision и его hashes фиксируются отдельным commit до formal GMP.
    Уже pre-registered A0 configs нельзя незаметно переопределить; для A1 нужны
    новые versioned configs.
 
@@ -150,8 +162,9 @@ formal sweep не запущен и ожидает Gate A0/A1; локально�
 5. [ ] Spline/CPWL memoryless nonlinearity + short complex FIR.
 6. [ ] State-conditioned variant только при residual evidence slow state.
 
-Каждый baseline получает самостоятельный commit: model + tests, затем config +
-result artifact. Нельзя менять evaluator одновременно с моделью.
+Каждый baseline разбивается минимум на отдельные commits: model + tests;
+pre-registered config; numerical result artifact; report update. Нельзя менять
+evaluator одновременно с моделью или объединять config и result.
 
 Текущие MP results:
 
@@ -247,6 +260,17 @@ models; таблица служит только gate arithmetic и не явл�
 
 ## Этап B1. Frozen-evaluator DPD benchmark
 
+Единственный deployment-like test path:
+
+```text
+desired x_test -> frozen DPD -> frozen independent PA/physical PA
+               -> compare with frozen g * x_test
+```
+
+Measured \(y_\mathrm{test}\) не используется как DPD input. Путь с
+\(y_\mathrm{test}/g\) допустим только как отдельно маркированный ILA
+inverse/postdistorter diagnostic и не является DPD cascade result.
+
 Сравнить без изменения evaluator:
 
 - no DPD;
@@ -263,7 +287,10 @@ models; таблица служит только gate arithmetic и не явл�
 - pooled/OpenDPD NMSE;
 - EVM variants;
 - ACLR left/right/average;
+- output PSD и error PSD;
+- AM/AM и AM/PM residuals;
 - PAPR и peak predistorted amplitude;
+- numerical/streaming stability и violations проверенного drive support;
 - real MUL/ADD/nonlinear/LUT/state/coefficient memory;
 - calibration time и inference timing.
 
@@ -278,19 +305,27 @@ models; таблица служит только gate arithmetic и не явл�
   train operating point A → test B → recalibration with N samples.
 - Learning curves:
   \(N=\{64,128,256,512,1024,2048,\ldots\}\), quality versus fit wall-clock.
+- Для stochastic methods использовать минимум 3 seeds и публиковать разброс.
+- При наличии подходящих captures отдельно проверять waveform и bandwidth
+  generalization, не смешивая смену waveform, PA и operating point в один
+  неидентифицируемый split.
 - Отдельно оценить coefficient drift, maximum update rate и stability.
 
 Артефакт: `ROBUSTNESS_AND_ADAPTATION.md`.
 
 ## Этап D. Hardware reference
 
-- Bit-accurate simulator, а не numerical “fixed-point-like” approximation.
+- Bit-accurate simulator для лучших validation-selected PA и DPD models, а не
+  numerical “fixed-point-like” approximation.
 - Formats: signed 16, 14 и 12 bit coefficients/activations.
 - Explicit accumulator/state widths, scaling, rounding and saturation.
+- Отдельно проверять input quantization и coefficient/LUT interpolation error.
+- Для каждого формата публиковать degradation относительно FP32 как минимум по
+  NMSE, EVM, ACLR и peak/stability indicators.
 - Separate counts: real MUL, ADD, sqrt/nonlinear, comparisons, LUT, coefficient
   and state memory.
 - Full-record versus arbitrary streaming chunks must be equivalent for causal
-  models.
+  models; отдельный no-future-dependence test подтверждает causality.
 - Измерять latency/throughput на выбранном target; analytical count помечать
   как lower bound.
 
