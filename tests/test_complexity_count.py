@@ -47,9 +47,29 @@ class ComplexityCountTests(unittest.TestCase):
             orders=(1, 3, 5, 7, 9),
             delays=(0, 1, 2, 3, 4),
         )
-        self.assertEqual(cost.real_multiplications, 170)
+        self.assertEqual(cost.real_multiplications, 165)
         self.assertEqual(cost.real_additions, 103)
+        self.assertEqual(cost.nonlinear_operations, 0)
         self.assertEqual(cost.stored_real_coefficients, 50)
+
+    def test_full_mp_count_shares_one_magnitude_per_delay(self) -> None:
+        cost = memory_polynomial_inference_cost(
+            orders=tuple(range(1, 10)),
+            delays=(0,),
+        )
+        self.assertEqual(cost.real_multiplications, 60)
+        self.assertEqual(cost.real_additions, 35)
+        self.assertEqual(cost.nonlinear_operations, 1)
+        self.assertEqual(cost.stored_real_coefficients, 18)
+
+    def test_linear_mp_does_not_compute_unused_magnitude(self) -> None:
+        cost = memory_polynomial_inference_cost(
+            orders=(1,),
+            delays=(0,),
+        )
+        self.assertEqual(cost.real_multiplications, 4)
+        self.assertEqual(cost.real_additions, 2)
+        self.assertEqual(cost.nonlinear_operations, 0)
 
 
 if __name__ == "__main__":

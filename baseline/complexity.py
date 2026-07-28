@@ -207,8 +207,10 @@ def memory_polynomial_inference_cost(
     """Count a causal complex memory-polynomial sample.
 
     The dictionary is
-    ``sum_d,p a[d,p] x[n-d] |x[n-d]|**(p-1)`` with odd orders.  For each
-    delayed sample, ``|x|²`` and reusable scalar powers are formed once; each
+    ``sum_d,p a[d,p] x[n-d] |x[n-d]|**(p-1)``.  For each delayed
+    sample, ``q=|x|²`` and reusable scalar powers are formed once.  Arbitrary
+    positive integer orders are supported: if an exponent ``p-1`` is odd, one
+    shared ``sqrt(q)`` is counted as a nonlinear operation.  Each non-linear
     term then performs a complex-real product followed by a complex coefficient
     multiply.  Delay-line traffic and address generation are reported as an
     analytical lower bound, not a measured implementation result.
@@ -219,21 +221,36 @@ def memory_polynomial_inference_cost(
     if (
         not order_tuple
         or not delay_tuple
-        or any(order < 1 or order % 2 == 0 for order in order_tuple)
+        or any(order < 1 for order in order_tuple)
         or any(delay < 0 for delay in delay_tuple)
         or len(set(order_tuple)) != len(order_tuple)
         or len(set(delay_tuple)) != len(delay_tuple)
     ):
-        raise ValueError("orders must be unique positive odd; delays non-negative")
+        raise ValueError("orders must be unique positive; delays non-negative")
     cmul, cadd = complex_multiply_cost(convention)
     terms_per_delay = len(order_tuple)
-    maximum_power = max((order - 1) // 2 for order in order_tuple)
-    # |x|²; q^1...q^maximum_power; scalar x*q^k for non-linear terms.
-    multiplications_per_delay = 2 + maximum_power
-    additions_per_delay = 1
-    for order in order_tuple:
-        power = (order - 1) // 2
-        if power:
+    amplitude_exponents = tuple(order - 1 for order in order_tuple)
+    maximum_q_power = max(exponent // 2 for exponent in amplitude_exponents)
+    odd_exponents = tuple(
+        exponent for exponent in amplitude_exponents if exponent % 2 == 1
+    )
+    needs_envelope = any(exponent > 0 for exponent in amplitude_exponents)
+
+    # q=|x|² costs 2M+1A. q¹ is already available, so q²...q^s costs
+    # max(s-1, 0) further scalar multiplications.
+    multiplications_per_delay = (
+        2 + max(maximum_q_power - 1, 0)
+        if needs_envelope
+        else 0
+    )
+    additions_per_delay = 1 if needs_envelope else 0
+    # sqrt(q) supplies r for all odd exponents. r*q^s costs one scalar
+    # multiplication except for r itself (exponent one).
+    multiplications_per_delay += sum(
+        exponent > 1 for exponent in odd_exponents
+    )
+    for exponent in amplitude_exponents:
+        if exponent:
             multiplications_per_delay += 2
         multiplications_per_delay += cmul
         additions_per_delay += cadd
@@ -244,7 +261,9 @@ def memory_polynomial_inference_cost(
             len(delay_tuple) * additions_per_delay
             + 2 * max(term_count - 1, 0)
         ),
-        nonlinear_operations=0,
+        nonlinear_operations=(
+            len(delay_tuple) if odd_exponents else 0
+        ),
         comparisons=len(delay_tuple),
         lookups=0,
         real_memory_reads=(
@@ -255,7 +274,7 @@ def memory_polynomial_inference_cost(
         stored_real_constants=len(order_tuple) + len(delay_tuple),
         notes=(
             f"complex multiply convention {convention}",
-            "shared |x|^2/powers per delay",
+            "shared |x|^2, sqrt, and envelope powers per delay",
             (
                 "analytical arithmetic lower bound; delay-buffer traffic and "
                 "power/address control are not measured"
