@@ -29,6 +29,18 @@ from .spline_memory_dpd import (
     spline_memory_design_matrix,
 )
 from .complexity import memory_polynomial_inference_cost
+from .gmp_pa import (
+    GMPConfig,
+    GMPFitDiagnostics,
+    GMPStreamingState,
+    GMPTerm,
+    GeneralizedMemoryPolynomialPA,
+    fit_gmp_pa,
+    gmp_design_matrix,
+    gmp_segmented_design_matrix,
+    gmp_terms,
+)
+from .complexity import gmp_inference_cost
 
 __all__ = [
     "ComplexLinearSplineDPD",
@@ -49,4 +61,14 @@ __all__ = [
     "fit_ila_sparse_spline_memory_dpd",
     "spline_memory_design_matrix",
     "memory_polynomial_inference_cost",
+    "GMPConfig",
+    "GMPFitDiagnostics",
+    "GMPStreamingState",
+    "GMPTerm",
+    "GeneralizedMemoryPolynomialPA",
+    "fit_gmp_pa",
+    "gmp_design_matrix",
+    "gmp_segmented_design_matrix",
+    "gmp_terms",
+    "gmp_inference_cost",
 ]

@@ -17,6 +17,7 @@ import math
 from typing import Iterable, Literal
 
 ComplexMultiplyConvention = Literal["4m2a", "3m5a"]
+GMPLeadingPolicy = Literal["causal_leading", "opendpd_exact"]
 
 
 @dataclass(frozen=True)
@@ -281,6 +282,156 @@ def memory_polynomial_inference_cost(
             (
                 "analytical arithmetic lower bound; delay-buffer capacity is "
                 "counted, dynamic traffic and power/address control are not measured"
+            ),
+        ),
+    )
+
+
+def gmp_leading_coefficient_count(
+    *,
+    kc: int,
+    lc: int,
+    mc: int,
+    leading_policy: GMPLeadingPolicy,
+) -> int:
+    """Return stored complex leading-branch coefficients.
+
+    ``opendpd_exact`` stores every ``(k,q,lead)`` combination and can require
+    future envelope samples. ``causal_leading`` stores only ``lead <= q``;
+    structural future-term zeros are not counted as coefficients.
+    """
+
+    if kc < 0 or lc < 0 or mc < 0:
+        raise ValueError("GMP leading dimensions must be non-negative")
+    if kc == 0:
+        if lc != 0 or mc != 0:
+            raise ValueError("disabled leading branch requires lc=mc=0")
+        return 0
+    if lc < 1 or mc < 1:
+        raise ValueError("enabled leading branch requires positive lc and mc")
+    if leading_policy == "opendpd_exact":
+        return kc * lc * mc
+    if leading_policy == "causal_leading":
+        return kc * sum(min(mc, q) for q in range(lc))
+    raise ValueError(f"unknown GMP leading policy: {leading_policy}")
+
+
+def gmp_inference_cost(
+    *,
+    ka: int,
+    la: int,
+    kb: int = 0,
+    lb: int = 0,
+    mb: int = 0,
+    kc: int = 0,
+    lc: int = 0,
+    mc: int = 0,
+    leading_policy: GMPLeadingPolicy = "causal_leading",
+    convention: ComplexMultiplyConvention = "4m2a",
+) -> OperationCount:
+    """Count a factorized streaming GMP kernel per complex sample.
+
+    The basis matches ``OpenDPD/benchmark/benchmark_volterra.py``.  Inference
+    is factorized by complex-signal delay:
+
+    ``y[n] = sum_q x[n-q] * h_q(envelope-power streams)``.
+
+    Thus there is one complex multiplication per active base delay, not one
+    per dictionary column.  The count is valid only for an implementation
+    numerically equivalent to this factorization; a dense ``Phi @ c`` kernel
+    is more expensive.
+    """
+
+    if ka < 1 or la < 1:
+        raise ValueError("aligned GMP branch requires positive ka and la")
+    if kb < 0 or lb < 0 or mb < 0:
+        raise ValueError("GMP lagging dimensions must be non-negative")
+    if kb == 0:
+        if lb != 0 or mb != 0:
+            raise ValueError("disabled lagging branch requires lb=mb=0")
+    elif lb < 1 or mb < 1:
+        raise ValueError("enabled lagging branch requires positive lb and mb")
+    leading_count = gmp_leading_coefficient_count(
+        kc=kc,
+        lc=lc,
+        mc=mc,
+        leading_policy=leading_policy,
+    )
+    aligned_count = ka * la
+    lagging_count = kb * lb * mb
+    coefficient_count = aligned_count + lagging_count + leading_count
+    base_delay_count = max(
+        la,
+        lb if kb else 0,
+        lc if kc else 0,
+    )
+    nonlinear_coefficient_count = coefficient_count - la
+    maximum_exponent = max(ka - 1, kb, kc)
+    cmul, cadd = complex_multiply_cost(convention)
+
+    # One current-sample magnitude/power stream is generated and delayed.
+    # |x|² costs 2M+1A; sqrt is separate; r³...r^P cost P-2 products.
+    generator_multiplications = (
+        0
+        if maximum_exponent == 0
+        else 2 + max(maximum_exponent - 2, 0)
+    )
+    generator_additions = 1 if maximum_exponent > 0 else 0
+    multiplications = (
+        generator_multiplications
+        + 2 * nonlinear_coefficient_count
+        + cmul * base_delay_count
+    )
+    additions = (
+        generator_additions
+        + 2 * nonlinear_coefficient_count
+        + cadd * base_delay_count
+        + 2 * max(base_delay_count - 1, 0)
+    )
+
+    lookahead = mc if kc and leading_policy == "opendpd_exact" else 0
+    maximum_raw_delay = base_delay_count - 1
+    power_stream_delays: list[int] = []
+    for exponent in range(1, maximum_exponent + 1):
+        candidates: list[int] = []
+        if exponent <= ka - 1:
+            candidates.append(la - 1)
+        if kb and exponent <= kb:
+            candidates.append(lb - 1 + mb)
+        if kc and exponent <= kc:
+            candidates.append(max(lc - 2, 0))
+        power_stream_delays.append(max(candidates, default=0))
+    state_real_values = (
+        2 * (lookahead + maximum_raw_delay)
+        + sum(lookahead + delay for delay in power_stream_delays)
+    )
+
+    return OperationCount(
+        real_multiplications=multiplications,
+        real_additions=additions,
+        nonlinear_operations=1 if maximum_exponent > 0 else 0,
+        comparisons=0,
+        lookups=0,
+        real_memory_reads=(
+            2 * coefficient_count
+            + nonlinear_coefficient_count
+            + 2 * base_delay_count
+        ),
+        real_memory_writes=(
+            2 + maximum_exponent
+            if maximum_exponent > 0
+            else 2
+        ),
+        stored_real_coefficients=2 * coefficient_count,
+        stored_real_constants=9,
+        state_real_values=state_real_values,
+        notes=(
+            f"complex multiply convention {convention}",
+            "factorized y=sum_q x[n-q]*h_q kernel",
+            f"leading policy {leading_policy}; lookahead={lookahead} samples",
+            (
+                "persistent state stores raw I/Q and delayed amplitude-power "
+                "streams; static addressing assumes no per-sample comparisons"
             ),
         ),
     )
