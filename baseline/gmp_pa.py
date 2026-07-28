@@ -240,7 +240,14 @@ class GMPFitDiagnostics:
     training_scored_samples_interior: int
     segment_length: int
     segment_count: int
-    solver: str = "column_rms_scaled_augmented_complex_lstsq"
+    solver_mode: str
+    svd_rcond: float | None
+    singular_value_maximum: float
+    singular_value_minimum: float
+    singular_value_cutoff: float | None
+    retained_singular_value_minimum: float | None
+    coefficient_l2_norm: float
+    solver: str = "numpy_column_scaled_complex_lstsq"
 
 
 @dataclass(frozen=True)
@@ -475,8 +482,16 @@ def fit_gmp_pa(
     ridge: float = 1e-8,
     segment_length: int,
     coefficient_dtype: np.dtype = np.complex128,
+    solver_mode: Literal["ridge_lstsq", "truncated_svd"] = "ridge_lstsq",
+    svd_rcond: float | None = None,
 ) -> tuple[GeneralizedMemoryPolynomialPA, GMPFitDiagnostics]:
-    """Fit complex GMP coefficients with column-RMS-scaled ridge least squares."""
+    """Fit complex GMP coefficients without forming normal equations.
+
+    ``ridge_lstsq`` solves the column-scaled augmented least-squares system.
+    ``truncated_svd`` matches OpenDPD's rank-controlled GMP policy: columns
+    have unit L2 norm and singular directions below ``svd_rcond * s_max`` are
+    discarded by :func:`numpy.linalg.lstsq`.
+    """
 
     samples = _complex_vector(pa_input, name="pa_input")
     target = _complex_vector(
@@ -487,6 +502,24 @@ def fit_gmp_pa(
         raise ValueError("PA input and measured output must have equal length")
     if not np.isfinite(ridge) or ridge < 0.0:
         raise ValueError("ridge must be finite and non-negative")
+    if solver_mode not in {"ridge_lstsq", "truncated_svd"}:
+        raise ValueError(f"unsupported GMP solver mode: {solver_mode}")
+    if solver_mode == "ridge_lstsq":
+        if svd_rcond is not None:
+            raise ValueError(
+                "svd_rcond is only valid with solver_mode='truncated_svd'"
+            )
+    else:
+        if ridge != 0.0:
+            raise ValueError("truncated_svd requires ridge=0")
+        if (
+            svd_rcond is None
+            or not np.isfinite(svd_rcond)
+            or not 0.0 < svd_rcond < 1.0
+        ):
+            raise ValueError(
+                "truncated_svd requires finite 0 < svd_rcond < 1"
+            )
     if not isinstance(segment_length, (int, np.integer)) or int(segment_length) < 1:
         raise ValueError("segment_length must be a positive integer")
     segment_length = int(segment_length)
@@ -527,7 +560,7 @@ def fit_gmp_pa(
     scaled_coefficients, _, rank, singular_values = np.linalg.lstsq(
         solve_design,
         solve_target,
-        rcond=None,
+        rcond=svd_rcond if solver_mode == "truncated_svd" else None,
     )
     coefficients = (
         scaled_coefficients / column_rms
@@ -544,6 +577,18 @@ def fit_gmp_pa(
         condition = float(singular_values[0] / singular_values[-1])
     else:
         condition = float("inf")
+    singular_value_maximum = float(singular_values[0])
+    singular_value_minimum = float(singular_values[-1])
+    singular_value_cutoff = (
+        singular_value_maximum * float(svd_rcond)
+        if solver_mode == "truncated_svd"
+        else None
+    )
+    retained_singular_value_minimum = (
+        float(singular_values[int(rank) - 1])
+        if solver_mode == "truncated_svd" and int(rank) > 0
+        else None
+    )
     diagnostics = GMPFitDiagnostics(
         sample_count=int(samples.size),
         feature_count=config.coefficient_count,
@@ -562,5 +607,12 @@ def fit_gmp_pa(
         training_scored_samples_interior=int(np.count_nonzero(interior)),
         segment_length=segment_length,
         segment_count=int(np.ceil(samples.size / segment_length)),
+        solver_mode=solver_mode,
+        svd_rcond=svd_rcond,
+        singular_value_maximum=singular_value_maximum,
+        singular_value_minimum=singular_value_minimum,
+        singular_value_cutoff=singular_value_cutoff,
+        retained_singular_value_minimum=retained_singular_value_minimum,
+        coefficient_l2_norm=float(np.linalg.norm(coefficients)),
     )
     return model, diagnostics

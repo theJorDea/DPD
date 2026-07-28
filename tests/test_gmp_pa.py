@@ -212,6 +212,53 @@ class GMPFitTests(unittest.TestCase):
         )
         self.assertEqual(diagnostics.solver_rank, config.coefficient_count)
 
+    def test_truncated_svd_controls_rank_without_normal_equations(self) -> None:
+        config = GMPConfig(ka=2, la=1)
+        phase = np.linspace(0.0, 3.0, 64)
+        x = np.exp(1j * phase)
+        y = (1.2 - 0.3j) * x
+        fitted, diagnostics = fit_gmp_pa(
+            x,
+            y,
+            config=config,
+            ridge=0.0,
+            segment_length=32,
+            solver_mode="truncated_svd",
+            svd_rcond=1e-8,
+        )
+        self.assertEqual(diagnostics.solver_mode, "truncated_svd")
+        self.assertEqual(diagnostics.solver_rank, 1)
+        self.assertIsNotNone(diagnostics.singular_value_cutoff)
+        np.testing.assert_allclose(
+            fitted.predict_segments(x, 32),
+            y,
+            rtol=1e-12,
+            atol=1e-12,
+        )
+
+    def test_truncated_svd_rejects_ridge_or_missing_cutoff(self) -> None:
+        x = np.ones(16, dtype=np.complex128)
+        config = GMPConfig(ka=1, la=1)
+        with self.assertRaisesRegex(ValueError, "requires ridge=0"):
+            fit_gmp_pa(
+                x,
+                x,
+                config=config,
+                ridge=1e-8,
+                segment_length=8,
+                solver_mode="truncated_svd",
+                svd_rcond=1e-4,
+            )
+        with self.assertRaisesRegex(ValueError, "requires finite"):
+            fit_gmp_pa(
+                x,
+                x,
+                config=config,
+                ridge=0.0,
+                segment_length=8,
+                solver_mode="truncated_svd",
+            )
+
 
 class GMPCostTests(unittest.TestCase):
     def test_budgeted_and_full_opendpd_counts(self) -> None:
