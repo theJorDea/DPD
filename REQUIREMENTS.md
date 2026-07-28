@@ -13,22 +13,21 @@
 ### 1.1 Постановка
 
 На слайдах задача сформулирована прежде всего как идентификация нелинейной
-RF-системы с памятью. Для complex time sequences \(X\) и \(Y\) требуется
-подобрать отображение \(f\), минимизирующее ошибку
+RF-системы, для которой memory effects отдельно названы среди challenges.
+\(X\), \(Y\) и \(D\) описаны как one-dimensional complex time sequences.
+Обозначения на слайде неоднозначны: mapping записан как \(f:X\to D\), но ниже
+ошибка сравнивает \(f(X)\) с \(Y\):
 
 \[
 \mathcal E(f)=\lVert f(X)-Y\rVert_2^2.
 \]
 
-Слайды также связывают идентификацию с построением inverse-компонента, который
-создаёт искажения противоположного знака и тем самым компенсирует аналоговую
-нелинейность. Из этого следуют две связанные, но разные задачи:
-
-1. forward identification: \(x \rightarrow \widehat P \rightarrow \hat y\);
-2. inverse/predistortion:
-   \(x_\mathrm{desired}\rightarrow D\rightarrow P\rightarrow y\approx gx\).
-
-Слайд не разрешает объединять их в один круговой reconstruction score.
+Слайды также связывают identification/inversion с построением нелинейного
+компонента, поведение которого противоположно нелинейности аналоговой схемы.
+Однако они не задают формальный forward/inverse interface, эксплуатационный
+вход predistorter, target gain или test path. Двухконтурная постановка и запрет
+круговой DPD-оценки ниже являются рабочим контрактом из постановки пользователя
+и проверенного OpenDPD pipeline, а не восстановленным требованием слайда.
 
 ### 1.2 Явно названные модельные классы
 
@@ -36,6 +35,8 @@ RF-системы с памятью. Для complex time sequences \(X\) и \(Y\
 
 - Volterra series;
 - Memory Polynomial;
+- Generalized Memory Polynomial (GMP), показанный формулой с cross-memory
+  terms;
 - neural-network behavioral models;
 - canonical piecewise-linear / CPWL models с локальным нелинейным базисом.
 
@@ -54,9 +55,9 @@ RF-системы с памятью. Для complex time sequences \(X\) и \(Y\
 - charge-trapping memory, зависящая от истории напряжения и захвата/эмиссии
   зарядов в semiconductor/2DEG.
 
-Следовательно, чисто memoryless PA model недостаточен как окончательная модель.
-State-conditioned/slow-memory variant следует добавлять только после
-остаточного анализа, подтверждающего соответствующий time scale.
+Следовательно, memory behavior входит в область исследования. Однако по
+слайдам нельзя установить, какие именно memory mechanisms наблюдаемы в
+конкретном capture и требуется ли для них отдельное slow state.
 
 ### 1.4 Явные цели
 
@@ -66,15 +67,28 @@ State-conditioned/slow-memory variant следует добавлять толь
 - низкую сложность, на слайде грубо связываемую с числом multipliers;
 - коэффициенты, пригодные для real-time calculation;
 - обучение на training sets реальной схемы;
-- проверку сначала на публичных воспроизводимых данных, затем на real-world
-  service data.
+- self-verification на конкретных public data и parameter settings с
+  воспроизводимым output;
+- последующую verification на real-world service data, подтверждающую
+  performance, complexity и real-time computing indicators.
 
 На слайде явно указаны два численных ограничения:
 
 - modeling error \(\mathcal E(f)<10^{-5}\) на verification set;
 - менее 1000 real multipliers.
 
-### 1.5 Что нельзя автоматически заключить из этих формулировок
+### 1.5 Мотивация на слайде, но не нормативные критерии
+
+Background slide утверждает, что RF nonlinearity ухудшает signal quality и
+вызывает spectral spreading. В качестве ожидаемых benefits названы улучшение
+эффективности PA более чем на 5%, снижение power consumption digital chips и
+ожидаемое улучшение integration на 50% для 5G massive MIMO.
+
+На слайде нет baseline, определения метрик или acceptance procedure для этих
+чисел. Поэтому они фиксируются только как motivation claims, а не как
+подтверждённые требования или результаты проекта.
+
+### 1.6 Что нельзя автоматически заключить из этих формулировок
 
 Формула на слайде использует ненормированную squared \(L_2\)-норму. Поэтому
 \(10^{-5}\) нельзя без уточнения объявить ни MSE, ни normalized error power, ни
@@ -149,11 +163,12 @@ g_\mathrm{peak}=\max|y_\mathrm{train}|/\max|x_\mathrm{train}|,
 `complex_ls` должны оставаться разными явно названными protocols.
 
 Длительность train/validation records составляет лишь 28.8/9.6 µs для DPA и
-примерно 60/20 µs для APA. Этого достаточно для проверки кратковременной
-electrical memory, но недостаточно, чтобы по этим данным заявлять
-идентификацию миллисекундной thermal drift. State-conditioned model допустим
-только при воспроизводимой residual correlation на наблюдаемом time scale;
-длинная thermal-memory проверка требует отдельного capture.
+примерно 60/20 µs для APA. Она ограничивает доступный для идентификации time
+horizon и позволяет искать residual structure только внутри наблюдаемого
+record, но сама по себе не доказывает достаточность данных даже для всех видов
+short electrical memory. По этим captures нельзя делать выводы об эффектах на
+более длинных time scales; их проверка требует отдельного более длинного
+capture.
 
 ### 2.3 Метрики OpenDPD требуют compatibility-label
 
@@ -196,6 +211,13 @@ PA checkpoint, gain/alignment/framing и evaluator для честного ср�
 считаются открытыми, а принятые в экспериментах значения — только внутренним
 research protocol.
 
+### 3.0 Статус и владелец требований
+
+- Какой authoritative specification, revision и owner определяют acceptance?
+- Являются ли предоставленные слайды нормативным документом, summary или
+  предварительной постановкой?
+- Какие требования являются hard gates, а какие только optimization goals?
+
 ### 3.1 Определение качества
 
 - Что именно есть \(\mathcal E(f)<10^{-5}\): SSE, MSE, normalized MSE,
@@ -204,11 +226,15 @@ research protocol.
 - Усреднение идёт по samples, frames, captures, carriers или operating points?
 - Каковы обязательные NMSE, EVM и ACLR/ACPR limits и channel masks?
 - Нужны ли worst-case/percentile gates, а не только mean?
+- Как разрешается Pareto trade-off между fidelity, multiplier count,
+  coefficient-update latency, memory, power и area?
 
 ### 3.2 Объект идентификации
 
 - Требование относится к forward PA model, inverse model, полному DPD cascade
   или ко всем трём?
+- Какова точная семантика \(X\), \(Y\), \(D\) и mapping \(f:X\to D\), если
+  приведённый loss сравнивает \(f(X)\) с \(Y\)?
 - Какой PA/DUT: topology, carrier frequency, bandwidth, sampling rate, output
   power/backoff, waveform, PAPR, antenna/array configuration?
 - Включён ли measurement feedback path в модель или он предварительно
@@ -247,15 +273,25 @@ research protocol.
 ### 3.6 Данные и acceptance
 
 - Какие public и private service datasets являются официальными?
+- Какие exact dataset versions, parameter settings, seeds, reference outputs и
+  numerical tolerances образуют public self-verification contract?
 - Как зафиксированы train/validation/verification/test и guard intervals?
 - Требуется ли generalization между waveform/power/bandwidth, между экземплярами
   одного PA или между разными PA?
 - Сколько seeds/captures необходимо для confidence intervals?
 - Какая physical-PA процедура является окончательным acceptance test?
 
+### 3.7 Заявленные benefits
+
+- Являются ли `>5%` PA-efficiency improvement, снижение digital-chip power и
+  `50%` integration improvement реальными acceptance targets?
+- Если да, как определены efficiency, digital power и integration, относительно
+  какого baseline, на каких operating points и каким способом они измеряются?
+
 ## Рабочая интерпретация до получения ответов
 
-Проект временно ведётся как двухконтурная задача:
+На основании пользовательской постановки и проверенного OpenDPD pipeline, а не
+только двух слайдов, проект временно ведётся как двухконтурная задача:
 
 ```text
 Контур A: x -> low-complexity PA model -> y_hat, compare with measured y
@@ -265,6 +301,16 @@ research protocol.
 Architecture selection использует только train/validation. Test открывается
 после freeze. DPA_200MHz и APA_200MHz являются разными физическими PA и не
 смешиваются как обычный train/test split.
+
+В честном DPD test на вход DPD подаётся desired \(x_\mathrm{test}\), а measured
+\(y_\mathrm{test}\) не используется как DPD input. Путь
+\(y/g\rightarrow\widehat P^{-1}\rightarrow\hat x\rightarrow\widehat P
+\rightarrow\hat y\) допустим только как явно обозначенный ILA/inverse-forward
+diagnostic и не доказывает predistortion нового desired input.
+
+Memoryless model остаётся обязательным baseline. State-conditioned/slow-memory
+variant добавляется только после residual evidence соответствующего time scale
+на train/validation или после получения подходящего длинного capture.
 
 Внутренний provisional gate для surrogate-based DPD:
 
