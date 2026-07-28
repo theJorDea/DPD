@@ -4,9 +4,11 @@
 
 Главное изменение относительно первого этапа: дальнейшее улучшение DPD
 приостановлено, пока независимый PA evaluator не станет заметно точнее
-оцениваемого DPD residual. Текущий memory-polynomial PA surrogate имеет
-test fidelity около −30…−31 dB, а spline-memory DPD уже достигает до −32.7 dB
-на том же evaluator. Это делает optimizer/evaluator coupling главным риском.
+оцениваемого DPD residual. Legacy memory-polynomial surrogate первого этапа
+имел test fidelity около −30…−31 dB, а spline-memory DPD уже достигал до
+−32.7 dB на том же evaluator. Новый validation-selected MP forward model
+улучшил measured-output fidelity до −35.10 dB на DPA и −36.99 dB на APA,
+но provisional 10 dB evaluator margin всё ещё не выполнен.
 
 ## Правила выполнения
 
@@ -31,7 +33,7 @@ test fidelity около −30…−31 dB, а spline-memory DPD уже дост�
 
 ## Этап A1. Единый PA-model evaluator
 
-Статус: следующий implementation task.
+Статус: завершён для floating-point forward PA baseline.
 
 Один неизменяемый путь:
 
@@ -49,25 +51,51 @@ x_split -> PA model -> y_hat_split -> compare with measured y_split
 - stored coefficients/state bytes;
 - fixed-point interface and streaming chunk equivalence.
 
-Первый commit этого этапа: evaluator contract, result schema и unit tests без
-добавления новых моделей.
+Реализовано:
+
+- train-frozen alignment/gain/framing protocol;
+- pooled и OpenDPD-compatible NMSE, spectral и AM/AM/AM/PM diagnostics;
+- common-warmup score;
+- отдельный integrity-gated test command, который проверяет hashes до первого
+  чтения test;
+- unit tests на sealed test, frame reset и отсутствие post-hoc gain/delay fit.
+
+Основные файлы: `baseline/pa_benchmark.py`,
+`experiments/evaluate_frozen_pa.py`, `tests/test_pa_benchmark.py`,
+`tests/test_evaluate_frozen_pa.py`.
 
 ## Этап A2. PA baselines
 
+Статус: MP завершён; GMP в работе; локального OpenDPD checkpoint нет.
+
 Порядок:
 
-1. Memory Polynomial с validation grid order/memory/ridge.
-2. GMP с column normalization, SVD/rank control.
-3. OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
+1. [x] Memory Polynomial с validation grid order/memory/ridge.
+2. [ ] GMP с column normalization, SVD/rank control.
+3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
    воспроизводимо обучен.
-4. Sparse complex spline-memory PA.
-5. Spline/CPWL memoryless nonlinearity + short complex FIR.
-6. State-conditioned variant только при residual evidence slow state.
+4. [ ] Sparse complex spline-memory PA.
+5. [ ] Spline/CPWL memoryless nonlinearity + short complex FIR.
+6. [ ] State-conditioned variant только при residual evidence slow state.
 
 Каждый baseline получает самостоятельный commit: model + tests, затем config +
 result artifact. Нельзя менять evaluator одновременно с моделью.
 
+Текущие MP results:
+
+| Dataset | Selected model | Validation pooled NMSE | Frozen test pooled NMSE | MUL/sample |
+|---|---|---:|---:|---:|
+| DPA_200MHz | odd orders 1…9, 24 delays | −34.962 dB | −35.099 dB | 792 |
+| APA_200MHz | powers 1…5, 30 delays | −37.095 dB | −36.990 dB | 960 |
+
+GMP kernel уже имеет causal leading policy, factorized streaming inference,
+exact operation/state count и column-scaled ridge/truncated-SVD fit. Следующая
+задача — validation-only topology selection и только затем frozen test.
+
 ## Этап A3. Residual analysis
+
+Статус: завершён для выбранных MP models; повторяется после каждого нового
+frozen PA baseline.
 
 На validation residual \(e[n]=y[n]-\hat y[n]\) измерить:
 
@@ -89,6 +117,12 @@ result artifact. Нельзя менять evaluator одновременно с
 
 Артефакты: code + `PA_MODEL_BENCHMARK.md`, отдельный residual JSON/CSV.
 
+MP residual evidence показывает short electrical memory, особенно для APA
+(residual ACF lag 1 около 0.43), и устойчивую корреляцию с GMP cross-memory
+terms. High-amplitude bins не являются главным источником ошибки. Длительности
+captures недостаточно для вывода о thermal memory, поэтому state-conditioned
+ветвь пока заблокирована.
+
 ## Gate A→B
 
 DPD optimization возобновляется, только если:
@@ -105,6 +139,16 @@ Margin 10 dB — временный внутренний conservative research c
 уточнения acceptance protocol или после physical-PA cross-validation.
 
 Если gate не выполнен, DPD numbers остаются diagnostic surrogate-only.
+
+Текущий projected margin — не завершённый cascade experiment:
+
+| Dataset | New MP PA test fidelity | Existing spline-DPD residual | Projection margin |
+|---|---:|---:|---:|
+| DPA_200MHz | −35.099 dB | −29.864 dB | 5.235 dB |
+| APA_200MHz | −36.990 dB | −32.741 dB | 4.250 dB |
+
+Existing spline DPD ещё не прогонялся как cascade через новые frozen MP
+models; таблица служит только gate arithmetic и не является DPD result.
 
 ## Этап B1. Frozen-evaluator DPD benchmark
 
