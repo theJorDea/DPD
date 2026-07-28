@@ -1,0 +1,26 @@
+# Local environments and Python caches
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local IDE/OS state
+.idea/
+.vscode/
+.DS_Store
+.codex/
+.agents/
+
+# Temporary experiment files
+*.tmp
+*.swp
+*.swo
+experiments/results/**/tmp/
+
+# Nested upstream repositories are published as submodule pointers.
+vendor/*/.git/

@@ -1,0 +1,39 @@
+{
+  "alignment": {
+    "delay_sign_convention": "positive means PA output lags PA input; crop input[:-d], output[d:]",
+    "fractional_delay": "diagnostic only; no fractional resampling was applied",
+    "integer_delay_samples": 0
+  },
+  "artifact_type": "complex_linear_spline_deployment_manifest",
+  "dataset": {
+    "directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/APA_200MHz",
+    "spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a"
+  },
+  "feedback_path_precondition": "input/output CSVs are assumed already corrected for DC offset, IQ imbalance and feedback frequency response; this pipeline does not estimate those corrections",
+  "knots": {
+    "coordinate": "amplitude",
+    "count": 8,
+    "endpoint_policy": "clamp complex correction C outside knot range",
+    "maximum": 1.0000000000000002,
+    "minimum": 0.0,
+    "strategy": "uniform_power"
+  },
+  "model_equation": "z[n] = x[n] * C(abs(x[n]))",
+  "model_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_apa200_opendpd_peak/spline_model.npz",
+  "model_sha256": "97ae13ab90bcc3fd8f2cacdcd520de5c59c79efdce7879419be8bac3bf44f585",
+  "normalization": {
+    "calibration_observation": "aligned measured PA output / target gain",
+    "input_full_scale": "not frozen here; fixed-point export must explicitly choose and record it",
+    "sample_iq_scaling": "none"
+  },
+  "phase_equivariance": "exact in floating point",
+  "schema_version": 1,
+  "target_gain": {
+    "definition": "max(abs(y_train))/max(abs(x_train)); training split only; matches vendor/OpenDPD/utils/util.py set_target_gain",
+    "strategy": "opendpd_peak",
+    "value": {
+      "imag": 0.0,
+      "real": 0.9999999999999998
+    }
+  }
+}

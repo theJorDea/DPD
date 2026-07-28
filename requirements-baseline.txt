@@ -1,0 +1,8 @@
+# NumPy-only reference implementation and deterministic evaluator.
+numpy==2.5.1
+
+# Optional audit/reproduction environment (not required by baseline/*.py):
+# scipy==1.18.0
+# pandas==3.0.5
+# scikit-learn==1.8.0
+# matplotlib==3.10.9

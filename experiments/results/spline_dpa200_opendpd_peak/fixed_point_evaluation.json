@@ -1,0 +1,235 @@
+{
+  "alignment": {
+    "frozen_integer_delay_samples": 0,
+    "test_delay_retuned": false
+  },
+  "artifact_type": "frozen_spline_fixed_point_emulation",
+  "claims_scope": {
+    "bit_true_rtl": false,
+    "fp16_emulation": "component FP16 storage with explicit FP32 interpolation and product; not a vendor accelerator claim",
+    "hardware_latency_or_resources": false,
+    "integer_emulation": "numerical arithmetic reference; magnitude uses rounded NumPy sqrt and is not an RTL implementation",
+    "physical_pa_result": false
+  },
+  "complex128_floating_reference": {
+    "cascade_metrics": {
+      "causal_warmup_samples_per_segment": 4,
+      "complex_nmse_pooled_db": -21.274936957375786,
+      "discarded_causal_warmup_samples_total": 12,
+      "mse": 0.006394248343088256,
+      "relative_error_power": 0.007456006951639802,
+      "sample_count": 7668,
+      "segment_length": 2560,
+      "time_domain_rms_evm_db": -21.274936957375786,
+      "warmup_policy": "discard_at_every_segment_start"
+    },
+    "dpd_output": {
+      "papr_db": 10.097826918460084,
+      "peak_amplitude": 0.9163872782293366
+    },
+    "spectral_metrics": {
+      "opendpd_aclr_db": {
+        "average": -52.255036502648494,
+        "left": -52.59791126521993,
+        "right": -51.91216174007707
+      },
+      "opendpd_spectral_evm_db": -21.537924429778915
+    }
+  },
+  "dataset": {
+    "aligned_test_samples": 7680,
+    "directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/DPA_200MHz",
+    "identity_check": {
+      "actual_spec_sha256": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+      "expected_spec_sha256": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+      "matched": true,
+      "mismatches": [],
+      "override_used": false,
+      "train_validation_hashes_checked": true
+    },
+    "raw_test_samples": 7680,
+    "test_input_sha256": "262e1fe4365992735ef9d6f67c4ff557e8e4d8a4f4885b7bc5c7011d07f1b4c0"
+  },
+  "formats": {
+    "fp16_like_storage": {
+      "cascade_metrics": {
+        "causal_warmup_samples_per_segment": 4,
+        "complex_nmse_pooled_db": -21.27458241550646,
+        "discarded_causal_warmup_samples_total": 12,
+        "mse": 0.006394770367058938,
+        "relative_error_power": 0.0074566156571741335,
+        "sample_count": 7668,
+        "segment_length": 2560,
+        "time_domain_rms_evm_db": -21.27458241550646,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "dpd_output_papr_db": 10.097453863977657,
+      "dpd_output_peak_amplitude": 0.9163494030686007,
+      "dpd_output_vs_float_nmse_db": -69.52399947184772,
+      "emulation": "real/imaginary values rounded to float16 storage and promoted to float32 arithmetic",
+      "output_bits": null,
+      "output_full_scale": null,
+      "phase_equivariance_nmse_db": -67.3253310907812,
+      "phase_equivariance_rotation_rad": 0.731,
+      "phase_equivariance_rotation_saturations": null,
+      "spectral_metrics": {
+        "opendpd_aclr_db": {
+          "average": -52.20726443699519,
+          "left": -52.52882796667733,
+          "right": -51.885700907313044
+        },
+        "opendpd_spectral_evm_db": -21.53749771003782
+      }
+    },
+    "signed12_reference": {
+      "accumulator_bits": 32,
+      "accumulator_saturations": 0,
+      "cascade_metrics": {
+        "causal_warmup_samples_per_segment": 4,
+        "complex_nmse_pooled_db": -21.27278920821466,
+        "discarded_causal_warmup_samples_total": 12,
+        "mse": 0.006397411320848444,
+        "relative_error_power": 0.007459695138726457,
+        "sample_count": 7668,
+        "segment_length": 2560,
+        "time_domain_rms_evm_db": -21.27278920821466,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "coefficient_bits": 12,
+      "coefficient_saturations": 0,
+      "coefficient_scale": 0.0004467778421525054,
+      "dpd_output_papr_db": 10.099790004247936,
+      "dpd_output_peak_amplitude": 0.9166780884239865,
+      "dpd_output_vs_float_nmse_db": -58.20481382254321,
+      "input_bits": 12,
+      "input_saturations": 0,
+      "input_scale": 0.0004885197850512946,
+      "interpolation_fraction_bits": 16,
+      "knot_code_collision_count": 0,
+      "maximum_accumulator_magnitude": 4157870,
+      "maximum_knot_code_shift": 0,
+      "output_bits": 12,
+      "output_full_scale": 1.5,
+      "output_saturations": 0,
+      "output_scale": 0.0007327796775769418,
+      "phase_equivariance_nmse_db": -55.479764452052734,
+      "phase_equivariance_rotation_rad": 0.731,
+      "phase_equivariance_rotation_saturations": {
+        "accumulator": 0,
+        "coefficient": 0,
+        "input": 0,
+        "output": 0
+      },
+      "spectral_metrics": {
+        "opendpd_aclr_db": {
+          "average": -52.0888681862406,
+          "left": -52.463604994474046,
+          "right": -51.71413137800715
+        },
+        "opendpd_spectral_evm_db": -21.536859217683023
+      }
+    },
+    "signed16_reference": {
+      "accumulator_bits": 40,
+      "accumulator_saturations": 0,
+      "cascade_metrics": {
+        "causal_warmup_samples_per_segment": 4,
+        "complex_nmse_pooled_db": -21.2750262572912,
+        "discarded_causal_warmup_samples_total": 12,
+        "mse": 0.006394116865487345,
+        "relative_error_power": 0.007455853642313393,
+        "sample_count": 7668,
+        "segment_length": 2560,
+        "time_domain_rms_evm_db": -21.2750262572912,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "coefficient_bits": 16,
+      "coefficient_saturations": 0,
+      "coefficient_scale": 2.7910832327835274e-05,
+      "dpd_output_papr_db": 10.097847087511461,
+      "dpd_output_peak_amplitude": 0.9163891688054054,
+      "dpd_output_vs_float_nmse_db": -82.31574224251557,
+      "input_bits": 16,
+      "input_saturations": 0,
+      "input_scale": 3.051850947599719e-05,
+      "interpolation_fraction_bits": 16,
+      "knot_code_collision_count": 0,
+      "maximum_accumulator_magnitude": 1065414218,
+      "maximum_knot_code_shift": 0,
+      "output_bits": 16,
+      "output_full_scale": 1.5,
+      "output_saturations": 0,
+      "output_scale": 4.577776421399579e-05,
+      "phase_equivariance_nmse_db": -79.59712805386468,
+      "phase_equivariance_rotation_rad": 0.731,
+      "phase_equivariance_rotation_saturations": {
+        "accumulator": 0,
+        "coefficient": 0,
+        "input": 0,
+        "output": 0
+      },
+      "spectral_metrics": {
+        "opendpd_aclr_db": {
+          "average": -52.25334166484334,
+          "left": -52.5952285173224,
+          "right": -51.91145481236428
+        },
+        "opendpd_spectral_evm_db": -21.537962087306358
+      }
+    }
+  },
+  "framing": {
+    "segment_length": 2560,
+    "surrogate_state_reset": "zero at every segment boundary",
+    "warmup_samples_per_segment": 4
+  },
+  "pa_surrogate": {
+    "metadata": {
+      "causal_padding": "zeros_before_record_or_segment_start",
+      "delays": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "feature_order": "delay_major_then_order",
+      "model_type": "complex_memory_polynomial_pa",
+      "orders": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "partial_final_segment": "evaluated_without_end_padding",
+      "segment_state_reset": "zero_state_at_each_predict_segments_boundary",
+      "surrogate_scope": "behavioral_model_only"
+    },
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_dpa200_opendpd_peak/pa_surrogate.npz",
+    "sha256": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a"
+  },
+  "quantization_scales_frozen_before_test_scoring": {
+    "coefficient_full_scale": 0.9145542428861785,
+    "input_full_scale": 1.0,
+    "output_full_scale": 1.5,
+    "scale_source": "protocol constant for input/output; coefficient scale from frozen training-selected model only"
+  },
+  "schema_version": 1,
+  "scope": "surrogate_only_when_cascade_metrics_are_present",
+  "selected_configuration": {
+    "compression_power": 2.0,
+    "effective_knot_count": 16,
+    "knot_strategy": "quantile",
+    "requested_knot_count": 16,
+    "ridge": 1e-07,
+    "smoothness": 0.0
+  },
+  "spline_model_sha256": "58f89e8a779380ca379d8ba45e5d3c0e72e1d772da7bc9b09d4b51abe2cef5c1",
+  "target_gain": {
+    "imag": 0.0,
+    "real": 2.520808998300874
+  },
+  "test_was_not_used_for_selection": true,
+  "training_report": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_dpa200_opendpd_peak/training_report.json"
+}

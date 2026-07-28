@@ -1,0 +1,11 @@
+[submodule "vendor/OpenDPD"]
+	path = vendor/OpenDPD
+	url = https://github.com/lab-emi/OpenDPD.git
+
+[submodule "vendor/DPD_for_PA"]
+	path = vendor/DPD_for_PA
+	url = https://github.com/EgorMa1tsev/DPD_for_PA.git
+
+[submodule "vendor/chaotic_library"]
+	path = vendor/chaotic_library
+	url = https://github.com/CapitalistGeorge/chaotic_library.git

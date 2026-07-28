@@ -1,0 +1,74 @@
+{
+  "artifact_type": "egor_notebook_cpu_reproduction",
+  "circular_inverse_forward_test": {
+    "complex_nmse_pooled_db": -32.08628409139919,
+    "dpd_input": "test_output / gain",
+    "mse_i": 0.0002462731973103203,
+    "mse_q": 0.0005944722823726637,
+    "r2_i": 0.9996461742272463,
+    "r2_q": 0.9991036305162445
+  },
+  "claims_scope": {
+    "circular_result": "inverse-forward consistency diagnostic only",
+    "correct_direction_result": "frozen PA surrogate only",
+    "physical_pa_result": false,
+    "validation_used": false
+  },
+  "correct_direction_surrogate_test": {
+    "complex_nmse_pooled_db": -28.20915910634236,
+    "desired_peak_amplitude": 1.0000000003701608,
+    "dpd_input": "test_input desired signal",
+    "mse_i": 0.0007709646425930068,
+    "mse_q": 0.0013270121587865863,
+    "predistorted_peak_amplitude": 1.195227591977528,
+    "r2_i": 0.9989170582192037,
+    "r2_q": 0.998040237021801,
+    "target": "gain * test_input"
+  },
+  "dataset": {
+    "test_samples": 7680,
+    "train_samples": 23040,
+    "validation_files_present": false
+  },
+  "environment": {
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.6"
+  },
+  "notebook_parameters": {
+    "dpd_reservoir_size": 600,
+    "dpd_seeds": [
+      100,
+      101
+    ],
+    "fan_terms": 8,
+    "gain": 3.2102965189430854,
+    "gain_definition": "mean absolute Cartesian I/Q ratio",
+    "pa_reservoir_size": 800,
+    "pa_seeds": [
+      42,
+      43
+    ],
+    "polynomial_order": 2,
+    "ridge_alpha": 0.01,
+    "sparsity_argument": 0.1
+  },
+  "pa_test": {
+    "complex_nmse_pooled_db": -31.670121682132685,
+    "mse_i": 0.00039629922944467964,
+    "mse_q": 0.0005289969775786891,
+    "r2_i": 0.9994306287382007,
+    "r2_q": 0.999202356843606
+  },
+  "schema_version": 1,
+  "source": {
+    "chaotic_library_source": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/chaotic_library/src",
+    "data_directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/DPD_for_PA/data1",
+    "notebook": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/DPD_for_PA/MY_PA_DPD.ipynb"
+  },
+  "timing_seconds": {
+    "dpd_pair_fit": 4.638355813000089,
+    "pa_pair_fit": 6.1805419309985155,
+    "total": 15.866302353999345
+  }
+}

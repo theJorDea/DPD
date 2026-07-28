@@ -1,0 +1,22 @@
+{
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "output_dir": "experiments/results/spline_apa200_surrogate",
+  "knot_counts": [8, 12, 16, 24, 32, 48, 64],
+  "knot_strategies": [
+    "uniform_amplitude",
+    "uniform_power",
+    "quantile",
+    "compression_aware"
+  ],
+  "ridges": [0.0, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2],
+  "smoothnesses": [0.0],
+  "compression_power": 2.0,
+  "alignment_max_delay": 32,
+  "gain_strategy": "complex_ls",
+  "fit_pa_surrogate": true,
+  "pa_orders": [1, 3, 5, 7, 9],
+  "pa_delays": [0, 1, 2, 3, 4],
+  "pa_ridge": 1e-8,
+  "selection_metric": "auto",
+  "overwrite": false
+}

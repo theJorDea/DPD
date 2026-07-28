@@ -1,0 +1,34 @@
+{
+  "generated": "2026-07-28",
+  "workspace_git_repository": false,
+  "vendor_commits": {
+    "OpenDPD": "7426bbf8a47624b59bd7f045a86641b403023f3c",
+    "DPD_for_PA": "8e8127cfbea4b2d67cc3d944514b4835e4c7e947",
+    "chaotic_library": "f4ebc3e7c302e83d2eb1c44244f5ecd6e2d884ce"
+  },
+  "hash_algorithm": "SHA-256",
+  "implementation_files": {
+    "baseline/__init__.py": "38a90da0a444d4a5a476eacfe46889750de36a5dc39dd6f52ee1aae124f2059e",
+    "baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+    "baseline/complexity.py": "698dffaf359282fa169baad84b46b8f78b0ea83ad8cd0a9434e8874373b98aca",
+    "baseline/evaluate_spline.py": "53142bb06ab3fe8a017d3baeb225e21602470c80352c8e18685cb1d3a902272d",
+    "baseline/fixed_point.py": "44835eb45465b6fe5b4aef7d761d1b69977027b05bdbf5570e2430c5f96444fc",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/pa_models.py": "16d003361e3bfd95888d1f420b7963b8814c6cc9996d1f4f8f5a1ac74b5ae935",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "experiments/evaluate_fixed_point.py": "d419b2ac4cf3848a878523463d0aa2f818d7f4762001369367430513f00ce741",
+    "experiments/reproduce_egor.py": "b0922091506d963f442dbae8700d942bebdc40e820f6894e241814a84c7b1d8d",
+    "experiments/run_spline_memory_ablation.py": "2f0ee227c587817d8b928acf35a915b8e1a3241cee07ef34ac3d906773439355"
+  },
+  "test_files_sha256": {
+    "tests/test_alignment.py": "f4cf98b245322e18dd5782f4051275af4a3e42cb5990f7cf13366936baec1e2f",
+    "tests/test_complex_regression.py": "0f42bdcaa8705036f4b55a8ac6d70217e2a2efc14b62eb9df8f2c64765010bdd",
+    "tests/test_complexity_count.py": "e8a7aeb3bdab61e19c110eefce44f906932e640c45ecf51ca6d9179728413e14",
+    "tests/test_dpd_direction.py": "6e6b384395031ec6324dcc1480e9da61f37c1ed564d91dc2c0581d8df6e8298f",
+    "tests/test_fixed_point.py": "54a74b9037ab9bfb41368ed7e63f089a885b5f4e73e920e27cacaa676f99351e",
+    "tests/test_spline_basis.py": "4570066e26fe55c89668f472127b52a2e2bc3376441b022421c9dfd96798d4f3",
+    "tests/test_spline_memory_dpd.py": "570fe1578e77d3f8e15a31b2683cfb9cf974aa6823cb3ee20e717aa725ca1517"
+  }
+}
