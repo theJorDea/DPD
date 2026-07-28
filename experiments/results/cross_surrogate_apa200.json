@@ -1,0 +1,196 @@
+{
+  "alignment": {
+    "frozen_integer_delay_samples": 0,
+    "test_delay_retuned": false
+  },
+  "alternate_surrogate": {
+    "delays": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "diagnostics": {
+      "augmented_design_condition_number": 6464.825118626898,
+      "causal_warmup_samples": 6,
+      "feature_count": 42,
+      "gram_condition_number": 41793963.81442928,
+      "maximum_training_input_amplitude": 1.0000000000000002,
+      "ridge": 1e-08,
+      "sample_count": 58980,
+      "segment_count": 3,
+      "segment_length": 19662,
+      "solver": "augmented_complex_lstsq",
+      "solver_rank": 42,
+      "state_reset_policy": "zero_history_at_every_segment_start",
+      "training_mse_after_warmup": 0.00010137272213948899,
+      "training_mse_full": 0.00010191721540907971,
+      "training_nmse_db_after_warmup": -31.316136501033505,
+      "training_nmse_db_full": -31.293190776776292,
+      "training_relative_error_power_after_warmup": 0.0007385609643975081,
+      "training_relative_error_power_full": 0.0007424734396203024,
+      "training_scored_samples_after_warmup": 58962
+    },
+    "fit_seconds": 0.35546507199978805,
+    "orders": [
+      1,
+      3,
+      5,
+      7,
+      9,
+      11
+    ],
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/cross_surrogate_apa200_pa_surrogate.npz",
+    "segment_length": 19662,
+    "sha256": "7ee786b4f9641c645e3d6a966a8eb06dc1ff8c568ae2c791956cfaaa91fbefda"
+  },
+  "artifact_type": "cross_surrogate_sensitivity",
+  "dataset": {
+    "directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/APA_200MHz",
+    "identity_check": {
+      "actual_spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "expected_spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "matched": true,
+      "mismatches": [],
+      "override_used": false,
+      "train_validation_hashes_checked": true
+    },
+    "spec": {
+      "bw_main_ch": 200000000.0,
+      "bw_sub_ch": 40000000.0,
+      "cp_first": 2560,
+      "cp_other": 2304,
+      "dataset_format": "split_csv",
+      "description": "5-carrier LTE 20MHz (TM3.1a 256QAM), APA device. Generated at 491.52MHz (SCS=15kHz), transmitted/captured at 983.04MHz (effective SCS=30kHz, BW=200MHz).",
+      "input_signal_fs": 983040000.0,
+      "modulation": "256QAM",
+      "n_active": 600,
+      "n_sub_ch": 5,
+      "nperseg": 19662,
+      "ofdm_nfft": 32768,
+      "papr_db": 10.0,
+      "scs": 30000.0,
+      "split_ratios": {
+        "test": 0.2,
+        "train": 0.6,
+        "val": 0.2
+      },
+      "standard": "LTE",
+      "test_model": "TM3.1a"
+    },
+    "spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a"
+  },
+  "models": {
+    "signal_delay_012": {
+      "dpd_warmup_samples": 2,
+      "model_type": "phase_equivariant_sparse_spline_memory_dpd",
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_apa200/signal_delay_012.npz",
+      "sha256": "7e37cff04f931b16f3e124221e910234c649e760d1e1c39bc40356eb09daa46d",
+      "test_cascade_vs_ideal": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -32.495037613534386,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 7.525832025098929e-05,
+        "relative_error_power": 0.0005629842414587412,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -32.495037613534386,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "test_surrogate_fidelity": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -31.2758440102461,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 0.0001009032290233195,
+        "relative_error_power": 0.0007454449877675114,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -31.2758440102461,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "validation_cascade_vs_ideal": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -32.20629964291937,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 8.016595725034521e-05,
+        "relative_error_power": 0.0006016861790552263,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -32.20629964291937,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "validation_surrogate_fidelity": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -31.38097464770203,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 9.801639384567546e-05,
+        "relative_error_power": 0.0007276164938443201,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -31.38097464770203,
+        "warmup_policy": "discard_at_every_segment_start"
+      }
+    },
+    "spline_model": {
+      "dpd_warmup_samples": 0,
+      "model_type": "complex_linear_spline_dpd",
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_apa200_surrogate/spline_model.npz",
+      "sha256": "09d4b905e8a81e452b46ed8f53555c2bec31a2bb481d6831fe31bf472dad7e47",
+      "test_cascade_vs_ideal": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -22.763918275020266,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 0.0007074022789392676,
+        "relative_error_power": 0.005291857884770864,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -22.763918275020274,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "test_surrogate_fidelity": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -31.2758440102461,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 0.0001009032290233195,
+        "relative_error_power": 0.0007454449877675114,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -31.2758440102461,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "validation_cascade_vs_ideal": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -22.718224144598167,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 0.0007125207766542539,
+        "relative_error_power": 0.005347829905701203,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -22.718224144598167,
+        "warmup_policy": "discard_at_every_segment_start"
+      },
+      "validation_surrogate_fidelity": {
+        "causal_warmup_samples_per_segment": 6,
+        "complex_nmse_pooled_db": -31.38097464770203,
+        "discarded_causal_warmup_samples_total": 6,
+        "mse": 9.801639384567546e-05,
+        "relative_error_power": 0.0007276164938443201,
+        "sample_count": 19656,
+        "segment_length": 19662,
+        "time_domain_rms_evm_db": -31.38097464770203,
+        "warmup_policy": "discard_at_every_segment_start"
+      }
+    }
+  },
+  "schema_version": 1,
+  "scope": {
+    "alternate_surrogate_fit_split": "train",
+    "dpd_selection_split": "validation on the primary surrogate",
+    "physical_pa_result": false,
+    "test_used_for_selection": false
+  },
+  "training_report": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_apa200_surrogate/training_report.json"
+}

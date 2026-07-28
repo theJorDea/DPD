@@ -231,12 +231,10 @@ def memory_polynomial_inference_cost(
     # |x|²; q^1...q^maximum_power; scalar x*q^k for non-linear terms.
     multiplications_per_delay = 2 + maximum_power
     additions_per_delay = 1
-    nonlinear_terms = 0
     for order in order_tuple:
         power = (order - 1) // 2
         if power:
             multiplications_per_delay += 2
-            nonlinear_terms += 1
         multiplications_per_delay += cmul
         additions_per_delay += cadd
     term_count = len(delay_tuple) * terms_per_delay

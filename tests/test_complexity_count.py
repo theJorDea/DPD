@@ -4,6 +4,7 @@ from baseline.complexity import (
     complex_spline_inference_cost,
     esn_fan_complex_pair_cost,
     esn_fan_scalar_cost,
+    memory_polynomial_inference_cost,
 )
 
 
@@ -40,6 +41,15 @@ class ComplexityCountTests(unittest.TestCase):
         self.assertEqual(pa_pair.real_multiplications, 1_291_422)
         self.assertEqual(pa_pair.real_additions, 1_288_152)
         self.assertEqual(dpd_pair.stored_real_coefficients, 727_432)
+
+    def test_memory_polynomial_count_shares_envelope_powers(self) -> None:
+        cost = memory_polynomial_inference_cost(
+            orders=(1, 3, 5, 7, 9),
+            delays=(0, 1, 2, 3, 4),
+        )
+        self.assertEqual(cost.real_multiplications, 170)
+        self.assertEqual(cost.real_additions, 103)
+        self.assertEqual(cost.stored_real_coefficients, 50)
 
 
 if __name__ == "__main__":

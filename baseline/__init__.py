@@ -28,6 +28,7 @@ from .spline_memory_dpd import (
     fit_sparse_spline_memory_dpd,
     spline_memory_design_matrix,
 )
+from .complexity import memory_polynomial_inference_cost
 
 __all__ = [
     "ComplexLinearSplineDPD",
@@ -47,4 +48,5 @@ __all__ = [
     "fit_sparse_spline_memory_dpd",
     "fit_ila_sparse_spline_memory_dpd",
     "spline_memory_design_matrix",
+    "memory_polynomial_inference_cost",
 ]
