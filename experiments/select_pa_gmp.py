@@ -109,6 +109,33 @@ def _ridge_tuple(values: Any, *, name: str) -> tuple[float, ...]:
     return result
 
 
+def _svd_rcond_tuple(values: Any, *, name: str) -> tuple[float, ...]:
+    if values is None:
+        return ()
+    if not isinstance(values, list):
+        raise ValueError(f"{name} must be a JSON list")
+    result = tuple(float(value) for value in values)
+    if any(
+        not np.isfinite(value) or not 0.0 < value < 1.0
+        for value in result
+    ):
+        raise ValueError(
+            f"every {name} entry must satisfy finite 0 < rcond < 1"
+        )
+    if len(set(result)) != len(result):
+        raise ValueError(f"{name} entries must be unique")
+    return result
+
+
+def _selection_metric(config: dict[str, Any]) -> str:
+    metric = str(config.get("selection_metric", "full_record"))
+    if metric not in {"full_record", "common_interior"}:
+        raise ValueError(
+            "selection_metric must be full_record or common_interior"
+        )
+    return metric
+
+
 def _architecture_fit_recipe(config: dict[str, Any]) -> dict[str, Any]:
     mode = config["architecture_solver_mode"]
     if mode not in {"ridge_lstsq", "truncated_svd"}:
@@ -360,7 +387,32 @@ def _trial_record(
     ridge: float,
     solver_mode: str,
     svd_rcond: float | None,
+    selection_metric: str,
 ) -> dict[str, Any]:
+    full_score = evaluation.full_record_metrics[
+        "complex_nmse_pooled_db"
+    ]
+    interior_score = common_interior["complex_nmse_pooled_db"]
+    if selection_metric == "full_record":
+        selection_name = (
+            "validation_full_record.complex_nmse_pooled_db"
+        )
+        selection_score = full_score
+        secondary_name = (
+            "validation_common_interior.complex_nmse_pooled_db"
+        )
+        secondary_score = interior_score
+    elif selection_metric == "common_interior":
+        selection_name = (
+            "validation_common_interior.complex_nmse_pooled_db"
+        )
+        selection_score = interior_score
+        secondary_name = (
+            "validation_full_record.complex_nmse_pooled_db"
+        )
+        secondary_score = full_score
+    else:
+        raise ValueError(f"unsupported selection metric: {selection_metric}")
     return {
         "stage": stage,
         "topology": topology,
@@ -379,10 +431,10 @@ def _trial_record(
             evaluation.opendpd_compatible_metrics
         ),
         "validation_input_support": evaluation.input_support,
-        "selection_metric_name": (
-            "validation_common_interior.complex_nmse_pooled_db"
-        ),
-        "selection_score_db": common_interior["complex_nmse_pooled_db"],
+        "selection_metric_name": selection_name,
+        "selection_score_db": selection_score,
+        "selection_secondary_metric_name": secondary_name,
+        "selection_secondary_score_db": secondary_score,
     }
 
 
@@ -390,10 +442,14 @@ def _selection_key(trial: dict[str, Any]) -> tuple[Any, ...]:
     score = float(trial["selection_score_db"])
     if not np.isfinite(score) and score != -np.inf:
         score = np.inf
+    secondary_score = float(trial["selection_secondary_score_db"])
+    if not np.isfinite(secondary_score) and secondary_score != -np.inf:
+        secondary_score = np.inf
     operations = trial["operation_count_per_complex_sample"]
     gmp_config = trial["gmp_config"]
     return (
         score,
+        secondary_score,
         int(operations["real_multiplications"]),
         int(operations["real_additions"]),
         int(operations["stored_real_coefficients"]),
@@ -426,6 +482,7 @@ def _fit_and_score(
     protocol: PAEvaluationProtocol,
     common_warmup_samples: int,
     common_cooldown_samples: int,
+    selection_metric: str,
 ) -> tuple[
     dict[str, Any],
     GeneralizedMemoryPolynomialPA,
@@ -478,6 +535,7 @@ def _fit_and_score(
         ridge=ridge,
         solver_mode=solver_mode,
         svd_rcond=svd_rcond,
+        selection_metric=selection_metric,
     )
     return trial, model, evaluation
 
@@ -516,6 +574,7 @@ def select_from_config(
 
     source_config = Path(config_path).resolve()
     config = _load_config(source_config)
+    selection_metric = _selection_metric(config)
     dataset = Path(config["dataset"]).resolve()
     output_directory = Path(config["output_dir"]).resolve()
     spec = load_dataset_spec(dataset)
@@ -620,6 +679,7 @@ def select_from_config(
             protocol=protocol,
             common_warmup_samples=common_warmup_samples,
             common_cooldown_samples=common_cooldown_samples,
+            selection_metric=selection_metric,
         )
         trials.append(trial)
         if trial["selection_eligible"] and (
@@ -665,8 +725,63 @@ def select_from_config(
             protocol=protocol,
             common_warmup_samples=common_warmup_samples,
             common_cooldown_samples=common_cooldown_samples,
+            selection_metric=selection_metric,
         )
         trials.append(trial)
+        if _selection_key(trial) < _selection_key(final_best[0]):
+            final_best = (trial, model, evaluation)
+        write_json(
+            trials_path,
+            _trial_ledger(
+                config_path=source_config,
+                dataset=dataset,
+                protocol=protocol,
+                common_warmup_samples=common_warmup_samples,
+                common_cooldown_samples=common_cooldown_samples,
+                trials=trials,
+            ),
+        )
+
+    completed_recipes = {
+        (
+            str(trial["solver_mode"]),
+            float(trial["ridge"]),
+            (
+                None
+                if trial["svd_rcond"] is None
+                else float(trial["svd_rcond"])
+            ),
+        )
+        for trial in trials
+        if trial["gmp_config"] == selected_architecture_trial["gmp_config"]
+    }
+    for svd_rcond in _svd_rcond_tuple(
+        config.get("refinement_svd_rconds"),
+        name="refinement_svd_rconds",
+    ):
+        recipe = ("truncated_svd", 0.0, svd_rcond)
+        if recipe in completed_recipes:
+            continue
+        trial, model, evaluation = _fit_and_score(
+            stage="svd_refinement",
+            topology=str(selected_architecture_trial["topology"]),
+            selection_eligible=True,
+            gmp_config=selected_config,
+            ridge=0.0,
+            solver_mode="truncated_svd",
+            svd_rcond=svd_rcond,
+            train_input=train_input,
+            train_output=train_output,
+            validation_input=validation_input,
+            validation_output=validation_output,
+            validation_reference=validation_reference,
+            protocol=protocol,
+            common_warmup_samples=common_warmup_samples,
+            common_cooldown_samples=common_cooldown_samples,
+            selection_metric=selection_metric,
+        )
+        trials.append(trial)
+        completed_recipes.add(recipe)
         if _selection_key(trial) < _selection_key(final_best[0]):
             final_best = (trial, model, evaluation)
         write_json(
@@ -705,15 +820,19 @@ def select_from_config(
         "config": source_config,
         "config_sha256": file_sha256(source_config),
         "protocol": protocol,
-        "selection_metric": (
-            "validation common-interior pooled complex NMSE with the same "
-            "per-frame warmup/cooldown for every GMP candidate; no post-hoc "
-            "gain or delay fit"
+        "selection_metric": selected_trial["selection_metric_name"],
+        "selection_secondary_metric": (
+            selected_trial["selection_secondary_metric_name"]
+        ),
+        "selection_metric_policy": (
+            f"primary={selection_metric}; full-record and common-interior "
+            "pooled complex NMSE are both recorded; the secondary metric "
+            "breaks exact primary ties; no post-hoc gain or delay fit"
         ),
         "selection_stages": (
             "architecture/topology at the preregistered solver recipe; ridge "
-            "refinement for the selected architecture; architecture fit remains "
-            "eligible as the final model"
+            "and optional truncated-SVD-rcond refinement for the selected "
+            "architecture; architecture fit remains eligible as the final model"
         ),
         "operation_budget": {
             "metric": "factorized real multiplications per complex sample",
@@ -789,7 +908,8 @@ def main(argv: list[str] | None = None) -> int:
         f"L={selected_config['la']}",
         f"solver={selected['solver_mode']}",
         f"ridge={selected['ridge']}",
-        f"validation interior NMSE={selected['selection_score_db']:.6f} dB",
+        f"{selected['selection_metric_name']}="
+        f"{selected['selection_score_db']:.6f} dB",
     )
     return 0
 

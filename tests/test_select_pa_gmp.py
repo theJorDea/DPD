@@ -118,6 +118,24 @@ class GMPSelectionConfigurationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "architecture_svd_rcond"):
             enumerate_architecture_candidates(config)
 
+    def test_invalid_selection_metric_is_rejected(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = {
+                "schema_version": 1,
+                "dataset": str(root / "missing"),
+                "dataset_label": "unused",
+                "output_dir": str(root / "output"),
+                **self._base_config(),
+                "selection_metric": "test_nmse",
+            }
+            path = root / "invalid.json"
+            path.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "selection_metric"):
+                select_from_config(path)
+
 
 class GMPCommonInteriorTests(unittest.TestCase):
     def test_each_frame_discards_the_same_warmup_and_cooldown(self) -> None:
@@ -237,6 +255,8 @@ class GMPSelectionIntegrationTests(unittest.TestCase):
                         "architecture_ridge": 0.0,
                         "architecture_svd_rcond": 1e-6,
                         "refinement_ridges": [0.0, 1e-8],
+                        "refinement_svd_rconds": [1e-6, 1e-4],
+                        "selection_metric": "common_interior",
                         "max_real_multiplications_per_sample": 1000,
                     }
                 ),
@@ -281,7 +301,9 @@ class GMPSelectionIntegrationTests(unittest.TestCase):
                     encoding="utf-8"
                 )
             )
-            self.assertEqual(len(ledger["trials"]), 4)
+            # Two architecture candidates, two ridge fits, one new SVD cutoff;
+            # the architecture's existing 1e-6 SVD recipe is not fitted twice.
+            self.assertEqual(len(ledger["trials"]), 5)
             self.assertTrue(
                 all(
                     trial["validation_common_interior"][
@@ -296,6 +318,18 @@ class GMPSelectionIntegrationTests(unittest.TestCase):
                     trial["solver_mode"] == "truncated_svd"
                     for trial in ledger["trials"]
                 )
+            )
+            self.assertEqual(
+                [
+                    trial["svd_rcond"]
+                    for trial in ledger["trials"]
+                    if trial["stage"] == "svd_refinement"
+                ],
+                [1e-4],
+            )
+            self.assertEqual(
+                manifest["selection_metric"],
+                "validation_common_interior.complex_nmse_pooled_db",
             )
             restored = GeneralizedMemoryPolynomialPA.load(
                 output / "selected_gmp_pa.npz"
