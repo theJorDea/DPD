@@ -19,6 +19,31 @@
 - DPA_200MHz и APA_200MHz не объединяются: это разные PA/captures.
 - Surrogate, cross-surrogate и physical-PA результаты маркируются раздельно.
 - Parameter count никогда не подменяет operation, state-memory или latency.
+- Model/evaluator code, experiment config, numerical result и report update
+  остаются разными small tasks: один небольшой commit на один проверяемый
+  результат, затем немедленный push. Formal sweep не объединяется с изменением
+  evaluator или модели.
+
+## Status snapshot
+
+Текущий snapshot после `fc85e44`, `5047146`, `0a7e065` и `a6e4689`:
+
+- MP forward baseline, frozen test и residual analysis для DPA/APA завершены;
+- causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
+  calibration и unit tests завершены;
+- validation-only GMP selector завершён: full-record score является primary,
+  common-interior score сохраняется отдельно, strict `<1000 MUL` применяется
+  до fit;
+- causal GMP sweep configs для DPA/APA pre-registered, но **formal GMP sweep
+  ещё не запускался**;
+- integrity-gated frozen runner поддерживает MP и GMP, включая проверку полного
+  `gmp_config`, hashes, operation count и common cooldown до чтения test;
+- versioned frame-safe fractional-alignment transform и его unit tests
+  реализованы, но численный A0/A1 sensitivity experiment ещё не запускался.
+
+Следовательно, completed GMP quality/result rows пока отсутствуют. Наличие
+kernel, selector, configs и frozen runner означает готовность инфраструктуры,
+а не измеренный GMP result.
 
 ## Этап 0. Requirements contract
 
@@ -55,23 +80,70 @@ x_split -> PA model -> y_hat_split -> compare with measured y_split
 
 - train-frozen alignment/gain/framing protocol;
 - pooled и OpenDPD-compatible NMSE, spectral и AM/AM/AM/PM diagnostics;
-- common-warmup score;
+- common-warmup score и отдельный validation-frozen cooldown-aware interior
+  diagnostic для latency-bearing GMP;
 - отдельный integrity-gated test command, который проверяет hashes до первого
   чтения test;
+- MP/GMP model dispatch, проверка полного frozen topology/operation contract;
 - unit tests на sealed test, frame reset и отсутствие post-hoc gain/delay fit.
 
 Основные файлы: `baseline/pa_benchmark.py`,
 `experiments/evaluate_frozen_pa.py`, `tests/test_pa_benchmark.py`,
 `tests/test_evaluate_frozen_pa.py`.
 
+## Gate A0/A1. Fractional-alignment sensitivity до formal GMP
+
+Статус: transform и tests завершены; runner, numerical comparison и protocol
+decision не выполнены. Этот gate блокирует formal GMP sweep.
+
+Сравниваются две заранее определённые protocol variants:
+
+- **A0** — текущий integer-only frame protocol без fractional transform;
+- **A1** — тот же frame protocol с явно заданным и frozen по train residual
+  delay, versioned frame-safe windowed-sinc transform и symmetric valid crop.
+
+`baseline/fractional_alignment.py` не оценивает measurement-path delay и не
+является автоматическим de-embedding. Он только детерминированно применяет
+заданный frozen transform, независимо внутри каждого frame, без circular
+convolution. Без independent feedback/loopback calibration A1 остаётся
+sensitivity analysis.
+
+Gate protocol:
+
+1. До чтения validation зафиксировать источник delay, sign convention, FIR
+   coefficients/hash, guard, один fixed PA recipe и solver.
+2. Fit выполняется раздельно на train для A0 и A1; test не существует в control
+   path sensitivity runner.
+3. A0 и A1 сравниваются на validation на одном и том же допустимом support:
+   A0 получает тот же symmetric guard crop, что A1.
+4. Сохранить pooled NMSE, OpenDPD-compatible NMSE, common-interior NMSE,
+   boundary residual и rank/conditioning; DPA и APA анализировать отдельно.
+5. A1 принимается как formal-sweep protocol только при устойчивом улучшении,
+   которое не объясняется crop/reset boundary. При малом или нестабильном
+   различии остаётся A0.
+6. Protocol decision и его hashes фиксируются отдельным commit до formal GMP.
+   Уже pre-registered A0 configs нельзя незаметно переопределить; для A1 нужны
+   новые versioned configs.
+
 ## Этап A2. PA baselines
 
-Статус: MP завершён; GMP в работе; локального OpenDPD checkpoint нет.
+Статус: MP завершён; GMP implementation/selection infrastructure завершена,
+formal sweep не запущен и ожидает Gate A0/A1; локального OpenDPD checkpoint
+нет.
 
 Порядок:
 
 1. [x] Memory Polynomial с validation grid order/memory/ridge.
-2. [ ] GMP с column normalization, SVD/rank control.
+2. GMP:
+   - [x] causal factorized kernel, exact operations/state и streaming tests;
+   - [x] column-scaled ridge и rank-controlled truncated-SVD calibration;
+   - [x] validation-only selector и explicit full-record/common-interior metrics;
+   - [x] pre-registered DPA/APA causal configs;
+   - [x] integrity-gated GMP frozen runner;
+   - [ ] пройти Gate A0/A1 и freeze protocol variant;
+   - [ ] выполнить formal validation sweep;
+   - [ ] выполнить residual/OOF stability checks;
+   - [ ] freeze winner и открыть test один раз.
 3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
    воспроизводимо обучен.
 4. [ ] Sparse complex spline-memory PA.
@@ -88,9 +160,11 @@ result artifact. Нельзя менять evaluator одновременно с
 | DPA_200MHz | odd orders 1…9, 24 delays | −34.962 dB | −35.099 dB | 792 |
 | APA_200MHz | powers 1…5, 30 delays | −37.095 dB | −36.990 dB | 960 |
 
-GMP kernel уже имеет causal leading policy, factorized streaming inference,
-exact operation/state count и column-scaled ridge/truncated-SVD fit. Следующая
-задача — validation-only topology selection и только затем frozen test.
+GMP configs `experiments/configs/pa_gmp_dpa200.json` и
+`experiments/configs/pa_gmp_apa200.json` фиксируют bounded causal grid,
+OpenDPD-compatible initial truncated-SVD `rcond=1e-4`, ridge/SVD refinement
+axes, primary full-record validation score и strict exclusive multiplier
+budget. Они имеют variant A0 и пока не запускались.
 
 ## Этап A3. Residual analysis
 
@@ -122,6 +196,27 @@ MP residual evidence показывает short electrical memory, особен�
 terms. High-amplitude bins не являются главным источником ошибки. Длительности
 captures недостаточно для вывода о thermal memory, поэтому state-conditioned
 ветвь пока заблокирована.
+
+## Ближайшая точная последовательность
+
+Каждый пункт ниже — отдельный small-task commit с тестом/проверкой и push:
+
+1. Реализовать train/validation-only A0/A1 sensitivity runner поверх frozen
+   fractional transform; не менять GMP model или общий PA evaluator.
+2. Зафиксировать DPA и APA sensitivity configs, delay source, coefficients,
+   protocol hashes, matched crop и fixed PA recipe до запуска.
+3. Запустить A0/A1 сначала для DPA, затем отдельной задачей для APA; сохранить
+   numerical artifacts без test access.
+4. Отдельным decision commit выбрать A0 или A1 для каждого PA по pre-registered
+   gate и обновить/создать versioned formal GMP configs.
+5. Запустить formal GMP validation selection отдельно для DPA и APA. До этого
+   момента `experiments/results/pa_gmp_*_selection` не считается результатом.
+6. Для validation-selected GMP выполнить train OOF/reset-boundary и residual
+   analysis; проверить, что gain не является только boundary/crop эффектом.
+7. Если GMP acceptance выполнен, freeze model/manifest и отдельной командой
+   открыть sealed test ровно один раз для каждого PA.
+8. Только после numerical artifacts обновить `PA_MODEL_BENCHMARK.md` и status
+   roadmap; затем повторно оценить Gate A→B.
 
 ## Gate A→B
 
