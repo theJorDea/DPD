@@ -140,7 +140,10 @@ def enumerate_architecture_candidates(
                 seen.add(identity)
                 delays = tuple(range(delay_count))
                 cost = memory_polynomial_inference_cost(orders, delays)
-                if cost.real_multiplications > maximum_multiplications:
+                # Huawei slide states a strict "<1000" style limit.  Treat the
+                # configured number as an exclusive ceiling, not an inclusive
+                # maximum, so a candidate exactly at the boundary is rejected.
+                if cost.real_multiplications >= maximum_multiplications:
                     continue
                 candidates.append(
                     {

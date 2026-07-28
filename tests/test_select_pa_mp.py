@@ -47,6 +47,25 @@ class MPSelectionConfigurationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate"):
             enumerate_architecture_candidates(config)
 
+    def test_real_multiplication_ceiling_is_strictly_exclusive(self) -> None:
+        config = {
+            "order_families": [
+                {"name": "linear", "order_sets": [[1]]},
+            ],
+            "delay_counts": [249, 250],
+            "architecture_ridge": 0.0,
+            "max_real_multiplications_per_sample": 1000,
+        }
+        candidates = enumerate_architecture_candidates(config)
+        self.assertEqual(
+            [candidate["delay_count"] for candidate in candidates],
+            [249],
+        )
+        self.assertEqual(
+            candidates[0]["operation_count"].real_multiplications,
+            996,
+        )
+
 
 class MPSelectionIntegrationTests(unittest.TestCase):
     @staticmethod
