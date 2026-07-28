@@ -18,6 +18,7 @@ from typing import Any
 
 import numpy as np
 
+from baseline.metrics import nmse_pooled_db
 from baseline.pa_models import (
     MemoryPolynomialPA,
     fit_memory_polynomial_pa,
@@ -272,6 +273,32 @@ def _summarize(report: dict[str, Any]) -> dict[str, Any]:
             value_path=("pseudo_complex_correlation", "magnitude"),
             causal_only=True,
         ),
+        "top_future_input_diagnostics": _top_rows(
+            [
+                row
+                for row in lag_rows
+                if int(row["lag_samples"]) < 0
+            ],
+            value_path=("proper_complex_correlation", "magnitude"),
+            causal_only=False,
+        ),
+        "top_residual_autocorrelations": _top_rows(
+            [
+                row
+                for row in lag_rows
+                if int(row["lag_samples"]) > 0
+            ],
+            value_path=("residual_acf", "magnitude"),
+            causal_only=False,
+        ),
+        "top_complex_candidate_feature_correlations": _top_rows(
+            envelope_rows,
+            value_path=(
+                "proper_candidate_feature_correlation",
+                "magnitude",
+            ),
+            causal_only=False,
+        ),
         "top_radial_envelope_correlations": _top_rows(
             envelope_rows,
             value_path=("corr_radial_envelope",),
@@ -289,6 +316,66 @@ def _summarize(report: dict[str, Any]) -> dict[str, Any]:
         ),
         "error_psd_integrated_bands": report["error_psd"].get(
             "integrated_bands"
+        ),
+    }
+
+
+def _masked_error_metrics(
+    prediction: np.ndarray,
+    reference: np.ndarray,
+    selected: np.ndarray,
+) -> dict[str, float | int | None]:
+    count = int(np.count_nonzero(selected))
+    if count == 0:
+        return {
+            "sample_count": 0,
+            "pooled_complex_nmse_db": None,
+            "error_energy": 0.0,
+            "reference_energy": 0.0,
+        }
+    return {
+        "sample_count": count,
+        "pooled_complex_nmse_db": nmse_pooled_db(
+            prediction[selected],
+            reference[selected],
+        ),
+        "error_energy": float(
+            np.sum(np.abs(prediction[selected] - reference[selected]) ** 2)
+        ),
+        "reference_energy": float(
+            np.sum(np.abs(reference[selected]) ** 2)
+        ),
+    }
+
+
+def _reset_boundary_summary(
+    prediction: np.ndarray,
+    reference: np.ndarray,
+    steady_mask: np.ndarray,
+) -> dict[str, object]:
+    full = np.ones(prediction.size, dtype=bool)
+    reset = ~steady_mask
+    full_metrics = _masked_error_metrics(prediction, reference, full)
+    steady_metrics = _masked_error_metrics(
+        prediction,
+        reference,
+        steady_mask,
+    )
+    reset_metrics = _masked_error_metrics(prediction, reference, reset)
+    total_error_energy = float(full_metrics["error_energy"])
+    reset_error_energy = float(reset_metrics["error_energy"])
+    return {
+        "full_record": full_metrics,
+        "common_warmup_excluded": steady_metrics,
+        "discarded_reset_region": reset_metrics,
+        "discarded_region_fraction_of_total_error_energy": (
+            reset_error_energy / total_error_energy
+            if total_error_energy > 0.0
+            else None
+        ),
+        "interpretation": (
+            "model reset transient under evaluator framing; not automatically "
+            "a physical PA-memory effect"
         ),
     }
 
@@ -452,6 +539,18 @@ def analyze_from_config(
         "oof_folds": fold_reports,
         "train_oof_summary": _summarize(oof_report),
         "validation_summary": _summarize(validation_report),
+        "reset_boundary_diagnostics": {
+            "train_oof": _reset_boundary_summary(
+                oof_prediction,
+                train_output,
+                train_valid,
+            ),
+            "validation": _reset_boundary_summary(
+                validation_prediction,
+                validation_output,
+                validation_valid,
+            ),
+        },
         "state_conditioned_model_gate": (
             "locked: independent_capture_count=0 and present records cannot "
             "establish slow thermal/bias state"

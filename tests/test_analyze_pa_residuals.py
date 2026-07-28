@@ -103,6 +103,13 @@ class ResidualRunnerTests(unittest.TestCase):
             self.assertFalse(manifest["test_split_accessed"])
             self.assertEqual(manifest["accessed_splits"], ["train", "validation"])
             self.assertEqual(manifest["oof_fold_count"], 3)
+            self.assertIn("reset_boundary_diagnostics", manifest)
+            self.assertEqual(
+                manifest["reset_boundary_diagnostics"]["train_oof"][
+                    "full_record"
+                ]["sample_count"],
+                24,
+            )
             self.assertFalse((dataset / "test_input.csv").exists())
             self.assertTrue(
                 (residual_output / "train_oof_residual_analysis.json").is_file()
