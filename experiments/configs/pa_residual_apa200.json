@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "selection_manifest": "experiments/results/pa_mp_apa200_selection/selection_manifest.json",
+  "output_dir": "experiments/results/pa_mp_apa200_residuals",
+  "lag_grid": {
+    "start": -16,
+    "stop": 128,
+    "step": 1
+  },
+  "envelope_lags": [0, 1, 2, 4, 8, 16, 24, 32, 48, 64, 96, 128],
+  "envelope_powers": [1, 2, 3],
+  "slow_time_constants_samples": [4.0, 16.0, 64.0, 256.0, 1024.0],
+  "amplitude_quantiles": [0.9, 0.95, 0.99],
+  "characteristic_bins": 32,
+  "position_bins": 10,
+  "amplitude_floor_fraction": 1e-6,
+  "minimum_time_constants_per_segment": 20.0,
+  "independent_capture_count": 0
+}
