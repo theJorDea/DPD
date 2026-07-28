@@ -272,12 +272,15 @@ def memory_polynomial_inference_cost(
         real_memory_writes=2,
         stored_real_coefficients=2 * term_count,
         stored_real_constants=len(order_tuple) + len(delay_tuple),
+        # A causal delay line with maximum delay D stores D previous complex
+        # input samples; the current sample is not additional persistent state.
+        state_real_values=2 * max(delay_tuple),
         notes=(
             f"complex multiply convention {convention}",
             "shared |x|^2, sqrt, and envelope powers per delay",
             (
-                "analytical arithmetic lower bound; delay-buffer traffic and "
-                "power/address control are not measured"
+                "analytical arithmetic lower bound; delay-buffer capacity is "
+                "counted, dynamic traffic and power/address control are not measured"
             ),
         ),
     )

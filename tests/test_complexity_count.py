@@ -51,6 +51,7 @@ class ComplexityCountTests(unittest.TestCase):
         self.assertEqual(cost.real_additions, 103)
         self.assertEqual(cost.nonlinear_operations, 0)
         self.assertEqual(cost.stored_real_coefficients, 50)
+        self.assertEqual(cost.state_real_values, 8)
 
     def test_full_mp_count_shares_one_magnitude_per_delay(self) -> None:
         cost = memory_polynomial_inference_cost(
@@ -61,6 +62,7 @@ class ComplexityCountTests(unittest.TestCase):
         self.assertEqual(cost.real_additions, 35)
         self.assertEqual(cost.nonlinear_operations, 1)
         self.assertEqual(cost.stored_real_coefficients, 18)
+        self.assertEqual(cost.state_real_values, 0)
 
     def test_linear_mp_does_not_compute_unused_magnitude(self) -> None:
         cost = memory_polynomial_inference_cost(
@@ -70,6 +72,21 @@ class ComplexityCountTests(unittest.TestCase):
         self.assertEqual(cost.real_multiplications, 4)
         self.assertEqual(cost.real_additions, 2)
         self.assertEqual(cost.nonlinear_operations, 0)
+        self.assertEqual(cost.state_real_values, 0)
+
+    def test_mp_delay_line_state_is_counted_separately(self) -> None:
+        dpa = memory_polynomial_inference_cost(
+            orders=(1, 3, 5, 7, 9),
+            delays=tuple(range(24)),
+        )
+        apa = memory_polynomial_inference_cost(
+            orders=(1, 2, 3, 4, 5),
+            delays=tuple(range(30)),
+        )
+        self.assertEqual(dpa.state_real_values, 46)
+        self.assertEqual(apa.state_real_values, 58)
+        self.assertEqual(dpa.real_memory_writes, 2)
+        self.assertEqual(apa.real_memory_writes, 2)
 
 
 if __name__ == "__main__":
