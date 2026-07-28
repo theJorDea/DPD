@@ -1,0 +1,25 @@
+{
+  "command": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/evaluate_frozen_pa.py --selection-manifest experiments/results/pa_mp_dpa200_selection/selection_manifest.json",
+  "dataset": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/DPA_200MHz",
+  "integrity_checks_completed_before_test_access": true,
+  "post_prediction_delay_fit": false,
+  "post_prediction_gain_fit": false,
+  "refit_performed": false,
+  "schema_version": 1,
+  "selected_model": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_dpa200_selection/selected_mp_pa.npz",
+  "selected_model_sha256": "4a07f19f2de5b08f3d0b375b5b5a0b2ada5459ae8cb0266aaa52241e75c91fbe",
+  "selected_validation_score_db": -34.96174133038673,
+  "selection_manifest": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_dpa200_selection/selection_manifest.json",
+  "selection_manifest_sha256": "d6c0dc25c27343a4c1f5394855872b80cd15bbe54a12c2019a803203f916b8a4",
+  "task": "frozen_forward_pa_test_evaluation",
+  "test_evaluation": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_dpa200_selection/test_evaluation.json",
+  "test_evaluation_sha256": "a14f89bcdc91e779b50ecd0cf1de78a78fa8825a7e68a8d005fbbf9eba64e78d",
+  "test_files_sha256": {
+    "test_input.csv": "262e1fe4365992735ef9d6f67c4ff557e8e4d8a4f4885b7bc5c7011d07f1b4c0",
+    "test_output.csv": "57d13dc65abf2b8cf77a05d0f1cf90ca0b3520f2da6bb85eb7ba31048d46d9a8"
+  },
+  "test_full_record_pooled_nmse_db": -35.09896349539362,
+  "test_opendpd_nmse_db": -35.10184148207218,
+  "test_prediction": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_dpa200_selection/test_prediction.npz",
+  "test_prediction_sha256": "6baf6f743e24781e42da85567ede8c6de9688168e4114ea08744598248e1b455"
+}
