@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "selection_manifest": "experiments/results/pa_mp_dpa200_selection/selection_manifest.json",
+  "selection_manifest_sha256": "d6c0dc25c27343a4c1f5394855872b80cd15bbe54a12c2019a803203f916b8a4",
+  "fixed_gmp_recipe": {
+    "schema_version": 1,
+    "task": "fixed_causal_gmp_pa_recipe",
+    "gmp_config": {
+      "ka": 5,
+      "la": 30,
+      "kb": 2,
+      "lb": 30,
+      "mb": 2,
+      "kc": 2,
+      "lc": 30,
+      "mc": 2,
+      "leading_policy": "causal_leading"
+    },
+    "solver_mode": "truncated_svd",
+    "ridge": 0.0,
+    "svd_rcond": 0.0001
+  },
+  "output_dir": "experiments/results/pa_alignment_sensitivity_dpa200",
+  "alignment_filter": {
+    "tap_count": 65,
+    "kaiser_beta": 8.6
+  },
+  "decision_rule": {
+    "primary_metric": "common_causal_interior",
+    "gmp_a1_minus_a0_max_db": -0.25,
+    "mp_corroboration_a1_minus_a0_max_db": 0.0,
+    "required_splits": [
+      "train_oof",
+      "validation"
+    ],
+    "require_full_record_same_sign": true,
+    "fallback_variant": "a0",
+    "accepted_a1_scope": "sensitivity_protocol_not_proven_feedback_deembedding"
+  },
+  "max_real_multiplications_per_sample": 1000
+}
