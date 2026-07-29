@@ -80,6 +80,7 @@ class SparseSplineMemoryPATests(unittest.TestCase):
             ridge=0.0,
         )
         self.assertEqual(diagnostics.data_design_rank, diagnostics.feature_count)
+        self.assertGreater(diagnostics.minimum_nonzero_feature_samples, 0)
         self.assertEqual(
             diagnostics.augmented_solver_rank,
             diagnostics.feature_count,

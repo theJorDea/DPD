@@ -20,7 +20,6 @@ from baseline.complexity import OperationCount
 from baseline.metrics import nmse_opendpd_db, nmse_pooled_db
 from baseline.sparse_spline_memory_pa import (
     SparseSplineMemoryPA,
-    SparseSplineMemoryPAFitDiagnostics,
     SparseSplineMemoryPABranch,
     fit_sparse_spline_memory_pa_segments,
 )
@@ -339,6 +338,7 @@ def evaluate_recipe_oof(
     fold_records: list[dict[str, Any]] = []
     hard_checks = {
         "all_data_designs_full_column_rank": True,
+        "all_active_features_observed": True,
         "all_augmented_condition_numbers_finite": True,
         "all_coefficients_finite_and_bounded": True,
         "all_predictions_finite": True,
@@ -374,6 +374,9 @@ def evaluate_recipe_oof(
         support_fraction = float(np.mean(held_radius > fit_coordinate_max))
         hard_checks["all_data_designs_full_column_rank"] &= (
             diagnostics.data_design_rank == diagnostics.feature_count
+        )
+        hard_checks["all_active_features_observed"] &= (
+            diagnostics.minimum_nonzero_feature_samples > 0
         )
         hard_checks["all_augmented_condition_numbers_finite"] &= bool(
             np.isfinite(diagnostics.augmented_design_condition_number)

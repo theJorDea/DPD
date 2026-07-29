@@ -97,6 +97,7 @@ class SparseSplineMemoryPAFitDiagnostics:
     knot_count: int
     feature_count: int
     ridge: float
+    minimum_nonzero_feature_samples: int
     data_design_rank: int
     data_design_condition_number: float
     augmented_solver_rank: int
@@ -120,6 +121,9 @@ class SparseSplineMemoryPAFitDiagnostics:
             "knot_count": self.knot_count,
             "feature_count": self.feature_count,
             "ridge": self.ridge,
+            "minimum_nonzero_feature_samples": (
+                self.minimum_nonzero_feature_samples
+            ),
             "data_design_rank": self.data_design_rank,
             "data_design_condition_number": self.data_design_condition_number,
             "augmented_solver_rank": self.augmented_solver_rank,
@@ -403,6 +407,9 @@ def fit_sparse_spline_memory_pa_segments(
         knot_array,
         branch_tuple,
     )
+    minimum_nonzero_feature_samples = int(
+        np.min(np.count_nonzero(np.abs(design) > 0.0, axis=0))
+    )
     (
         flat_coefficients,
         data_rank,
@@ -451,6 +458,7 @@ def fit_sparse_spline_memory_pa_segments(
         knot_count=model.knot_count,
         feature_count=int(design.shape[1]),
         ridge=float(ridge),
+        minimum_nonzero_feature_samples=minimum_nonzero_feature_samples,
         data_design_rank=data_rank,
         data_design_condition_number=data_condition,
         augmented_solver_rank=augmented_rank,
@@ -481,4 +489,3 @@ def fit_sparse_spline_memory_pa(
         (measured_output,),
         **kwargs,
     )
-
