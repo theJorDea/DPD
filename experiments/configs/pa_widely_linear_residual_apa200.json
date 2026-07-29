@@ -172,6 +172,7 @@
       "reset_at_frame_equivalence": true,
       "real_multiplications_strictly_below": 1000
     },
+    "complexity_tie_break_db": 0.02,
     "complexity_tie_break": "among eligible candidates within 0.02 dB of the best candidate_score, choose the fewest conjugate taps",
     "fallback": "select no_correction if no conjugate support is eligible"
   },
