@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "task": "formal_validation_only_gmp_pa_selection_execution",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "protocol_variant": "A0_integer_only_no_fractional_transform",
+  "command": ".venv/bin/python -m experiments.select_pa_gmp --config experiments/configs/pa_gmp_dpa200.json",
+  "exit_code": 0,
+  "wall_time_seconds": 70.9881,
+  "wall_time_source": "Codex execution harness",
+  "wall_time_status": "approximate sum of yielded execution segments",
+  "peak_rss_bytes": null,
+  "peak_rss_status": "not measured because /usr/bin/time is unavailable on this host",
+  "config": "experiments/configs/pa_gmp_dpa200.json",
+  "config_sha256": "7577d7a3e70e5e012a12c08848a2eb4bfddcda07da452718cea50bd04a66633d",
+  "selection_manifest": "experiments/results/pa_gmp_dpa200_selection/selection_manifest.json",
+  "selection_manifest_sha256": "933ee11379fc5c825ee3bc8aa5f87592963357abd3c868c42d5fc52d1902728e",
+  "selected_model": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "selected_model_sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e",
+  "validation_evaluation": "experiments/results/pa_gmp_dpa200_selection/selected_validation_evaluation.json",
+  "validation_evaluation_sha256": "ad62101007272b233094fd97a7d98221aa6afb1d383aa504c20ed2bd82caf475",
+  "validation_trials": "experiments/results/pa_gmp_dpa200_selection/validation_trials.json",
+  "validation_trials_sha256": "017e06ab0f45bc91e17d2fcd2e0be969ab84443dbad433e186e897495c39387d",
+  "trial_count": 154,
+  "trial_stages": {
+    "architecture": 139,
+    "ridge_refinement": 8,
+    "svd_refinement": 7
+  },
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "test_split_accessed": false,
+  "selected_result": {
+    "topology": "both_k4_m1",
+    "gmp_config": {
+      "ka": 7,
+      "la": 24,
+      "kb": 4,
+      "lb": 24,
+      "mb": 1,
+      "kc": 4,
+      "lc": 24,
+      "mc": 1,
+      "leading_policy": "causal_leading"
+    },
+    "solver_mode": "ridge_lstsq",
+    "ridge": 0.00001,
+    "validation_full_record_nmse_db": -35.365945649075016,
+    "validation_common_interior_nmse_db": -35.46841689181208,
+    "validation_opendpd_compatible_nmse_db": -35.32687796221099,
+    "real_multiplications_per_complex_sample": 766,
+    "real_additions_per_complex_sample": 759,
+    "stored_real_coefficients": 712,
+    "state_real_values": 188,
+    "fit_seconds": 1.2342600060001132,
+    "solver_rank": 356,
+    "feature_count": 356,
+    "scaled_augmented_condition_number": 2168.144879678644
+  }
+}
