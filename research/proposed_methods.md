@@ -143,23 +143,70 @@ Gate добавления branch:
 ### B. Spline-based Hammerstein (SPH)
 
 \[
-v[n]=x[n]C(|x[n]|),\qquad
-z[n]=\sum_{\ell=0}^{L-1}h_\ell v[n-\ell].
+v[n]=x[n]C(s[n]),\qquad
+\hat y[n]=v[n]+\sum_{\ell=1}^{L-1}h_\ell v[n-\ell],
 \]
 
-Ожидаемая точность: хорошо ловит linear memory после nonlinear compression.
-Стоимость: memoryless spline + \(L\) complex FIR taps, то есть примерно
-\(9+4L\) real MUL/sample по основной конвенции. Regular datapath очень удобен
-для FPGA.
+где первый FIR tap фиксирован как \(h_0=1\). Direct complex gain и phase
+входят в spline control points. Это устраняет scale ambiguity
+\(C\to\alpha C,\ h\to h/\alpha\), не нарушая phase equivariance. Для forward
+PA identification target является measured \(y\), то есть используется путь
+`measured x -> SPH PA -> y_hat -> measured y`, а не inverse/ILA direction.
+
+Две отдельные coordinate variants:
+
+- `amplitude`: \(s=|x|\), одна square-root operation/sample;
+- `power`: \(s=|x|^2\), square root отсутствует, но это другая basis и её
+  качество должно измеряться отдельно.
+
+Calibration минимизирует одну фиксированную objective
+
+\[
+\frac1N\|\hat{\mathbf y}-\mathbf y\|_2^2
++\lambda_c\|\mathbf c\|_2^2
++\mu\|D_2\mathbf c\|_2^2
++\lambda_h\|\mathbf h_{1:}\|_2^2.
+\]
+
+При fixed FIR spline coefficients решаются complex augmented LS; при fixed
+spline FIR tail также решается complex augmented LS. Детерминированные
+alternations начинаются с memoryless spline и zero FIR tail. Каждая block
+update должна не увеличивать полную penalized objective; normal equations и
+случайные restarts не используются.
+
+При schedule `c=c0+t(c1-c0)`, `v=x*c` и fixed \(h_0=1\) exact arithmetic:
+
+| FIR length | Real MUL | Real ADD | State reals |
+|---:|---:|---:|---:|
+| 1 | 9 | 8 | 0 |
+| 2 | 13 | 12 | 2 |
+| 4 | 21 | 20 | 6 |
+| 8 | 37 | 36 | 14 |
+
+Для amplitude variant отдельно считается 1 sqrt; power variant имеет 0
+nonlinear operations. Binary knot search, LUT/constant reads и coefficient
+memory публикуются отдельно. Стоимость почти не зависит от \(K\), но storage
+равен \(2K+2(L-1)\) real trainable coefficients. Regular datapath удобен для
+FPGA и существенно дешевле текущего APA GMP (954 MUL/sample).
+
+Ожидаемая точность: хорошо ловит separable linear memory после nonlinear
+compression. Standalone SPH сравнивается с MP/GMP как самостоятельная
+quality-cost point; он не добавляется поверх GMP после отрицательных linear
+residual ablations.
 
 Риски:
 
-- scale ambiguity между spline и FIR;
 - простой Hammerstein не ловит envelope-dependent memory до nonlinear block;
-- alternating fit может зависеть от initialization.
+- coefficient surface по delay×amplitude имеет rank one;
+- alternating fit может остановиться в локальном minimum;
+- fixed \(h_0=1\) предполагает ненулевой direct path;
+- clipping coordinate за training maximum удерживает endpoint gain, но не
+  доказывает extrapolation на более сильный drive.
 
-Mitigation: фиксировать один control point или FIR DC gain, сравнить joint
-linearized/alternating regression и ILA iterations.
+Mitigation: exact \(h_0=1\), deterministic memoryless initialization,
+monotonic-objective checks, common 49-sample scoring support и отдельная
+power-coordinate ablation. Более общий sparse spline-memory model разрешён
+только после измеренного SPH limitation.
 
 ### C. Sparse spline memory polynomial
 
@@ -252,8 +299,9 @@ noncausal look-ahead, activation/quantization cost, surrogate exploitation,
 
 1. Зафиксировать evaluator и gain/alignment definitions.
 2. Fit \(K=\{8,12,16,24,32,48,64\}\), четыре knot strategies и заданный
-   regularization grid; выбирать только по validation.
-3. Test запускать один раз после freeze.
+   regularization grid; для уже открытого APA test выбирать только по train
+   OOF, а validation маркировать reused/descriptive.
+3. Новый test claim делать только на новом capture/operating point после freeze.
 4. Если memoryless residual имеет значимую lag structure, сравнить nested
    branches \(m=0\), \(0,1\), \(0,1,2\).
 5. SPH сравнить при том же operation budget.
