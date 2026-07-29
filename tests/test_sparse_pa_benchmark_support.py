@@ -30,7 +30,7 @@ class SparsePABenchmarkEvidenceTests(unittest.TestCase):
         verified["config"] = config
         evidence = load_frozen_evidence(verified)
         self.assertEqual(evidence["gmp_train_oof_prediction"].shape, (58980,))
-        self.assertTrue(np.all(np.isfinite(evidence["gmp_train_oof_prediction"])) )
+        self.assertTrue(np.all(np.isfinite(evidence["gmp_train_oof_prediction"])))
 
 
 class SparsePABenchmarkMetricTests(unittest.TestCase):
