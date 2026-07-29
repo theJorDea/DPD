@@ -12,6 +12,11 @@ formal PA results относятся отдельно к `DPA_200MHz` и `APA_20
 объединять разные physical captures как случайные строки одного train/test
 split и задаёт learning curves для быстрой recalibration.
 
+APA SPH (`K=32,L=8`) пока имеет только within-capture train-OOF/reused-
+validation evidence: −30.402374 dB full OOF NMSE при 37 MUL/sample. Это не
+robustness evidence и не evaluator для DPD; no zero-shot, operating-point
+transfer or adaptation claim is made.
+
 ## 2. Доступные captures и границы metadata
 
 | Dataset | Declared device/capture | Waveform | Fs / BW | Split complex samples | Что неизвестно |
@@ -232,6 +237,12 @@ directory, а не перезаписывает предыдущий result.
 waveform/spec и явно называет второй capture “measurement B”. Но перед claim
 нужно выяснить, что означает B. Без ответа результат будет честно называться
 capture transfer, а не power/thermal adaptation.
+
+Перед transfer run нужно сначала freeze source model family. Текущий SPH не
+проходит quality gate, поэтому source candidate должен быть новым bounded
+non-factorized sparse spline-memory PA, а SPH сохраняется как дешёвый negative
+control. Для каждой модели публикуются zero-shot и limited-calibration curves;
+target test открывается только после metadata/config freeze.
 
 Для DPA изменение 160↔200 MHz смешивает больше факторов; его следует выполнять
 вторым как stress test с explicit resampling/time-memory policy.
