@@ -429,6 +429,7 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
             train_output,
             protocol=protocol,
             reference_gmp_oof_prediction=reference_gmp_oof,
+            progress=lambda message: print(message, flush=True),
         )
         final_recipe = search["final_recipe"]
         final_trial = search["final_trial"]

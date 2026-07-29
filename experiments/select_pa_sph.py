@@ -12,7 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 import time
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import numpy as np
 
@@ -1339,6 +1339,7 @@ def run_staged_oof_search(
     *,
     protocol: SPHOOFProtocol,
     reference_gmp_oof_prediction: np.ndarray,
+    progress: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
     """Execute S0..S3 on train OOF with canonical recipe caching."""
 
@@ -1356,6 +1357,7 @@ def run_staged_oof_search(
     ):
         raise ValueError("observed train frame count disagrees with OOF budget")
     tolerance = float(config["selection"]["ranking_tolerance_db"])
+    report = progress if progress is not None else lambda _message: None
 
     cache: dict[str, dict[str, Any]] = {}
     cache_hits = 0
@@ -1367,15 +1369,24 @@ def run_staged_oof_search(
         np.linalg.LinAlgError,
     )
 
-    def evaluate_stage(recipes: Iterable[SPHRecipe]) -> list[dict[str, Any]]:
+    def evaluate_stage(
+        stage_name: str,
+        recipes: Iterable[SPHRecipe],
+    ) -> list[dict[str, Any]]:
         nonlocal cache_hits, stage_associations
+        recipe_list = tuple(recipes)
+        report(f"{stage_name}: start {len(recipe_list)} recipe associations")
         rows: list[dict[str, Any]] = []
-        for recipe in recipes:
+        for index, recipe in enumerate(recipe_list, start=1):
             stage_associations += 1
             identity = recipe.canonical_sha256
             if identity in cache:
                 cache_hits += 1
                 rows.append(cache[identity])
+                report(
+                    f"{stage_name}: {index}/{len(recipe_list)} cache "
+                    f"{recipe.name}"
+                )
                 continue
             try:
                 row = evaluate_oof_recipe(
@@ -1389,12 +1400,27 @@ def run_staged_oof_search(
                 row = _failed_trial(recipe, error)
             cache[identity] = row
             rows.append(row)
+            if row.get("failure") is not None:
+                status = f"failed {row['failure']['type']}"
+            else:
+                status = (
+                    f"OOF={float(row['full_record_nmse_db']):.6f} dB, "
+                    f"common={float(row['common_interior_nmse_db']):.6f} dB"
+                )
+            report(
+                f"{stage_name}: {index}/{len(recipe_list)} fit "
+                f"{recipe.name}; {status}"
+            )
+        report(f"{stage_name}: complete")
         return rows
 
     stage_results: dict[str, list[dict[str, Any]]] = {}
     selections: dict[str, Any] = {}
 
-    s0 = evaluate_stage(enumerate_s0_recipes(config))
+    s0 = evaluate_stage(
+        "S0_coordinate_and_memory",
+        enumerate_s0_recipes(config),
+    )
     stage_results["S0_coordinate_and_memory"] = s0
     retained = retain_s0_topologies(s0)
     selections["S0_retained_topologies"] = [
@@ -1402,13 +1428,17 @@ def run_staged_oof_search(
         for variant, fir_length in retained
     ]
 
-    s1 = evaluate_stage(enumerate_s1_recipes(config, retained))
+    s1 = evaluate_stage(
+        "S1_knot_count",
+        enumerate_s1_recipes(config, retained),
+    )
     stage_results["S1_knot_count"] = s1
     s1_selected = select_ranked_trial(s1, tolerance_db=tolerance)
     s1_recipe = _trial_recipe(s1_selected)
     selections["S1_selected_recipe"] = s1_recipe.to_dict()
 
     s2 = evaluate_stage(
+        "S2_control_and_smoothness",
         enumerate_s2_recipes(
             config,
             (s1_recipe.variant, s1_recipe.fir_length, s1_recipe.knot_count),
@@ -1419,7 +1449,10 @@ def run_staged_oof_search(
     s2_recipe = _trial_recipe(s2_selected)
     selections["S2_selected_recipe"] = s2_recipe.to_dict()
 
-    s3 = evaluate_stage(enumerate_s3_recipes(config, s2_recipe))
+    s3 = evaluate_stage(
+        "S3_fir_ridge",
+        enumerate_s3_recipes(config, s2_recipe),
+    )
     stage_results["S3_fir_ridge"] = s3
     final_trial = select_ranked_trial(s3, tolerance_db=tolerance)
     final_recipe = _trial_recipe(final_trial)

@@ -395,6 +395,7 @@ class SPHStagedSearchTests(unittest.TestCase):
         target = np.ones(6, dtype=np.complex128)
         reference = np.ones(6, dtype=np.complex128)
         calls: list[str] = []
+        progress_messages: list[str] = []
 
         def fake_evaluate(
             recipe: SPHRecipe,
@@ -452,6 +453,7 @@ class SPHStagedSearchTests(unittest.TestCase):
                     common_warmup_samples=0,
                 ),
                 reference_gmp_oof_prediction=reference,
+                progress=progress_messages.append,
             )
 
         final = result["final_recipe"]
@@ -484,6 +486,9 @@ class SPHStagedSearchTests(unittest.TestCase):
         )
         self.assertFalse(result["decision"]["gate_a_to_b_opened"])
         self.assertFalse(result["decision"]["old_apa_test_permitted"])
+        self.assertTrue(progress_messages[0].startswith("S0_coordinate"))
+        self.assertIn("cache", "\n".join(progress_messages))
+        self.assertTrue(progress_messages[-1].startswith("S3_fir_ridge: complete"))
 
 
 if __name__ == "__main__":
