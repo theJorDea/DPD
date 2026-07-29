@@ -299,6 +299,89 @@ def complex_spline_inference_cost(
     )
 
 
+def spline_hammerstein_pa_cost(
+    knot_count: int,
+    fir_length: int,
+    *,
+    convention: ComplexMultiplyConvention = "4m2a",
+    indexing: Literal["binary", "uniform"] = "binary",
+    coordinate: Literal["amplitude", "power"] = "amplitude",
+) -> OperationCount:
+    r"""Count one standalone spline-Hammerstein PA sample.
+
+    The frozen implementation schedule is
+
+    ``v[n] = x[n] * C(s[n])`` and
+    ``y[n] = v[n] + sum(h[l] * v[n-l], l=1..L-1)``.
+
+    ``h[0]`` is fixed to one, so the current nonlinear sample is neither
+    multiplied by nor stored with a direct-path FIR coefficient.  Interval
+    reciprocals are always precomputed: no runtime division is hidden in the
+    count.  Unlike :func:`complex_spline_inference_cost`, this counter uses the
+    stricter preregistered memory schedule: both active complex control points,
+    the lower knot, the reciprocal interval width, and every delayed
+    nonlinear sample/FIR-tail coefficient are explicit reads.
+    """
+
+    if (
+        isinstance(knot_count, bool)
+        or not isinstance(knot_count, Integral)
+    ):
+        raise TypeError("knot_count must be an integer")
+    if int(knot_count) < 2:
+        raise ValueError("knot_count must be at least two")
+    if (
+        isinstance(fir_length, bool)
+        or not isinstance(fir_length, Integral)
+    ):
+        raise TypeError("fir_length must be an integer")
+    if int(fir_length) < 1:
+        raise ValueError("fir_length must be positive")
+    if indexing not in {"binary", "uniform"}:
+        raise ValueError(f"unknown indexing mode: {indexing}")
+    if coordinate not in {"amplitude", "power"}:
+        raise ValueError(f"unknown spline coordinate: {coordinate}")
+
+    knots = int(knot_count)
+    length = int(fir_length)
+    tail_count = length - 1
+    cmul, cadd = complex_multiply_cost(convention)
+
+    # q=I^2+Q^2, interval coordinate, complex control interpolation, x*C.
+    multiplications = 2 + 1 + 2 + cmul
+    additions = 1 + 1 + 4 + cadd
+
+    # Each stored FIR-tail tap performs one complex multiply and accumulates
+    # its complex result into the direct nonlinear path.
+    multiplications += tail_count * cmul
+    additions += tail_count * (cadd + 2)
+
+    comparisons = (
+        int(math.ceil(math.log2(knots))) if indexing == "binary" else 2
+    )
+    return OperationCount(
+        real_multiplications=multiplications,
+        real_additions=additions,
+        real_divisions=0,
+        nonlinear_operations=1 if coordinate == "amplitude" else 0,
+        comparisons=comparisons,
+        lookups=4,
+        real_memory_reads=8 + 4 * tail_count,
+        real_memory_writes=2,
+        stored_real_coefficients=2 * knots + 2 * tail_count,
+        stored_real_constants=2 * knots - 1,
+        state_real_values=2 * tail_count,
+        notes=(
+            f"complex multiply convention {convention}",
+            f"{coordinate}-coordinate spline",
+            f"{indexing} interval selection",
+            "precomputed reciprocal interval widths; zero runtime divisions",
+            "h[0]=1 exactly; only FIR-tail coefficients are stored",
+            "strict knot, reciprocal, coefficient, and nonlinear-state reads",
+        ),
+    )
+
+
 def spline_memory_branch_cost(
     knot_count: int,
     branch_count: int,

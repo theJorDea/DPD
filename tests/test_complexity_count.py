@@ -7,6 +7,7 @@ from baseline.complexity import (
     esn_fan_complex_pair_cost,
     esn_fan_scalar_cost,
     memory_polynomial_inference_cost,
+    spline_hammerstein_pa_cost,
     widely_linear_residual_correction_cost,
 )
 
@@ -32,6 +33,97 @@ class ComplexityCountTests(unittest.TestCase):
         gauss = complex_spline_inference_cost(8, convention="3m5a")
         self.assertEqual(gauss.real_multiplications, normal.real_multiplications - 1)
         self.assertEqual(gauss.real_additions, normal.real_additions + 3)
+
+    def test_spline_hammerstein_matches_preregistered_length_points(
+        self,
+    ) -> None:
+        expected = {
+            1: (9, 8, 0, 8),
+            2: (13, 12, 2, 12),
+            4: (21, 20, 6, 20),
+            8: (37, 36, 14, 36),
+        }
+        for length, values in expected.items():
+            with self.subTest(fir_length=length):
+                cost = spline_hammerstein_pa_cost(
+                    24,
+                    length,
+                    coordinate="amplitude",
+                )
+                self.assertEqual(
+                    (
+                        cost.real_multiplications,
+                        cost.real_additions,
+                        cost.state_real_values,
+                        cost.real_memory_reads,
+                    ),
+                    values,
+                )
+                self.assertEqual(cost.real_divisions, 0)
+                self.assertEqual(cost.nonlinear_operations, 1)
+                self.assertEqual(cost.comparisons, 5)
+                self.assertEqual(cost.lookups, 4)
+                self.assertEqual(cost.real_memory_writes, 2)
+                self.assertEqual(
+                    cost.stored_real_coefficients,
+                    48 + 2 * (length - 1),
+                )
+                self.assertEqual(cost.stored_real_constants, 47)
+
+    def test_spline_hammerstein_power_coordinate_removes_only_sqrt(
+        self,
+    ) -> None:
+        amplitude = spline_hammerstein_pa_cost(
+            12,
+            4,
+            coordinate="amplitude",
+        )
+        power = spline_hammerstein_pa_cost(
+            12,
+            4,
+            coordinate="power",
+        )
+        self.assertEqual(amplitude.real_multiplications, power.real_multiplications)
+        self.assertEqual(amplitude.real_additions, power.real_additions)
+        self.assertEqual(amplitude.nonlinear_operations, 1)
+        self.assertEqual(power.nonlinear_operations, 0)
+        self.assertEqual(power.stored_real_coefficients, 30)
+        self.assertEqual(power.stored_real_constants, 23)
+
+    def test_spline_hammerstein_gauss_tradeoff_and_uniform_indexing(
+        self,
+    ) -> None:
+        primary = spline_hammerstein_pa_cost(64, 4, convention="4m2a")
+        gauss = spline_hammerstein_pa_cost(
+            64,
+            4,
+            convention="3m5a",
+            indexing="uniform",
+        )
+        self.assertEqual(primary.real_multiplications, 21)
+        self.assertEqual(primary.real_additions, 20)
+        self.assertEqual(primary.comparisons, 6)
+        self.assertEqual(gauss.real_multiplications, 17)
+        self.assertEqual(gauss.real_additions, 32)
+        self.assertEqual(gauss.comparisons, 2)
+
+    def test_spline_hammerstein_rejects_invalid_contract(self) -> None:
+        for value in (True, 8.0):
+            with self.subTest(knot_count=value):
+                with self.assertRaisesRegex(TypeError, "knot_count"):
+                    spline_hammerstein_pa_cost(value, 1)  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "at least two"):
+            spline_hammerstein_pa_cost(1, 1)
+        for value in (False, 2.0):
+            with self.subTest(fir_length=value):
+                with self.assertRaisesRegex(TypeError, "fir_length"):
+                    spline_hammerstein_pa_cost(8, value)  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "positive"):
+            spline_hammerstein_pa_cost(8, 0)
+        with self.assertRaisesRegex(ValueError, "indexing"):
+            spline_hammerstein_pa_cost(8, 1, indexing="linear")  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "coordinate"):
+            spline_hammerstein_pa_cost(8, 1, coordinate="radius")  # type: ignore[arg-type]
 
     def test_egor_dense_esn_exact_counts(self) -> None:
         dpd_scalar = esn_fan_scalar_cost(600)
