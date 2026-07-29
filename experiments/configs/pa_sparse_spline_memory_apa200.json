@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_model_implementation_and_candidate_fit",
+  "date": "2026-07-29",
+  "task": "forward_pa_non_factorized_sparse_spline_memory_selection",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_sparse_spline_memory_apa200_selection",
+  "scope": {
+    "contour": "A_low_complexity_forward_pa_system_identification",
+    "purpose": "test delay-dependent nonlinear spline branches suggested by the APA SPH residual peak",
+    "model_role": "standalone alternative PA model, not an additive correction to GMP",
+    "evidence_class": "post_discovery_internal_resampling_only",
+    "not_claimed": [
+      "independent architecture validation",
+      "Gate A-to-B",
+      "DPD linearization",
+      "physical-PA remeasurement",
+      "Huawei acceptance",
+      "superiority over OpenDPD"
+    ],
+    "test_split_access_permitted": false
+  },
+  "direction": {
+    "input": "measured PA input x",
+    "target": "measured PA output y",
+    "equation": "y_hat[n] = sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+    "phase_equivariance": "PA(x*exp(j*phi)) = PA(x)*exp(j*phi)",
+    "inverse_or_ila": false,
+    "post_prediction_gain_fit": false,
+    "post_prediction_delay_fit": false
+  },
+  "dataset_contract": {
+    "required_files_sha256": {
+      "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+    },
+    "sample_rate_hz": 983040000.0,
+    "nperseg": 19662,
+    "train_sample_count": 58980,
+    "validation_sample_count": 19662,
+    "frame_lengths": [19662, 19662, 19656],
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "common_warmup_samples_per_frame": 49,
+    "common_future_cooldown_samples_per_frame": 0,
+    "frame_state_policy": "reset at every explicit complete or partial frame",
+    "test_policy": "test files must not be opened, hashed, named in output, or used for release"
+  },
+  "evidence": {
+    "sph_selection_manifest": {
+      "path": "experiments/results/pa_sph_apa200_selection/selection_manifest.json",
+      "sha256": "12df5309360f1a5e0deba7d54669ab2b408ee9a8ed6dd96d058fc460815df656"
+    },
+    "sph_train_residual_analysis": {
+      "path": "experiments/results/pa_sph_apa200_selection/train_oof_residual_analysis.json",
+      "sha256": "b7ecd43dcc4ebf6f32a228dec9b4e8ac50f132fafd9a015e29fc572260264990"
+    },
+    "gmp_residual_predictions": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/residual_predictions.npz",
+      "sha256": "a82f05705753154aa4205457b36eb5e052d53eba690e7a8a5dc0c825b933c866"
+    },
+    "gmp_selected_model": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    }
+  },
+  "reference_models": {
+    "matched_mp_oof": {
+      "full_record_nmse_db": -37.054328680975395,
+      "common_interior_nmse_db": -37.09995132643951,
+      "real_multiplications": 960,
+      "real_additions": 628,
+      "stored_real_coefficients": 300,
+      "state_real_values": 58
+    },
+    "matched_gmp_oof": {
+      "full_record_nmse_db": -38.345410298129714,
+      "common_interior_nmse_db": -38.750526106525086,
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "stored_real_coefficients": 888,
+      "state_real_values": 236
+    }
+  },
+  "model": {
+    "name": "phase_equivariant_non_factorized_sparse_spline_memory_pa",
+    "equation": "sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+    "coordinate": "amplitude",
+    "knot_strategy": "uniform_amplitude",
+    "local_support": "two adjacent complex control points per branch and sample",
+    "causality": "all signal and envelope delays are non-negative",
+    "fit": "one joint complex augmented ridge least-squares solve; no normal equations",
+    "coefficient_dtype": "complex128",
+    "identifiability": [
+      "unregularized design full column rank on every OOF fit fold",
+      "all active control features observed on every OOF fit fold",
+      "finite condition number and coefficients",
+      "no duplicate branch pairs"
+    ]
+  },
+  "branch_families": {
+    "memoryless_control": [[0, 0]],
+    "diagonal_short_control": [[0, 0], [1, 1], [2, 2]],
+    "diagonal_long": [[0, 0], [22, 22], [23, 23], [24, 24]],
+    "signal_long_current_envelope": [[0, 0], [22, 0], [23, 0], [24, 0]],
+    "current_signal_long_envelope": [[0, 0], [0, 22], [0, 23], [0, 24]],
+    "cross_long_symmetric": [[0, 0], [22, 0], [0, 22], [23, 0], [0, 23], [24, 0], [0, 24]],
+    "mixed_diagonal_long": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24]]
+  },
+  "search": {
+    "stage_s0_topology_screen": {
+      "knot_count": 12,
+      "ridge": 1e-8,
+      "retain_topologies": 3,
+      "retention_window_db": 0.25
+    },
+    "stage_s1_knot_count": {
+      "knot_counts": [8, 12, 16, 24],
+      "ridge": 1e-8,
+      "use_retained_topologies": true
+    },
+    "stage_s2_ridge": {
+      "ridges": [0.0, 1e-10, 1e-8, 1e-6, 1e-4],
+      "use_selected_topology_and_knot_count": true
+    },
+    "ranking": {
+      "primary": "pooled full-record train OOF NMSE dB",
+      "secondary": "pooled common-interior train OOF NMSE dB",
+      "tie_tolerance_db": 0.02,
+      "tie_breakers": ["lower common NMSE", "fewer MUL", "fewer branches", "fewer knots", "lexical recipe name"]
+    }
+  },
+  "gates": {
+    "real_multiplications_strictly_below": 1000,
+    "maximum_augmented_condition_number": 100000000.0,
+    "maximum_absolute_coefficient": 1000000.0,
+    "maximum_support_exceedance_fraction": 0.001,
+    "cheap_pareto_max_full_loss_vs_mp_db": 3.0,
+    "cheap_pareto_max_common_loss_vs_mp_db": 3.0,
+    "evaluator_min_full_gain_over_gmp_db": 0.25,
+    "evaluator_min_common_gain_over_gmp_db": 0.25,
+    "evaluator_minimum_fold_gain_over_gmp_db": 0.1,
+    "meaning": "internal research gates; none is a Huawei acceptance claim"
+  },
+  "search_budget": {
+    "oof_fold_count": 3,
+    "maximum_s0_recipes": 7,
+    "maximum_s1_recipes": 12,
+    "maximum_s2_recipes": 5,
+    "maximum_unique_recipes": 24,
+    "maximum_oof_fit_calls_without_cache": 72,
+    "final_full_train_fit_calls": 1,
+    "candidate_cache": "canonical recipe hash",
+    "plots_during_fit": false
+  },
+  "preimplementation_source_sha256": {
+    "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/pa_benchmark.py": "e5b182a6e0bac71ce9f2886f2f92f9c5e51216c6b9d9ea83aad3b0b0b4b4bc74",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63"
+  },
+  "new_source_files_must_not_exist": [
+    "baseline/sparse_spline_memory_pa.py",
+    "experiments/select_pa_sparse_spline_memory.py",
+    "experiments/run_pa_sparse_spline_memory.py"
+  ],
+  "selection_policy": {
+    "validation_role": "load only after final recipe and full-train parameters are frozen; descriptive reused evidence",
+    "test_role": "forbidden",
+    "old_apa_test_reuse": false,
+    "dpd_optimization": "paused until Gate A-to-B"
+  }
+}
