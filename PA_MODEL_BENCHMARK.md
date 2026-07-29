@@ -40,6 +40,8 @@ evaluator не является выполненным DPD experiment. Bundled O
 - residual-selected APA conjugate-FIR audit не прошёл 0.1 dB OOF gate:
   лучший support дал лишь 0.0273/0.0305 dB full/common gain,
   поэтому frozen decision — `no_correction`;
+- следующий proper long-FIR audit также не прошёл gate: лучший support
+  `{44,45,46}` дал 0.0182/0.0201 dB full/common, и GMP снова не изменён;
 - DPD optimization остаётся остановленной до следующего PA-model experiment,
   выбранного по residual evidence, либо до независимого physical-PA capture.
 
@@ -689,14 +691,15 @@ dataset, но evaluator margin остаётся лишь 4.8–6.3 dB на valid
 просмотра test. Максимально информативная последовательность:
 
 1. [x] preregister и выполнить bounded APA widely-linear/IQ audit;
-2. [ ] после его negative result preregister low-complexity
+2. [x] проверить nested proper long-FIR ablation около residual lags 42…49;
+3. [ ] после двух negative linear corrections preregister standalone
    `spline/CPWL memoryless nonlinearity + short complex FIR` PA;
-3. [ ] только затем проверять sparse complex spline-memory PA,
+4. [ ] только затем проверять sparse complex spline-memory PA,
    если первая nonlinear family не даст достаточного gain;
-4. сравнивать по train resampling/reused validation при `<1000` MUL, не
+5. сравнивать по train resampling/reused validation при `<1000` MUL, не
    выдавая уже просмотренные splits за independent confirmation;
-5. state-conditioned branch не запускать без independent long captures;
-6. новый test claim делать на новом capture/operating point, а не повторно
+6. state-conditioned branch не запускать без independent long captures;
+7. новый test claim делать на новом capture/operating point, а не повторно
    использовать уже открытый DPA/APA test как selection feedback.
 
 ### 10.4 APA widely-linear residual audit
@@ -737,6 +740,40 @@ Evidence:
 - `experiments/results/pa_widely_linear_residual_apa200/audit_manifest.json`;
 - `experiments/results/pa_widely_linear_residual_apa200/`.
 
+### 10.5 APA proper long-FIR residual audit
+
+Согласованный train-OOF/reused-validation proper-correlation peak около
+causal lag 45 был проверен моделью
+
+\[
+\hat y_{FIR}[n]=\hat y_{GMP}[n]+\sum_{d\in D}b_d x[n-d].
+\]
+
+| APA candidate | MUL/ADD/state | OOF gain full/common, dB | Minimum fold full/common, dB | Eligible |
+|---|---:|---:|---:|---:|
+| `proper_d45` | 958/951/268 | 0.0133/0.0147 | 0.0083/0.0093 | no |
+| `proper_d44_d46` | 966/959/270 | **0.0182/0.0201** | 0.0114/0.0127 | no |
+| `proper_d43_d48` | 978/971/274 | 0.0177/0.0199 | 0.0115/0.0144 | no |
+| `proper_d42_d49` | 986/979/276 | 0.0177/0.0201 | 0.0114/0.0144 | no |
+
+Все folds улучшились, fits были full rank, а reset/streaming checks exact.
+Однако лучший aggregate gain в 5.5 раза меньше 0.1 dB threshold, поэтому
+selected candidate — `no_correction`; APA Pareto point остался 954 MUL / 947
+ADD / 888 real coefficients / 236 state reals. Validation не участвовал в
+selection, test не читался и не хэшировался. Wall time — 25.47 s; OOF fit
+time — 23.40 s.
+
+Этот результат отделяет наличие correlation от её практической ценности:
+long-memory linear component воспроизводим по folds, но слишком мал для
+решения evaluator bottleneck. Поэтому следующий candidate должен быть
+standalone nonlinear alternative, а не ещё одна correction поверх GMP.
+
+Evidence:
+
+- `experiments/configs/pa_long_fir_residual_apa200.json`;
+- `experiments/results/pa_long_fir_residual_apa200/audit_manifest.json`;
+- `experiments/results/pa_long_fir_residual_apa200/`.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -750,9 +787,9 @@ Evidence:
 - Нет captures разных power levels/operating points для adaptation curves.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
-- Widely-linear APA residual branch проверена и отклонена по
-  preregistered threshold; всё ещё нет sparse spline-memory PA или
-  spline/CPWL + FIR PA result.
+- Widely-linear и proper long-FIR APA residual branches проверены и отклонены
+  по preregistered threshold; всё ещё нет standalone spline/CPWL + FIR или
+  sparse spline-memory PA result.
 - Нет bit-accurate 16/14/12-bit PA-model evaluation.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
