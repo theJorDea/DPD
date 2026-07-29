@@ -522,7 +522,55 @@ Evidence bundle:
 threshold, но не идентифицирует физический источник residual и не является
 independent validation.
 
-### 6.10 Existing first-stage spline DPD — retained, not the next PA step
+### 6.10 APA proper-complex long-FIR residual audit — completed negative result
+
+После conjugate fallback train-OOF и already-viewed validation residual
+показали согласованный proper-complex correlation peak на causal lags 43…48.
+До fit был отправлен config
+`experiments/configs/pa_long_fir_residual_apa200.json`, фиксирующий
+
+\[
+\hat y_{FIR}[n]=\hat y_{GMP}[n]+\sum_{d\in D}b_d x[n-d].
+\]
+
+Exact completed command:
+
+```bash
+.venv/bin/python -m experiments.audit_complex_fir_pa \
+  --config experiments/configs/pa_long_fir_residual_apa200.json
+```
+
+| Candidate | MUL/ADD/state | OOF full/common gain | Minimum fold full/common | Decision |
+|---|---:|---:|---:|---|
+| `proper_d45` | 958/951/268 | 0.01332/0.01469 dB | 0.00834/0.00935 dB | ineligible |
+| `proper_d44_d46` | 966/959/270 | **0.01818/0.02007 dB** | 0.01142/0.01265 dB | ineligible |
+| `proper_d43_d48` | 978/971/274 | 0.01775/0.01995 dB | 0.01155/0.01441 dB | ineligible |
+| `proper_d42_d49` | 986/979/276 | 0.01769/0.02013 dB | 0.01143/0.01435 dB | ineligible |
+
+Все folds дали положительный gain, были full rank и прошли exact reset/
+arbitrary-chunk streaming checks. Но ни один support не достиг frozen 0.1 dB
+full/common threshold, поэтому selected candidate — `no_correction` и
+evaluator остался на 954 MUL / 947 ADD / 236 state reals. Baseline OOF
+воспроизведён как −38.34541/−38.75053 dB full/common. Reused validation
+остался −38.66526/−38.73463 dB и не участвовал в selection.
+
+Total wall time — 25.473 s, OOF fit time — 23.395 s. Bundle содержит только
+train/validation, `test_split_accessed=false`, test hashes и test-named files
+отсутствуют. При fallback selected/base predictions побитно одинаковы.
+Evidence:
+`experiments/results/pa_long_fir_residual_apa200/`.
+
+Config был committed до реализации counter, поэтому manifest честно отмечает
+ожидаемый mismatch preregistered/current hash только для
+`baseline/complexity.py`; hashes numerical discovery artifacts, GMP и
+residual analyzer совпали. Result class остаётся
+`post_discovery_internal_resampling_only`, не independent confirmation.
+
+Frozen follow-up: не расширять long linear delay grid и не превращать те же
+lags в nonlinear spline branches без отдельного evidence. Следующий isolated
+candidate — standalone phase-equivariant spline/CPWL + short complex FIR PA.
+
+### 6.11 Existing first-stage spline DPD — retained, not the next PA step
 
 These are the commands recorded by the old artifacts. They contain
 `--overwrite` and therefore must run only in a clean checkout or after the
@@ -558,7 +606,7 @@ These commands are preserved for reproducibility, but outputs remain
 ablation `experiments/run_spline_memory_ablation.py` is likewise DPD code, not
 a sparse spline-memory PA implementation.
 
-### 6.11 Egor audit reproduction — completed diagnostic
+### 6.12 Egor audit reproduction — completed diagnostic
 
 ```bash
 .venv/bin/python -m experiments.reproduce_egor \
@@ -570,7 +618,7 @@ It reports PA-only, circular inverse→forward reconstruction and correct
 desired-input surrogate path separately. It is not a primary PA/DPD baseline
 until its split/evaluator contract is made apples-to-apples.
 
-### 6.12 OpenDPD control — bundled evidence only on this host
+### 6.13 OpenDPD control — bundled evidence only on this host
 
 The intended upstream reproduction is:
 
@@ -606,11 +654,12 @@ Gate A→B passes:
 - a neural residual branch is allowed only after a simpler branch ablation
   leaves a reproducible residual.
 
-The APA conjugate-residual audit is complete and failed its 0.1 dB internal
-threshold, so `no_correction` remains frozen. The next isolated PA task is to
-preregister spline/CPWL + short FIR, followed only then by sparse complex
-spline-memory if justified. Do not implement families simultaneously, and do
-not add slow state without independent long captures.
+The APA conjugate and proper long-FIR residual audits are complete; both
+failed their 0.1 dB internal thresholds, so `no_correction` remains frozen.
+The next isolated PA task is to preregister standalone spline/CPWL + short
+FIR, followed only then by sparse complex spline-memory if justified. Do not
+implement families simultaneously, and do not add slow state without
+independent long captures.
 
 Robustness is a separate stage:
 
@@ -752,7 +801,11 @@ outputs for predistorted waveforms.
     leave-one-frame-out audit under strict `<1000 MUL` without test access.
 12. [x] Apply the negative-result branch: keep `no_correction`, make no
     physical IQ attribution and do not tune DPA conjugate delays.
-13. [ ] Preregister the next bounded spline/CPWL + short-FIR PA family with
-    exact operations, identifiability and streaming semantics.
-14. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
+13. [x] Preregister, implement and run the nested proper-complex long-FIR
+    audit at causal lags 42…49 without test access.
+14. [x] Apply its negative-result branch: keep `no_correction`; do not add a
+    larger linear delay grid or spline branches at those lags without evidence.
+15. [ ] Preregister the next bounded standalone spline/CPWL + short-FIR PA
+    family with exact operations, identifiability and streaming semantics.
+16. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
     evaluators, then fixed point, robustness/adaptation and finally physical PA.
