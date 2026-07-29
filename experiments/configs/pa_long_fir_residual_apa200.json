@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_after_residual_discovery_before_candidate_fit",
+  "date": "2026-07-29",
+  "task": "forward_pa_model_long_fir_residual_audit",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_long_fir_residual_apa200",
+  "scope": {
+    "contour": "A_low_complexity_forward_pa_system_identification",
+    "purpose": "test whether the stable proper residual correlation near causal lag 45 produces a useful sparse long-memory linear correction before adding nonlinear spline branches",
+    "not_claimed": [
+      "independent architecture validation",
+      "physical attribution to the PA rather than the feedback path",
+      "Gate A-to-B",
+      "DPD linearization",
+      "physical-PA remeasurement",
+      "Huawei acceptance"
+    ],
+    "test_split_access_permitted": false
+  },
+  "hypothesis": {
+    "model": "y_hat_fir[n] = y_hat_gmp[n] + sum_{d in D} b_d * x[n-d]",
+    "residual_definition": "e[n] = measured_y[n] - y_hat_gmp[n]",
+    "regression_target": "fit b so that sum_d b_d*x[n-d] approximates e[n]",
+    "interpretation": "a reproducible gain is evidence that the selected causal GMP omits a cheap proper-complex long-memory component; it does not identify whether the component belongs to the PA or measurement path",
+    "phase_equivariance": "preserved because rotating x rotates the proper complex FIR correction by the same phase",
+    "negative_lag_policy": "negative residual-correlation lags are future-input diagnostics and are forbidden as deployable model features"
+  },
+  "discovery_evidence": {
+    "usage_status": "both train OOF and validation residual reports were inspected while choosing this family and supports; neither is an independent confirmation set",
+    "base_selection_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selection_manifest.json",
+      "sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd"
+    },
+    "base_selected_model": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    },
+    "base_residual_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/residual_manifest.json",
+      "sha256": "02b694bb28195f4ae774bdb7b45e58a2a10364a099de3c99e3171ed16a64fd28"
+    },
+    "train_oof_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/train_oof_residual_analysis.json",
+      "sha256": "595c99b056c3413f440a7e6729a34f0638157835cb6411075c2c841e70a94263",
+      "causal_proper_correlation_magnitude_by_lag": {
+        "42": 0.04292961948224086,
+        "43": 0.05119592572560694,
+        "44": 0.05658032680801289,
+        "45": 0.058412718117440365,
+        "46": 0.056650511016390105,
+        "47": 0.05182375067756079,
+        "48": 0.04481566289280544,
+        "49": 0.03657696774469378
+      }
+    },
+    "validation_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/validation_residual_analysis.json",
+      "sha256": "f4bbea617357f5642d895e9fe2a32fb3ae737bc63c1b0d71df03959a6bd3f798",
+      "role": "already-viewed architecture-discovery diagnostic, not confirmation",
+      "causal_proper_correlation_magnitude_by_lag": {
+        "42": 0.039237478230897654,
+        "43": 0.04541151886144578,
+        "44": 0.048721013598453385,
+        "45": 0.04910366373017375,
+        "46": 0.047017740780534854,
+        "47": 0.04308403252175234,
+        "48": 0.037737326720043186,
+        "49": 0.03117503104457314
+      }
+    },
+    "previous_nested_ablation": {
+      "path": "experiments/results/pa_widely_linear_residual_apa200/audit_manifest.json",
+      "sha256": "0096cc2034df853fd8bdb53de28e9a78cd6dcaa619b32a2f91fd795aac726c48",
+      "result": "short conjugate supports failed the preregistered 0.1 dB OOF threshold; selected no_correction"
+    },
+    "source_files": {
+      "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+      "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+      "baseline/complexity.py": "e2c2bbe5aa8c855dab8db57f99740787f633fb376f1984027a3aa6a0028cbc8a"
+    }
+  },
+  "base_model": {
+    "model_class": "complex_generalized_memory_polynomial",
+    "topology": "both_k2_m2",
+    "gmp_config": {
+      "ka": 7,
+      "la": 30,
+      "kb": 2,
+      "lb": 30,
+      "mb": 2,
+      "kc": 2,
+      "lc": 30,
+      "mc": 2,
+      "leading_policy": "causal_leading"
+    },
+    "solver_mode": "ridge_lstsq",
+    "ridge": 1E-7,
+    "existing_maximum_raw_input_delay": 29,
+    "common_warmup_samples_per_frame": 49,
+    "common_future_cooldown_samples_per_frame": 0,
+    "operation_count_per_complex_sample": {
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1362,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 888,
+      "stored_real_constants": 9,
+      "state_real_values": 236
+    }
+  },
+  "correction_fit": {
+    "strategy": "two_stage_frozen_family_residual_fit",
+    "joint_refit_with_gmp": false,
+    "fit_intercept": false,
+    "complex_solver": "column_scaled_complex_ridge_lstsq",
+    "ridge": 1E-8,
+    "coefficient_dtype": "complex128",
+    "prediction_dtype": "complex128",
+    "frame_state_policy": "zero/reset delayed-input state at every explicit frame",
+    "oof_protocol": "for each leave-one-explicit-frame-out fold, refit the frozen GMP recipe on fit frames, compute fit-frame residuals, fit proper complex FIR coefficients only on those residuals, and predict the held frame",
+    "full_train_protocol": "use the integrity-verified full-train frozen GMP, fit proper complex FIR coefficients on full-train residuals, then report the already-viewed validation split descriptively",
+    "test_protocol": "forbidden in this audit; a separate frozen release decision and preferably a new capture are required"
+  },
+  "candidate_supports": [
+    {
+      "name": "no_correction",
+      "delays": [],
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1362,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 888,
+      "stored_real_constants": 9,
+      "state_real_values": 236
+    },
+    {
+      "name": "proper_d45",
+      "delays": [45],
+      "real_multiplications": 958,
+      "real_additions": 951,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1366,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 890,
+      "stored_real_constants": 10,
+      "state_real_values": 268
+    },
+    {
+      "name": "proper_d44_d46",
+      "delays": [44, 45, 46],
+      "real_multiplications": 966,
+      "real_additions": 959,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1374,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 894,
+      "stored_real_constants": 12,
+      "state_real_values": 270
+    },
+    {
+      "name": "proper_d43_d48",
+      "delays": [43, 44, 45, 46, 47, 48],
+      "real_multiplications": 978,
+      "real_additions": 971,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1386,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 900,
+      "stored_real_constants": 15,
+      "state_real_values": 274
+    },
+    {
+      "name": "proper_d42_d49",
+      "delays": [42, 43, 44, 45, 46, 47, 48, 49],
+      "real_multiplications": 986,
+      "real_additions": 979,
+      "real_divisions": 0,
+      "nonlinear_operations": 1,
+      "comparisons": 0,
+      "lookups": 0,
+      "real_memory_reads": 1394,
+      "real_memory_writes": 8,
+      "stored_real_coefficients": 904,
+      "stored_real_constants": 17,
+      "state_real_values": 276
+    }
+  ],
+  "operation_count_convention": {
+    "complex_multiply": "4 real multiplications + 2 real additions",
+    "complex_accumulation_into_base_output": "2 real additions per tap",
+    "per_proper_complex_tap_increment": {
+      "real_multiplications": 4,
+      "real_additions": 4,
+      "stored_real_coefficients": 2,
+      "nonlinear_operations": 0
+    },
+    "input_state": "extend the selected GMP raw complex input history from delay 29 to the candidate maximum delay; existing power-stream histories and per-sample raw delay-line writes are reused",
+    "incremental_state_real_values": "2 * max(maximum_candidate_delay - 29, 0)",
+    "common_scoring_support": "all candidates fit within the already frozen 49-sample common warmup, so no candidate receives a shorter scoring interval",
+    "real_multiplication_limit_exclusive": 1000
+  },
+  "selection_rule": {
+    "evidence_class": "post_discovery_internal_resampling_only",
+    "selection_samples": "train split leave-one-explicit-frame-out predictions",
+    "candidate_score": "min(full_record_gain_db, common_interior_gain_db) relative to no_correction; larger is better",
+    "eligibility": {
+      "minimum_oof_full_record_gain_db": 0.1,
+      "minimum_oof_common_interior_gain_db": 0.1,
+      "maximum_worst_fold_degradation_db": 0.05,
+      "full_rank_every_fold": true,
+      "finite_coefficients_and_predictions": true,
+      "causal_streaming_chunk_equivalence": true,
+      "reset_at_frame_equivalence": true,
+      "real_multiplications_strictly_below": 1000
+    },
+    "complexity_tie_break_db": 0.02,
+    "complexity_tie_break": "among eligible candidates within 0.02 dB of the best candidate_score, choose the fewest proper FIR taps, then the smallest maximum delay",
+    "fallback": "select no_correction if no proper FIR support is eligible"
+  },
+  "reporting": {
+    "required_metrics": [
+      "pooled complex NMSE full record",
+      "pooled complex NMSE common interior",
+      "per-frame NMSE",
+      "OpenDPD-compatible NMSE",
+      "error PSD",
+      "AM/AM residual",
+      "AM/PM residual",
+      "post-fit proper and pseudo residual correlations",
+      "fit time",
+      "inference operation count",
+      "stored coefficients and state"
+    ],
+    "validation_label": "already-viewed descriptive validation, never independent confirmation",
+    "test_metrics": "must not be read or emitted"
+  },
+  "follow_up_gate": {
+    "if_internal_audit_passes": "retain the selected proper FIR as the linear-memory ablation and preregister whether replacing its constant gain with a phase-equivariant spline/CPWL nonlinearity adds enough OOF gain per operation",
+    "if_internal_audit_fails": "do not add nonlinear spline branches at these discovered long delays without separate nonlinear residual evidence; preregister the standalone spline/CPWL plus short-FIR family as a different inductive-bias experiment",
+    "dpa_policy": "do not tune a separate DPA long-lag support from already-viewed DPA residuals; any transfer check must use the APA-frozen support and be labelled non-independent",
+    "state_conditioned_variant": "forbidden because independent_capture_count is zero"
+  }
+}
