@@ -4,9 +4,12 @@
 
 ## 1. Статус и область доказательства
 
-Для selected MP, causal GMP и legacy spline DPD имеются analytical
-operation/state counts. Для causal GMP также доказана equivalence NumPy
-full-record, reset-per-frame и arbitrary streaming chunks в floating-point.
+Для selected MP, causal GMP, legacy spline DPD и нового APA SPH имеются
+analytical operation/state counts. Для causal GMP и SPH также доказана
+equivalence NumPy full-record, reset-per-frame и arbitrary streaming chunks в
+floating-point. SPH является отрицательным quality result, поэтому его cost
+сохраняется как reproducible cheap lower-bound/control point, а не как
+рекомендованный evaluator.
 
 Пока **не выполнены**:
 
@@ -58,6 +61,7 @@ code, buffers, allocator, address logic или output queues.
 | GMP APA | 954 | 947 | 1 | 0 | 0 | 1,362/8 | 888 | 9 | 236 | 4,532 |
 | Legacy spline-memory DPD DPA | 21 | 24 | 1 | 5 | 6 | 18/2 | 144 | 47 | 4 | 780 |
 | Legacy spline-memory DPD APA | 21 | 24 | 1 | 3 | 6 | 18/2 | 48 | 15 | 4 | 268 |
+| APA standalone SPH (`K=32,L=8`) | **37** | **36** | 1 (`sqrt`) | 5 | 4 | 36/2 | **78** | **63** | **14** | **620** |
 
 Sources:
 
@@ -65,11 +69,39 @@ Sources:
   `experiments/results/pa_{mp,gmp}_*`;
 - spline-memory DPD:
   `experiments/results/spline_memory_{dpa200,apa200}/memory_ablation_report.json`.
+- SPH: `experiments/results/pa_sph_apa200_selection/selection_manifest.json`
+  and `selected_sph_pa.npz`; the exact counter is recomputed by
+  `SplineHammersteinPA.operation_count()`.
 
 MP artifact warning: historical MP manifests were written before delay-line
 state bookkeeping correction and contain stale zero state fields. The table
 uses the corrected current counter: 46 DPA and 58 APA state reals. GMP and
 spline-memory manifests already include state values shown above.
+
+### 3.1 SPH cost audit and quality caveat
+
+The selected SPH schedule uses one shared amplitude `sqrt`, binary interval
+selection, two local control-point reads and a causal seven-tap FIR tail. The
+counter convention is explicit:
+
+```text
+37 real MUL = (2 power + 1 coordinate/weight + 2 spline-interpolation
+              + 4 current x*C) + 7*4 causal complex FIR products
+36 real ADD = (1 power + 1 coordinate + 4 spline/interpolation + 2 current
+              product) + 7*(2 FIR product + 2 accumulation)
+1 sqrt, 5 comparisons, 4 LUT accesses
+```
+
+`h[0]=1+0j` is fixed and is neither stored nor multiplied. Storage is
+`78 + 63 + 14 = 155` real values, i.e. `620` FP32 bytes before code/buffer
+overhead. Streaming state is 7 complex nonlinear-output samples (14 real
+values); reset and arbitrary-chunk equivalence are exact in complex128.
+
+This is not a claim of hardware latency: the four LUT accesses and magnitude
+primitive still need an RTL mapping, and memory traffic/address generation is
+reported separately. More importantly, APA SPH train-OOF NMSE is −30.4024 dB,
+6.652 dB worse than matched MP and 7.943 dB worse than GMP. The low cost must
+therefore not be used to justify moving the DPD contour to SPH.
 
 ## 4. Interpreting the cost
 
