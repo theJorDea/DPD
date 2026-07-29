@@ -100,6 +100,8 @@ condition, coefficient norm, boundary requirements and train NMSE.
 - MP;
 - factorized GMP;
 - widely-linear residual correction;
+- proper-complex FIR residual correction with incremental enclosing-state
+  accounting;
 - EnhancedESN_FAN scalar and I/Q pair.
 
 Fields are not collapsed into FLOPs:
@@ -150,6 +152,22 @@ It is intentionally not phase-equivariant and therefore is an IQ/measurement
 asymmetry diagnostic, not a generic PA inductive bias or proof of PA physics.
 `widely_linear_residual_correction_cost(...)` counts each complex tap and can
 separate reused versus standalone delay-state storage.
+
+### 2.7 Causal proper-complex FIR residual diagnostic
+
+`baseline/complex_fir_pa.py` implements
+
+```text
+delta_y[n] = sum_d b[d] * x[n-d]
+```
+
+with the same deterministic complex ridge, segmented reset, continuous state,
+NPZ and diagnostics contract. Unlike the conjugate branch it is naturally
+phase-equivariant. `complex_fir_residual_correction_cost(...)` counts either
+standalone delay state or only the incremental state beyond an enclosing
+model's maximum raw-input delay. For the selected APA GMP that boundary is
+29 samples; extending to lag 49 adds 40 real state values, not zero and not a
+second full 98-real buffer.
 
 ## 3. Experiment runners
 
@@ -221,14 +239,16 @@ verify_selection_before_test_access(selection_manifest)
 One-shot outputs record `refit_performed=false`,
 `post_prediction_gain_fit=false` and `post_prediction_delay_fit=false`.
 
-### 3.5 Widely-linear residual audit
+### 3.5 Linear residual audits
 
 `experiments/audit_widely_linear_pa.py` refits the frozen GMP recipe in each
-leave-one-frame-out fold, then fits only the conjugate correction to that
-fold's fit residual. Candidate selection uses OOF full/common gains; reused
-validation is descriptive and test access is absent. The runner checks source
-and data hashes, exact cost, full rank, frame reset and arbitrary-chunk
-streaming equivalence before publishing an atomic result bundle.
+leave-one-frame-out fold, then fits only the selected residual feature mode to
+that fold's fit residual. It dispatches explicitly between `conjugate` and
+`proper`; `experiments/audit_complex_fir_pa.py` is the proper-FIR CLI.
+Candidate selection uses OOF full/common gains; reused validation is
+descriptive and test access is absent. The runner checks source/data hashes,
+exact cost, full rank, frame reset and arbitrary-chunk streaming equivalence
+before publishing an atomic result bundle.
 
 ## 4. Artifact integrity and publication rules
 
@@ -249,10 +269,16 @@ Absolute checkout paths remain in some historical and frozen test JSON. New
 schema-2 configs resolve repository-relative paths; portability should be
 improved in future manifests without rewriting existing hash-bound evidence.
 
+The long-FIR config was intentionally committed before its new counter. Its
+result manifest therefore records a preregistered/current source-hash mismatch
+for `baseline/complexity.py`; numerical discovery artifacts and unchanged GMP/
+residual sources match exactly. This is preserved provenance, not repaired by
+rewriting the preregistration.
+
 ## 5. Tests and invariants
 
-Last recorded complete code suite after the widely-linear audit runner:
-**153/153 passed in 1.253 s** on the environment in this document.
+Last recorded complete code suite after the proper-FIR audit runner:
+**167/167 passed in 2.804 s** on the environment in this document.
 Documentation-only commits after that do not change code.
 Test modules cover:
 
@@ -266,6 +292,8 @@ Test modules cover:
 - residual OOF/test isolation/atomic publication;
 - causal widely-linear fit/save/load/streaming, cost and deterministic audit
   selection/fallback;
+- phase-equivariant long-FIR fit/save/load/streaming, incremental state cost
+  and shared audit dispatch;
 - release predicates and streaming checks;
 - existing spline fixed-point arithmetic/saturation.
 
@@ -299,6 +327,10 @@ The previous 120-test 0.396 s timing is obsolete.
 | `f8f75de` / `340c923` | exact correction cost and causal model/tests |
 | `9400e3d` | hash-bound widely-linear audit runner/tests |
 | `5d2e273` | APA widely-linear negative result bundle |
+| `37beab9` | preregister APA proper long-FIR residual audit |
+| `6529522` / `dae3ae6` | exact FIR cost and causal model/tests |
+| `d9c897e` | shared hash-bound proper-FIR audit runner/tests |
+| `31bf9a6` | APA proper long-FIR negative result bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -313,6 +345,7 @@ experiments/results/pa_gmp_apa200_residuals/
 experiments/results/pa_gmp_dpa200_test/
 experiments/results/pa_gmp_apa200_test/
 experiments/results/pa_widely_linear_residual_apa200/
+experiments/results/pa_long_fir_residual_apa200/
 ```
 
 Normative documents:
@@ -344,6 +377,8 @@ Normative documents:
 11. Gate A→B remains closed; existing DPD is surrogate-only.
 12. Checked APA short conjugate supports failed the 0.1 dB OOF threshold;
     `no_correction` remains selected and no physical IQ attribution is made.
+13. Checked APA sparse proper-FIR supports also failed 0.1 dB; all folds
+    improved, but the best aggregate gain was only 0.018/0.020 dB.
 
 ## 9. Extension contract for the next PA model
 
@@ -377,13 +412,15 @@ until independent long-capture slow-state evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Ask/record metadata for `APA_200MHz_b` measurement B.
-2. Preregister external-capture transfer and target-train nuisance alignment.
-3. Implement one low-complexity PA spline/FIR family with tests and analytical
-   counter.
-4. Select using primary APA train OOF/validation only.
-5. Evaluate zero-shot and limited coefficient recalibration on APA measurement
-   B; target test once after freeze.
-6. Reassess Gate A→B.
-7. Only if it passes, resume DPD comparison; otherwise continue PA/physical
-   evidence work.
+1. Preregister one standalone phase-equivariant spline/CPWL + short-FIR PA
+   topology, fit rule, exact counter and OOF acceptance threshold.
+2. Implement the family with basis/identifiability/serialization/streaming
+   tests, without changing the evaluator.
+3. Select using APA train OOF; show already-viewed validation descriptively;
+   do not read the previously opened APA test.
+4. Ask/record metadata for `APA_200MHz_b` measurement B and preregister
+   external-capture transfer plus target-train nuisance alignment.
+5. Evaluate zero-shot and limited coefficient recalibration on measurement B;
+   target test once after freeze.
+6. Reassess Gate A→B. Resume DPD only after PASS; otherwise continue
+   PA/physical evidence work.
