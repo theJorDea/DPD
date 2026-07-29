@@ -29,8 +29,8 @@ PA measurement, Gate A→B остаётся закрытым.
 
 ## Status snapshot
 
-Текущий snapshot после GMP result commits `8ae235d`, `0e56add` и benchmark
-update `d7042c5`:
+Текущий snapshot включает frozen GMP results и завершённый APA
+widely-linear residual audit:
 
 - MP forward baseline, frozen test и residual analysis для DPA/APA завершены;
 - causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
@@ -48,8 +48,12 @@ update `d7042c5`:
 - integrity-gated frozen runner поддерживает MP и GMP, включая проверку полного
   `gmp_config`, hashes, operation count и common cooldown до чтения test;
 - APA GMP residual содержит воспроизводимую pseudo-correlation с
-  `conj(x[n-d])` на каузальных лагах 0…3; bounded widely-linear residual audit
-  preregistered в `experiments/configs/pa_widely_linear_residual_apa200.json`;
+  `conj(x[n-d])` на каузальных лагах 0…3, но bounded widely-linear residual
+  audit дал максимум 0.0273/0.0305 dB full/common OOF gain и не прошёл
+  preregistered 0.1 dB gate; frozen decision — `no_correction`;
+- widely-linear audit имеет evidence class
+  `post_discovery_internal_resampling_only`: validation уже использовался
+  как descriptive split, test не читался и не хэшировался;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
 
@@ -178,8 +182,8 @@ checkpoint нет. Следующие PA families ещё не реализова
    - [x] freeze winner и открыть test один раз после release-gate PASS.
 3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
    воспроизводимо обучен.
-4. [ ] Sparse complex spline-memory PA.
-5. [ ] Spline/CPWL memoryless nonlinearity + short complex FIR.
+4. [ ] Spline/CPWL memoryless nonlinearity + short complex FIR.
+5. [ ] Sparse complex spline-memory PA.
 6. [ ] State-conditioned variant только при residual evidence slow state.
 
 Каждый baseline разбивается минимум на отдельные commits: model + tests;
@@ -245,10 +249,12 @@ correlation ошибки с входом: её magnitude на лагах 0, 1, 2
 как inference features.
 
 Важно: и train OOF residual, и validation residual уже просмотрены
-при выборе widely-linear family. Поэтому первый запуск имеет статус
-`post_discovery_internal_resampling_only`; validation не будет повторно
-называться independent confirmation, а test запрещён. Для acceptance нужен
-новый capture/operating point.
+при выборе widely-linear family. Поэтому выполненный запуск имеет статус
+`post_discovery_internal_resampling_only`; validation не называется
+independent confirmation, а test не читался. Все четыре supports дали лишь
+0.0248…0.0273 dB full и 0.0296…0.0305 dB common OOF gain при 958…974
+MUL/sample. Ни один не достиг 0.1 dB full/common threshold, поэтому выбран
+`no_correction`. Для acceptance нужен новый capture/operating point.
 
 ## Ближайшая точная последовательность
 
@@ -264,14 +270,16 @@ correlation ошибки с входом: её magnitude на лагах 0, 1, 2
    `FINAL_GAP_ANALYSIS.md`, отделяя completed evidence от planned work.
 4. [x] Зафиксировать residual-selected APA widely-linear/IQ hypothesis,
    exact support/cost limits и reused-validation status до candidate fit; test запрещён.
-5. [ ] Реализовать two-stage conjugate residual correction + unit tests: causality,
+5. [x] Реализовать two-stage conjugate residual correction + unit tests: causality,
    frame reset, streaming equivalence, exact operation count и deterministic complex fit.
-6. [ ] Выполнить APA leave-one-frame-out internal audit при strict `<1000 MUL`;
+6. [x] Выполнить APA leave-one-frame-out internal audit при strict `<1000 MUL`;
    validation показать только как already-viewed descriptive split, test не читать.
-7. [ ] Если internal audit пройдет threshold, проверить feedback-path
-   IQ/frequency response и новый capture; если нет — preregister spline/CPWL +
-   short complex FIR PA. DPA не получает отдельного tuned conjugate support.
-8. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+7. [x] Применить preregistered decision: audit threshold не прошёл, поэтому
+   feedback-path/IQ attribution не заявлять и DPA tuned conjugate support не
+   запускать.
+8. [ ] Preregister bounded `spline/CPWL memoryless nonlinearity + short
+   complex FIR` PA audit с exact cost, identifiability и streaming contract.
+9. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
