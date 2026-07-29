@@ -4,7 +4,8 @@
 
 ## 1. Статус и область доказательства
 
-Для selected MP, causal GMP, legacy spline DPD и нового APA SPH имеются
+Для selected MP, causal GMP, legacy spline DPD, APA SPH и нового
+non-factorized sparse spline-memory PA имеются
 analytical operation/state counts. Для causal GMP и SPH также доказана
 equivalence NumPy full-record, reset-per-frame и arbitrary streaming chunks в
 floating-point. SPH является отрицательным quality result, поэтому его cost
@@ -62,6 +63,7 @@ code, buffers, allocator, address logic или output queues.
 | Legacy spline-memory DPD DPA | 21 | 24 | 1 | 5 | 6 | 18/2 | 144 | 47 | 4 | 780 |
 | Legacy spline-memory DPD APA | 21 | 24 | 1 | 3 | 6 | 18/2 | 48 | 15 | 4 | 268 |
 | APA standalone SPH (`K=32,L=8`) | **37** | **36** | 1 (`sqrt`) | 5 | 4 | 36/2 | **78** | **63** | **14** | **620** |
+| APA sparse non-factorized (`K=12`, 6 branches) | **54** | **58** | 6 (`sqrt`) | 24 | 12 | 36/2 | **144** | **23** | **48** | **860** |
 
 Sources:
 
@@ -72,6 +74,9 @@ Sources:
 - SPH: `experiments/results/pa_sph_apa200_selection/selection_manifest.json`
   and `selected_sph_pa.npz`; the exact counter is recomputed by
   `SplineHammersteinPA.operation_count()`.
+- Sparse PA: `experiments/results/pa_sparse_spline_memory_apa200_selection/selection_manifest.json`
+  and `selected_sparse_pa.npz`; the exact counter is recomputed by
+  `SparseSplineMemoryPA.operation_count()`.
 
 MP artifact warning: historical MP manifests were written before delay-line
 state bookkeeping correction and contain stale zero state fields. The table
@@ -102,6 +107,31 @@ primitive still need an RTL mapping, and memory traffic/address generation is
 reported separately. More importantly, APA SPH train-OOF NMSE is −30.4024 dB,
 6.652 dB worse than matched MP and 7.943 dB worse than GMP. The low cost must
 therefore not be used to justify moving the DPD contour to SPH.
+
+### 3.2 Sparse non-factorized PA cost audit and quality caveat
+
+The selected sparse model has six branches
+`(0,0),(1,1),(2,2),(22,22),(23,23),(24,24)` and twelve shared amplitude knots.
+Envelope magnitude, interval address and interpolation weight are shared only
+within equal envelope-delay groups. The exact schedule is:
+
+```text
+54 real MUL, 58 real ADD, 0 divisions,
+6 sqrt nonlinear operations, 24 comparisons, 12 LUT accesses,
+36 real reads, 2 writes, 144 real coefficient values,
+23 constants, 48 persistent state reals.
+```
+
+The 48-state value includes the causal delay line through sample 24. FP32
+coefficient/constant/state storage is `(144+23+48)*4 = 860 bytes`, excluding
+code, buffers and interface queues. The model is phase-equivariant in floating
+point and exact under arbitrary chunks/reset according to the published
+bundle. It is still an analytical schedule, not a synthesized datapath.
+
+The low count does not imply a useful evaluator by itself: train-OOF NMSE is
+`−32.030011 dB`, versus `−38.345410 dB` for matched GMP and `−37.054329 dB`
+for matched MP. The candidate therefore fails the internal cheap-Pareto gate
+and must not be used to claim DPD quality or Huawei real-time readiness.
 
 ## 4. Interpreting the cost
 
@@ -301,8 +331,8 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-Сначала расширить integer reference на selected causal GMP PA и доказать
-bit-identical streaming at 16 bit. Затем добавить 14/12 bit и только после
-этого spline-memory DPD/cascade. Такой порядок изолирует degradation PA
-evaluator от degradation DPD и не смешивает две новые реализации в одном
-experiment.
+Сначала расширить integer reference на selected causal GMP и selected sparse
+PA, доказать bit-identical streaming at 16 bit, а затем добавить 14/12 bit.
+Только после раздельной PA quantization перейти к spline-memory DPD/cascade.
+Такой порядок изолирует degradation PA evaluator от degradation DPD и не
+смешивает две новые реализации в одном experiment.
