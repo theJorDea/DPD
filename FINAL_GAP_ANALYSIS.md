@@ -114,7 +114,51 @@ rank и streaming/reset exact, но ни один support не достиг 0.1 
 читался; результат не является independent confirmation. Evidence:
 `experiments/results/pa_long_fir_residual_apa200/`.
 
-### 3.5 Code/repository audit conclusions
+### 3.5 Отрицательный APA standalone SPH benchmark
+
+После linear residual checks был выполнен отдельный preregistered search
+phase-equivariant spline-Hammerstein PA. Это самостоятельный forward model,
+а не additive correction к GMP:
+
+```text
+v[n] = x[n] C(|x[n]|)
+y_hat[n] = v[n] + sum(l=1..7) h[l] v[n-l],  h[0] = 1
+```
+
+Search использовал только train leave-one-frame-out OOF для выбора recipe;
+validation была загружена после freeze исключительно как reused descriptive
+evidence, test не открывался. Выбран `K=32`, `L=8`, amplitude-uniform knots,
+`control_ridge=1e-8`, `smoothness=1e-8`, `fir_ridge=0`.
+
+| Model | Full OOF NMSE | Common OOF NMSE | MUL / ADD | Stored coeff. / state |
+|---|---:|---:|---:|---:|
+| Matched MP reference | −37.054329 dB | −37.099951 dB | 960 / 628 | 300 / 58 |
+| Matched GMP reference | −38.345410 dB | −38.750526 dB | 954 / 947 | 888 / 236 |
+| Selected SPH | −30.402374 dB | −30.437014 dB | **37 / 36** | **78 / 14** |
+
+SPH therefore loses to matched MP by `6.651955/6.662937 dB` (full/common)
+and to GMP by `7.943037/8.313512 dB`. Its 37-MUL cost is real and exactly
+recomputed from the serialized model, but the preregistered cheap-Pareto gate
+allowed at most 3 dB loss versus MP. Classification is consequently
+`neither_evaluator_nor_cheap_pareto`; Gate A→B remains closed.
+
+The failure is informative rather than inconclusive. The SPH OOF residual has
+a stable causal proper-correlation peak at lags 22–24 (`0.684–0.723`), while
+instantaneous radial-envelope correlation is only `0.024`. Increasing knot
+count is not the missing degree of freedom: raw K48/K64 scores were rejected
+because the control design was rank-deficient in one or more folds (`47/48`
+and `62–63/64`). The factorized spline/FIR form cannot represent sufficiently
+delay-dependent nonlinear coefficients. The next candidate should therefore be
+a bounded **non-factorized sparse spline-memory** dictionary, with explicit
+branch selection and the same train-only OOF/identifiability gates.
+
+Evidence: `experiments/results/pa_sph_apa200_selection/selection_manifest.json`,
+`staged_trials.json`, `train_oof_residual_analysis.json` and
+`validation_reused_residual_analysis.json`. The immutable execution record
+certifies 60 unique recipes, 180 completed OOF fits, exact streaming/reset
+checks and `test_split_accessed=false`.
+
+### 3.6 Code/repository audit conclusions
 
 - OpenDPD neural DLA использует правильное deployment direction:
   desired `x -> DPD -> frozen PA`, target `g*x`; circular `y_test` input там не
@@ -188,6 +232,12 @@ ablation threshold и пренебрежимо малы по сравнению 
 evaluator margin на APA. Поэтому residual correlation нельзя интерпретировать
 как готовый путь к требуемой PA fidelity.
 
+Standalone SPH даёт противоположный урок: малый operation count сам по себе не
+делает evaluator пригодным. Его error power примерно `10^(6.65/10)≈4.6×`
+выше matched MP и `10^(7.94/10)≈6.2×` выше GMP на OOF. Поэтому дальнейшая
+DPD-оптимизация через SPH была остановлена до попытки использовать его как
+frozen evaluator.
+
 ## 6. Чего не хватает для Huawei/base-station claim
 
 ### 6.1 Requirements
@@ -240,6 +290,7 @@ evaluator margin на APA. Поэтому residual correlation нельзя ин
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
 | Sparse APA long-FIR branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.018/0.020 dB despite positive gains in every fold |
+| Standalone APA SPH replaces GMP under the cheap-quality gate | refuted on train OOF | 37 MUL/sample, but 6.652 dB worse than matched MP and 7.943 dB worse than GMP |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
@@ -274,14 +325,15 @@ B”. Причины:
 
 Пока provenance/operating-point metadata для measurement B не подтверждены,
 следующий полностью локальный model experiment — заранее ограниченный
-phase-equivariant spline/CPWL PA с короткой causal linear memory. Его topology,
-identifiability constraint, operation count и OOF threshold должны быть
-зафиксированы до fit; already-viewed validation остаётся descriptive, а ранее
-открытый APA test запрещён для selection. Этот experiment может проверить
-новый nonlinear inductive bias, но не заменяет independent capture. Два
-предыдущих linear residual ablations уже дали отрицательный результат, поэтому
-этот candidate должен быть standalone alternative model, а не ещё одной
-малой correction поверх почти исчерпанного 954-MUL GMP budget.
+**non-factorized sparse spline-memory PA** с delays, выбранными из residual
+peak около 22–24 samples. Его branch dictionary, identifiability constraint,
+operation count и OOF threshold должны быть зафиксированы до fit;
+already-viewed validation остаётся descriptive, а ранее открытый APA test
+запрещён для selection. SPH уже показал, что standalone factorized
+nonlinearity + short FIR недостаточна; sparse branch model проверит ровно
+недостающий degree of freedom, не добавляя бесконтрольный GMP grid. Этот
+experiment может проверить новый nonlinear inductive bias, но не заменяет
+independent capture.
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
