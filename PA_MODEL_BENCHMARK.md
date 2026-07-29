@@ -20,6 +20,10 @@ Polynomial (GMP) отдельно на `DPA_200MHz` и `APA_200MHz`.
 phase-equivariant spline-Hammerstein (SPH) PA на `APA_200MHz`. SPH был
 запущен как следующий изолированный low-complexity candidate; он не изменял
 GMP evaluator и не открывал контур B.
+После SPH выполнен preregistered non-factorized sparse spline-memory PA search
+на том же `APA_200MHz`: он также является самостоятельной forward-моделью,
+а не residual correction к GMP. Его OOF selection и full-train refit
+опубликованы отдельно; validation загружена только после freeze.
 Данные в CSV являются измеренными входом и выходом PA, поэтому это
 **forward identification on held-out measured data**. Это не означает, что
 физический PA был повторно измерен после построения модели.
@@ -49,9 +53,14 @@ evaluator не является выполненным DPD experiment. Bundled O
 - APA SPH search дал −30.4024 dB train-OOF full-record NMSE при 37 real
   MUL/sample, то есть на 6.652 dB хуже matched MP и на 7.943 dB хуже GMP;
   поэтому он отклонён как evaluator replacement и как cheap Pareto point;
-- residual SPH имеет воспроизводимый causal peak около lag 22–24
-  (`|proper correlation|≈0.72`), что направляет следующую проверку к
-  nonlinear memory branches, а не к дополнительным knots;
+- bounded non-factorized sparse spline-memory search улучшил SPH до
+  −32.0300 dB train-OOF full (−32.0882 dB common) при 54 MUL/58 ADD, но
+  всё ещё на 5.024 dB хуже matched MP и на 6.315 dB хуже GMP; evaluator gate
+  не пройден;
+- sparse run выявил новый воспроизводимый causal proper-correlation peak около
+  lag 9 (`|proper|=0.691` train OOF, `0.691` reused validation), тогда как
+  ранее проверенные lag 22–24 branches были недостаточны; это гипотеза для
+  следующего preregistration, а не tuning по validation;
 - DPD optimization остаётся остановленной до следующего PA-model experiment,
   выбранного по residual evidence, либо до независимого physical-PA capture.
 
@@ -860,6 +869,76 @@ records source/config/data hashes, all 60 unique recipes, 180 completed OOF
 fits, validation-after-freeze ordering, exact streaming/reset checks and the
 fact that `test_split_accessed=false`.
 
+## 10.7 Non-factorized sparse spline-memory PA — completed negative result
+
+После factorized SPH был выполнен отдельный preregistered search:
+
+```text
+y_hat[n] = sum_b x[n-m_b] C_b(|x[n-d_b]|)
+```
+
+`C_b` — complex local linear spline на общей amplitude-knot сетке; каждый
+sample активирует ровно две соседние control points на branch. Signal и
+envelope delays causal, I/Q fit joint complex, frame boundaries reset. Search
+не был additive correction к GMP и не использовал measured output как
+кандидатный input для DPD.
+
+Команда:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sparse_spline_memory \
+  --config experiments/configs/pa_sparse_spline_memory_apa200.json
+```
+
+S0 проверил 7 topology families при `K=12`; внутри preregistered окна был
+оставлен один topology. S1 проверил `K={8,12,16,24}`, S2 — пять ridge values.
+Фактически выполнено 16 stage associations, 14 уникальных recipes и 42
+OOF-fold fits (повторные recipes использовали hash cache). Selection samples
+были только тремя явными train frames; validation загружена после freeze,
+а test split не открывался и не хешировался.
+
+| Candidate / split | Full pooled NMSE, dB | Common-interior NMSE, dB | OpenDPD-compatible, dB | MUL / ADD | Stored real coeff. / state |
+|---|---:|---:|---:|---:|---:|
+| Matched MP reference, train OOF | −37.054329 | −37.099951 | — | 960 / 628 | 300 / 58 |
+| Matched GMP reference, train OOF | −38.345410 | −38.750526 | −38.478780 | 954 / 947 | 888 / 236 |
+| Selected sparse, train OOF | −32.030011 | −32.088250 | — | **54 / 58** | **144 / 48** |
+| Selected sparse, full-train refit | −32.049190 | −32.107450 | −32.045143 | 54 / 58 | 144 / 48 |
+| Selected sparse, reused validation | −32.048219 | −32.071529 | −32.048219 | 54 / 58 | 144 / 48 |
+
+Selected recipe:
+`mixed_diagonal_long_K12_r0e+00_b0:0,1:1,2:2,22:22,23:23,24:24`.
+Its fit design is full rank (`72/72`), augmented condition number `78.57`,
+minimum nonzero feature support `8` samples, maximum coefficient magnitude
+`1.3282`, and maximum causal memory `24` samples. Exact analytical inference
+count is 54 real MUL, 58 real ADD, 6 magnitude nonlinear operations, 24
+comparisons, 12 LUT accesses, 144 stored real coefficients and 48 state reals.
+
+The quality decision is unambiguous:
+
+- versus matched MP: loss `5.024318 dB` full and `5.011702 dB` common;
+- versus matched GMP: loss `6.315399 dB` full and `6.662276 dB` common;
+- worst OOF-fold loss versus GMP: `6.678227 dB` full and `6.712301 dB`
+  common;
+- the preregistered cheap-Pareto limit was 3 dB versus MP, so the candidate is
+  classified `neither_evaluator_nor_cheap_pareto` and Gate A→B remains closed.
+
+Residual analysis is useful for the next hypothesis. The selected model's
+train-OOF residual has pooled common NMSE `−32.08825 dB`; the strongest causal
+proper correlation is at lag 9 (`0.69064`), reproduced at `0.69131` on reused
+validation. Radial/tangential envelope correlations are much smaller (largest
+radial-envelope value about `0.140` at lag 2), and the slow-state branch remains
+ineligible because independent-capture count is zero. Thus the present result
+does not justify adding a state or more knots; it justifies preregistering a
+new branch dictionary containing lag-9 neighborhoods, with all gates frozen
+before fitting.
+
+Machine-readable evidence is the immutable directory
+`experiments/results/pa_sparse_spline_memory_apa200_selection/`:
+`selection_manifest.json`, `staged_trials.json`, `predictions.npz`, the two
+residual reports, `selected_sparse_pa.npz` and `execution_record.json`.
+The manifest records runtime `33.5888 s`, exact streaming/reset equivalence,
+hash re-verification before publication, and `test_split_accessed=false`.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -873,10 +952,10 @@ fact that `test_split_accessed=false`.
 - Нет captures разных power levels/operating points для adaptation curves.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
-- Widely-linear и proper long-FIR APA residual branches проверены и отклонены
-  по preregistered threshold; standalone SPH + short FIR теперь тоже
-  проверен и отклонён. Всё ещё нет sparse **non-factorized** spline-memory PA
-  result с доказанным выигрышем над GMP.
+- Widely-linear, proper long-FIR, standalone SPH и non-factorized sparse
+  spline-memory APA families проверены и отклонены по quality/evaluator
+  gates. Ни одна low-complexity sparse family пока не приблизилась к GMP
+  fidelity.
 - Нет bit-accurate 16/14/12-bit PA-model evaluation.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
