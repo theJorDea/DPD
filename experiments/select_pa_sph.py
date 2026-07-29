@@ -967,3 +967,248 @@ def evaluate_oof_recipe(
         "accessed_split": "train_only",
         "test_split_accessed": False,
     }
+
+
+def _failed_trial(recipe: SPHRecipe, error: Exception) -> dict[str, Any]:
+    return {
+        "recipe": recipe,
+        "recipe_sha256": recipe.canonical_sha256,
+        "operation_count": recipe.operation_count.to_dict(),
+        "full_record_nmse_db": None,
+        "common_interior_nmse_db": None,
+        "metrics": None,
+        "hard_valid": False,
+        "hard_validity_checks": {
+            "fit_completed": False,
+        },
+        "failure": {
+            "type": type(error).__name__,
+            "message": str(error),
+        },
+        "fold_count": 0,
+        "fit_seconds": 0.0,
+        "accessed_split": "train_only",
+        "test_split_accessed": False,
+    }
+
+
+def _selected_decision(
+    trial: dict[str, Any],
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    recipe = _trial_recipe(trial)
+    selection = config["selection"]
+    evaluator = selection["evaluator_replacement"]
+    cheap = selection["cheap_pareto_retention"]
+    references = config["reference_models"]
+    full_gain = trial.get("gain_over_gmp_full_record_db")
+    common_gain = trial.get("gain_over_gmp_common_interior_db")
+    minimum_fold_full = trial.get(
+        "minimum_fold_gain_over_gmp_full_record_db"
+    )
+    minimum_fold_common = trial.get(
+        "minimum_fold_gain_over_gmp_common_interior_db"
+    )
+    maximum_fold_degradation = float(
+        selection["maximum_worst_fold_degradation_vs_gmp_db"]
+    )
+    evaluator_checks = {
+        "hard_valid": trial.get("hard_valid") is True,
+        "oof_full_gain_at_least_threshold": (
+            full_gain is not None
+            and float(full_gain)
+            >= float(evaluator["minimum_oof_full_gain_over_gmp_db"])
+        ),
+        "oof_common_gain_at_least_threshold": (
+            common_gain is not None
+            and float(common_gain)
+            >= float(evaluator["minimum_oof_common_gain_over_gmp_db"])
+        ),
+        "worst_fold_full_not_below_limit": (
+            minimum_fold_full is not None
+            and float(minimum_fold_full) >= -maximum_fold_degradation
+        ),
+        "worst_fold_common_not_below_limit": (
+            minimum_fold_common is not None
+            and float(minimum_fold_common) >= -maximum_fold_degradation
+        ),
+        "real_multiplications_strictly_below_limit": (
+            recipe.operation_count.real_multiplications
+            < int(evaluator["real_multiplications_strictly_below"])
+        ),
+    }
+    evaluator_eligible = all(evaluator_checks.values())
+    matched_mp = references["matched_mp_oof"]
+    full_loss_vs_mp = float(trial["full_record_nmse_db"]) - float(
+        matched_mp["full_record_nmse_db"]
+    )
+    common_loss_vs_mp = float(trial["common_interior_nmse_db"]) - float(
+        matched_mp["common_interior_nmse_db"]
+    )
+    cheap_checks = {
+        "hard_valid": trial.get("hard_valid") is True,
+        "full_loss_vs_mp_within_limit": full_loss_vs_mp
+        <= float(cheap["maximum_oof_full_loss_vs_matched_mp_db"]),
+        "common_loss_vs_mp_within_limit": common_loss_vs_mp
+        <= float(cheap["maximum_oof_common_loss_vs_matched_mp_db"]),
+    }
+    cheap_retained = all(cheap_checks.values())
+    classification = (
+        "evaluator_replacement_eligible_for_independent_validation"
+        if evaluator_eligible
+        else (
+            "cheap_pa_model_pareto_point_only"
+            if cheap_retained
+            else "neither_evaluator_nor_cheap_pareto"
+        )
+    )
+    return {
+        "classification": classification,
+        "evaluator_replacement_eligible": evaluator_eligible,
+        "evaluator_checks": evaluator_checks,
+        "cheap_pareto_retained": cheap_retained,
+        "cheap_pareto_checks": cheap_checks,
+        "full_loss_vs_matched_mp_db": full_loss_vs_mp,
+        "common_loss_vs_matched_mp_db": common_loss_vs_mp,
+        "gate_a_to_b_opened": False,
+        "old_apa_test_permitted": False,
+        "validation_role": "not_loaded_by_staged_oof_search",
+    }
+
+
+def run_staged_oof_search(
+    config: dict[str, Any],
+    train_input: np.ndarray,
+    train_output: np.ndarray,
+    *,
+    protocol: SPHOOFProtocol,
+    reference_gmp_oof_prediction: np.ndarray,
+) -> dict[str, Any]:
+    """Execute S0..S3 on train OOF with canonical recipe caching."""
+
+    budget_summary = validate_search_budget(config)
+    samples = _complex_vector(train_input, name="train_input")
+    target = _complex_vector(train_output, name="train_output")
+    reference = _complex_vector(
+        reference_gmp_oof_prediction,
+        name="reference_gmp_oof_prediction",
+    )
+    if samples.shape != target.shape or samples.shape != reference.shape:
+        raise ValueError("staged-search train arrays must have equal length")
+    if len(np.unique(_frame_ids(samples.size, protocol.segment_length))) != int(
+        budget_summary["folds"]
+    ):
+        raise ValueError("observed train frame count disagrees with OOF budget")
+    tolerance = float(config["selection"]["ranking_tolerance_db"])
+
+    cache: dict[str, dict[str, Any]] = {}
+    cache_hits = 0
+    stage_associations = 0
+    allowed_failures = (
+        ValueError,
+        FloatingPointError,
+        RuntimeError,
+        np.linalg.LinAlgError,
+    )
+
+    def evaluate_stage(recipes: Iterable[SPHRecipe]) -> list[dict[str, Any]]:
+        nonlocal cache_hits, stage_associations
+        rows: list[dict[str, Any]] = []
+        for recipe in recipes:
+            stage_associations += 1
+            identity = recipe.canonical_sha256
+            if identity in cache:
+                cache_hits += 1
+                rows.append(cache[identity])
+                continue
+            try:
+                row = evaluate_oof_recipe(
+                    recipe,
+                    samples,
+                    target,
+                    protocol=protocol,
+                    reference_gmp_oof_prediction=reference,
+                )
+            except allowed_failures as error:
+                row = _failed_trial(recipe, error)
+            cache[identity] = row
+            rows.append(row)
+        return rows
+
+    stage_results: dict[str, list[dict[str, Any]]] = {}
+    selections: dict[str, Any] = {}
+
+    s0 = evaluate_stage(enumerate_s0_recipes(config))
+    stage_results["S0_coordinate_and_memory"] = s0
+    retained = retain_s0_topologies(s0)
+    selections["S0_retained_topologies"] = [
+        {"variant": variant, "fir_length": fir_length}
+        for variant, fir_length in retained
+    ]
+
+    s1 = evaluate_stage(enumerate_s1_recipes(config, retained))
+    stage_results["S1_knot_count"] = s1
+    s1_selected = select_ranked_trial(s1, tolerance_db=tolerance)
+    s1_recipe = _trial_recipe(s1_selected)
+    selections["S1_selected_recipe"] = s1_recipe.to_dict()
+
+    s2 = evaluate_stage(
+        enumerate_s2_recipes(
+            config,
+            (s1_recipe.variant, s1_recipe.fir_length, s1_recipe.knot_count),
+        )
+    )
+    stage_results["S2_control_and_smoothness"] = s2
+    s2_selected = select_ranked_trial(s2, tolerance_db=tolerance)
+    s2_recipe = _trial_recipe(s2_selected)
+    selections["S2_selected_recipe"] = s2_recipe.to_dict()
+
+    s3 = evaluate_stage(enumerate_s3_recipes(config, s2_recipe))
+    stage_results["S3_fir_ridge"] = s3
+    final_trial = select_ranked_trial(s3, tolerance_db=tolerance)
+    final_recipe = _trial_recipe(final_trial)
+    selections["S3_selected_recipe"] = final_recipe.to_dict()
+
+    unique_fit_calls = sum(
+        int(row.get("fold_count", 0))
+        for row in cache.values()
+        if row.get("failure") is None
+    )
+    if unique_fit_calls > int(budget_summary["maximum_oof_fit_calls"]):
+        raise RuntimeError("actual OOF fit calls exceeded preregistered maximum")
+    evaluated_recipe_fit_call_upper_bound = (
+        len(cache) * int(budget_summary["folds"])
+    )
+    association_fit_call_upper_bound = (
+        stage_associations * int(budget_summary["folds"])
+    )
+    if association_fit_call_upper_bound > int(
+        budget_summary["maximum_oof_fit_calls"]
+    ):
+        raise RuntimeError("staged recipe associations exceed the search budget")
+    decision = _selected_decision(final_trial, config)
+    return {
+        "budget_summary": budget_summary,
+        "stage_results": stage_results,
+        "selections": selections,
+        "final_trial": final_trial,
+        "final_recipe": final_recipe,
+        "decision": decision,
+        "cache": cache,
+        "stage_recipe_associations": stage_associations,
+        "unique_recipe_evaluations": len(cache),
+        "cache_hits": cache_hits,
+        "completed_unique_oof_fit_calls": unique_fit_calls,
+        "evaluated_recipe_oof_fit_call_upper_bound": (
+            evaluated_recipe_fit_call_upper_bound
+        ),
+        "stage_association_oof_fit_call_upper_bound_without_cache": (
+            association_fit_call_upper_bound
+        ),
+        "failed_unique_recipe_count": sum(
+            row.get("failure") is not None for row in cache.values()
+        ),
+        "accessed_splits": ["train"],
+        "validation_loaded": False,
+        "test_split_accessed": False,
+    }

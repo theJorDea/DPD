@@ -1,6 +1,7 @@
 import copy
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
@@ -15,6 +16,7 @@ from experiments.select_pa_sph import (
     evaluate_oof_recipe,
     load_sph_config,
     retain_s0_topologies,
+    run_staged_oof_search,
     select_ranked_trial,
     validate_search_budget,
 )
@@ -333,6 +335,106 @@ class SPHOOFEvaluationTests(unittest.TestCase):
                     real_multiplication_limit_exclusive=17,
                 ),
             )
+
+
+class SPHStagedSearchTests(unittest.TestCase):
+    def test_stages_use_train_only_cache_and_frozen_ranking(self) -> None:
+        config = load_sph_config(
+            "experiments/configs/pa_sph_apa200.json"
+        )
+        signal = np.ones(6, dtype=np.complex128)
+        target = np.ones(6, dtype=np.complex128)
+        reference = np.ones(6, dtype=np.complex128)
+        calls: list[str] = []
+
+        def fake_evaluate(
+            recipe: SPHRecipe,
+            train_input: np.ndarray,
+            train_output: np.ndarray,
+            *,
+            protocol: SPHOOFProtocol,
+            reference_gmp_oof_prediction: np.ndarray,
+        ) -> dict[str, object]:
+            del train_input, train_output, protocol, reference_gmp_oof_prediction
+            calls.append(recipe.canonical_sha256)
+            score = -30.0
+            score += 0.0 if recipe.variant == "amplitude_uniform" else 1.0
+            score += 0.0 if recipe.fir_length == 2 else 0.5
+            score += abs(recipe.knot_count - 24) * 0.01
+            score += 0.0 if recipe.control_ridge == 1e-8 else 0.03
+            score += 0.0 if recipe.smoothness == 1e-6 else 0.03
+            score += 0.0 if recipe.fir_ridge == 1e-8 else 0.03
+            return {
+                "recipe": recipe,
+                "recipe_sha256": recipe.canonical_sha256,
+                "operation_count": recipe.operation_count.to_dict(),
+                "full_record_nmse_db": score,
+                "common_interior_nmse_db": score - 0.1,
+                "metrics": {"full_record_nmse_db": score},
+                "reference_gmp_metrics": {
+                    "full_record_nmse_db": score + 1.0,
+                    "common_interior_nmse_db": score + 0.9,
+                },
+                "gain_over_gmp_full_record_db": 1.0,
+                "gain_over_gmp_common_interior_db": 1.0,
+                "minimum_fold_gain_over_gmp_full_record_db": 0.5,
+                "minimum_fold_gain_over_gmp_common_interior_db": 0.5,
+                "hard_valid": True,
+                "hard_validity_checks": {"synthetic": True},
+                "fit_seconds": 0.01,
+                "fold_count": 3,
+                "fold_reports": [],
+                "oof_prediction": np.zeros(6, dtype=np.complex128),
+                "oof_prediction_sha256": "synthetic",
+                "accessed_split": "train_only",
+                "test_split_accessed": False,
+            }
+
+        with patch(
+            "experiments.select_pa_sph.evaluate_oof_recipe",
+            side_effect=fake_evaluate,
+        ):
+            result = run_staged_oof_search(
+                config,
+                signal,
+                target,
+                protocol=SPHOOFProtocol(
+                    segment_length=2,
+                    common_warmup_samples=0,
+                ),
+                reference_gmp_oof_prediction=reference,
+            )
+
+        final = result["final_recipe"]
+        self.assertEqual(final.variant, "amplitude_uniform")
+        self.assertEqual(final.fir_length, 2)
+        self.assertEqual(final.knot_count, 24)
+        self.assertEqual(final.control_ridge, 1e-8)
+        self.assertEqual(final.smoothness, 1e-6)
+        self.assertEqual(final.fir_ridge, 1e-8)
+        self.assertEqual(result["stage_recipe_associations"], 57)
+        self.assertEqual(result["unique_recipe_evaluations"], 54)
+        self.assertEqual(result["cache_hits"], 3)
+        self.assertEqual(result["completed_unique_oof_fit_calls"], 162)
+        self.assertEqual(
+            result["evaluated_recipe_oof_fit_call_upper_bound"],
+            162,
+        )
+        self.assertEqual(
+            result[
+                "stage_association_oof_fit_call_upper_bound_without_cache"
+            ],
+            171,
+        )
+        self.assertEqual(len(calls), 54)
+        self.assertEqual(result["accessed_splits"], ["train"])
+        self.assertFalse(result["validation_loaded"])
+        self.assertFalse(result["test_split_accessed"])
+        self.assertTrue(
+            result["decision"]["evaluator_replacement_eligible"]
+        )
+        self.assertFalse(result["decision"]["gate_a_to_b_opened"])
+        self.assertFalse(result["decision"]["old_apa_test_permitted"])
 
 
 if __name__ == "__main__":
