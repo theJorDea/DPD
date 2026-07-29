@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task": "fractional_alignment_sensitivity_a0_a1_execution",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "command": ".venv/bin/python -m experiments.evaluate_fractional_alignment_sensitivity --config experiments/configs/pa_alignment_sensitivity_apa200.json",
+  "exit_code": 0,
+  "wall_time_seconds": 30.2683,
+  "wall_time_source": "Codex execution harness",
+  "wall_time_status": "approximate sum of a 30.001692532 second command segment and a 0.2666 second final poll",
+  "peak_rss_bytes": null,
+  "peak_rss_status": "not measured because /usr/bin/time is unavailable on this host",
+  "config": "experiments/configs/pa_alignment_sensitivity_apa200.json",
+  "config_sha256": "4c1df7d34bc87437c5ba320160ec9866f6ad8d4f8467c510f99ec43309b6063b",
+  "result_report": "experiments/results/pa_alignment_sensitivity_apa200/fractional_alignment_sensitivity.json",
+  "result_report_sha256": "49323670bc564d7f6095b9da55d7edb1ee44f0be60e680a6df4fd1e0fb5785f8",
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "test_split_accessed": false,
+  "result_summary": {
+    "recommended_protocol_variant": "a0",
+    "gmp_train_oof_common_interior_a1_minus_a0_db": -0.008409192775253871,
+    "gmp_validation_common_interior_a1_minus_a0_db": -0.00654377110029003,
+    "gmp_train_oof_full_record_a1_minus_a0_db": 0.010699727857755192,
+    "mp_train_oof_common_interior_a1_minus_a0_db": -0.009257442967950169,
+    "mp_validation_common_interior_a1_minus_a0_db": -0.00967775904693724
+  }
+}
