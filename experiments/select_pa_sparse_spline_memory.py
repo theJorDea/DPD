@@ -12,11 +12,10 @@ import hashlib
 import json
 from pathlib import Path
 import time
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import numpy as np
 
-from baseline.complexity import OperationCount
 from baseline.metrics import nmse_opendpd_db, nmse_pooled_db
 from baseline.sparse_spline_memory_pa import (
     SparseSplineMemoryPA,
@@ -552,4 +551,283 @@ def strip_prediction(record: dict[str, Any]) -> dict[str, Any]:
         key: _json_ready(value)
         for key, value in record.items()
         if key != "oof_prediction"
+    }
+
+
+def branch_families(
+    config: dict[str, Any],
+) -> dict[str, tuple[tuple[int, int], ...]]:
+    raw = config["branch_families"]
+    if not isinstance(raw, dict) or not raw:
+        raise ValueError("branch_families must be a non-empty object")
+    families: dict[str, tuple[tuple[int, int], ...]] = {}
+    for name, pairs in raw.items():
+        if not isinstance(name, str) or not isinstance(pairs, list) or not pairs:
+            raise ValueError("invalid sparse branch family")
+        if any(not isinstance(pair, list) or len(pair) != 2 for pair in pairs):
+            raise ValueError("each sparse branch must be a two-element list")
+        normalized = tuple((int(pair[0]), int(pair[1])) for pair in pairs)
+        # SparseRecipe performs the causal and duplicate checks.
+        SparseRecipe(name, normalized, 2, 0.0)
+        families[name] = normalized
+    return families
+
+
+def validate_search_budget(config: dict[str, Any]) -> dict[str, int]:
+    families = branch_families(config)
+    search = config["search"]
+    budget = config["search_budget"]
+    retained = int(search["stage_s0_topology_screen"]["retain_topologies"])
+    s0 = len(families)
+    s1 = retained * len(search["stage_s1_knot_count"]["knot_counts"])
+    s2 = len(search["stage_s2_ridge"]["ridges"])
+    expected = {
+        "maximum_s0_recipes": s0,
+        "maximum_s1_recipes": s1,
+        "maximum_s2_recipes": s2,
+        "maximum_unique_recipes": s0 + s1 + s2,
+        "maximum_oof_fit_calls_without_cache": (
+            (s0 + s1 + s2) * int(budget["oof_fold_count"])
+        ),
+    }
+    mismatches = {
+        name: (int(budget[name]), value)
+        for name, value in expected.items()
+        if int(budget[name]) != value
+    }
+    if mismatches:
+        raise ValueError(f"search budget disagrees with recipe axes: {mismatches}")
+    if int(budget["oof_fold_count"]) != len(
+        config["dataset_contract"]["frame_lengths"]
+    ):
+        raise ValueError("OOF fold count disagrees with explicit train frames")
+    return {
+        "S0": s0,
+        "S1": s1,
+        "S2": s2,
+        "folds": int(budget["oof_fold_count"]),
+    }
+
+
+def _annotate_research_gates(
+    record: dict[str, Any],
+    config: dict[str, Any],
+) -> None:
+    references = config["reference_models"]
+    gates = config["gates"]
+    full = float(record["full_record_nmse_db"])
+    common = float(record["common_interior_nmse_db"])
+    mp = references["matched_mp_oof"]
+    gmp = references["matched_gmp_oof"]
+    loss_mp_full = full - float(mp["full_record_nmse_db"])
+    loss_mp_common = common - float(mp["common_interior_nmse_db"])
+    gain_gmp_full = float(gmp["full_record_nmse_db"]) - full
+    gain_gmp_common = float(gmp["common_interior_nmse_db"]) - common
+    record.update(
+        {
+            "loss_vs_mp_full_db": loss_mp_full,
+            "loss_vs_mp_common_db": loss_mp_common,
+            "gain_over_gmp_full_db_from_frozen_metric": gain_gmp_full,
+            "gain_over_gmp_common_db_from_frozen_metric": gain_gmp_common,
+            "research_gate_checks": {
+                "cheap_pareto_full": loss_mp_full
+                <= float(gates["cheap_pareto_max_full_loss_vs_mp_db"]),
+                "cheap_pareto_common": loss_mp_common
+                <= float(gates["cheap_pareto_max_common_loss_vs_mp_db"]),
+                "evaluator_full": gain_gmp_full
+                >= float(gates["evaluator_min_full_gain_over_gmp_db"]),
+                "evaluator_common": gain_gmp_common
+                >= float(gates["evaluator_min_common_gain_over_gmp_db"]),
+                "evaluator_every_fold_full": float(
+                    record["minimum_fold_gain_over_gmp_full_db"]
+                )
+                >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
+                "evaluator_every_fold_common": float(
+                    record["minimum_fold_gain_over_gmp_common_db"]
+                )
+                >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
+            },
+        }
+    )
+
+
+def run_staged_search(
+    config: dict[str, Any],
+    input_segments: tuple[np.ndarray, ...],
+    output_segments: tuple[np.ndarray, ...],
+    reference_gmp_prediction: np.ndarray,
+    *,
+    progress: Callable[[str], None] = lambda _: None,
+) -> dict[str, Any]:
+    """Run the exact preregistered S0/S1/S2 train-OOF search."""
+
+    budget_summary = validate_search_budget(config)
+    families = branch_families(config)
+    lengths = tuple(
+        int(value) for value in config["dataset_contract"]["frame_lengths"]
+    )
+    warmup = int(
+        config["dataset_contract"]["common_warmup_samples_per_frame"]
+    )
+    ranking_tolerance = float(config["search"]["ranking"]["tie_tolerance_db"])
+    cache: dict[str, dict[str, Any]] = {}
+    cache_hits = 0
+    completed_fit_calls = 0
+
+    def evaluate(
+        recipe: SparseRecipe,
+        stage: str,
+        index: int,
+        total: int,
+    ) -> dict[str, Any]:
+        nonlocal cache_hits, completed_fit_calls
+        if recipe.sha256 in cache:
+            cache_hits += 1
+            progress(f"[{stage} {index}/{total}] cache {recipe.name}")
+            return cache[recipe.sha256]
+        progress(f"[{stage} {index}/{total}] fit {recipe.name}")
+        row = evaluate_recipe_oof(
+            recipe,
+            input_segments,
+            output_segments,
+            reference_gmp_prediction,
+            frame_lengths=lengths,
+            common_warmup=warmup,
+            gates=config["gates"],
+        )
+        _annotate_research_gates(row, config)
+        cache[recipe.sha256] = row
+        completed_fit_calls += len(lengths)
+        progress(
+            f"[{stage} {index}/{total}] NMSE={row['full_record_nmse_db']:.6f} dB "
+            f"common={row['common_interior_nmse_db']:.6f} dB "
+            f"valid={row['hard_valid']}"
+        )
+        return row
+
+    s0_config = config["search"]["stage_s0_topology_screen"]
+    s0_recipes = [
+        SparseRecipe(
+            family,
+            branches,
+            int(s0_config["knot_count"]),
+            float(s0_config["ridge"]),
+        )
+        for family, branches in families.items()
+    ]
+    s0_rows = [
+        evaluate(recipe, "S0", index, len(s0_recipes))
+        for index, recipe in enumerate(s0_recipes, start=1)
+    ]
+    retained_rows = retain_topologies(
+        s0_rows,
+        maximum=int(s0_config["retain_topologies"]),
+        window_db=float(s0_config["retention_window_db"]),
+    )
+    retained_families = tuple(row["recipe"]["family"] for row in retained_rows)
+    if len(set(retained_families)) != len(retained_families):
+        raise RuntimeError("S0 retained duplicate sparse topologies")
+    progress(f"[S0] retained {', '.join(retained_families)}")
+
+    s1_config = config["search"]["stage_s1_knot_count"]
+    s1_recipes = [
+        SparseRecipe(
+            family,
+            families[family],
+            int(knot_count),
+            float(s1_config["ridge"]),
+        )
+        for family in retained_families
+        for knot_count in s1_config["knot_counts"]
+    ]
+    s1_rows = [
+        evaluate(recipe, "S1", index, len(s1_recipes))
+        for index, recipe in enumerate(s1_recipes, start=1)
+    ]
+    s1_winner = rank_valid_records(
+        s1_rows, tie_tolerance_db=ranking_tolerance
+    )[0]
+    winner_recipe = s1_winner["recipe"]
+    progress(f"[S1] selected {winner_recipe['name']}")
+
+    s2_config = config["search"]["stage_s2_ridge"]
+    s2_recipes = [
+        SparseRecipe(
+            str(winner_recipe["family"]),
+            tuple(tuple(pair) for pair in winner_recipe["branches"]),
+            int(winner_recipe["knot_count"]),
+            float(ridge),
+        )
+        for ridge in s2_config["ridges"]
+    ]
+    s2_rows = [
+        evaluate(recipe, "S2", index, len(s2_recipes))
+        for index, recipe in enumerate(s2_recipes, start=1)
+    ]
+    final_row = rank_valid_records(
+        s2_rows, tie_tolerance_db=ranking_tolerance
+    )[0]
+    final_recipe = SparseRecipe(
+        str(final_row["recipe"]["family"]),
+        tuple(tuple(pair) for pair in final_row["recipe"]["branches"]),
+        int(final_row["recipe"]["knot_count"]),
+        float(final_row["recipe"]["ridge"]),
+    )
+    if final_recipe.sha256 != final_row["recipe_sha256"]:
+        raise RuntimeError("final sparse recipe identity changed")
+
+    hard = bool(final_row["hard_valid"])
+    gate_checks = final_row["research_gate_checks"]
+    cheap = hard and bool(gate_checks["cheap_pareto_full"]) and bool(
+        gate_checks["cheap_pareto_common"]
+    )
+    evaluator = hard and all(
+        bool(gate_checks[name])
+        for name in (
+            "evaluator_full",
+            "evaluator_common",
+            "evaluator_every_fold_full",
+            "evaluator_every_fold_common",
+        )
+    )
+    if cheap and evaluator:
+        classification = "cheap_pareto_and_evaluator_candidate"
+    elif cheap:
+        classification = "cheap_pareto_only"
+    elif evaluator:
+        classification = "evaluator_candidate_only"
+    else:
+        classification = "neither_evaluator_nor_cheap_pareto"
+    decision = {
+        "classification": classification,
+        "hard_valid": hard,
+        "cheap_pareto_gate_passed": cheap,
+        "evaluator_candidate_gate_passed": evaluator,
+        "gate_checks": gate_checks,
+        "gate_a_to_b_opened": False,
+        "reason_gate_a_to_b_remains_closed": (
+            "post-discovery internal train OOF and reused validation are not "
+            "independent evaluator confirmation"
+        ),
+    }
+
+    if len(cache) > int(config["search_budget"]["maximum_unique_recipes"]):
+        raise RuntimeError("unique sparse recipe budget exceeded")
+    if completed_fit_calls > int(
+        config["search_budget"]["maximum_oof_fit_calls_without_cache"]
+    ):
+        raise RuntimeError("sparse OOF fit-call budget exceeded")
+    progress(f"[S2] selected {final_recipe.name}; decision={classification}")
+    return {
+        "final_recipe": final_recipe,
+        "final_trial": final_row,
+        "decision": decision,
+        "stage_results": {"S0": s0_rows, "S1": s1_rows, "S2": s2_rows},
+        "retained_families": retained_families,
+        "cache": cache,
+        "cache_hits": cache_hits,
+        "unique_recipe_evaluations": len(cache),
+        "completed_oof_fit_calls": completed_fit_calls,
+        "stage_recipe_associations": len(s0_rows) + len(s1_rows) + len(s2_rows),
+        "budget_summary": budget_summary,
     }

@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 import unittest
 
 import numpy as np
@@ -9,6 +11,8 @@ from experiments.select_pa_sparse_spline_memory import (
     frame_segments,
     rank_valid_records,
     retain_topologies,
+    run_staged_search,
+    validate_search_budget,
 )
 from baseline.sparse_spline_memory_pa import (
     SparseSplineMemoryPA,
@@ -121,6 +125,103 @@ class SparseSplineMemorySelectionTests(unittest.TestCase):
             )
         retained = retain_topologies(rows, maximum=3, window_db=0.25)
         self.assertEqual([row["recipe"]["name"] for row in retained], ["0", "1"])
+
+
+class SparseSplineMemoryStagedSearchTests(unittest.TestCase):
+    @staticmethod
+    def _config() -> dict:
+        return {
+            "dataset_contract": {
+                "frame_lengths": [64, 64, 64],
+                "common_warmup_samples_per_frame": 2,
+            },
+            "branch_families": {
+                "memoryless": [[0, 0]],
+                "short_signal_memory": [[0, 0], [1, 0]],
+            },
+            "search": {
+                "stage_s0_topology_screen": {
+                    "knot_count": 4,
+                    "ridge": 1e-8,
+                    "retain_topologies": 1,
+                    "retention_window_db": 0.25,
+                },
+                "stage_s1_knot_count": {
+                    "knot_counts": [4, 6],
+                    "ridge": 1e-8,
+                },
+                "stage_s2_ridge": {"ridges": [0.0, 1e-8]},
+                "ranking": {"tie_tolerance_db": 0.02},
+            },
+            "gates": {
+                "maximum_augmented_condition_number": 1e12,
+                "maximum_absolute_coefficient": 1e6,
+                "maximum_support_exceedance_fraction": 0.0,
+                "real_multiplications_strictly_below": 1000,
+                "cheap_pareto_max_full_loss_vs_mp_db": 1000.0,
+                "cheap_pareto_max_common_loss_vs_mp_db": 1000.0,
+                "evaluator_min_full_gain_over_gmp_db": -1000.0,
+                "evaluator_min_common_gain_over_gmp_db": -1000.0,
+                "evaluator_minimum_fold_gain_over_gmp_db": -1000.0,
+            },
+            "reference_models": {
+                "matched_mp_oof": {
+                    "full_record_nmse_db": -10.0,
+                    "common_interior_nmse_db": -10.0,
+                },
+                "matched_gmp_oof": {
+                    "full_record_nmse_db": -10.0,
+                    "common_interior_nmse_db": -10.0,
+                },
+            },
+            "search_budget": {
+                "oof_fold_count": 3,
+                "maximum_s0_recipes": 2,
+                "maximum_s1_recipes": 2,
+                "maximum_s2_recipes": 2,
+                "maximum_unique_recipes": 6,
+                "maximum_oof_fit_calls_without_cache": 18,
+            },
+        }
+
+    def test_production_search_budget_is_exact(self) -> None:
+        config = json.loads(
+            Path("experiments/configs/pa_sparse_spline_memory_apa200.json")
+            .read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            validate_search_budget(config),
+            {"S0": 7, "S1": 12, "S2": 5, "folds": 3},
+        )
+
+    def test_stages_use_train_oof_and_recipe_cache(self) -> None:
+        rng = np.random.default_rng(401)
+        inputs = []
+        for _ in range(3):
+            radius = np.linspace(0.02, 1.0, 64)
+            phase = rng.uniform(-np.pi, np.pi, 64)
+            inputs.append(radius * np.exp(1j * phase))
+        input_segments = tuple(inputs)
+        truth = SparseSplineMemoryPA(
+            knots=np.linspace(0.0, 1.0, 4),
+            branches=(SparseSplineMemoryPABranch(0, 0),),
+            coefficients=np.asarray(
+                [[1.2 + 0.1j, 1.1, 0.9 - 0.1j, 0.7 - 0.2j]]
+            ),
+        )
+        output_segments = tuple(truth.predict(signal) for signal in input_segments)
+        search = run_staged_search(
+            self._config(),
+            input_segments,
+            output_segments,
+            np.concatenate(input_segments),
+        )
+        self.assertEqual(search["stage_recipe_associations"], 6)
+        self.assertGreaterEqual(search["cache_hits"], 2)
+        self.assertLessEqual(search["unique_recipe_evaluations"], 6)
+        self.assertLessEqual(search["completed_oof_fit_calls"], 18)
+        self.assertTrue(search["final_trial"]["hard_valid"])
+        self.assertFalse(search["decision"]["gate_a_to_b_opened"])
 
 
 if __name__ == "__main__":
