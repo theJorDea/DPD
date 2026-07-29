@@ -453,7 +453,7 @@ family выполняется дешёвый widely-linear/IQ audit. Это diag
 measurement/PA asymmetry, а не заявление о физическом PA mechanism.
 State-conditioned PA остаётся запрещён без independent long captures.
 
-### 6.9 APA widely-linear residual audit — preregistered, not run
+### 6.9 APA widely-linear residual audit — completed negative result
 
 Preregistration:
 `experiments/configs/pa_widely_linear_residual_apa200.json`.
@@ -493,6 +493,34 @@ Selection score — minimum из full-record и common-interior OOF gains над
 как descriptive reused split, а test читать нельзя. Independent acceptance
 требует нового capture/operating point и measurement-path IQ audit.
 DPA-specific delays по уже просмотренному DPA residual не tuning.
+
+Exact completed command:
+
+```bash
+.venv/bin/python -m experiments.audit_widely_linear_pa \
+  --config experiments/configs/pa_widely_linear_residual_apa200.json
+```
+
+| Candidate | OOF full gain | OOF common gain | Minimum fold full/common | Decision |
+|---|---:|---:|---:|---|
+| `conj_d0` | 0.02677 dB | 0.02978 dB | 0.02408/0.02673 dB | ineligible |
+| `conj_d0_d1` | **0.02735 dB** | **0.03055 dB** | 0.02391/0.02690 dB | ineligible |
+| `conj_d0_d2` | 0.02684 dB | 0.02990 dB | 0.02450/0.02702 dB | ineligible |
+| `conj_d0_d4` | 0.02479 dB | 0.02956 dB | 0.01840/0.02688 dB | ineligible |
+
+Все fits были full rank; frame reset и arbitrary-chunk streaming дали exact
+equivalence. Ни один support не прошёл 0.1 dB full/common threshold, поэтому
+frozen selection — `no_correction`: 954 MUL, 947 ADD, 888 real coefficients
+и 236 real state values. Reused-validation metrics остались baseline
+−38.66526/−38.73463 dB full/common и не участвовали в selection. Total wall
+time — 14.805 s, OOF fit time — 13.224 s. `test_split_accessed=false`;
+test hashes и test-named result files отсутствуют.
+
+Evidence bundle:
+`experiments/results/pa_widely_linear_residual_apa200/`. Результат отвергает
+практическую полезность проверенных short conjugate supports при текущем
+threshold, но не идентифицирует физический источник residual и не является
+independent validation.
 
 ### 6.10 Existing first-stage spline DPD — retained, not the next PA step
 
@@ -578,12 +606,11 @@ Gate A→B passes:
 - a neural residual branch is allowed only after a simpler branch ablation
   leaves a reproducible residual.
 
-The PA contour uses the same anti-complexity rule: first run the preregistered
-APA conjugate-residual audit. If it passes its internal threshold, audit the
-feedback-path IQ/frequency response and obtain a new capture before physical
-attribution. If it fails, preregister spline/CPWL + short FIR, followed only
-then by sparse complex spline-memory. Do not implement families simultaneously,
-and do not add slow state without independent long captures.
+The APA conjugate-residual audit is complete and failed its 0.1 dB internal
+threshold, so `no_correction` remains frozen. The next isolated PA task is to
+preregister spline/CPWL + short FIR, followed only then by sparse complex
+spline-memory if justified. Do not implement families simultaneously, and do
+not add slow state without independent long captures.
 
 Robustness is a separate stage:
 
@@ -721,9 +748,11 @@ outputs for predistorted waveforms.
    `experiments/experiment_plan.md` status ledger.
 10. [x] Preregister the bounded APA widely-linear/IQ residual audit before fit,
     including exact operation counts, reused-validation status and no test access.
-11. [ ] Implement/test the conjugate correction and run APA post-discovery
+11. [x] Implement/test the conjugate correction and run APA post-discovery
     leave-one-frame-out audit under strict `<1000 MUL` without test access.
-12. [ ] Based on that audit, perform feedback-path/new-capture work or
-    preregister the next spline/CPWL + short-FIR PA family.
-13. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
+12. [x] Apply the negative-result branch: keep `no_correction`, make no
+    physical IQ attribution and do not tune DPA conjugate delays.
+13. [ ] Preregister the next bounded spline/CPWL + short-FIR PA family with
+    exact operations, identifiability and streaming semantics.
+14. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
     evaluators, then fixed point, robustness/adaptation and finally physical PA.
