@@ -1,11 +1,11 @@
-"""Run the preregistered APA widely-linear residual PA audit.
+"""Run preregistered linear residual PA audits over a frozen GMP recipe.
 
-This runner is intentionally narrower than the general MP/GMP residual
-workflow.  It consumes a hash-bound frozen GMP recipe, refits only GMP
-coefficients in leave-one-frame-out training folds, and fits the conjugate
-residual branch on each fold's fit residual.  The validation split is loaded
-only after the OOF candidate is frozen and is labelled descriptive/reused;
-test files are never opened or hashed.
+The shared workflow supports two explicit feature modes: conjugated input for
+the original widely-linear diagnostic, and ordinary delayed input for the
+proper-complex FIR ablation.  In both cases GMP coefficients are refitted in
+leave-one-frame-out training folds and only the residual correction is fitted
+afterward.  Validation is descriptive/reused; test files are never opened or
+hashed.
 """
 
 from __future__ import annotations
@@ -26,7 +26,12 @@ import numpy as np
 
 from baseline.complexity import (
     OperationCount,
+    complex_fir_residual_correction_cost,
     widely_linear_residual_correction_cost,
+)
+from baseline.complex_fir_pa import (
+    ComplexFIRResidualCorrection,
+    fit_complex_fir_residual_correction,
 )
 from baseline.gmp_pa import GeneralizedMemoryPolynomialPA
 from baseline.metrics import (
@@ -73,6 +78,24 @@ OPERATION_FIELDS = (
     "real_additions",
     "stored_real_coefficients",
 )
+OPERATION_NUMERIC_FIELDS = tuple(
+    field.name
+    for field in dataclasses.fields(OperationCount)
+    if field.name != "notes"
+)
+SUPPORTED_TASKS = {
+    "forward_pa_model_widely_linear_residual_audit": "conjugate",
+    "forward_pa_model_long_fir_residual_audit": "proper",
+}
+CorrectionModel = WidelyLinearResidualCorrection | ComplexFIRResidualCorrection
+
+
+def _correction_kind(config: dict[str, Any]) -> str:
+    task = config.get("task")
+    try:
+        return SUPPORTED_TASKS[str(task)]
+    except KeyError as error:
+        raise ValueError("unexpected linear residual audit task") from error
 
 
 @dataclasses.dataclass(frozen=True)
@@ -113,13 +136,12 @@ def _resolve_manifest_path(value: Any, *, name: str) -> Path:
 
 
 def _load_config(path: Path) -> dict[str, Any]:
-    config = _load_json_object(path, name="widely-linear audit config")
+    config = _load_json_object(path, name="linear residual audit config")
     if config.get("schema_version") != SCHEMA_VERSION:
-        raise ValueError("widely-linear audit config schema_version mismatch")
-    if config.get("task") != "forward_pa_model_widely_linear_residual_audit":
-        raise ValueError("unexpected widely-linear audit task")
+        raise ValueError("linear residual audit config schema_version mismatch")
+    _correction_kind(config)
     if config.get("scope", {}).get("test_split_access_permitted") is not False:
-        raise ValueError("widely-linear audit must prohibit test access")
+        raise ValueError("linear residual audit must prohibit test access")
     for key in (
         "dataset",
         "output_dir",
@@ -148,6 +170,8 @@ def _verify_discovery_evidence(
         "train_oof_residual_report",
         "validation_residual_report",
     )
+    if _correction_kind(config) == "proper":
+        required_entries += ("previous_nested_ablation",)
     paths: dict[str, Path] = {}
     for key in required_entries:
         entry = evidence.get(key)
@@ -175,6 +199,17 @@ def _verify_discovery_evidence(
         residual_manifest_path,
         name="base residual manifest",
     )
+    if _correction_kind(config) == "proper":
+        previous_manifest = _load_json_object(
+            paths["previous_nested_ablation"],
+            name="previous nested ablation manifest",
+        )
+        if previous_manifest.get("test_split_accessed") is not False:
+            raise ValueError("previous nested ablation does not seal test")
+        if previous_manifest.get("selected_candidate") != "no_correction":
+            raise ValueError(
+                "proper FIR preregistration requires the recorded conjugate fallback"
+            )
     if selection_manifest.get("test_split_accessed") is not False:
         raise ValueError("base selection manifest does not seal test")
     if residual_manifest.get("test_split_accessed") is not False:
@@ -265,6 +300,15 @@ def _parse_candidates(
             "real_multiplication_limit_exclusive"
         ]
     )
+    correction_kind = _correction_kind(config)
+    fields_to_verify = (
+        OPERATION_FIELDS
+        if correction_kind == "conjugate"
+        else OPERATION_NUMERIC_FIELDS
+    )
+    existing_maximum_input_delay = config["base_model"].get(
+        "existing_maximum_raw_input_delay"
+    )
     result: list[CandidateSpec] = []
     for index, raw in enumerate(raw_candidates):
         if not isinstance(raw, dict):
@@ -275,6 +319,11 @@ def _parse_candidates(
             raise ValueError("candidate support name must be non-empty")
         if not isinstance(delays_raw, list):
             raise ValueError(f"candidate {name} delays must be a JSON list")
+        if any(
+            isinstance(delay, bool) or not isinstance(delay, (int, np.integer))
+            for delay in delays_raw
+        ):
+            raise TypeError(f"candidate {name} delays must be integers")
         delays = tuple(int(delay) for delay in delays_raw)
         if any(delay < 0 for delay in delays):
             raise ValueError(f"candidate {name} contains a non-causal delay")
@@ -284,17 +333,22 @@ def _parse_candidates(
             raise ValueError("first candidate must be no_correction")
         if index > 0 and not delays:
             raise ValueError("only first candidate may have no delays")
-        incremental = (
-            None
-            if not delays
-            else widely_linear_residual_correction_cost(
+        if not delays:
+            incremental = None
+        elif correction_kind == "conjugate":
+            incremental = widely_linear_residual_correction_cost(
                 delays,
                 convention="4m2a",
                 reuse_input_delay_state=True,
             )
-        )
+        else:
+            incremental = complex_fir_residual_correction_cost(
+                delays,
+                convention="4m2a",
+                existing_maximum_input_delay=existing_maximum_input_delay,
+            )
         actual = base_cost if incremental is None else base_cost + incremental
-        for field in OPERATION_FIELDS:
+        for field in fields_to_verify:
             recorded = raw.get(field)
             if not isinstance(recorded, (int, np.integer)) or isinstance(
                 recorded,
@@ -328,6 +382,7 @@ def _validate_base_contract(
     selection: dict[str, Any],
 ) -> tuple[OperationCount, int, int]:
     base_cfg = config["base_model"]
+    correction_kind = _correction_kind(config)
     expected_gmp = base_cfg.get("gmp_config")
     if not isinstance(expected_gmp, dict):
         raise ValueError("base_model.gmp_config is missing")
@@ -349,7 +404,12 @@ def _validate_base_contract(
     recorded_operation = base_cfg.get("operation_count_per_complex_sample")
     if not isinstance(recorded_operation, dict):
         raise ValueError("base_model operation count is missing")
-    for field in OPERATION_FIELDS:
+    fields_to_verify = (
+        OPERATION_FIELDS
+        if correction_kind == "conjugate"
+        else OPERATION_NUMERIC_FIELDS
+    )
+    for field in fields_to_verify:
         if int(recorded_operation.get(field, -1)) != int(
             getattr(operation, field)
         ):
@@ -360,11 +420,23 @@ def _validate_base_contract(
     selected_operation = selected_trial.get("operation_count_per_complex_sample")
     if not isinstance(selected_operation, dict):
         raise ValueError("selection operation count is missing")
-    for field in OPERATION_FIELDS:
+    for field in fields_to_verify:
         if int(selected_operation.get(field, -1)) != int(
             getattr(operation, field)
         ):
             raise ValueError(f"selection GMP {field} disagrees with implementation")
+    if correction_kind == "proper":
+        expected_raw_delay = max(
+            recipe.config.la,
+            recipe.config.lb if recipe.config.kb else 0,
+            recipe.config.lc if recipe.config.kc else 0,
+        ) - 1
+        if int(base_cfg.get("existing_maximum_raw_input_delay", -1)) != (
+            expected_raw_delay
+        ):
+            raise ValueError(
+                "base existing maximum raw input delay disagrees with GMP"
+            )
     selection_rule = config["selection_rule"]
     eligibility = selection_rule.get("eligibility")
     if not isinstance(eligibility, dict):
@@ -437,8 +509,38 @@ def _metrics(
     }
 
 
+def _fit_correction(
+    correction_kind: str,
+    pa_input: np.ndarray,
+    residual_target: np.ndarray,
+    *,
+    delays: tuple[int, ...],
+    ridge: float,
+    segment_length: int,
+) -> tuple[CorrectionModel, Any]:
+    if correction_kind == "conjugate":
+        return fit_widely_linear_residual_correction(
+            pa_input,
+            residual_target,
+            delays=delays,
+            ridge=ridge,
+            segment_length=segment_length,
+            coefficient_dtype=np.complex128,
+        )
+    if correction_kind == "proper":
+        return fit_complex_fir_residual_correction(
+            pa_input,
+            residual_target,
+            delays=delays,
+            ridge=ridge,
+            segment_length=segment_length,
+            coefficient_dtype=np.complex128,
+        )
+    raise ValueError(f"unsupported correction kind: {correction_kind}")
+
+
 def _streaming_checks(
-    model: WidelyLinearResidualCorrection,
+    model: CorrectionModel,
     signal: np.ndarray,
     *,
     segment_length: int,
@@ -496,6 +598,7 @@ def _fit_oof_candidates(
     recipe: SelectedGMPRecipe,
     candidates: tuple[CandidateSpec, ...],
     correction_ridge: float,
+    correction_kind: str = "conjugate",
 ) -> tuple[dict[str, np.ndarray], list[dict[str, Any]], float]:
     frame_ids = explicit_frame_ids(train_input.size, nperseg)
     frame_values = tuple(int(value) for value in np.unique(frame_ids))
@@ -549,15 +652,13 @@ def _fit_oof_candidates(
         )
         for candidate in candidates[1:]:
             correction_started = time.perf_counter()
-            correction, correction_diagnostics = (
-                fit_widely_linear_residual_correction(
-                    x_fit,
-                    fit_residual,
-                    delays=candidate.delays,
-                    ridge=correction_ridge,
-                    segment_length=nperseg,
-                    coefficient_dtype=np.complex128,
-                )
+            correction, correction_diagnostics = _fit_correction(
+                correction_kind,
+                x_fit,
+                fit_residual,
+                delays=candidate.delays,
+                ridge=correction_ridge,
+                segment_length=nperseg,
             )
             correction_fit_seconds = time.perf_counter() - correction_started
             total_fit_seconds += correction_fit_seconds
@@ -738,7 +839,13 @@ def _select_candidate(
         for row in eligible
         if float(row["score_db"]) >= best_score - tie_tolerance_db
     ]
-    near_best.sort(key=lambda row: (int(row["tap_count"]), row["candidate"]))
+    near_best.sort(
+        key=lambda row: (
+            int(row["tap_count"]),
+            max((int(delay) for delay in row.get("delays", [])), default=-1),
+            row["candidate"],
+        )
+    )
     return str(near_best[0]["candidate"])
 
 
@@ -755,6 +862,9 @@ def _make_residual_spec(
 def _write_bundle(
     output: Path,
     *,
+    task: str,
+    correction_kind: str,
+    dataset_path: str,
     config_path: Path,
     config_sha256: str,
     source_hashes: dict[str, str],
@@ -771,7 +881,7 @@ def _write_bundle(
     validation_selected_prediction: np.ndarray,
     train_common_mask: np.ndarray,
     validation_common_mask: np.ndarray,
-    correction: WidelyLinearResidualCorrection | None,
+    correction: CorrectionModel | None,
     correction_diagnostics: dict[str, Any] | None,
     train_analysis: dict[str, Any],
     validation_analysis: dict[str, Any],
@@ -820,7 +930,7 @@ def _write_bundle(
             correction.save(temporary / "selected_correction.npz")
         execution = {
             "schema_version": 1,
-            "task": "forward_pa_model_widely_linear_residual_audit",
+            "task": task,
             "command": " ".join(sys.argv),
             "python": sys.version,
             "platform": platform.platform(),
@@ -832,9 +942,10 @@ def _write_bundle(
         relative = lambda path: str(path.relative_to(PROJECT_ROOT))
         manifest = {
             "schema_version": 1,
-            "task": "forward_pa_model_widely_linear_residual_audit",
+            "task": task,
             "status": "post_discovery_internal_resampling_only",
-            "dataset": str(config_path),
+            "dataset": dataset_path,
+            "correction_kind": correction_kind,
             "config": relative(config_path),
             "config_sha256": config_sha256,
             "source_sha256": source_hashes,
@@ -852,7 +963,11 @@ def _write_bundle(
             "train_metrics": train_metrics,
             "validation_metrics": validation_metrics,
             "validation_role": "already-viewed descriptive reused split; not independent confirmation",
-            "independent_acceptance_required": "new capture or operating point plus measurement-path IQ audit",
+            "independent_acceptance_required": (
+                "new capture or operating point plus measurement-path IQ audit"
+                if correction_kind == "conjugate"
+                else "new capture or operating point plus measurement-path audit"
+            ),
             "negative_lag_policy": "future-input diagnostics are not deployable features",
             "slow_state_policy": "locked because independent capture count is zero",
             "predictions": "predictions.npz",
@@ -901,6 +1016,8 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
     source_config = Path(config_path).resolve()
     config_sha256 = file_sha256(source_config)
     config = _load_config(source_config)
+    task = str(config["task"])
+    correction_kind = _correction_kind(config)
     if file_sha256(source_config) != config_sha256:
         raise RuntimeError("audit config changed during parsing")
     evidence_bundle = _verify_discovery_evidence(config, {})
@@ -909,7 +1026,7 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
     model_path = evidence_bundle["paths"]["base_selected_model"]
     recipe, frozen_model, _ = _parse_and_verify_recipe(selection, model_path)
     if not isinstance(recipe, SelectedGMPRecipe):
-        raise ValueError("widely-linear audit requires SelectedGMPRecipe")
+        raise ValueError("linear residual audit requires SelectedGMPRecipe")
     if not isinstance(frozen_model, GeneralizedMemoryPolynomialPA):
         raise ValueError("selected base model is not GMP")
     base_cost, common_warmup, common_cooldown = _validate_base_contract(
@@ -948,11 +1065,21 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
     )
     source_paths = {
         "experiments/audit_widely_linear_pa.py": Path(__file__).resolve(),
-        "baseline/widely_linear_pa.py": PROJECT_ROOT / "baseline/widely_linear_pa.py",
         "baseline/complexity.py": PROJECT_ROOT / "baseline/complexity.py",
         "baseline/gmp_pa.py": PROJECT_ROOT / "baseline/gmp_pa.py",
         "baseline/residual_analysis.py": PROJECT_ROOT / "baseline/residual_analysis.py",
     }
+    if correction_kind == "conjugate":
+        source_paths["baseline/widely_linear_pa.py"] = (
+            PROJECT_ROOT / "baseline/widely_linear_pa.py"
+        )
+    else:
+        source_paths["experiments/audit_complex_fir_pa.py"] = (
+            PROJECT_ROOT / "experiments/audit_complex_fir_pa.py"
+        )
+        source_paths["baseline/complex_fir_pa.py"] = (
+            PROJECT_ROOT / "baseline/complex_fir_pa.py"
+        )
     source_hashes = {label: file_sha256(path) for label, path in source_paths.items()}
     input_reverify = {
         name: file_sha256(dataset / name) == expected
@@ -969,6 +1096,7 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
         recipe=recipe,
         candidates=candidates,
         correction_ridge=float(config["correction_fit"]["ridge"]),
+        correction_kind=correction_kind,
     )
     rule = config["selection_rule"]
     eligibility = rule["eligibility"]
@@ -1004,16 +1132,16 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
         validation_input,
         nperseg,
     )
-    correction: WidelyLinearResidualCorrection | None = None
+    correction: CorrectionModel | None = None
     correction_diagnostics: dict[str, Any] | None = None
     if selected_delays:
-        correction, diagnostics = fit_widely_linear_residual_correction(
+        correction, diagnostics = _fit_correction(
+            correction_kind,
             train_input,
             train_output - base_train_prediction,
             delays=selected_delays,
             ridge=float(config["correction_fit"]["ridge"]),
             segment_length=nperseg,
-            coefficient_dtype=np.complex128,
         )
         correction_diagnostics = dataclasses.asdict(diagnostics)
         selected_train_prediction = base_train_prediction + correction.predict_segments(
@@ -1144,6 +1272,9 @@ def run_from_config(config_path: str | Path) -> dict[str, Any]:
     )
     return _write_bundle(
         output,
+        task=task,
+        correction_kind=correction_kind,
+        dataset_path=str(config["dataset"]),
         config_path=source_config,
         config_sha256=config_sha256,
         source_hashes=source_hashes,
