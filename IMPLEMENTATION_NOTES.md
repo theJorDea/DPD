@@ -169,6 +169,31 @@ model's maximum raw-input delay. For the selected APA GMP that boundary is
 29 samples; extending to lag 49 adds 40 real state values, not zero and not a
 second full 98-real buffer.
 
+### 2.8 Standalone spline-Hammerstein PA (SPH)
+
+`baseline/spline_hammerstein_pa.py` provides the phase-equivariant forward PA
+family used in the APA selection:
+
+```text
+v[n] = x[n] * C(|x[n]|)
+y_hat[n] = v[n] + sum(l=1..L-1) h[l] * v[n-l], h[0] = 1+0j
+```
+
+The implementation exposes `SplineHammersteinPA`,
+`SplineHammersteinState`, `fit_spline_hammerstein_pa`, local-support knot
+design, deterministic complex ALS, `predict_segments`, continuous
+`predict_chunk`, NPZ `save/load` and an exact `operation_count()`.
+`experiments/select_pa_sph.py` owns recipe enumeration/ranking and
+`experiments/run_pa_sph.py` owns hash verification, staged train OOF, frozen
+full-train refit, descriptive validation and atomic publication.
+
+The selected APA model is `K=32,L=8`, 37 MUL/36 ADD, one amplitude `sqrt`,
+5 comparisons, 4 LUT accesses, 78 stored real coefficients, 63 constants and
+14 persistent state reals. Streaming/reset equivalence is exact in complex128.
+The model is deliberately retained as a negative low-cost control point:
+train-OOF NMSE is −30.402374 dB, so it is not promoted to the evaluator and
+does not unlock DPD.
+
 ## 3. Experiment runners
 
 ### 3.1 Model selection
@@ -250,6 +275,24 @@ descriptive and test access is absent. The runner checks source/data hashes,
 exact cost, full rank, frame reset and arbitrary-chunk streaming equivalence
 before publishing an atomic result bundle.
 
+### 3.6 SPH staged selection runner
+
+`experiments/run_pa_sph.py` is the complete forward-identification workflow for
+the standalone spline-Hammerstein family. It enforces this order:
+
+1. verify preregistered config, source, evidence and train/validation hashes;
+2. load train frames and run deterministic staged OOF selection;
+3. freeze the recipe and full-train parameter hashes;
+4. load validation only for reused descriptive metrics/residuals;
+5. verify model/cost/streaming invariants and atomically rename the bundle.
+
+The runner rejects rank-deficient control/FIR designs, non-finite values,
+objective increases and support violations. The APA publication
+`experiments/results/pa_sph_apa200_selection/` records 60 unique recipes,
+180 completed OOF fits, 4 cache hits, exact reset/chunk equivalence and
+`test_split_accessed=false`. The selected result is intentionally not wired
+into the DPD evaluator because its OOF quality gate failed.
+
 ## 4. Artifact integrity and publication rules
 
 Canonical numerical outputs are immutable:
@@ -275,11 +318,18 @@ for `baseline/complexity.py`; numerical discovery artifacts and unchanged GMP/
 residual sources match exactly. This is preserved provenance, not repaired by
 rewriting the preregistration.
 
+The SPH bundle was published after all source/config/data hashes and model
+parameter hashes were verified. Its six payload hashes reverify exactly, the
+completion manifest was written last inside a temporary directory, and the
+directory was atomically renamed. Validation was loaded only after recipe and
+full-train model freeze; no test file was opened, hashed or named.
+
 ## 5. Tests and invariants
 
-Last recorded complete code suite after the proper-FIR audit runner:
-**167/167 passed in 2.804 s** on the environment in this document.
-Documentation-only commits after that do not change code.
+Last recorded complete code suite before the APA SPH run:
+**201/201 passed** on the environment in this document. Documentation-only
+commits after that do not change code. The SPH result itself is an immutable
+numeric artifact; no code was changed while publishing it.
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -331,6 +381,11 @@ The previous 120-test 0.396 s timing is obsolete.
 | `6529522` / `dae3ae6` | exact FIR cost and causal model/tests |
 | `d9c897e` | shared hash-bound proper-FIR audit runner/tests |
 | `31bf9a6` | APA proper long-FIR negative result bundle |
+| `4602591` | preregister APA standalone SPH search |
+| `b89de01` / `bf417e4` / `f148def` | SPH inference, local-support designs and deterministic ALS fit |
+| `b72b69b` / `5a27c54` / `8790330` | SPH recipe validation, OOF evaluator and staged orchestration |
+| `64b19e5` / `1b6ebde` / `252ff2a` | SPH input integrity, atomic runner/publication and progress record |
+| `516afaa` | immutable APA SPH result bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -346,6 +401,7 @@ experiments/results/pa_gmp_dpa200_test/
 experiments/results/pa_gmp_apa200_test/
 experiments/results/pa_widely_linear_residual_apa200/
 experiments/results/pa_long_fir_residual_apa200/
+experiments/results/pa_sph_apa200_selection/
 ```
 
 Normative documents:
@@ -379,6 +435,10 @@ Normative documents:
     `no_correction` remains selected and no physical IQ attribution is made.
 13. Checked APA sparse proper-FIR supports also failed 0.1 dB; all folds
     improved, but the best aggregate gain was only 0.018/0.020 dB.
+14. APA standalone SPH is implemented and reproducible, but its −30.402 dB
+    train-OOF NMSE is 6.652 dB worse than matched MP; it is not an evaluator.
+15. No non-factorized sparse spline-memory PA has yet been fit; residual lag
+    22–24 is a hypothesis, not a result for the next family.
 
 ## 9. Extension contract for the next PA model
 
@@ -405,19 +465,20 @@ Then add, in separate tasks:
 6. external/new-capture test, not tuning on already opened DPA/APA test;
 7. report update.
 
-The next preregistered family should be spline/CPWL memoryless nonlinearity
-followed by short complex FIR; sparse complex spline-memory follows only if
-that isolated ablation justifies it. A state-conditioned model is blocked
-until independent long-capture slow-state evidence exists.
+The standalone spline/CPWL + short-FIR family has now been isolated and
+rejected on APA OOF. The next preregistered family should be a bounded
+non-factorized sparse complex spline-memory dictionary, with branch/delay
+selection frozen before fit and exact cost/rank/support gates. A
+state-conditioned model is blocked until independent long-capture slow-state
+evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Preregister one standalone phase-equivariant spline/CPWL + short-FIR PA
-   topology, fit rule, exact counter and OOF acceptance threshold.
-2. Implement the family with basis/identifiability/serialization/streaming
-   tests, without changing the evaluator.
-3. Select using APA train OOF; show already-viewed validation descriptively;
-   do not read the previously opened APA test.
+1. Preregister a bounded non-factorized sparse spline-memory PA topology,
+   branch/delay dictionary, fit rule, exact counter and OOF gate.
+2. Implement its basis/identifiability/serialization/streaming tests without
+   changing the evaluator or reusing the old APA test.
+3. Select using APA train OOF; show reused validation descriptively only.
 4. Ask/record metadata for `APA_200MHz_b` measurement B and preregister
    external-capture transfer plus target-train nuisance alignment.
 5. Evaluate zero-shot and limited coefficient recalibration on measurement B;
