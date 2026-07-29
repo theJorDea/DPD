@@ -31,7 +31,8 @@ analysis и report — отдельные commits с push после каждо�
 | MP residual analysis | train OOF + validation выполнены | выбор следующего inductive bias, test не использован |
 | Causal factorized GMP PA | DPA/APA selection, residual release gate и one-shot frozen test выполнены | measured forward PA identification; не DPD и не Gate A→B |
 | GMP residual analysis | train coefficient-OOF + validation выполнены для DPA/APA | reproducible OOF gain; test не участвовал в release decision |
-| Sparse spline-memory / CPWL+FIR PA | **не реализованы и не запускались** | следующий PA family только после GMP residual |
+| Standalone APA SPH (`spline/CPWL + short FIR`) | выполнен train-only staged OOF; selected `K=32,L=8` rejected | 37 MUL/sample, но −30.4024 dB OOF; не evaluator и не Gate A→B |
+| Non-factorized sparse spline-memory PA | **не реализован и не запускался** | следующий bounded PA family, мотивированный residual lag 22–24 |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
@@ -195,9 +196,9 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result перед one-shot GMP tests:
-**131/131 tests passed**. Старое время 0.396 s относилось к 120-test snapshot
-и не переносится на текущий count. Следующий code change обязан сохранить
+Последний recorded full-suite result перед APA SPH experiment:
+**201/201 tests passed**. Более ранние 131/131 и 120-test snapshots являются
+историческими и не заменяют текущий count. Следующий code change обязан сохранить
 новый wall time/execution record; unit-suite timing не является inference
 benchmark.
 
@@ -567,10 +568,48 @@ residual analyzer совпали. Result class остаётся
 `post_discovery_internal_resampling_only`, не independent confirmation.
 
 Frozen follow-up: не расширять long linear delay grid и не превращать те же
-lags в nonlinear spline branches без отдельного evidence. Следующий isolated
-candidate — standalone phase-equivariant spline/CPWL + short complex FIR PA.
+lags в nonlinear spline branches без отдельного evidence. Standalone
+phase-equivariant spline/CPWL + short complex FIR PA теперь проверен как SPH;
+его отрицательный result описан ниже, поэтому следующий isolated candidate —
+non-factorized sparse spline-memory PA.
 
-### 6.11 Existing first-stage spline DPD — retained, not the next PA step
+### 6.11 APA standalone SPH selection — completed negative result
+
+The preregistered standalone candidate was executed only on `APA_200MHz`:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sph \
+  --config experiments/configs/pa_sph_apa200.json
+```
+
+The runner verified config/source/evidence/dataset hashes before loading
+waveforms, searched train leave-one-frame-out OOF in four frozen stages, froze
+the recipe and full-train parameters, and loaded validation only afterwards.
+It never opened or hashed APA test. Publication was atomic and immutable.
+
+| Item | Recorded result |
+|---|---|
+| Selected recipe | `amplitude_uniform_K32_L8_cr1e-08_sm1e-08_fr0e+00` |
+| Train OOF full/common NMSE | −30.402374 / −30.437014 dB |
+| Matched MP OOF full/common | −37.054329 / −37.099951 dB |
+| Matched GMP OOF full/common | −38.345410 / −38.750526 dB |
+| Loss versus MP full/common | +6.651955 / +6.662937 dB |
+| Loss versus GMP full/common | +7.943037 / +8.313512 dB |
+| Exact cost | 37 MUL, 36 ADD, 1 sqrt, 5 comparisons, 4 LUT |
+| Storage/state | 78 real coefficients, 63 constants, 14 state reals |
+| Search workload | 60 unique recipes, 180 completed OOF fit calls, 4 cache hits |
+| Runtime | 620.531 s before publication on recorded CPU |
+| Decision | `neither_evaluator_nor_cheap_pareto`; Gate A→B closed |
+
+Hard-validity details are part of
+`experiments/results/pa_sph_apa200_selection/staged_trials.json`. Raw K48/K64
+variants were not promoted because at least one fold was rank-deficient
+(`47/48` and `62–63/64` control ranks). Train OOF residual analysis found a
+stable proper causal correlation peak around lags 22–24, while the slow-state
+branch remains ineligible (`independent_capture_count=0`). This closes the
+factorized SPH branch; it does not justify DPD tuning through SPH.
+
+### 6.12 Existing first-stage spline DPD — retained, not the next PA step
 
 These are the commands recorded by the old artifacts. They contain
 `--overwrite` and therefore must run only in a clean checkout or after the
@@ -606,7 +645,7 @@ These commands are preserved for reproducibility, but outputs remain
 ablation `experiments/run_spline_memory_ablation.py` is likewise DPD code, not
 a sparse spline-memory PA implementation.
 
-### 6.12 Egor audit reproduction — completed diagnostic
+### 6.13 Egor audit reproduction — completed diagnostic
 
 ```bash
 .venv/bin/python -m experiments.reproduce_egor \
@@ -618,7 +657,7 @@ It reports PA-only, circular inverse→forward reconstruction and correct
 desired-input surrogate path separately. It is not a primary PA/DPD baseline
 until its split/evaluator contract is made apples-to-apples.
 
-### 6.13 OpenDPD control — bundled evidence only on this host
+### 6.14 OpenDPD control — bundled evidence only on this host
 
 The intended upstream reproduction is:
 
@@ -649,17 +688,19 @@ Gate A→B passes:
   validation-only local sweep;
 - memory branches are added incrementally as signal delays `{0}`, `{0,1}`,
   `{0,1,2}`, then sparse selected delays;
-- SPH uses spline followed by a short complex FIR with
-  \(L\in\{2,4,8\}\);
+- SPH used spline followed by a causal complex FIR with
+  \(L\in\{1,2,4,8\}\) in the completed APA search; the selected `L=8` result
+  is retained as a negative control, not as a DPD evaluator;
 - a neural residual branch is allowed only after a simpler branch ablation
   leaves a reproducible residual.
 
 The APA conjugate and proper long-FIR residual audits are complete; both
 failed their 0.1 dB internal thresholds, so `no_correction` remains frozen.
-The next isolated PA task is to preregister standalone spline/CPWL + short
-FIR, followed only then by sparse complex spline-memory if justified. Do not
-implement families simultaneously, and do not add slow state without
-independent long captures.
+The standalone factorized SPH PA audit is also complete and failed the
+three-dB cheap-Pareto gate, despite its 37-MUL cost. The next isolated PA task
+is therefore to preregister non-factorized sparse complex spline-memory with a
+bounded branch/delay dictionary. Do not implement families simultaneously, and
+do not add slow state without independent long captures.
 
 Robustness is a separate stage:
 
@@ -753,7 +794,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 131/131 tests passed; current wall not recorded | completed before one-shot test; rerun after next code change |
+| Final unit suite | 201/201 tests passed; current wall not recorded | completed before APA SPH run; rerun after next code change |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -762,6 +803,7 @@ verification or an explicit `surrogate-only` limitation.
 | GMP APA 154 fits | 212.762 s wall; selected final fit 5.555 s | completed |
 | Frozen GMP test | 0.066 s DPA / 0.31 s APA process wall, no fit | completed once/dataset |
 | GMP residual | 10.259 s DPA / 24.872 s APA wall | completed pre-test |
+| APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
@@ -805,7 +847,12 @@ outputs for predistorted waveforms.
     audit at causal lags 42…49 without test access.
 14. [x] Apply its negative-result branch: keep `no_correction`; do not add a
     larger linear delay grid or spline branches at those lags without evidence.
-15. [ ] Preregister the next bounded standalone spline/CPWL + short-FIR PA
-    family with exact operations, identifiability and streaming semantics.
-16. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
+15. [x] Preregister, implement and execute standalone spline/CPWL + short-FIR
+    SPH PA; record its negative OOF/complexity gate and immutable bundle.
+16. [ ] Preregister the next bounded non-factorized sparse spline-memory PA
+    family with exact branch/delay dictionary, rank/support gates, operations,
+    identifiability and streaming semantics.
+17. [ ] Validate the selected sparse family on reused validation and a new
+    independent capture/operating point; do not reopen the old APA test.
+18. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
     evaluators, then fixed point, robustness/adaptation and finally physical PA.
