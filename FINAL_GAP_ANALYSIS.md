@@ -100,7 +100,21 @@ Validation уже была просмотрена, test не читался, phy
 не выполнялась. Evidence:
 `experiments/results/pa_widely_linear_residual_apa200/`.
 
-### 3.4 Code/repository audit conclusions
+### 3.4 Отрицательный APA proper long-FIR ablation
+
+Следующий preregistered nested experiment проверил обычные causal features
+\(x[n-d]\) около устойчивого proper-correlation peak на lag 45. Лучший
+support `{44,45,46}` дал только 0.01818/0.02007 dB full/common OOF gain при
+966 MUL / 959 ADD / 270 state reals. Все три folds улучшились, fits были full
+rank и streaming/reset exact, но ни один support не достиг 0.1 dB threshold.
+Поэтому снова выбран `no_correction` и evaluator не изменён.
+
+Это показывает, что correlation peak воспроизводим, но объясняет слишком
+малую долю residual error power. Validation была уже просмотрена, test не
+читался; результат не является independent confirmation. Evidence:
+`experiments/results/pa_long_fir_residual_apa200/`.
+
+### 3.5 Code/repository audit conclusions
 
 - OpenDPD neural DLA использует правильное deployment direction:
   desired `x -> DPD -> frozen PA`, target `g*x`; circular `y_test` input там не
@@ -168,11 +182,11 @@ errors, которые DPD optimization эксплуатирует, даже е�
 Release-gate PASS означал только, что frozen GMP можно открыть на test один
 раз. Он не означает Gate A→B PASS.
 
-Short widely-linear correction также не открыла Gate A→B: её лучший OOF
-gain примерно в 3.7 раза меньше даже минимального 0.1 dB ablation threshold
-и пренебрежимо мал по сравнению с недостающими 4.1 dB evaluator margin на
-APA. Поэтому pseudo-correlation residual нельзя интерпретировать как готовый
-путь к требуемой PA fidelity.
+Short widely-linear и proper long-FIR corrections также не открыли Gate A→B:
+их лучшие OOF gains примерно в 3.7× и 5.5× меньше даже минимального 0.1 dB
+ablation threshold и пренебрежимо малы по сравнению с недостающими 4.1 dB
+evaluator margin на APA. Поэтому residual correlation нельзя интерпретировать
+как готовый путь к требуемой PA fidelity.
 
 ## 6. Чего не хватает для Huawei/base-station claim
 
@@ -225,6 +239,7 @@ APA. Поэтому pseudo-correlation residual нельзя интерпрет�
 | Online adaptation demonstrated | unsupported | no controlled operating-point captures/curves |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
+| Sparse APA long-FIR branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.018/0.020 dB despite positive gains in every fold |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
@@ -263,7 +278,10 @@ phase-equivariant spline/CPWL PA с короткой causal linear memory. Ег�
 identifiability constraint, operation count и OOF threshold должны быть
 зафиксированы до fit; already-viewed validation остаётся descriptive, а ранее
 открытый APA test запрещён для selection. Этот experiment может проверить
-новый nonlinear inductive bias, но не заменяет independent capture.
+новый nonlinear inductive bias, но не заменяет independent capture. Два
+предыдущих linear residual ablations уже дали отрицательный результат, поэтому
+этот candidate должен быть standalone alternative model, а не ещё одной
+малой correction поверх почти исчерпанного 954-MUL GMP budget.
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
