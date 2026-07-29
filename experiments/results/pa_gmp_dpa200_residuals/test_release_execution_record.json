@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "task": "gmp_sealed_test_release_gate",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "command": ".venv/bin/python -m experiments.decide_gmp_test_release --config experiments/configs/pa_gmp_residual_dpa200.json",
+  "source_commit": "434cbbd",
+  "exit_code": 0,
+  "wall_time_seconds": 0.135139888,
+  "peak_rss": null,
+  "accessed_splits": ["train", "validation"],
+  "test_split_accessed": false,
+  "may_open_gmp_test_once": true,
+  "report_sha256": "8dadd39714199b49c37fe7989ce971aa43829ccf8e510611739514089770f3d2"
+}

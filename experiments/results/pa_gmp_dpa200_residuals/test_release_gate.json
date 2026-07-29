@@ -1,0 +1,178 @@
+{
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "config": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/configs/pa_gmp_residual_dpa200.json",
+  "config_sha256": "2c76f1c759e4806ac9608557a0f770e7115baa7795cbb3cd9058a63e6be48ac5",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "decision": {
+    "authorization_scope": "one evaluation of the already frozen GMP on the workflow-sealed test split; no refit, retuning, or retry",
+    "does_not_establish": [
+      "Gate A-to-B",
+      "fixed-point readiness",
+      "physical-PA validation",
+      "Huawei acceptance",
+      "superiority over OpenDPD"
+    ],
+    "failed_predicates": [],
+    "may_open_gmp_test_once": true
+  },
+  "diagnostics": {
+    "fixed_point_pending": true,
+    "residual_correlation_is_hard_rejection": false,
+    "slow_state_supported": false
+  },
+  "evaluation_seconds": 0.1261227049981244,
+  "fold_diagnostics": {
+    "coefficient_l2_norm_ratios_to_full_train": [
+      1.0045755968087202,
+      1.033239407683209,
+      0.9829358758397049,
+      1.0048546216114855,
+      1.0288794153925924,
+      1.0105832806311434,
+      0.9854116771002299,
+      1.0270722704879793,
+      1.018781585747842
+    ],
+    "condition_ratios_to_full_train": [
+      1.00193124130859,
+      1.010403931768629,
+      1.0018423811540609,
+      1.0027219119405892,
+      1.0030903833178098,
+      1.0025516562500194,
+      0.9952474574047154,
+      0.9993548139886632,
+      0.9980590857952344
+    ],
+    "fold_count": 9,
+    "held_to_fit_amplitude_ratios": [
+      0.995729303839994,
+      0.994888372038973,
+      0.9935982338458557,
+      0.9978972676662207,
+      0.9905168070957402,
+      0.9887704237470641,
+      0.9999999994007557,
+      0.9828872903018305,
+      1.0000000005992444
+    ]
+  },
+  "inputs": {
+    "gmp_residual_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_residuals/residual_manifest.json",
+      "sha256": "617fc951df9e11213774e256622e597433ff07ad041b2e79ed96a2eb336bdc74"
+    },
+    "gmp_selection_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_selection/selection_manifest.json",
+      "sha256": "933ee11379fc5c825ee3bc8aa5f87592963357abd3c868c42d5fc52d1902728e"
+    },
+    "mp_residual_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_dpa200_residuals/residual_manifest.json",
+      "sha256": "88a5b6c36e1aa772446292258a5a94710e26026a142f1b8a3b98fb5e12001545"
+    },
+    "selected_gmp_model": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+      "sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e"
+    }
+  },
+  "metrics": {
+    "gmp_oof_to_validation_degradation_db": {
+      "common_interior": 0.045984004682182444,
+      "full": 0.050272838740923476
+    },
+    "gmp_train_oof": {
+      "common_interior_nmse_db": -35.4224328871299,
+      "full_nmse_db": -35.31567281033409
+    },
+    "gmp_validation": {
+      "common_interior_nmse_db": -35.46841689181208,
+      "full_nmse_db": -35.365945649075016
+    },
+    "mp_train_oof": {
+      "common_interior_nmse_db": -35.121492047001624,
+      "full_nmse_db": -35.02043047817903
+    },
+    "mp_validation": {
+      "common_interior_nmse_db": -35.05720329858931,
+      "full_nmse_db": -34.96174133038673
+    },
+    "oof_gain_db": {
+      "common_interior": 0.30094084012827693,
+      "full": 0.29524233215506257
+    }
+  },
+  "predicates": {
+    "boundary_contract": true,
+    "causal_model": true,
+    "fold_coefficient_stability": true,
+    "fold_condition_stability": true,
+    "fold_input_support": true,
+    "fold_rank_and_finiteness": true,
+    "full_train_reproduction": true,
+    "mp_reference_metrics_reproduced": true,
+    "oof_common_interior_gain": true,
+    "oof_full_gain": true,
+    "oof_to_validation_gap": true,
+    "operation_budget": true,
+    "protocol_a0_frozen": true,
+    "provenance_and_workflow_seal": true,
+    "reset_at_frame_equivalence": true,
+    "residual_bundle_complete": true,
+    "selected_model_streaming_equivalence": true,
+    "selected_recipe_frozen": true,
+    "threshold_formula_consistent": true,
+    "validation_input_support": true,
+    "validation_metrics_reproduced": true
+  },
+  "publication": {
+    "atomic_same_directory_replace": true,
+    "failure_lock_remains": true,
+    "immutable": true
+  },
+  "schema_version": 1,
+  "source_sha256": {
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "experiments/decide_gmp_test_release.py": "6b6fe0a65ed9e51bcf8e5dccb2391b83cebd1c2cfacb08d0a9a926b8c94a9b80"
+  },
+  "streaming_checks": {
+    "atol": 1e-12,
+    "chunk_schedule": [
+      1,
+      7,
+      31,
+      257,
+      1024
+    ],
+    "maximum_reset_frame_error": 0.0,
+    "maximum_streaming_error": 0.0,
+    "reset_at_frame_equivalence_passed": true,
+    "rtol": 1e-12,
+    "streamed_sample_count": 2560,
+    "streaming_equivalence_passed": true
+  },
+  "task": "gmp_sealed_test_release_gate",
+  "test_file_hashes_recorded": false,
+  "test_split_accessed": false,
+  "threshold_definition": {
+    "gain_sign": "MP_NMSE_dB_minus_GMP_NMSE_dB; positive favors GMP",
+    "minimum_oof_gain_db": "max(0.10 dB, 0.25 * validation_gain_db)",
+    "validation_metric_absolute_tolerance_db": 1e-09
+  },
+  "thresholds": {
+    "maximum_absolute_full_minus_common_interior_db": 0.5,
+    "maximum_fold_coefficient_l2_norm_ratio": 10.0,
+    "maximum_fold_condition_ratio": 10.0,
+    "maximum_gmp_oof_common_interior_nmse_db": -35.22429544530732,
+    "maximum_gmp_oof_full_nmse_db": -35.1214815578511,
+    "maximum_held_to_fit_amplitude_ratio": 1.02,
+    "maximum_oof_to_validation_degradation_db": 0.5,
+    "minimum_oof_gain_common_interior_db": 0.10280339830569396,
+    "minimum_oof_gain_full_db": 0.10105107967207161,
+    "real_multiplication_limit_exclusive": 1000.0
+  },
+  "workflow_specific_seal": "the dataset test split was used by historical MP experiments; sealed here means never opened by GMP selection, residual audit, or this release command"
+}

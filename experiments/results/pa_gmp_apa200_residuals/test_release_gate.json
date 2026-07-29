@@ -1,0 +1,160 @@
+{
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "config": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/configs/pa_gmp_residual_apa200.json",
+  "config_sha256": "895aa3b0265c9c9da9ceeeaf896d3e71aa8b05194a2da225ec821a82e8c0213f",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "decision": {
+    "authorization_scope": "one evaluation of the already frozen GMP on the workflow-sealed test split; no refit, retuning, or retry",
+    "does_not_establish": [
+      "Gate A-to-B",
+      "fixed-point readiness",
+      "physical-PA validation",
+      "Huawei acceptance",
+      "superiority over OpenDPD"
+    ],
+    "failed_predicates": [],
+    "may_open_gmp_test_once": true
+  },
+  "diagnostics": {
+    "fixed_point_pending": true,
+    "residual_correlation_is_hard_rejection": false,
+    "slow_state_supported": false
+  },
+  "evaluation_seconds": 0.40545237100013765,
+  "fold_diagnostics": {
+    "coefficient_l2_norm_ratios_to_full_train": [
+      0.9941078796924314,
+      1.0638677554361882,
+      1.0504886080561917
+    ],
+    "condition_ratios_to_full_train": [
+      1.0043441800042368,
+      1.0034900992447577,
+      0.9983952139184123
+    ],
+    "fold_count": 3,
+    "held_to_fit_amplitude_ratios": [
+      1.0003002111299868,
+      0.9996998789696869,
+      0.9542203015385242
+    ]
+  },
+  "inputs": {
+    "gmp_residual_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_apa200_residuals/residual_manifest.json",
+      "sha256": "02b694bb28195f4ae774bdb7b45e58a2a10364a099de3c99e3171ed16a64fd28"
+    },
+    "gmp_selection_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_apa200_selection/selection_manifest.json",
+      "sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd"
+    },
+    "mp_residual_manifest": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_mp_apa200_residuals/residual_manifest.json",
+      "sha256": "56472b848de7753446857b935959658726da1d2cf8198d28df2dba4e1d79d5dd"
+    },
+    "selected_gmp_model": {
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    }
+  },
+  "metrics": {
+    "gmp_oof_to_validation_degradation_db": {
+      "common_interior": -0.01589780156452747,
+      "full": 0.31984736343398623
+    },
+    "gmp_train_oof": {
+      "common_interior_nmse_db": -38.750526106525086,
+      "full_nmse_db": -38.345410298129714
+    },
+    "gmp_validation": {
+      "common_interior_nmse_db": -38.73462830496056,
+      "full_nmse_db": -38.6652576615637
+    },
+    "mp_train_oof": {
+      "common_interior_nmse_db": -37.09995132643951,
+      "full_nmse_db": -37.054328680975395
+    },
+    "mp_validation": {
+      "common_interior_nmse_db": -37.12847763429247,
+      "full_nmse_db": -37.09524316797299
+    },
+    "oof_gain_db": {
+      "common_interior": 1.6505747800855772,
+      "full": 1.291081617154319
+    }
+  },
+  "predicates": {
+    "boundary_contract": true,
+    "causal_model": true,
+    "fold_coefficient_stability": true,
+    "fold_condition_stability": true,
+    "fold_input_support": true,
+    "fold_rank_and_finiteness": true,
+    "full_train_reproduction": true,
+    "mp_reference_metrics_reproduced": true,
+    "oof_common_interior_gain": true,
+    "oof_full_gain": true,
+    "oof_to_validation_gap": true,
+    "operation_budget": true,
+    "protocol_a0_frozen": true,
+    "provenance_and_workflow_seal": true,
+    "reset_at_frame_equivalence": true,
+    "residual_bundle_complete": true,
+    "selected_model_streaming_equivalence": true,
+    "selected_recipe_frozen": true,
+    "threshold_formula_consistent": true,
+    "validation_input_support": true,
+    "validation_metrics_reproduced": true
+  },
+  "publication": {
+    "atomic_same_directory_replace": true,
+    "failure_lock_remains": true,
+    "immutable": true
+  },
+  "schema_version": 1,
+  "source_sha256": {
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "experiments/decide_gmp_test_release.py": "6b6fe0a65ed9e51bcf8e5dccb2391b83cebd1c2cfacb08d0a9a926b8c94a9b80"
+  },
+  "streaming_checks": {
+    "atol": 1e-12,
+    "chunk_schedule": [
+      1,
+      7,
+      31,
+      257,
+      1024
+    ],
+    "maximum_reset_frame_error": 0.0,
+    "maximum_streaming_error": 0.0,
+    "reset_at_frame_equivalence_passed": true,
+    "rtol": 1e-12,
+    "streamed_sample_count": 19662,
+    "streaming_equivalence_passed": true
+  },
+  "task": "gmp_sealed_test_release_gate",
+  "test_file_hashes_recorded": false,
+  "test_split_accessed": false,
+  "threshold_definition": {
+    "gain_sign": "MP_NMSE_dB_minus_GMP_NMSE_dB; positive favors GMP",
+    "minimum_oof_gain_db": "max(0.10 dB, 0.25 * validation_gain_db)",
+    "validation_metric_absolute_tolerance_db": 1e-09
+  },
+  "thresholds": {
+    "maximum_absolute_full_minus_common_interior_db": 0.5,
+    "maximum_fold_coefficient_l2_norm_ratio": 10.0,
+    "maximum_fold_condition_ratio": 10.0,
+    "maximum_gmp_oof_common_interior_nmse_db": -37.50148899410653,
+    "maximum_gmp_oof_full_nmse_db": -37.446832304373075,
+    "maximum_held_to_fit_amplitude_ratio": 1.02,
+    "maximum_oof_to_validation_degradation_db": 0.5,
+    "minimum_oof_gain_common_interior_db": 0.4015376676670215,
+    "minimum_oof_gain_full_db": 0.39250362339767797,
+    "real_multiplication_limit_exclusive": 1000.0
+  },
+  "workflow_specific_seal": "the dataset test split was used by historical MP experiments; sealed here means never opened by GMP selection, residual audit, or this release command"
+}
