@@ -47,6 +47,9 @@ update `d7042c5`:
 - DPA/APA frozen GMP test full-record pooled NMSE: −35.385/−38.608 dB;
 - integrity-gated frozen runner поддерживает MP и GMP, включая проверку полного
   `gmp_config`, hashes, operation count и common cooldown до чтения test;
+- APA GMP residual содержит воспроизводимую pseudo-correlation с
+  `conj(x[n-d])` на каузальных лагах 0…3; bounded widely-linear residual audit
+  preregistered в `experiments/configs/pa_widely_linear_residual_apa200.json`;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
 
@@ -232,28 +235,42 @@ Matched GMP residual audit подтвердил improvement не только н
 основания для compression-only branch. `independent_capture_count=0`, поэтому
 thermal/state-conditioned ветвь остаётся заблокированной.
 
+Для APA strongest low-cost causal evidence после GMP — pseudo-complex
+correlation ошибки с входом: её magnitude на лагах 0, 1, 2, 3
+равна 0.0832, 0.0816, 0.0702, 0.0517 на train coefficient-OOF и
+0.0678, 0.0663, 0.0559, 0.0387 на validation. Это мотивирует
+минимальную conjugate-FIR correction, но не доказывает её PA origin:
+такую же структуру может дать IQ imbalance или feedback-path asymmetry.
+Отрицательные лаги в residual report означают future samples и запрещены
+как inference features.
+
+Важно: и train OOF residual, и validation residual уже просмотрены
+при выборе widely-linear family. Поэтому первый запуск имеет статус
+`post_discovery_internal_resampling_only`; validation не будет повторно
+называться independent confirmation, а test запрещён. Для acceptance нужен
+новый capture/operating point.
+
 ## Ближайшая точная последовательность
 
 Каждый пункт ниже — отдельный small-task commit с тестом/проверкой и push:
 
 1. [x] Обновить `PA_MODEL_BENCHMARK.md` и quantitative Gate A→B assessment
    после one-shot GMP tests.
-2. [ ] Синхронизировать normative `EXPERIMENT_PLAN.md`; устаревший
+2. [x] Синхронизировать normative `EXPERIMENT_PLAN.md`; устаревший
    `experiments/experiment_plan.md` явно пометить historical ledger либо
    обновить, чтобы не было двух противоречащих status sources.
-3. [ ] Создать living skeletons обязательных документов
+3. [x] Создать living skeletons обязательных документов
    `DPD_BENCHMARK.md`, `ROBUSTNESS_AND_ADAPTATION.md`, `HARDWARE_COST.md` и
    `FINAL_GAP_ANALYSIS.md`, отделяя completed evidence от planned work.
-4. [ ] Зафиксировать train-OOF-only hypothesis и bounded configs для
-   low-complexity spline/CPWL + short complex FIR PA и sparse complex
-   spline-memory PA; test values GMP не использовать для architecture tuning.
-5. [ ] Реализовать первый новый PA family + unit tests: causality, frame reset,
-   streaming equivalence, exact operation count и deterministic complex fit.
-6. [ ] Выполнить train OOF/validation comparison против matched MP/GMP при
-   strict `<1000 MUL`; slow-state variant запрещён без новых long captures.
-7. [ ] Если новый PA evaluator существенно улучшит margin и пройдет отдельный
-   release protocol, проверять его на **новом capture/operating point**; уже
-   открытые DPA/APA test values не использовать как tuning feedback.
+4. [x] Зафиксировать residual-selected APA widely-linear/IQ hypothesis,
+   exact support/cost limits и reused-validation status до candidate fit; test запрещён.
+5. [ ] Реализовать two-stage conjugate residual correction + unit tests: causality,
+   frame reset, streaming equivalence, exact operation count и deterministic complex fit.
+6. [ ] Выполнить APA leave-one-frame-out internal audit при strict `<1000 MUL`;
+   validation показать только как already-viewed descriptive split, test не читать.
+7. [ ] Если internal audit пройдет threshold, проверить feedback-path
+   IQ/frequency response и новый capture; если нет — preregister spline/CPWL +
+   short complex FIR PA. DPA не получает отдельного tuned conjugate support.
 8. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
