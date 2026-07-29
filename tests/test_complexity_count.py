@@ -2,6 +2,7 @@ import unittest
 
 from baseline.complexity import (
     OperationCount,
+    complex_fir_residual_correction_cost,
     complex_spline_inference_cost,
     esn_fan_complex_pair_cost,
     esn_fan_scalar_cost,
@@ -147,6 +148,98 @@ class ComplexityCountTests(unittest.TestCase):
             widely_linear_residual_correction_cost((0, 0))
         with self.assertRaisesRegex(TypeError, "integers"):
             widely_linear_residual_correction_cost((0, 1.0))
+
+    def test_long_fir_residual_cost_matches_preregistered_apa_budget(
+        self,
+    ) -> None:
+        base = OperationCount(
+            real_multiplications=954,
+            real_additions=947,
+            nonlinear_operations=1,
+            real_memory_reads=1362,
+            real_memory_writes=8,
+            stored_real_coefficients=888,
+            stored_real_constants=9,
+            state_real_values=236,
+        )
+        expected = {
+            (45,): (958, 951, 1366, 890, 10, 268),
+            (44, 45, 46): (966, 959, 1374, 894, 12, 270),
+            (43, 44, 45, 46, 47, 48): (
+                978,
+                971,
+                1386,
+                900,
+                15,
+                274,
+            ),
+            (42, 43, 44, 45, 46, 47, 48, 49): (
+                986,
+                979,
+                1394,
+                904,
+                17,
+                276,
+            ),
+        }
+        for delays, values in expected.items():
+            with self.subTest(delays=delays):
+                correction = complex_fir_residual_correction_cost(
+                    delays,
+                    existing_maximum_input_delay=29,
+                )
+                combined = base + correction
+                self.assertEqual(
+                    (
+                        combined.real_multiplications,
+                        combined.real_additions,
+                        combined.real_memory_reads,
+                        combined.stored_real_coefficients,
+                        combined.stored_real_constants,
+                        combined.state_real_values,
+                    ),
+                    values,
+                )
+                self.assertEqual(combined.real_memory_writes, 8)
+                self.assertLess(combined.real_multiplications, 1000)
+
+    def test_long_fir_cost_distinguishes_standalone_and_extended_state(
+        self,
+    ) -> None:
+        standalone = complex_fir_residual_correction_cost((42, 49))
+        extended = complex_fir_residual_correction_cost(
+            (42, 49),
+            existing_maximum_input_delay=29,
+        )
+        covered = complex_fir_residual_correction_cost(
+            (0, 2),
+            existing_maximum_input_delay=29,
+        )
+        self.assertEqual(standalone.state_real_values, 98)
+        self.assertEqual(standalone.real_memory_writes, 2)
+        self.assertEqual(extended.state_real_values, 40)
+        self.assertEqual(extended.real_memory_writes, 0)
+        self.assertEqual(covered.state_real_values, 0)
+
+    def test_long_fir_cost_rejects_invalid_delay_contract(self) -> None:
+        with self.assertRaisesRegex(ValueError, "must not be empty"):
+            complex_fir_residual_correction_cost(())
+        with self.assertRaisesRegex(ValueError, "causal"):
+            complex_fir_residual_correction_cost((0, -1))
+        with self.assertRaisesRegex(ValueError, "unique"):
+            complex_fir_residual_correction_cost((1, 1))
+        with self.assertRaisesRegex(TypeError, "integers"):
+            complex_fir_residual_correction_cost((0, 1.0))
+        with self.assertRaisesRegex(TypeError, "must be an integer"):
+            complex_fir_residual_correction_cost(
+                (0,),
+                existing_maximum_input_delay=1.5,
+            )
+        with self.assertRaisesRegex(ValueError, "non-negative"):
+            complex_fir_residual_correction_cost(
+                (0,),
+                existing_maximum_input_delay=-1,
+            )
 
 
 if __name__ == "__main__":

@@ -142,6 +142,84 @@ def widely_linear_residual_correction_cost(
     )
 
 
+def complex_fir_residual_correction_cost(
+    delays: Iterable[int],
+    *,
+    convention: ComplexMultiplyConvention = "4m2a",
+    existing_maximum_input_delay: int | None = None,
+) -> OperationCount:
+    r"""Count ``sum_d b_d * x[n-d]`` added to a base output.
+
+    Every proper-complex FIR tap costs one complex multiplication followed by
+    one complex accumulation into the existing base prediction.  With the
+    primary convention this is 4M+4A per tap.
+
+    ``existing_maximum_input_delay`` describes an enclosing model's raw
+    complex input history.  The returned state count is then incremental:
+    only the extra complex samples between that delay and the correction's
+    maximum delay are counted.  The same two real delay-line writes can extend
+    the existing buffer, so no additional writes are charged.  With ``None``,
+    the correction is standalone and its complete delay state and writes are
+    reported.
+    """
+
+    delay_tuple = tuple(delays)
+    if not delay_tuple:
+        raise ValueError("complex FIR correction delays must not be empty")
+    if any(
+        isinstance(delay, bool) or not isinstance(delay, Integral)
+        for delay in delay_tuple
+    ):
+        raise TypeError("complex FIR correction delays must be integers")
+    normalized = tuple(int(delay) for delay in delay_tuple)
+    if any(delay < 0 for delay in normalized):
+        raise ValueError("complex FIR correction delays must be causal")
+    if len(set(normalized)) != len(normalized):
+        raise ValueError("complex FIR correction delays must be unique")
+    if existing_maximum_input_delay is not None:
+        if (
+            isinstance(existing_maximum_input_delay, bool)
+            or not isinstance(existing_maximum_input_delay, Integral)
+        ):
+            raise TypeError("existing maximum input delay must be an integer")
+        if int(existing_maximum_input_delay) < 0:
+            raise ValueError("existing maximum input delay must be non-negative")
+
+    complex_multiplications, complex_additions = complex_multiply_cost(
+        convention
+    )
+    tap_count = len(normalized)
+    maximum_delay = max(normalized)
+    if existing_maximum_input_delay is None:
+        incremental_delay = maximum_delay
+        memory_writes = 0 if maximum_delay == 0 else 2
+        state_note = "standalone raw complex input-delay state counted"
+    else:
+        covered_delay = int(existing_maximum_input_delay)
+        incremental_delay = max(maximum_delay - covered_delay, 0)
+        memory_writes = 0
+        state_note = (
+            "incremental raw complex input-delay state beyond enclosing model "
+            f"delay {covered_delay}"
+        )
+
+    return OperationCount(
+        real_multiplications=tap_count * complex_multiplications,
+        real_additions=tap_count * (complex_additions + 2),
+        real_memory_reads=4 * tap_count,
+        real_memory_writes=memory_writes,
+        stored_real_coefficients=2 * tap_count,
+        stored_real_constants=tap_count,
+        state_real_values=2 * incremental_delay,
+        notes=(
+            f"complex multiply convention {convention}",
+            "proper-complex FIR; input is not conjugated",
+            "each complex tap accumulated into an existing base output",
+            state_note,
+        ),
+    )
+
+
 def complex_spline_inference_cost(
     knot_count: int,
     *,
