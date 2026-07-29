@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 import math
+from numbers import Integral
 from typing import Iterable, Literal
 
 ComplexMultiplyConvention = Literal["4m2a", "3m5a"]
@@ -73,6 +74,72 @@ def complex_multiply_cost(
     if convention == "3m5a":
         return 3, 5
     raise ValueError(f"unknown complex multiply convention: {convention}")
+
+
+def widely_linear_residual_correction_cost(
+    delays: Iterable[int],
+    *,
+    convention: ComplexMultiplyConvention = "4m2a",
+    reuse_input_delay_state: bool = False,
+) -> OperationCount:
+    r"""Count ``sum_d b_d * conj(x[n-d])`` added to a base output.
+
+    The count is for an additive residual correction, so every complex tap is
+    accumulated into an already existing complex base-model output.  Under
+    the primary convention this costs 4 real multiplications and 4 real
+    additions per tap: 4M+2A for the complex multiply and another 2A for the
+    output accumulation.  Conjugation is a sign-bit/wiring operation and is
+    not hidden as a real multiplication.
+
+    ``reuse_input_delay_state=True`` is valid only when the enclosing base
+    model already stores every requested raw complex input delay.  Otherwise
+    the returned persistent state and two delay-line writes describe a
+    standalone causal input history.
+    """
+
+    delay_tuple = tuple(delays)
+    if not delay_tuple:
+        raise ValueError("widely-linear correction delays must not be empty")
+    if any(
+        isinstance(delay, bool) or not isinstance(delay, Integral)
+        for delay in delay_tuple
+    ):
+        raise TypeError("widely-linear correction delays must be integers")
+    normalized = tuple(int(delay) for delay in delay_tuple)
+    if any(delay < 0 for delay in normalized):
+        raise ValueError("widely-linear correction delays must be causal")
+    if len(set(normalized)) != len(normalized):
+        raise ValueError("widely-linear correction delays must be unique")
+    if not isinstance(reuse_input_delay_state, bool):
+        raise TypeError("reuse_input_delay_state must be boolean")
+
+    complex_multiplications, complex_additions = complex_multiply_cost(
+        convention
+    )
+    tap_count = len(normalized)
+    maximum_delay = max(normalized)
+    reuse_state = bool(reuse_input_delay_state)
+    return OperationCount(
+        real_multiplications=tap_count * complex_multiplications,
+        real_additions=tap_count * (complex_additions + 2),
+        real_memory_reads=4 * tap_count,
+        real_memory_writes=(
+            0 if reuse_state or maximum_delay == 0 else 2
+        ),
+        stored_real_coefficients=2 * tap_count,
+        stored_real_constants=tap_count,
+        state_real_values=0 if reuse_state else 2 * maximum_delay,
+        notes=(
+            f"complex multiply convention {convention}",
+            "conjugation counted as sign-bit/wiring, zero MUL and zero ADD",
+            "each complex tap accumulated into an existing base output",
+            (
+                "raw complex input-delay state reused from enclosing model"
+                if reuse_state
+                else "standalone raw complex input-delay state counted"
+            ),
+        ),
+    )
 
 
 def complex_spline_inference_cost(

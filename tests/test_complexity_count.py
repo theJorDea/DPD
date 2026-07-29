@@ -1,10 +1,12 @@
 import unittest
 
 from baseline.complexity import (
+    OperationCount,
     complex_spline_inference_cost,
     esn_fan_complex_pair_cost,
     esn_fan_scalar_cost,
     memory_polynomial_inference_cost,
+    widely_linear_residual_correction_cost,
 )
 
 
@@ -87,6 +89,64 @@ class ComplexityCountTests(unittest.TestCase):
         self.assertEqual(apa.state_real_values, 58)
         self.assertEqual(dpa.real_memory_writes, 2)
         self.assertEqual(apa.real_memory_writes, 2)
+
+    def test_widely_linear_residual_cost_matches_preregistered_apa_budget(
+        self,
+    ) -> None:
+        base = OperationCount(
+            real_multiplications=954,
+            real_additions=947,
+            nonlinear_operations=1,
+            stored_real_coefficients=888,
+            state_real_values=236,
+        )
+        correction = widely_linear_residual_correction_cost(
+            delays=(0, 1, 2, 3, 4),
+            convention="4m2a",
+            reuse_input_delay_state=True,
+        )
+        self.assertEqual(correction.real_multiplications, 20)
+        self.assertEqual(correction.real_additions, 20)
+        self.assertEqual(correction.real_memory_reads, 20)
+        self.assertEqual(correction.real_memory_writes, 0)
+        self.assertEqual(correction.stored_real_coefficients, 10)
+        self.assertEqual(correction.state_real_values, 0)
+
+        combined = base + correction
+        self.assertEqual(combined.real_multiplications, 974)
+        self.assertEqual(combined.real_additions, 967)
+        self.assertEqual(combined.nonlinear_operations, 1)
+        self.assertEqual(combined.stored_real_coefficients, 898)
+        self.assertEqual(combined.state_real_values, 236)
+
+    def test_widely_linear_gauss_and_standalone_state_tradeoff(self) -> None:
+        gauss = widely_linear_residual_correction_cost(
+            delays=(0, 1, 2, 3, 4),
+            convention="3m5a",
+            reuse_input_delay_state=True,
+        )
+        self.assertEqual(gauss.real_multiplications, 15)
+        self.assertEqual(gauss.real_additions, 35)
+
+        standalone = widely_linear_residual_correction_cost(
+            delays=(0, 3),
+            reuse_input_delay_state=False,
+        )
+        self.assertEqual(standalone.state_real_values, 6)
+        self.assertEqual(standalone.real_memory_writes, 2)
+        self.assertEqual(standalone.stored_real_constants, 2)
+
+    def test_widely_linear_cost_rejects_noncausal_or_ambiguous_delays(
+        self,
+    ) -> None:
+        with self.assertRaisesRegex(ValueError, "must not be empty"):
+            widely_linear_residual_correction_cost(())
+        with self.assertRaisesRegex(ValueError, "causal"):
+            widely_linear_residual_correction_cost((0, -1))
+        with self.assertRaisesRegex(ValueError, "unique"):
+            widely_linear_residual_correction_cost((0, 0))
+        with self.assertRaisesRegex(TypeError, "integers"):
+            widely_linear_residual_correction_cost((0, 1.0))
 
 
 if __name__ == "__main__":
