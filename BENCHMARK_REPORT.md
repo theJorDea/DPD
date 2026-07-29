@@ -134,6 +134,25 @@ met the preregistered 0.1 dB full/common threshold, so `no_correction`
 remained selected at 954 MUL / 947 ADD. This is a negative post-discovery
 internal-resampling result, not physical IQ attribution.
 
+### 6.2 APA proper-complex long-memory FIR ablation
+
+The stable proper residual-correlation peak around causal lag 45 was tested
+with nested sparse supports. Validation remained descriptive/reused and test
+was not accessed.
+
+| Support | MUL/ADD/state | OOF full/common gain | Minimum fold full/common | Eligible |
+|---|---:|---:|---:|---|
+| `{45}` | 958/951/268 | 0.01332/0.01469 dB | 0.00834/0.00935 dB | no |
+| `{44,45,46}` | 966/959/270 | **0.01818/0.02007 dB** | 0.01142/0.01265 dB | no |
+| `{43,…,48}` | 978/971/274 | 0.01775/0.01995 dB | 0.01155/0.01441 dB | no |
+| `{42,…,49}` | 986/979/276 | 0.01769/0.02013 dB | 0.01143/0.01435 dB | no |
+
+Every fold improved and all fits were full rank with exact reset/streaming
+checks, but no support reached the preregistered 0.1 dB full/common gate.
+Therefore `no_correction` remained selected at 954 MUL / 947 ADD / 236 state
+reals. A visible normalized correlation did not imply useful explained error
+power.
+
 ## 7. Complexity and memory
 
 | Model | MUL | ADD | Nonlinear | Reads/writes | Real coeff. | State reals | FP32 coeff+const+state |
@@ -154,6 +173,7 @@ are analytical factorized schedules, not FPGA resource measurements.
 | Final selected fit | 1.234 s | 5.555 s | train coefficient solve |
 | OOF/residual process | 10.259 s | 24.872 s | train OOF + validation diagnostics |
 | Widely-linear residual audit | — | 14.805 s | selected `no_correction`; OOF fit 13.224 s |
+| Proper long-FIR residual audit | — | 25.473 s | selected `no_correction`; OOF fit 23.395 s |
 | Frozen-test process | 0.066 s | 0.31 s | no fit; process wall measurement differs by method |
 | Test predictor single batch | 8.673 ms | 30.286 ms | NumPy batch diagnostic |
 | Test batch throughput | 0.885 Msample/s | 0.649 Msample/s | host software, not real-time target |
@@ -223,6 +243,8 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - Slow-state candidate lacks independent-capture evidence.
 - APA short conjugate residual family failed its 0.1 dB OOF gain threshold;
   the best observed support improved only 0.027/0.031 dB full/common.
+- APA proper long-FIR family also failed that threshold; the best support
+  improved only 0.018/0.020 dB despite positive gains in every fold.
 - Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
   and no GPU.
 - Existing Egor circular score does not establish deployment DPD and dense
@@ -243,6 +265,7 @@ Raw locations:
 - `experiments/results/pa_gmp_dpa200_{selection,residuals,test}/`;
 - `experiments/results/pa_gmp_apa200_{selection,residuals,test}/`;
 - `experiments/results/pa_widely_linear_residual_apa200/`;
+- `experiments/results/pa_long_fir_residual_apa200/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
