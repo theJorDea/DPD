@@ -1,0 +1,16 @@
+{
+  "command": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/audit_complex_fir_pa.py --config experiments/configs/pa_long_fir_residual_apa200.json",
+  "input_reverification": {
+    "spec.json": true,
+    "train_input.csv": true,
+    "train_output.csv": true,
+    "val_input.csv": true,
+    "val_output.csv": true
+  },
+  "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+  "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+  "runtime_seconds": 25.472831172999577,
+  "schema_version": 1,
+  "task": "forward_pa_model_long_fir_residual_audit",
+  "test_split_accessed": false
+}
