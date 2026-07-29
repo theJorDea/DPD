@@ -11,13 +11,16 @@
 - APA frozen GMP: −38.608 dB pooled test NMSE, 954 real MUL/sample;
 - projected evaluator margin относительно существующего spline-DPD residual:
   5.521 dB DPA и 5.867 dB APA, ниже internal 10 dB criterion;
+- APA standalone SPH PA search is complete but rejected: 37 MUL/sample at
+  −30.402 dB train-OOF NMSE, 6.652 dB worse than matched MP;
 - нет второго independently fitted evaluator, нового operating-point capture
   или physical-PA output для predistorted waveform.
 
 Поэтому в этом документе есть два строго разделённых evidence слоя:
 
 1. уже выполненный **legacy surrogate-only** DPD benchmark;
-2. preregistered future benchmark через independently frozen evaluator.
+2. preregistered future benchmark через independently frozen evaluator;
+3. отрицательный SPH **PA-model** result, который не является DPD result.
 
 Ни один результат ниже не является доказательством линеаризации физического PA
 Huawei или превосходства над OpenDPD.
@@ -136,6 +139,21 @@ software schedule; hardware latency, memory bandwidth и DSP packing не
 - fixed-point degradation нового two-loop pipeline;
 - physical-PA spectral mask или Huawei acceptance.
 
+### 3.4 Why SPH is not a DPD result
+
+The completed APA SPH run belongs to contour A:
+
+```text
+measured PA input x -> SPH forward model -> measured PA output y_hat
+```
+
+It was selected with train OOF and descriptive reused validation only. Its
+`K=32,L=8` model has exact 37 MUL/36 ADD cost, but OOF NMSE is −30.402374 dB;
+it loses to matched MP by 6.651955 dB and to GMP by 7.943037 dB. The result is
+therefore a cheap negative control and residual-analysis evidence, not a frozen
+PA evaluator for contour B. No DPD coefficients were tuned or tested through
+SPH, and no new DPD claim is made.
+
 ## 4. Gate A→B и запрет silent reuse
 
 Новая DPD optimization разрешается только после одновременного выполнения:
@@ -170,8 +188,11 @@ Decision: **closed**. GMP one-shot test release PASS не является эт�
 5. memoryless complex linear spline;
 6. spline signal delays `{0,1}`;
 7. spline signal delays `{0,1,2}`;
-8. SPH: complex spline followed by short complex FIR;
-9. one validation-selected sparse branch model.
+8. SPH: complex spline followed by short complex FIR (already evaluated as a
+   PA candidate; include in DPD matrix only after Gate A→B and independent
+   evaluator criteria, not as the current evaluator);
+9. one validation-selected non-factorized sparse branch model, if it passes
+   contour-A gates.
 
 Architecture progression нельзя менять по test. Для deterministic closed-form
 models stochastic seed не применяется; stochastic models используют минимум
@@ -207,8 +228,8 @@ quality vs peak predistorted drive
 ## 7. Следующий разрешённый шаг
 
 Следующий step находится в контуре A, не B: preregister и проверить
-low-complexity sparse complex spline-memory PA либо spline/CPWL + short
-complex FIR PA по train OOF/validation. Если fidelity margin всё ещё ниже
-gate, честный результат — продолжать считать legacy DPD surrogate-only и
-запросить новый physical capture/operating point, а не оптимизировать DPD под
-ошибки evaluator.
+bounded **non-factorized sparse complex spline-memory PA** по train OOF/validation,
+используя residual lags 22–24 как гипотезу, а не как заранее доказанный
+результат. Если fidelity margin всё ещё ниже gate, честный результат —
+продолжать считать legacy DPD surrogate-only и запросить новый physical
+capture/operating point, а не оптимизировать DPD под ошибки evaluator.
