@@ -13,7 +13,9 @@ measured x -> frozen PA model -> y_hat -> compare with measured y
 ```
 
 Новый DPD-through-GMP cascade, physical PA experiment, 14-bit GMP и hardware
-synthesis не выполнялись. Поэтому report не утверждает better-than-OpenDPD.
+synthesis не выполнялись. Дополнительный APA standalone SPH forward run
+выполнен train/validation-only, но его качество оказалось недостаточным для
+замены GMP. Поэтому report не утверждает better-than-OpenDPD.
 
 ## 2. Environment and provenance
 
@@ -93,6 +95,37 @@ If `10^-5` is normalized error power, all rows fail the −50 dB target. GMP is
 
 Both models are causal, zero-lookahead and full rank in the final fit.
 
+### 5.3 APA standalone SPH candidate
+
+The next isolated PA family was a phase-equivariant spline-Hammerstein model:
+
+```text
+v[n] = x[n] * C(|x[n]|)
+y_hat[n] = v[n] + sum(l=1..7) h[l] * v[n-l], h[0] = 1
+```
+
+The staged search was frozen before validation load and never accessed or
+hashed APA test. The selected hard-valid recipe was
+`amplitude_uniform_K32_L8_cr1e-08_sm1e-08_fr0e+00`.
+
+| Candidate | Full OOF NMSE | Common OOF NMSE | MUL / ADD | Coefficients / state | Decision |
+|---|---:|---:|---:|---:|---|
+| Matched MP | −37.054329 dB | −37.099951 dB | 960 / 628 | 300 / 58 | reference |
+| Matched GMP | −38.345410 dB | −38.750526 dB | 954 / 947 | 888 / 236 | reference |
+| SPH `K=32,L=8` | −30.402374 dB | −30.437014 dB | **37 / 36** | **78 / 14** | rejected |
+
+SPH is `6.651955/6.662937 dB` worse than MP (full/common) and
+`7.943037/8.313512 dB` worse than GMP. It fails the preregistered ≤3 dB
+cheap-Pareto loss gate despite satisfying the strict multiplier ceiling. The
+immutable bundle is
+`experiments/results/pa_sph_apa200_selection/`; its execution record reports
+620.531 s before publication, 60 unique recipes and 180 completed OOF fits.
+
+The residual is structurally useful: proper causal correlation peaks at lags
+22–24 (`0.684–0.723`) on train OOF and repeats on reused validation, while
+instantaneous envelope correlation is small. This points to delay-dependent
+nonlinear branches, not more knots or an unproven slow state.
+
 ## 6. OOF and residual release evidence
 
 | Dataset | GMP train OOF full/common | GMP validation full/common | OOF gain over matched MP full/common | OOF→validation full/common |
@@ -161,6 +194,7 @@ power.
 | GMP DPA | 766 | 759 | 1 | 1,092/8 | 712 | 188 | 3,636 B |
 | MP APA | 960 | 628 | 30 | 360/2 | 300 | 58 | 1,572 B |
 | GMP APA | 954 | 947 | 1 | 1,362/8 | 888 | 236 | 4,532 B |
+| APA SPH `K=32,L=8` | **37** | **36** | 1 sqrt | 36/2 | **78 + 63 constants** | **14** | **620 B** |
 
 GMP is the quality winner but does not dominate memory traffic/storage. These
 are analytical factorized schedules, not FPGA resource measurements.
@@ -174,6 +208,7 @@ are analytical factorized schedules, not FPGA resource measurements.
 | OOF/residual process | 10.259 s | 24.872 s | train OOF + validation diagnostics |
 | Widely-linear residual audit | — | 14.805 s | selected `no_correction`; OOF fit 13.224 s |
 | Proper long-FIR residual audit | — | 25.473 s | selected `no_correction`; OOF fit 23.395 s |
+| APA SPH four-stage selection | — | 620.531 s | train OOF search + atomic publication |
 | Frozen-test process | 0.066 s | 0.31 s | no fit; process wall measurement differs by method |
 | Test predictor single batch | 8.673 ms | 30.286 ms | NumPy batch diagnostic |
 | Test batch throughput | 0.885 Msample/s | 0.649 Msample/s | host software, not real-time target |
@@ -245,6 +280,9 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
   the best observed support improved only 0.027/0.031 dB full/common.
 - APA proper long-FIR family also failed that threshold; the best support
   improved only 0.018/0.020 dB despite positive gains in every fold.
+- APA SPH met the arithmetic budget but failed quality: 37 MUL/sample and
+  −30.402 dB OOF, 6.652 dB worse than matched MP. K48/K64 raw-score variants
+  were rejected for rank deficiency, so the factorized family is closed.
 - Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
   and no GPU.
 - Existing Egor circular score does not establish deployment DPD and dense
@@ -266,12 +304,15 @@ Raw locations:
 - `experiments/results/pa_gmp_apa200_{selection,residuals,test}/`;
 - `experiments/results/pa_widely_linear_residual_apa200/`;
 - `experiments/results/pa_long_fir_residual_apa200/`;
+- `experiments/results/pa_sph_apa200_selection/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
 
-Causal GMP is the current forward PA quality point under 1000 counted real
-MUL/sample. It materially improves APA and slightly improves DPA, but fails
-the possible −50 dB target and does not sufficiently isolate DPD residual from
-evaluator error. The next justified work remains in PA identification/external
-capture validation, not further surrogate-specific DPD optimization.
+Causal GMP remains the current forward PA quality point under 1000 counted
+real MUL/sample. SPH establishes a reproducible 37-MUL lower-cost point but
+does not meet the quality gate, so it cannot be used to move the DPD contour.
+GMP also fails the possible −50 dB target and does not sufficiently isolate
+DPD residual from evaluator error. The next justified work remains bounded
+non-factorized PA identification and external-capture validation, not further
+surrogate-specific DPD optimization.
