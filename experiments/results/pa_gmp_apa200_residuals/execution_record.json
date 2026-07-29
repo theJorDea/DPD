@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "task": "gmp_train_oof_and_validation_residual_analysis",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "command": ".venv/bin/python -m experiments.analyze_pa_residuals --config experiments/configs/pa_gmp_residual_apa200.json",
+  "working_directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD",
+  "source_commit": "6f60bcb8eb7aa85cb498af1f54ab7a3ed5db0e47",
+  "runner_commit": "79822f8",
+  "config_commit": "07d98f6",
+  "record_created_at": "2026-07-29T11:58:38+03:00",
+  "exit_code": 0,
+  "wall_time_seconds": 24.87249834,
+  "wall_time_source": "Codex exec_command measurement",
+  "peak_rss": null,
+  "peak_rss_status": "not measured",
+  "environment": {
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+    "logical_cpu_count": 12
+  },
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "test_split_accessed": false,
+  "result_summary": {
+    "train_oof_full_nmse_db": -38.345410298129714,
+    "train_oof_common_interior_nmse_db": -38.750526106525086,
+    "validation_full_nmse_db": -38.6652576615637,
+    "validation_common_interior_nmse_db": -38.73462830496056,
+    "oof_fold_count": 3,
+    "all_oof_folds_full_rank": true,
+    "partial_train_frame_samples": 19656,
+    "partial_train_frame_included_in_time_domain_score": true,
+    "partial_train_frame_excluded_from_psd": true,
+    "real_multiplications_per_sample": 954
+  },
+  "artifact_sha256": {
+    "residual_manifest.json": "02b694bb28195f4ae774bdb7b45e58a2a10364a099de3c99e3171ed16a64fd28",
+    "residual_predictions.npz": "a82f05705753154aa4205457b36eb5e052d53eba690e7a8a5dc0c825b933c866",
+    "train_oof_residual_analysis.json": "595c99b056c3413f440a7e6729a34f0638157835cb6411075c2c841e70a94263",
+    "validation_residual_analysis.json": "f4bbea617357f5642d895e9fe2a32fb3ae737bc63c1b0d71df03959a6bd3f798"
+  },
+  "evidence_scope": "train coefficient-OOF and validation diagnostics only; this is not a sealed-test result, Gate A-to-B decision, fixed-point result, physical-PA remeasurement, or Huawei acceptance claim"
+}
