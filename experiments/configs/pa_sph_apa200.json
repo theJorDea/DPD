@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_model_implementation_and_candidate_fit",
+  "date": "2026-07-29",
+  "task": "forward_pa_model_spline_hammerstein_selection",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_sph_apa200_selection",
+  "scope": {
+    "contour": "A_low_complexity_forward_pa_system_identification",
+    "purpose": "evaluate a standalone phase-equivariant spline/CPWL memoryless nonlinearity followed by a short causal complex FIR",
+    "model_role": "standalone alternative PA model, not an additive correction to GMP",
+    "not_claimed": [
+      "independent architecture validation",
+      "Gate A-to-B",
+      "DPD linearization",
+      "physical-PA remeasurement",
+      "Huawei acceptance",
+      "superiority over OpenDPD"
+    ],
+    "test_split_access_permitted": false
+  },
+  "direction": {
+    "input": "measured PA input x",
+    "target": "measured PA output y",
+    "path": "x_split -> standalone SPH PA -> y_hat_split -> compare with measured y_split",
+    "inverse_or_ila": false,
+    "post_prediction_gain_fit": false,
+    "post_prediction_delay_fit": false
+  },
+  "evidence": {
+    "usage_status": "the family is chosen after inspecting train OOF and validation residuals; validation is descriptive/reused and not independent confirmation",
+    "base_selection_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selection_manifest.json",
+      "sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd"
+    },
+    "base_selected_model": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    },
+    "base_residual_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/residual_manifest.json",
+      "sha256": "02b694bb28195f4ae774bdb7b45e58a2a10364a099de3c99e3171ed16a64fd28"
+    },
+    "base_release_gate": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/test_release_gate.json",
+      "sha256": "8e9e4681852c72c38cc8f8c3da988e847db9e4760298626712d28765b333bb73"
+    },
+    "train_oof_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/train_oof_residual_analysis.json",
+      "sha256": "595c99b056c3413f440a7e6729a34f0638157835cb6411075c2c841e70a94263"
+    },
+    "validation_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/validation_residual_analysis.json",
+      "sha256": "f4bbea617357f5642d895e9fe2a32fb3ae737bc63c1b0d71df03959a6bd3f798",
+      "role": "already-viewed descriptive split"
+    },
+    "negative_linear_ablations": [
+      {
+        "path": "experiments/results/pa_widely_linear_residual_apa200/audit_manifest.json",
+        "sha256": "0096cc2034df853fd8bdb53de28e9a78cd6dcaa619b32a2f91fd795aac726c48",
+        "selected_candidate": "no_correction"
+      },
+      {
+        "path": "experiments/results/pa_long_fir_residual_apa200/audit_manifest.json",
+        "sha256": "2f26f57ee4a7092fc22d27c5136d038d94221f8345ed47a49f4f35586bb1f874",
+        "selected_candidate": "no_correction"
+      }
+    ],
+    "design_document": {
+      "path": "research/proposed_methods.md",
+      "sha256": "31286f84129cdb6fa40eefe188b8890629b28731ea7b81b5203b7b65d8e74fac"
+    },
+    "source_files_before_new_implementation": {
+      "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+      "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd"
+    }
+  },
+  "dataset_contract": {
+    "required_files_sha256": {
+      "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+    },
+    "sample_rate_hz": 983040000.0,
+    "nperseg": 19662,
+    "train_sample_count": 58980,
+    "validation_sample_count": 19662,
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "frame_state_policy": "reset at every explicit complete or partial frame",
+    "partial_final_frame_policy": "score as a short independent frame",
+    "common_warmup_samples_per_frame": 49,
+    "common_future_cooldown_samples_per_frame": 0,
+    "test_policy": "test files must not be opened, hashed, named in output, or used for release; a new capture is required for a new test claim"
+  },
+  "reference_models": {
+    "matched_mp_oof": {
+      "full_record_nmse_db": -37.054328680975395,
+      "common_interior_nmse_db": -37.09995132643951,
+      "real_multiplications": 960,
+      "real_additions": 628,
+      "stored_real_coefficients": 300,
+      "state_real_values": 58
+    },
+    "matched_gmp_oof": {
+      "full_record_nmse_db": -38.345410298129714,
+      "common_interior_nmse_db": -38.750526106525086,
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "stored_real_coefficients": 888,
+      "state_real_values": 236
+    }
+  },
+  "model": {
+    "name": "phase_equivariant_complex_spline_hammerstein_pa",
+    "equations": [
+      "v[n] = x[n] * C(s[n])",
+      "y_hat[n] = v[n] + sum_{l=1}^{L-1} h_l * v[n-l]",
+      "h_0 = 1 + 0j exactly and is not stored or multiplied"
+    ],
+    "phase_equivariance": "PA(x*exp(j*phi)) = PA(x)*exp(j*phi)",
+    "fit_intercept": false,
+    "identifiability_constraint": "fix h_0=1 exactly; spline control points absorb direct complex gain and phase",
+    "causality": "all FIR delays are 0 through L-1; zero lookahead",
+    "coordinate_clipping": "clip only s to the training-fit knot endpoints; do not clip complex x; report every held/validation sample above fit support",
+    "local_support": "exactly two adjacent complex spline control points are active per sample"
+  },
+  "coordinate_and_knot_variants": [
+    {
+      "name": "amplitude_uniform",
+      "coordinate": "s=abs(x)",
+      "knot_rule": "K points uniformly spaced from 0 to max_fit(abs(x))",
+      "nonlinear_operations_per_sample": 1
+    },
+    {
+      "name": "amplitude_uniform_power_placement",
+      "coordinate": "s=abs(x)",
+      "knot_rule": "r_k=sqrt(q_k), with q_k uniform from 0 to max_fit(abs(x))^2; interpolation remains linear in amplitude",
+      "nonlinear_operations_per_sample": 1
+    },
+    {
+      "name": "amplitude_quantile",
+      "coordinate": "s=abs(x)",
+      "knot_rule": "amplitude quantiles with endpoints forced to 0 and max_fit(abs(x)); duplicate removal is forbidden to change K silently",
+      "nonlinear_operations_per_sample": 1
+    },
+    {
+      "name": "amplitude_compression_aware_p2",
+      "coordinate": "s=abs(x)",
+      "knot_rule": "r_k=r_max*(1-(1-k/(K-1))^2), denser near maximum amplitude",
+      "nonlinear_operations_per_sample": 1
+    },
+    {
+      "name": "power_uniform",
+      "coordinate": "s=abs(x)^2",
+      "knot_rule": "K points uniformly spaced from 0 to max_fit(abs(x)^2); interpolation is linear in power and is a distinct basis",
+      "nonlinear_operations_per_sample": 0
+    }
+  ],
+  "fit": {
+    "objective": "mean(abs(y_hat-y)^2) + control_ridge*||c||^2 + smoothness*||D2*c||^2 + fir_ridge*||h[1:]||^2",
+    "solver": "complex augmented least squares via numpy.linalg.lstsq; no normal equations",
+    "coefficient_dtype": "complex128",
+    "prediction_dtype": "complex128",
+    "smoothness_operator": "coordinate-aware nonuniform-knot second derivative applied to complex control points",
+    "initialization": "solve the penalized memoryless spline exactly with h[1:]=0",
+    "alternating_block_order": [
+      "solve FIR tail h[1:] with c fixed and h_0=1",
+      "solve spline control points c with FIR fixed"
+    ],
+    "maximum_full_alternations": 20,
+    "minimum_full_alternations": 2,
+    "relative_objective_convergence_tolerance": 1E-7,
+    "relative_objective_increase_tolerance": 1E-10,
+    "random_restarts": 0,
+    "default_control_ridge": 1E-8,
+    "default_smoothness": 1E-6,
+    "default_fir_ridge": 1E-8,
+    "required_diagnostics": [
+      "unregularized design rank for every solved block",
+      "augmented condition number",
+      "objective before and after every block update",
+      "control-point and FIR coefficient norms",
+      "iteration count and convergence reason",
+      "fit wall time",
+      "fraction and maximum coordinate above fit support"
+    ],
+    "hard_fit_validity": [
+      "all coefficients, predictions, singular values and objectives finite",
+      "unregularized control design full column rank",
+      "unregularized FIR-tail design full column rank when L>1",
+      "no objective increase beyond the frozen numerical tolerance",
+      "h_0 exactly equals 1+0j",
+      "reset-frame and arbitrary-chunk streaming equivalence exact in complex128"
+    ]
+  },
+  "staged_search": [
+    {
+      "stage": "S0_coordinate_and_memory",
+      "knot_counts": [24],
+      "variant_names": [
+        "amplitude_uniform",
+        "amplitude_uniform_power_placement",
+        "amplitude_quantile",
+        "amplitude_compression_aware_p2",
+        "power_uniform"
+      ],
+      "fir_lengths": [1, 2, 4, 8],
+      "regularization": "use all three default values",
+      "retention": "keep at most two (variant,L) topologies within 0.05 dB full-record OOF NMSE of the stage winner; order ties by common NMSE, fewer nonlinear operations, shorter L, then name"
+    },
+    {
+      "stage": "S1_knot_count",
+      "knot_counts": [8, 12, 16, 24, 32, 48, 64],
+      "topologies": "the at-most-two S0 retained (variant,L) pairs",
+      "regularization": "use all three default values",
+      "retention": "freeze one (variant,L,K) using the common ranking rule"
+    },
+    {
+      "stage": "S2_control_and_smoothness",
+      "control_ridges": [0.0, 1E-10, 1E-8, 1E-6, 1E-4],
+      "smoothnesses": [0.0, 1E-8, 1E-6, 1E-4, 1E-2],
+      "fir_ridge": 1E-8,
+      "topology": "frozen S1 topology",
+      "retention": "freeze one (control_ridge,smoothness) pair using the common ranking rule"
+    },
+    {
+      "stage": "S3_fir_ridge",
+      "fir_ridges": [0.0, 1E-10, 1E-8, 1E-6, 1E-4],
+      "topology_and_other_regularization": "frozen by S1/S2",
+      "retention": "freeze the final model recipe using the common ranking rule"
+    }
+  ],
+  "search_budget": {
+    "oof_fold_count": 3,
+    "maximum_S0_candidate_recipes": 20,
+    "maximum_S1_candidate_recipes": 14,
+    "maximum_S2_candidate_recipes": 25,
+    "maximum_S3_candidate_recipes": 5,
+    "maximum_oof_fit_calls_without_cache": 192,
+    "final_full_train_fit_calls": 1,
+    "candidate_cache": "reuse exact duplicate recipe/fold fits by a canonical recipe hash",
+    "plots_during_fit": false
+  },
+  "operation_count_convention": {
+    "complex_multiply": "4 real multiplications + 2 real additions",
+    "fma": "one real multiplication plus one real addition",
+    "reciprocal_interval_widths": "precomputed; no runtime division",
+    "binary_interval_search": true,
+    "per_complex_sample_formulas": {
+      "real_multiplications": "9 + 4*(L-1)",
+      "real_additions": "8 + 4*(L-1)",
+      "real_divisions": 0,
+      "nonlinear_operations": "1 for amplitude coordinate; 0 for power coordinate",
+      "comparisons": "ceil(log2(K))",
+      "lookups": 4,
+      "real_memory_reads": "8 + 4*(L-1)",
+      "real_memory_writes": 2,
+      "stored_real_coefficients": "2*K + 2*(L-1)",
+      "stored_real_constants": "2*K - 1",
+      "state_real_values": "2*(L-1)"
+    },
+    "frozen_length_points": [
+      {
+        "L": 1,
+        "real_multiplications": 9,
+        "real_additions": 8,
+        "state_real_values": 0
+      },
+      {
+        "L": 2,
+        "real_multiplications": 13,
+        "real_additions": 12,
+        "state_real_values": 2
+      },
+      {
+        "L": 4,
+        "real_multiplications": 21,
+        "real_additions": 20,
+        "state_real_values": 6
+      },
+      {
+        "L": 8,
+        "real_multiplications": 37,
+        "real_additions": 36,
+        "state_real_values": 14
+      }
+    ],
+    "real_multiplication_limit_exclusive": 1000,
+    "parameter_count_is_not_operation_count": true
+  },
+  "selection": {
+    "evidence_class": "post_discovery_internal_resampling_only",
+    "selection_samples": "train split leave-one-explicit-frame-out predictions only",
+    "validation_role": "load only after final recipe freeze; report as already-viewed descriptive evidence",
+    "test_role": "forbidden",
+    "primary_metric": "pooled complex NMSE on the complete OOF train record; lower is better",
+    "secondary_metric": "pooled complex NMSE on the frozen 49-sample common interior; lower is better",
+    "ranking_rule": "minimize primary NMSE; candidates within 0.02 dB use secondary NMSE, then fewer real multiplications, fewer nonlinear operations, fewer stored coefficients, shorter L, smaller K, and lexical recipe name",
+    "ranking_tolerance_db": 0.02,
+    "maximum_worst_fold_degradation_vs_gmp_db": 0.1,
+    "evaluator_replacement": {
+      "minimum_oof_full_gain_over_gmp_db": 0.25,
+      "minimum_oof_common_gain_over_gmp_db": 0.25,
+      "all_hard_fit_validity_checks": true,
+      "real_multiplications_strictly_below": 1000,
+      "meaning": "eligible for further independent PA-evaluator validation; does not itself open Gate A-to-B or permit reuse of the old APA test"
+    },
+    "cheap_pareto_retention": {
+      "maximum_oof_full_loss_vs_matched_mp_db": 3.0,
+      "maximum_oof_common_loss_vs_matched_mp_db": 3.0,
+      "all_hard_fit_validity_checks": true,
+      "meaning": "retain as a low-cost PA-model Pareto point only; do not call it the evaluator quality winner"
+    }
+  },
+  "reporting": {
+    "required_quality": [
+      "pooled complex NMSE full record",
+      "pooled complex NMSE common interior",
+      "OpenDPD-compatible NMSE where complete frames exist",
+      "per-frame NMSE",
+      "error PSD",
+      "AM/AM residual",
+      "AM/PM residual",
+      "input-support exceedance"
+    ],
+    "required_cost": [
+      "real MUL and ADD per sample",
+      "sqrt/nonlinear operations",
+      "comparisons and LUT accesses",
+      "real memory reads and writes",
+      "stored coefficients and constants",
+      "state real values",
+      "fit time, iteration count and batch inference time"
+    ],
+    "required_integrity": [
+      "config, source, evidence and train/validation data hashes",
+      "explicit accessed split list",
+      "no test file hashes",
+      "atomic immutable publication",
+      "exact selected model serialization and prediction hashes"
+    ]
+  },
+  "follow_up": {
+    "if_evaluator_replacement_eligible": "freeze the recipe and obtain a new independent capture or verified APA_200MHz_b protocol before any new test claim; Gate A-to-B still needs the 10 dB margin and a second evaluator ranking",
+    "if_only_cheap_pareto_retained": "retain SPH as a hardware-cost baseline, but keep GMP as the evaluator; analyze SPH residual separability before considering sparse spline-memory",
+    "if_neither": "record the negative result and do not expand K or L outside the preregistered grid",
+    "state_conditioned_variant": "forbidden because independent_capture_count is zero",
+    "dpd_policy": "DPD optimization remains paused until Gate A-to-B passes"
+  }
+}
