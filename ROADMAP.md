@@ -6,11 +6,12 @@
 приостановлено, пока независимый PA evaluator не станет заметно точнее
 оцениваемого DPD residual. Legacy memory-polynomial surrogate первого этапа
 имел test fidelity около −30…−31 dB, а spline-memory DPD уже достигал до
-−32.7 dB на том же evaluator. Новый validation-selected MP forward model
-улучшил measured-output fidelity до −35.10 dB на DPA и −36.99 dB на APA,
-что даёт только projected arithmetic margin 5.235 dB для DPA и 4.250 dB для
-APA относительно существующих spline-DPD residuals. Поскольку cascade через
-новые frozen MP evaluators ещё не запускался, actual Gate A→B пока не оценён.
+−32.7 dB на том же evaluator. Новый validation-selected causal GMP достиг на
+frozen test −35.385 dB на DPA и −38.608 dB на APA при 766/954 counted real
+MUL/sample. Однако arithmetic margin относительно старых surrogate-only DPD
+residuals равен лишь 5.521/5.867 dB. Поскольку true cascade через новые frozen
+GMP evaluators ещё не запускался и нет второго independent evaluator/physical
+PA measurement, Gate A→B остаётся закрытым.
 
 ## Правила выполнения
 
@@ -28,7 +29,8 @@ APA относительно существующих spline-DPD residuals. По
 
 ## Status snapshot
 
-Текущий snapshot после `fc85e44`, `5047146`, `0a7e065` и `a6e4689`:
+Текущий snapshot после GMP result commits `8ae235d`, `0e56add` и benchmark
+update `d7042c5`:
 
 - MP forward baseline, frozen test и residual analysis для DPA/APA завершены;
 - causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
@@ -36,16 +38,21 @@ APA относительно существующих spline-DPD residuals. По
 - validation-only GMP selector завершён: full-record score является primary,
   common-interior score сохраняется отдельно, strict `<1000 MUL` применяется
   до fit;
-- causal GMP sweep configs для DPA/APA pre-registered, но **formal GMP sweep
-  ещё не запускался**;
+- A0/A1 sensitivity выполнена; A0 integer-only/no-fractional-transform frozen
+  для DPA и APA до formal GMP selection;
+- formal GMP selection, coefficient-OOF residual audit и separate release
+  gate выполнены для обоих datasets;
+- оба release gates прошли все hard predicates и разрешили по одному frozen
+  test; разрешения израсходованы, test refit/retry не выполнялся;
+- DPA/APA frozen GMP test full-record pooled NMSE: −35.385/−38.608 dB;
 - integrity-gated frozen runner поддерживает MP и GMP, включая проверку полного
   `gmp_config`, hashes, operation count и common cooldown до чтения test;
-- versioned frame-safe fractional-alignment transform и его unit tests
-  реализованы, но численный A0/A1 sensitivity experiment ещё не запускался.
+- versioned frame-safe fractional-alignment transform остаётся sensitivity
+  tool, а не доказанным measurement-path de-embedding.
 
-Следовательно, completed GMP quality/result rows пока отсутствуют. Наличие
-kernel, selector, configs и frozen runner означает готовность инфраструктуры,
-а не измеренный GMP result.
+Следовательно, GMP forward-identification result завершён, но release-gate
+PASS нельзя смешивать с Gate A→B. DPD quality, fixed-point, robustness и
+physical-PA linearization этим результатом не доказаны.
 
 ## Этап 0. Requirements contract
 
@@ -95,8 +102,9 @@ x_split -> PA model -> y_hat_split -> compare with measured y_split
 
 ## Gate A0/A1. Fractional-alignment sensitivity до formal GMP
 
-Статус: transform и tests завершены; runner, numerical comparison и protocol
-decision не выполнены. Этот gate блокирует formal GMP sweep.
+Статус: завершён. Numerical comparison использовал только train/validation;
+для обоих datasets frozen variant — A0. Decision artifact:
+`experiments/results/pa_alignment_protocol_decision.json`.
 
 Сравниваются две заранее определённые protocol variants:
 
@@ -137,11 +145,20 @@ Gate protocol:
    Уже pre-registered A0 configs нельзя незаметно переопределить; для A1 нужны
    новые versioned configs.
 
+Observed result:
+
+| Dataset | GMP OOF common Δ A1−A0 | GMP validation common Δ | Full-record caveat | Frozen |
+|---|---:|---:|---|---|
+| DPA_200MHz | −0.00114 dB | −0.00017 dB | same sign, но далеко от −0.25 dB gate | A0 |
+| APA_200MHz | −0.00841 dB | −0.00654 dB | OOF sign reversal: +0.01070 dB | A0 |
+
+Ни один dataset не прошёл preregistered A1 threshold. Это решение означает
+«не вводить fractional transform», а не «measurement path откалиброван».
+
 ## Этап A2. PA baselines
 
-Статус: MP завершён; GMP implementation/selection infrastructure завершена,
-formal sweep не запущен и ожидает Gate A0/A1; локального OpenDPD checkpoint
-нет.
+Статус: MP и causal GMP завершены; локального runnable OpenDPD neural
+checkpoint нет. Следующие PA families ещё не реализованы/не выбраны.
 
 Порядок:
 
@@ -152,10 +169,10 @@ formal sweep не запущен и ожидает Gate A0/A1; локально�
    - [x] validation-only selector и explicit full-record/common-interior metrics;
    - [x] pre-registered DPA/APA causal configs;
    - [x] integrity-gated GMP frozen runner;
-   - [ ] пройти Gate A0/A1 и freeze protocol variant;
-   - [ ] выполнить formal validation sweep;
-   - [ ] выполнить residual/OOF stability checks;
-   - [ ] freeze winner и открыть test один раз.
+   - [x] пройти Gate A0/A1 и freeze protocol variant A0;
+   - [x] выполнить formal validation sweep;
+   - [x] выполнить residual/OOF stability checks;
+   - [x] freeze winner и открыть test один раз после release-gate PASS.
 3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
    воспроизводимо обучен.
 4. [ ] Sparse complex spline-memory PA.
@@ -166,23 +183,26 @@ formal sweep не запущен и ожидает Gate A0/A1; локально�
 pre-registered config; numerical result artifact; report update. Нельзя менять
 evaluator одновременно с моделью или объединять config и result.
 
-Текущие MP results:
+Текущие completed results:
 
 | Dataset | Selected model | Validation pooled NMSE | Frozen test pooled NMSE | MUL/sample |
 |---|---|---:|---:|---:|
 | DPA_200MHz | odd orders 1…9, 24 delays | −34.962 dB | −35.099 dB | 792 |
+| DPA_200MHz | causal GMP `both_k4_m1`, `ka7/la24` | −35.366 dB | −35.385 dB | 766 |
 | APA_200MHz | powers 1…5, 30 delays | −37.095 dB | −36.990 dB | 960 |
+| APA_200MHz | causal GMP `both_k2_m2`, `ka7/la30` | −38.665 dB | −38.608 dB | 954 |
 
 GMP configs `experiments/configs/pa_gmp_dpa200.json` и
 `experiments/configs/pa_gmp_apa200.json` фиксируют bounded causal grid,
 OpenDPD-compatible initial truncated-SVD `rcond=1e-4`, ridge/SVD refinement
 axes, primary full-record validation score и strict exclusive multiplier
-budget. Они имеют variant A0 и пока не запускались.
+budget. Они были выполнены ровно по frozen variant A0; selection manifests и
+one-shot test artifacts находятся в `experiments/results/pa_gmp_*`.
 
 ## Этап A3. Residual analysis
 
-Статус: завершён для выбранных MP models; повторяется после каждого нового
-frozen PA baseline.
+Статус: завершён для выбранных MP и GMP models; повторяется после каждого
+нового frozen PA baseline до любого test release.
 
 На validation residual \(e[n]=y[n]-\hat y[n]\) измерить:
 
@@ -204,32 +224,37 @@ frozen PA baseline.
 
 Артефакты: code + `PA_MODEL_BENCHMARK.md`, отдельный residual JSON/CSV.
 
-MP residual evidence показывает short electrical memory, особенно для APA
-(residual ACF lag 1 около 0.43), и устойчивую корреляцию с GMP cross-memory
-terms. High-amplitude bins не являются главным источником ошибки. Длительности
-captures недостаточно для вывода о thermal memory, поэтому state-conditioned
-ветвь пока заблокирована.
+Matched GMP residual audit подтвердил improvement не только на validation, но
+и coefficient-OOF: 0.295/0.301 dB full/common на DPA и 1.291/1.651 dB на APA.
+Все folds full rank; support и OOF→validation preregistered limits выполнены.
+На APA full/common OOF отличаются на 0.405 dB, поэтому boundary/reset semantics
+остаются существенными. High-amplitude diagnostics не дают достаточного
+основания для compression-only branch. `independent_capture_count=0`, поэтому
+thermal/state-conditioned ветвь остаётся заблокированной.
 
 ## Ближайшая точная последовательность
 
 Каждый пункт ниже — отдельный small-task commit с тестом/проверкой и push:
 
-1. Реализовать train/validation-only A0/A1 sensitivity runner поверх frozen
-   fractional transform; не менять GMP model или общий PA evaluator.
-2. Зафиксировать DPA и APA sensitivity configs, delay source, coefficients,
-   protocol hashes, matched crop и fixed PA recipe до запуска.
-3. Запустить A0/A1 сначала для DPA, затем отдельной задачей для APA; сохранить
-   numerical artifacts без test access.
-4. Отдельным decision commit выбрать A0 или A1 для каждого PA по pre-registered
-   gate и обновить/создать versioned formal GMP configs.
-5. Запустить formal GMP validation selection отдельно для DPA и APA. До этого
-   момента `experiments/results/pa_gmp_*_selection` не считается результатом.
-6. Для validation-selected GMP выполнить train OOF/reset-boundary и residual
-   analysis; проверить, что gain не является только boundary/crop эффектом.
-7. Если GMP acceptance выполнен, freeze model/manifest и отдельной командой
-   открыть sealed test ровно один раз для каждого PA.
-8. Только после numerical artifacts обновить `PA_MODEL_BENCHMARK.md` и status
-   roadmap; затем повторно оценить Gate A→B.
+1. [x] Обновить `PA_MODEL_BENCHMARK.md` и quantitative Gate A→B assessment
+   после one-shot GMP tests.
+2. [ ] Синхронизировать normative `EXPERIMENT_PLAN.md`; устаревший
+   `experiments/experiment_plan.md` явно пометить historical ledger либо
+   обновить, чтобы не было двух противоречащих status sources.
+3. [ ] Создать living skeletons обязательных документов
+   `DPD_BENCHMARK.md`, `ROBUSTNESS_AND_ADAPTATION.md`, `HARDWARE_COST.md` и
+   `FINAL_GAP_ANALYSIS.md`, отделяя completed evidence от planned work.
+4. [ ] Зафиксировать train-OOF-only hypothesis и bounded configs для
+   low-complexity spline/CPWL + short complex FIR PA и sparse complex
+   spline-memory PA; test values GMP не использовать для architecture tuning.
+5. [ ] Реализовать первый новый PA family + unit tests: causality, frame reset,
+   streaming equivalence, exact operation count и deterministic complex fit.
+6. [ ] Выполнить train OOF/validation comparison против matched MP/GMP при
+   strict `<1000 MUL`; slow-state variant запрещён без новых long captures.
+7. [ ] Если новый PA evaluator существенно улучшит margin и пройдет отдельный
+   release protocol, проверять его на **новом capture/operating point**; уже
+   открытые DPA/APA test values не использовать как tuning feedback.
+8. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
@@ -248,15 +273,18 @@ Margin 10 dB — временный внутренний conservative research c
 
 Если gate не выполнен, DPD numbers остаются diagnostic surrogate-only.
 
-Текущий projected margin — не завершённый cascade experiment:
+Текущий projected margin — subtraction frozen forward GMP fidelity и старого
+surrogate-only DPD residual; это не завершённый cascade experiment:
 
-| Dataset | New MP PA test fidelity | Existing spline-DPD residual | Projection margin |
-|---|---:|---:|---:|
-| DPA_200MHz | −35.099 dB | −29.864 dB | 5.235 dB |
-| APA_200MHz | −36.990 dB | −32.741 dB | 4.250 dB |
+| Dataset | Frozen GMP PA test fidelity | Existing spline-DPD residual | Projection margin | Shortfall to 10 dB |
+|---|---:|---:|---:|---:|
+| DPA_200MHz | −35.385 dB | −29.864 dB | 5.521 dB | 4.479 dB |
+| APA_200MHz | −38.608 dB | −32.741 dB | 5.867 dB | 4.133 dB |
 
-Existing spline DPD ещё не прогонялся как cascade через новые frozen MP
+Existing spline DPD ещё не прогонялся как cascade через новые frozen GMP
 models; таблица служит только gate arithmetic и не является DPD result.
+Release-gate PASS разрешал test evaluation frozen GMP, но не заменяет этот
+Gate A→B. Текущий decision: **closed**.
 
 ## Этап B1. Frozen-evaluator DPD benchmark
 
