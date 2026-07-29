@@ -41,6 +41,10 @@ from .gmp_pa import (
     gmp_terms,
 )
 from .complexity import gmp_inference_cost
+from .spline_hammerstein_pa import (
+    SplineHammersteinPA,
+    SplineHammersteinState,
+)
 
 __all__ = [
     "ComplexLinearSplineDPD",
@@ -71,4 +75,6 @@ __all__ = [
     "gmp_segmented_design_matrix",
     "gmp_terms",
     "gmp_inference_cost",
+    "SplineHammersteinPA",
+    "SplineHammersteinState",
 ]
