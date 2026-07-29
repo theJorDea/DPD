@@ -13,9 +13,10 @@ measured x -> frozen PA model -> y_hat -> compare with measured y
 ```
 
 Новый DPD-through-GMP cascade, physical PA experiment, 14-bit GMP и hardware
-synthesis не выполнялись. Дополнительный APA standalone SPH forward run
-выполнен train/validation-only, но его качество оказалось недостаточным для
-замены GMP. Поэтому report не утверждает better-than-OpenDPD.
+synthesis не выполнялись. APA standalone SPH и non-factorized sparse
+spline-memory forward runs выполнены train/validation-only, но оба оказались
+недостаточно точными для замены GMP. Поэтому report не утверждает
+better-than-OpenDPD.
 
 ## 2. Environment and provenance
 
@@ -126,6 +127,36 @@ The residual is structurally useful: proper causal correlation peaks at lags
 instantaneous envelope correlation is small. This points to delay-dependent
 nonlinear branches, not more knots or an unproven slow state.
 
+### 5.4 APA non-factorized sparse spline-memory candidate
+
+The next preregistered forward family used
+`y_hat[n] = sum_b x[n-m_b] C_b(|x[n-d_b]|)` with joint complex coefficients,
+local two-point spline support, causal delays and explicit frame resets. The
+runner executed S0 topology screening, S1 knot sweep and S2 ridge sweep using
+train leave-one-frame-out OOF only. It performed 16 stage associations, 14
+unique recipe evaluations and 42 OOF fits; validation was loaded after the
+full-train model freeze and the test split was never opened.
+
+| Candidate | Full OOF NMSE | Common OOF NMSE | Full loss vs GMP | MUL / ADD | Coefficients / state | Decision |
+|---|---:|---:|---:|---:|---:|---|
+| Matched MP | −37.054329 dB | −37.099951 dB | +1.291081 dB | 960 / 628 | 300 / 58 | reference |
+| Matched GMP | −38.345410 dB | −38.750526 dB | 0 dB | 954 / 947 | 888 / 236 | reference |
+| Sparse `K=12`, 6 branches | −32.030011 dB | −32.088250 dB | **+6.315399 dB** | **54 / 58** | **144 / 48** | rejected |
+
+Full-train refit scored `−32.049190 dB`; reused validation scored
+`−32.048219 dB` (OpenDPD-compatible `−32.048219 dB`). The selected family was
+`mixed_diagonal_long` with branches `(0,0),(1,1),(2,2),(22,22),(23,23),(24,24)`.
+Hard identifiability gates passed (rank `72/72`, condition `78.57`, minimum
+feature support `8`), but the ≤3 dB cheap-Pareto gate versus MP failed by a
+wide margin. The decision is `neither_evaluator_nor_cheap_pareto`.
+
+Residual analysis changed the next hypothesis: the strongest causal proper
+correlation is now lag 9 (`0.69064` train OOF, `0.69131` validation), while
+radial-envelope correlation peaks only around `0.140`. A lag-9 neighborhood
+family should be preregistered before another fit; this is not a license to
+tune on reused validation. Bundle:
+`experiments/results/pa_sparse_spline_memory_apa200_selection/`.
+
 ## 6. OOF and residual release evidence
 
 | Dataset | GMP train OOF full/common | GMP validation full/common | OOF gain over matched MP full/common | OOF→validation full/common |
@@ -195,6 +226,7 @@ power.
 | MP APA | 960 | 628 | 30 | 360/2 | 300 | 58 | 1,572 B |
 | GMP APA | 954 | 947 | 1 | 1,362/8 | 888 | 236 | 4,532 B |
 | APA SPH `K=32,L=8` | **37** | **36** | 1 sqrt | 36/2 | **78 + 63 constants** | **14** | **620 B** |
+| APA sparse non-factorized `K=12` | **54** | **58** | 6 sqrt | 36/2 | **144 + 23 constants** | **48** | **860 B** |
 
 GMP is the quality winner but does not dominate memory traffic/storage. These
 are analytical factorized schedules, not FPGA resource measurements.
@@ -209,6 +241,7 @@ are analytical factorized schedules, not FPGA resource measurements.
 | Widely-linear residual audit | — | 14.805 s | selected `no_correction`; OOF fit 13.224 s |
 | Proper long-FIR residual audit | — | 25.473 s | selected `no_correction`; OOF fit 23.395 s |
 | APA SPH four-stage selection | — | 620.531 s | train OOF search + atomic publication |
+| APA sparse staged selection | — | 33.589 s | train OOF search + frozen refit + reused validation |
 | Frozen-test process | 0.066 s | 0.31 s | no fit; process wall measurement differs by method |
 | Test predictor single batch | 8.673 ms | 30.286 ms | NumPy batch diagnostic |
 | Test batch throughput | 0.885 Msample/s | 0.649 Msample/s | host software, not real-time target |
@@ -283,6 +316,9 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - APA SPH met the arithmetic budget but failed quality: 37 MUL/sample and
   −30.402 dB OOF, 6.652 dB worse than matched MP. K48/K64 raw-score variants
   were rejected for rank deficiency, so the factorized family is closed.
+- APA non-factorized sparse spline-memory met the arithmetic budget at 54
+  MUL/sample, improved SPH by 1.628 dB, but remained 5.024 dB worse than MP
+  and 6.315 dB worse than GMP; its evaluator gate also failed.
 - Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
   and no GPU.
 - Existing Egor circular score does not establish deployment DPD and dense
@@ -305,14 +341,15 @@ Raw locations:
 - `experiments/results/pa_widely_linear_residual_apa200/`;
 - `experiments/results/pa_long_fir_residual_apa200/`;
 - `experiments/results/pa_sph_apa200_selection/`;
+- `experiments/results/pa_sparse_spline_memory_apa200_selection/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
 
 Causal GMP remains the current forward PA quality point under 1000 counted
-real MUL/sample. SPH establishes a reproducible 37-MUL lower-cost point but
-does not meet the quality gate, so it cannot be used to move the DPD contour.
-GMP also fails the possible −50 dB target and does not sufficiently isolate
-DPD residual from evaluator error. The next justified work remains bounded
-non-factorized PA identification and external-capture validation, not further
-surrogate-specific DPD optimization.
+real MUL/sample. Sparse non-factorized PA establishes a reproducible 54-MUL
+point and improves the factorized SPH baseline, but still fails the quality
+gate and cannot move the DPD contour. GMP also fails the possible −50 dB target
+and does not sufficiently isolate DPD residual from evaluator error. The next
+justified work is a preregistered lag-9-guided branch ablation or independent
+capture validation, not further surrogate-specific DPD optimization.
