@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "task": "gmp_train_oof_and_validation_residual_analysis",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "command": ".venv/bin/python -m experiments.analyze_pa_residuals --config experiments/configs/pa_gmp_residual_dpa200.json",
+  "working_directory": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD",
+  "source_commit": "07d98f601ecf31a84620a8caf56dd1c5518323ff",
+  "runner_commit": "79822f8",
+  "config_commit": "07d98f6",
+  "record_created_at": "2026-07-29T11:56:29+03:00",
+  "exit_code": 0,
+  "wall_time_seconds": 10.258607757,
+  "wall_time_source": "Codex exec_command measurement",
+  "peak_rss": null,
+  "peak_rss_status": "not measured",
+  "environment": {
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+    "logical_cpu_count": 12
+  },
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "test_split_accessed": false,
+  "result_summary": {
+    "train_oof_full_nmse_db": -35.31567281033409,
+    "train_oof_common_interior_nmse_db": -35.4224328871299,
+    "validation_full_nmse_db": -35.365945649075016,
+    "validation_common_interior_nmse_db": -35.46841689181208,
+    "oof_fold_count": 9,
+    "all_oof_folds_full_rank": true,
+    "real_multiplications_per_sample": 766
+  },
+  "artifact_sha256": {
+    "residual_manifest.json": "617fc951df9e11213774e256622e597433ff07ad041b2e79ed96a2eb336bdc74",
+    "residual_predictions.npz": "d4d4d6d5a62a09070bde3145b5d4b8323b499d26b7ae4efd35bac18e6bbc553a",
+    "train_oof_residual_analysis.json": "e3569fd4f7e45320da13147176fc1eac43b539109ff51b5b69db9465864aee7a",
+    "validation_residual_analysis.json": "e6b57af865d2ba25f3c214803981e9afa00485ebf5b4bc6ed3cf30595655df24"
+  },
+  "evidence_scope": "train coefficient-OOF and validation diagnostics only; this is not a sealed-test result, Gate A-to-B decision, fixed-point result, physical-PA remeasurement, or Huawei acceptance claim"
+}
