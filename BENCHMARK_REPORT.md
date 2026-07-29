@@ -116,6 +116,24 @@ interval across hardware sessions is reported. The closed-form models are
 deterministic (`seed=null`); neural three-seed variance is not applicable to
 these runs. Reporting an artificial statistical CI would overstate evidence.
 
+### 6.1 APA short widely-linear residual ablation
+
+Four causal corrections \(\sum_d b_d x^*[n-d]\) were fitted two-stage over
+the GMP coefficient-OOF folds. Validation was an already-viewed descriptive
+split; test was not accessed.
+
+| Support | MUL/ADD | OOF full/common gain | Minimum fold full/common | Eligible |
+|---|---:|---:|---:|---|
+| `{0}` | 958/951 | 0.02677/0.02978 dB | 0.02408/0.02673 dB | no |
+| `{0,1}` | 962/955 | **0.02735/0.03055 dB** | 0.02391/0.02690 dB | no |
+| `{0,1,2}` | 966/959 | 0.02684/0.02990 dB | 0.02450/0.02702 dB | no |
+| `{0,1,2,3,4}` | 974/967 | 0.02479/0.02956 dB | 0.01840/0.02688 dB | no |
+
+All fits were full rank and passed exact reset/streaming checks. No support
+met the preregistered 0.1 dB full/common threshold, so `no_correction`
+remained selected at 954 MUL / 947 ADD. This is a negative post-discovery
+internal-resampling result, not physical IQ attribution.
+
 ## 7. Complexity and memory
 
 | Model | MUL | ADD | Nonlinear | Reads/writes | Real coeff. | State reals | FP32 coeff+const+state |
@@ -135,6 +153,7 @@ are analytical factorized schedules, not FPGA resource measurements.
 | Formal GMP selection, 154 fits | 70.988 s | 212.762 s | full process wall |
 | Final selected fit | 1.234 s | 5.555 s | train coefficient solve |
 | OOF/residual process | 10.259 s | 24.872 s | train OOF + validation diagnostics |
+| Widely-linear residual audit | — | 14.805 s | selected `no_correction`; OOF fit 13.224 s |
 | Frozen-test process | 0.066 s | 0.31 s | no fit; process wall measurement differs by method |
 | Test predictor single batch | 8.673 ms | 30.286 ms | NumPy batch diagnostic |
 | Test batch throughput | 0.885 Msample/s | 0.649 Msample/s | host software, not real-time target |
@@ -202,6 +221,8 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - Neither GMP reaches possible −50 dB requirement.
 - PA evaluator margin remains below 10 dB; DPD stage remains blocked.
 - Slow-state candidate lacks independent-capture evidence.
+- APA short conjugate residual family failed its 0.1 dB OOF gain threshold;
+  the best observed support improved only 0.027/0.031 dB full/common.
 - Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
   and no GPU.
 - Existing Egor circular score does not establish deployment DPD and dense
@@ -221,6 +242,7 @@ Raw locations:
 
 - `experiments/results/pa_gmp_dpa200_{selection,residuals,test}/`;
 - `experiments/results/pa_gmp_apa200_{selection,residuals,test}/`;
+- `experiments/results/pa_widely_linear_residual_apa200/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
