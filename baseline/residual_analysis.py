@@ -25,7 +25,11 @@ from .metrics import (
     welch_numpy,
 )
 
-ResidualSplitRole = Literal["train_oof", "validation_confirmation"]
+ResidualSplitRole = Literal[
+    "train_oof",
+    "validation_confirmation",
+    "validation_reused_descriptive",
+]
 
 
 def _unique_integer_tuple(
@@ -803,9 +807,14 @@ def analyze_pa_residuals(
 ) -> dict[str, object]:
     """Analyze omitted structure without permitting test-driven discovery."""
 
-    if split_role not in {"train_oof", "validation_confirmation"}:
+    if split_role not in {
+        "train_oof",
+        "validation_confirmation",
+        "validation_reused_descriptive",
+    }:
         raise ValueError(
-            "split_role must be train_oof or validation_confirmation; "
+            "split_role must be train_oof, validation_confirmation, or "
+            "validation_reused_descriptive; "
             "test residuals are report-only"
         )
     x, y, prediction = _paired_complex(
@@ -826,7 +835,7 @@ def analyze_pa_residuals(
             frozen_reference = freeze_residual_reference(x, spec)
     elif frozen_reference is None:
         raise ValueError(
-            "validation_confirmation requires train-frozen thresholds/state"
+            "validation roles require train-frozen thresholds/state"
         )
     assert frozen_reference is not None
 

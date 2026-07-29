@@ -164,6 +164,24 @@ class ResidualAnalysisTests(unittest.TestCase):
             frozen["characteristic_bin_edges"],
         )
 
+    def test_reused_validation_is_not_mislabeled_as_confirmation(self) -> None:
+        frozen = freeze_residual_reference(self.x, self.spec)
+        report = analyze_pa_residuals(
+            self.x,
+            self.y,
+            self.y_hat,
+            segment_id=self.segments,
+            valid_mask=self.valid,
+            split_role="validation_reused_descriptive",
+            spec=self.spec,
+            frozen_reference=frozen,
+        )
+        self.assertEqual(
+            report["split_role"],
+            "validation_reused_descriptive",
+        )
+        self.assertFalse(report["test_access_permitted"])
+
     def test_discovery_api_rejects_test_role(self) -> None:
         with self.assertRaisesRegex(ValueError, "test residuals"):
             analyze_pa_residuals(
