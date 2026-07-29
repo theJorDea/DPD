@@ -29,8 +29,8 @@ PA measurement, Gate A→B остаётся закрытым.
 
 ## Status snapshot
 
-Текущий snapshot включает frozen GMP results и завершённый APA
-widely-linear residual audit:
+Текущий snapshot включает frozen GMP results и два завершённых APA
+linear-residual ablations:
 
 - MP forward baseline, frozen test и residual analysis для DPA/APA завершены;
 - causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
@@ -54,6 +54,11 @@ widely-linear residual audit:
 - widely-linear audit имеет evidence class
   `post_discovery_internal_resampling_only`: validation уже использовался
   как descriptive split, test не читался и не хэшировался;
+- causal proper-complex correlation около лагов 43…48 была проверена nested
+  sparse-FIR supports; лучший `{44,45,46}` дал лишь 0.0182/0.0201 dB
+  full/common OOF gain при 966 MUL, поэтому снова выбран `no_correction`;
+- long-FIR audit также не читал и не хэшировал test; выбранная Pareto-точка
+  остаётся исходным APA GMP: 954 MUL / 947 ADD / 236 state reals;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
 
@@ -256,6 +261,23 @@ independent confirmation, а test не читался. Все четыре suppo
 MUL/sample. Ни один не достиг 0.1 dB full/common threshold, поэтому выбран
 `no_correction`. Для acceptance нужен новый capture/operating point.
 
+Следующий nested ablation проверил отдельно proper-complex linear memory.
+Train-OOF и reused validation показывали согласованный correlation peak около
+causal lag 45, но explained error power снова оказался мал:
+
+| Proper FIR support | OOF gain full/common | Minimum fold full/common | MUL |
+|---|---:|---:|---:|
+| `{45}` | 0.0133/0.0147 dB | 0.0083/0.0093 dB | 958 |
+| `{44,45,46}` | **0.0182/0.0201 dB** | 0.0114/0.0127 dB | 966 |
+| `{43,…,48}` | 0.0177/0.0199 dB | 0.0115/0.0144 dB | 978 |
+| `{42,…,49}` | 0.0177/0.0201 dB | 0.0114/0.0144 dB | 986 |
+
+Все folds дали положительный gain, были full rank и streaming/reset exact, но
+ни один support не достиг 0.1 dB gate. Поэтому не следует расширять GMP ещё
+большим linear delay grid или превращать эти же lags в spline branches без
+отдельного nonlinear evidence. Следующий experiment — standalone
+phase-equivariant spline/CPWL + short-FIR PA как другой inductive bias.
+
 ## Ближайшая точная последовательность
 
 Каждый пункт ниже — отдельный small-task commit с тестом/проверкой и push:
@@ -277,9 +299,13 @@ MUL/sample. Ни один не достиг 0.1 dB full/common threshold, поэ
 7. [x] Применить preregistered decision: audit threshold не прошёл, поэтому
    feedback-path/IQ attribution не заявлять и DPA tuned conjugate support не
    запускать.
-8. [ ] Preregister bounded `spline/CPWL memoryless nonlinearity + short
-   complex FIR` PA audit с exact cost, identifiability и streaming contract.
-9. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+8. [x] Preregister, реализовать и выполнить nested proper-complex sparse FIR
+   audit около causal lags 42…49 без test access.
+9. [x] Применить frozen fallback: лучший gain 0.0182/0.0201 dB ниже 0.1 dB,
+   поэтому не сохранять long-FIR correction.
+10. [ ] Preregister bounded standalone `spline/CPWL memoryless nonlinearity +
+   short complex FIR` PA audit с exact cost, identifiability и streaming contract.
+11. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
