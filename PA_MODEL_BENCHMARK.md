@@ -16,6 +16,10 @@ measured PA input x
 В текущем срезе полностью выполнены два validation-selected baseline:
 complex Memory Polynomial (MP) и causal factorized Generalized Memory
 Polynomial (GMP) отдельно на `DPA_200MHz` и `APA_200MHz`.
+Дополнительно завершён отдельный train-OOF search standalone
+phase-equivariant spline-Hammerstein (SPH) PA на `APA_200MHz`. SPH был
+запущен как следующий изолированный low-complexity candidate; он не изменял
+GMP evaluator и не открывал контур B.
 Данные в CSV являются измеренными входом и выходом PA, поэтому это
 **forward identification on held-out measured data**. Это не означает, что
 физический PA был повторно измерен после построения модели.
@@ -42,6 +46,12 @@ evaluator не является выполненным DPD experiment. Bundled O
   поэтому frozen decision — `no_correction`;
 - следующий proper long-FIR audit также не прошёл gate: лучший support
   `{44,45,46}` дал 0.0182/0.0201 dB full/common, и GMP снова не изменён;
+- APA SPH search дал −30.4024 dB train-OOF full-record NMSE при 37 real
+  MUL/sample, то есть на 6.652 dB хуже matched MP и на 7.943 dB хуже GMP;
+  поэтому он отклонён как evaluator replacement и как cheap Pareto point;
+- residual SPH имеет воспроизводимый causal peak около lag 22–24
+  (`|proper correlation|≈0.72`), что направляет следующую проверку к
+  nonlinear memory branches, а не к дополнительным knots;
 - DPD optimization остаётся остановленной до следующего PA-model experiment,
   выбранного по residual evidence, либо до независимого physical-PA capture.
 
@@ -774,6 +784,82 @@ Evidence:
 - `experiments/results/pa_long_fir_residual_apa200/audit_manifest.json`;
 - `experiments/results/pa_long_fir_residual_apa200/`.
 
+### 10.6 APA standalone spline-Hammerstein search — завершён, отрицательный результат
+
+После двух малых linear residual ablations был выполнен отдельный
+train-only staged search для модели
+
+\[
+\hat y[n] = v[n] + \sum_{m=1}^{L-1}h_m v[n-m],\qquad
+v[n]=x[n]C(|x[n]|),
+\]
+
+где `C` — complex piecewise-linear spline с локальной поддержкой, а `h[0] = 1`
+зафиксирован. Такая форма сохраняет phase equivariance и causal streaming,
+но является factorized: одна и та же spline correction используется для всех
+FIR delays. Search был заранее ограничен вариантами coordinate/knot placement,
+`K`, `L` и ridge/smoothness; fit выполнялся deterministic complex ALS на
+leave-one-explicit-frame-out train folds.
+
+Команда:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sph \
+  --config experiments/configs/pa_sph_apa200.json
+```
+
+| Candidate / split | Full pooled NMSE, dB | Common-interior NMSE, dB | OpenDPD-compatible, dB | MUL / ADD | Stored real coeff. | State reals |
+|---|---:|---:|---:|---:|---:|---:|
+| Matched MP reference, train OOF | −37.054329 | −37.099951 | — | 960* / 628* | 300* | 58* |
+| Matched GMP reference, train OOF | −38.345410 | −38.750526 | −38.478780 | 954* / 947* | 888* | 236* |
+| Selected SPH (`K=32`, `L=8`), train OOF | −30.402374 | −30.437014 | −30.378779 | **37 / 36** | **78** | **14** |
+| Selected SPH, full-train refit | −30.413203 | −30.444686 | −30.391324 | 37 / 36 | 78 | 14 |
+| Selected SPH, reused validation (descriptive) | −30.473868 | −30.480138 | −30.473868 | 37 / 36 | 78 | 14 |
+
+`*` Reference rows reproduce the frozen GMP/MP ledger convention; the exact
+matched GMP numbers are retained in the machine-readable bundle. The SPH
+result is the only new fitted candidate in this section. No APA test file was
+opened or hashed.
+
+The final hard-valid recipe was
+`amplitude_uniform_K32_L8_cr1e-08_sm1e-08_fr0e+00`. It was selected after:
+
+- `K=1…4` FIR memory ablation showed the dominant improvement came from
+  increasing causal memory (`−22.2645`, `−25.5506`, `−29.1590`, and
+  `−30.3936 dB` full-record for `L=1,2,4,8` in the representative S0 path);
+- knot placement changed the score only by hundredths of a dB;
+- `K=48` and `K=64` had slightly better raw scores but were rejected by the
+  frozen identifiability gate: one K48 fold had data-design rank `47/48`
+  (minimum nonzero-feature count `0`), while K64 folds had rank `62–63/64`;
+- the selected regularization was `control_ridge=1e-8`,
+  `smoothness=1e-8`, `fir_ridge=0` under the preregistered tie rule.
+
+The decision is quantitative, not a visual judgment:
+
+- SPH loses to matched MP by `6.651955 dB` full and `6.662937 dB` common;
+- SPH loses to frozen GMP by `7.943037 dB` full and `8.313512 dB` common;
+- worst train-fold loss versus GMP is `8.344366 dB` full and `8.380414 dB`
+  common;
+- the internal cheap-Pareto gate allowed at most 3 dB loss versus MP, so it
+  fails even though its arithmetic cost is far below 1000 MUL/sample.
+
+Residual evidence explains the failure mode. On train OOF, the SPH residual
+has radial/tangential RMS `0.007716/0.008034`; its largest causal proper
+correlation is at lags 22–24 (`0.684–0.723`) and the same peak appears on
+reused validation (`0.678–0.718`). Correlation with the instantaneous
+envelope is small (`0.024` radial at lag zero), and the slow-state gate remains
+ineligible because the capture count is zero. Thus increasing `K` or adding a
+state is not justified by this run; the next bounded family should allow
+delay-dependent nonlinear coefficients, e.g. a sparse non-factorized
+spline-memory dictionary, while retaining `<1000` MUL and train-only OOF
+selection.
+
+Evidence and hashes are immutable in
+`experiments/results/pa_sph_apa200_selection/`; the publication manifest
+records source/config/data hashes, all 60 unique recipes, 180 completed OOF
+fits, validation-after-freeze ordering, exact streaming/reset checks and the
+fact that `test_split_accessed=false`.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -788,8 +874,9 @@ Evidence:
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
 - Widely-linear и proper long-FIR APA residual branches проверены и отклонены
-  по preregistered threshold; всё ещё нет standalone spline/CPWL + FIR или
-  sparse spline-memory PA result.
+  по preregistered threshold; standalone SPH + short FIR теперь тоже
+  проверен и отклонён. Всё ещё нет sparse **non-factorized** spline-memory PA
+  result с доказанным выигрышем над GMP.
 - Нет bit-accurate 16/14/12-bit PA-model evaluation.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
