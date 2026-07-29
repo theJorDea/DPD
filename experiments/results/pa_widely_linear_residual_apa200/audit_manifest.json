@@ -1,0 +1,436 @@
+{
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "base_model": "frozen selected causal GMP; OOF coefficients refit only",
+  "candidate_results": {
+    "conj_d0": {
+      "all_folds_full_rank": true,
+      "all_folds_streaming_and_reset_equivalent": true,
+      "candidate": "conj_d0",
+      "delays": [
+        0
+      ],
+      "eligible": false,
+      "fallback": false,
+      "fold_common_gain_db": [
+        0.029057960711220687,
+        0.026732726063642076,
+        0.033607110948452146
+      ],
+      "fold_full_gain_db": [
+        0.02844067154342156,
+        0.024080824883355945,
+        0.02790661856819554
+      ],
+      "gain_common_db": 0.02978461602846494,
+      "gain_full_db": 0.0267704333073695,
+      "metrics": {
+        "common_interior_evm_db": -38.78031072255355,
+        "common_interior_nmse_db": -38.78031072255355,
+        "full_record_nmse_db": -38.37218073143708,
+        "opendpd_compatible_nmse_db": -38.50504083921129,
+        "per_frame_nmse_db": [
+          -38.745107250634106,
+          -38.264974427788474
+        ],
+        "scored_samples_common_interior": 58833,
+        "scored_samples_full": 58980
+      },
+      "minimum_fold_common_gain_db": 0.026732726063642076,
+      "minimum_fold_full_gain_db": 0.024080824883355945,
+      "operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons",
+          "complex multiply convention 4m2a",
+          "conjugation counted as sign-bit/wiring, zero MUL and zero ADD",
+          "each complex tap accumulated into an existing base output",
+          "raw complex input-delay state reused from enclosing model"
+        ],
+        "real_additions": 951,
+        "real_divisions": 0,
+        "real_memory_reads": 1366,
+        "real_memory_writes": 8,
+        "real_multiplications": 958,
+        "state_real_values": 236,
+        "stored_real_coefficients": 890,
+        "stored_real_constants": 10
+      },
+      "score_db": 0.0267704333073695,
+      "tap_count": 1
+    },
+    "conj_d0_d1": {
+      "all_folds_full_rank": true,
+      "all_folds_streaming_and_reset_equivalent": true,
+      "candidate": "conj_d0_d1",
+      "delays": [
+        0,
+        1
+      ],
+      "eligible": false,
+      "fallback": false,
+      "fold_common_gain_db": [
+        0.0300619327081435,
+        0.026897849781192917,
+        0.034732767403923503
+      ],
+      "fold_full_gain_db": [
+        0.02948080793511565,
+        0.02390608585982079,
+        0.028806943796531925
+      ],
+      "gain_common_db": 0.030547665033836324,
+      "gain_full_db": 0.027348183683379546,
+      "metrics": {
+        "common_interior_evm_db": -38.78107377155892,
+        "common_interior_nmse_db": -38.78107377155892,
+        "full_record_nmse_db": -38.372758481813094,
+        "opendpd_compatible_nmse_db": -38.50547353789537,
+        "per_frame_nmse_db": [
+          -38.7461473870258,
+          -38.26479968876494
+        ],
+        "scored_samples_common_interior": 58833,
+        "scored_samples_full": 58980
+      },
+      "minimum_fold_common_gain_db": 0.026897849781192917,
+      "minimum_fold_full_gain_db": 0.02390608585982079,
+      "operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons",
+          "complex multiply convention 4m2a",
+          "conjugation counted as sign-bit/wiring, zero MUL and zero ADD",
+          "each complex tap accumulated into an existing base output",
+          "raw complex input-delay state reused from enclosing model"
+        ],
+        "real_additions": 955,
+        "real_divisions": 0,
+        "real_memory_reads": 1370,
+        "real_memory_writes": 8,
+        "real_multiplications": 962,
+        "state_real_values": 236,
+        "stored_real_coefficients": 892,
+        "stored_real_constants": 11
+      },
+      "score_db": 0.027348183683379546,
+      "tap_count": 2
+    },
+    "conj_d0_d2": {
+      "all_folds_full_rank": true,
+      "all_folds_streaming_and_reset_equivalent": true,
+      "candidate": "conj_d0_d2",
+      "delays": [
+        0,
+        1,
+        2
+      ],
+      "eligible": false,
+      "fallback": false,
+      "fold_common_gain_db": [
+        0.028989906654864228,
+        0.027017259295767815,
+        0.03374387970349346
+      ],
+      "fold_full_gain_db": [
+        0.028461236219001762,
+        0.024501700642467483,
+        0.027682684732646123
+      ],
+      "gain_common_db": 0.029902503380235146,
+      "gain_full_db": 0.02684063187289354,
+      "metrics": {
+        "common_interior_evm_db": -38.78042860990532,
+        "common_interior_nmse_db": -38.78042860990532,
+        "full_record_nmse_db": -38.37225093000261,
+        "opendpd_compatible_nmse_db": -38.50526155942863,
+        "per_frame_nmse_db": [
+          -38.74512781530969,
+          -38.265395303547585
+        ],
+        "scored_samples_common_interior": 58833,
+        "scored_samples_full": 58980
+      },
+      "minimum_fold_common_gain_db": 0.027017259295767815,
+      "minimum_fold_full_gain_db": 0.024501700642467483,
+      "operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons",
+          "complex multiply convention 4m2a",
+          "conjugation counted as sign-bit/wiring, zero MUL and zero ADD",
+          "each complex tap accumulated into an existing base output",
+          "raw complex input-delay state reused from enclosing model"
+        ],
+        "real_additions": 959,
+        "real_divisions": 0,
+        "real_memory_reads": 1374,
+        "real_memory_writes": 8,
+        "real_multiplications": 966,
+        "state_real_values": 236,
+        "stored_real_coefficients": 894,
+        "stored_real_constants": 12
+      },
+      "score_db": 0.02684063187289354,
+      "tap_count": 3
+    },
+    "conj_d0_d4": {
+      "all_folds_full_rank": true,
+      "all_folds_streaming_and_reset_equivalent": true,
+      "candidate": "conj_d0_d4",
+      "delays": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "eligible": false,
+      "fallback": false,
+      "fold_common_gain_db": [
+        0.028553748554706715,
+        0.02687933571593959,
+        0.033274446033601635
+      ],
+      "fold_full_gain_db": [
+        0.027874749438645097,
+        0.028664890986334512,
+        0.018397372254689515
+      ],
+      "gain_common_db": 0.029555290549431845,
+      "gain_full_db": 0.024789734181105416,
+      "metrics": {
+        "common_interior_evm_db": -38.78008139707452,
+        "common_interior_nmse_db": -38.78008139707452,
+        "full_record_nmse_db": -38.37020003231082,
+        "opendpd_compatible_nmse_db": -38.50704991121039,
+        "per_frame_nmse_db": [
+          -38.74454132852933,
+          -38.26955849389145
+        ],
+        "scored_samples_common_interior": 58833,
+        "scored_samples_full": 58980
+      },
+      "minimum_fold_common_gain_db": 0.02687933571593959,
+      "minimum_fold_full_gain_db": 0.018397372254689515,
+      "operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons",
+          "complex multiply convention 4m2a",
+          "conjugation counted as sign-bit/wiring, zero MUL and zero ADD",
+          "each complex tap accumulated into an existing base output",
+          "raw complex input-delay state reused from enclosing model"
+        ],
+        "real_additions": 967,
+        "real_divisions": 0,
+        "real_memory_reads": 1382,
+        "real_memory_writes": 8,
+        "real_multiplications": 974,
+        "state_real_values": 236,
+        "stored_real_coefficients": 898,
+        "stored_real_constants": 14
+      },
+      "score_db": 0.024789734181105416,
+      "tap_count": 5
+    },
+    "no_correction": {
+      "candidate": "no_correction",
+      "delays": [],
+      "eligible": false,
+      "fallback": true,
+      "gain_common_db": 0.0,
+      "gain_full_db": 0.0,
+      "metrics": {
+        "common_interior_evm_db": -38.750526106525086,
+        "common_interior_nmse_db": -38.750526106525086,
+        "full_record_nmse_db": -38.345410298129714,
+        "opendpd_compatible_nmse_db": -38.4787800909979,
+        "per_frame_nmse_db": [
+          -38.716666579090685,
+          -38.24089360290512
+        ],
+        "scored_samples_common_interior": 58833,
+        "scored_samples_full": 58980
+      },
+      "operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+        ],
+        "real_additions": 947,
+        "real_divisions": 0,
+        "real_memory_reads": 1362,
+        "real_memory_writes": 8,
+        "real_multiplications": 954,
+        "state_real_values": 236,
+        "stored_real_coefficients": 888,
+        "stored_real_constants": 9
+      },
+      "reason": "no_correction_fallback_only",
+      "score_db": 0.0,
+      "selected_full_train_streaming_checks": {
+        "maximum_reset_error": 0.0,
+        "maximum_streaming_error": 0.0,
+        "reset_at_frame_equivalence_passed": true,
+        "streaming_chunk_equivalence_passed": true
+      },
+      "tap_count": 0
+    }
+  },
+  "config": "experiments/configs/pa_widely_linear_residual_apa200.json",
+  "config_sha256": "5d35f819fa5c21f6165346bb723fe4bde052913a67cc49bd0ed67d5ce2985336",
+  "dataset": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/configs/pa_widely_linear_residual_apa200.json",
+  "dataset_files_sha256": {
+    "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+    "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+  },
+  "discovery_evidence_source_status": {
+    "baseline/gmp_pa.py": {
+      "current_sha256": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+      "match": true,
+      "preregistered_sha256": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+      "role": "provenance_only; numerical evidence hashes are authoritative"
+    },
+    "baseline/residual_analysis.py": {
+      "current_sha256": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+      "match": false,
+      "preregistered_sha256": "b3b2d3a39da541b1fd3924a5c76b9e14119d69c14d8e9da123343c17eaab957d",
+      "role": "provenance_only; numerical evidence hashes are authoritative"
+    }
+  },
+  "execution_record": "execution_record.json",
+  "execution_record_sha256": "971f37dc29325b272825ea6cc803eba88017c9c5ee8d9b081b6a647deb934228",
+  "independent_acceptance_required": "new capture or operating point plus measurement-path IQ audit",
+  "input_integrity": {
+    "all_hashes_verified_before_waveform_load": true,
+    "all_inputs_reverified_after_waveform_load": true,
+    "test_never_opened_or_hashed": true
+  },
+  "negative_lag_policy": "future-input diagnostics are not deployable features",
+  "predictions": "predictions.npz",
+  "predictions_sha256": "9e1846d29b4c492c660415a281591ea8846eb17d42194d9419a7934973d997c8",
+  "schema_version": 1,
+  "selected_candidate": "no_correction",
+  "selected_correction": null,
+  "selected_correction_diagnostics": null,
+  "selected_correction_sha256": null,
+  "selected_delays": [],
+  "selected_operation_count": {
+    "comparisons": 0,
+    "lookups": 0,
+    "nonlinear_operations": 1,
+    "notes": [
+      "complex multiply convention 4m2a",
+      "factorized y=sum_q x[n-q]*h_q kernel",
+      "leading policy causal_leading; lookahead=0 samples",
+      "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+    ],
+    "real_additions": 947,
+    "real_divisions": 0,
+    "real_memory_reads": 1362,
+    "real_memory_writes": 8,
+    "real_multiplications": 954,
+    "state_real_values": 236,
+    "stored_real_coefficients": 888,
+    "stored_real_constants": 9
+  },
+  "slow_state_policy": "locked because independent capture count is zero",
+  "source_sha256": {
+    "baseline/complexity.py": "e2c2bbe5aa8c855dab8db57f99740787f633fb376f1984027a3aa6a0028cbc8a",
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+    "baseline/widely_linear_pa.py": "37c3078c85bb8263a08614b169e77ba76faddfdfa1c095eb27c043382f390649",
+    "experiments/audit_widely_linear_pa.py": "f104fdd9c6585e91f70095db4ac50cc51bf6c0b1d24de2cb5a7d72aa662eb688"
+  },
+  "status": "post_discovery_internal_resampling_only",
+  "task": "forward_pa_model_widely_linear_residual_audit",
+  "test_file_hashes_recorded": false,
+  "test_split_accessed": false,
+  "train_metrics": {
+    "base_oof": {
+      "common_interior_evm_db": -38.750526106525086,
+      "common_interior_nmse_db": -38.750526106525086,
+      "full_record_nmse_db": -38.345410298129714,
+      "opendpd_compatible_nmse_db": -38.4787800909979,
+      "per_frame_nmse_db": [
+        -38.716666579090685,
+        -38.24089360290512
+      ],
+      "scored_samples_common_interior": 58833,
+      "scored_samples_full": 58980
+    },
+    "oof_fit_seconds": 13.223635053014732,
+    "selected": {
+      "common_interior_evm_db": -38.82428366991726,
+      "common_interior_nmse_db": -38.82428366991726,
+      "full_record_nmse_db": -38.796128436743274,
+      "opendpd_compatible_nmse_db": -38.77426113454087,
+      "per_frame_nmse_db": [
+        -38.82089546536474,
+        -38.727626803717
+      ],
+      "scored_samples_common_interior": 58833,
+      "scored_samples_full": 58980
+    }
+  },
+  "train_oof_residual_analysis": "train_oof_residual_analysis.json",
+  "train_oof_residual_analysis_sha256": "668d7991911aa4d1f32a1af9050a5bd2a8c0ad26811197af0ce81f31fae1a67c",
+  "validation_metrics": {
+    "base": {
+      "common_interior_evm_db": -38.73462830496056,
+      "common_interior_nmse_db": -38.73462830496056,
+      "full_record_nmse_db": -38.6652576615637,
+      "opendpd_compatible_nmse_db": -38.6652576615637,
+      "per_frame_nmse_db": [
+        -38.6652576615637
+      ],
+      "scored_samples_common_interior": 19613,
+      "scored_samples_full": 19662
+    },
+    "selected": {
+      "common_interior_evm_db": -38.73462830496056,
+      "common_interior_nmse_db": -38.73462830496056,
+      "full_record_nmse_db": -38.6652576615637,
+      "opendpd_compatible_nmse_db": -38.6652576615637,
+      "per_frame_nmse_db": [
+        -38.6652576615637
+      ],
+      "scored_samples_common_interior": 19613,
+      "scored_samples_full": 19662
+    }
+  },
+  "validation_reused_residual_analysis": "validation_reused_residual_analysis.json",
+  "validation_reused_residual_analysis_sha256": "3ead7da510602cc717324938b5108438d3dc2ec7e44bb191f4cab54e8716e97a",
+  "validation_role": "already-viewed descriptive reused split; not independent confirmation"
+}
