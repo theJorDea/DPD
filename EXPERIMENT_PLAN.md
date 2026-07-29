@@ -446,12 +446,55 @@ Generic runner, schema-2 configs и tests завершены. Выполненн
 predicates прошли. Release reports разрешили только one-shot test и явно не
 установили Gate A→B, fixed-point readiness или physical-PA validity.
 
-Следующая PA family выбирается только через новый preregistered train-OOF
-hypothesis: sparse complex spline-memory PA либо memoryless spline/CPWL + short
-complex FIR. Test values выше не являются tuning signal. State-conditioned PA
-остаётся запрещён без independent long captures.
+Следующая ограниченная гипотеза выбрана из residual evidence:
+APA residual содержит устойчивую pseudo-correlation с каузальным
+`conj(x[n-d])` на лагах 0…3. Поэтому перед nonlinear spline/CPWL
+family выполняется дешёвый widely-linear/IQ audit. Это diagnostic
+measurement/PA asymmetry, а не заявление о физическом PA mechanism.
+State-conditioned PA остаётся запрещён без independent long captures.
 
-### 6.9 Existing first-stage spline DPD — retained, not the next PA step
+### 6.9 APA widely-linear residual audit — preregistered, not run
+
+Preregistration:
+`experiments/configs/pa_widely_linear_residual_apa200.json`.
+Он создан до любого candidate fit и фиксирует
+
+\[
+\hat y_{WL}[n]=\hat y_{GMP}[n]+\sum_{d\in D}b_d x^*[n-d].
+\]
+
+Correction обучается two-stage: в каждом leave-one-frame-out fold
+GMP с уже frozen topology/solver переобучается только на fit frames,
+затем coefficients `b_d` fit только на residual этих же fit frames. Joint GMP/WL
+refit в этом audit запрещён: нужно изолировать цену и эффект
+самой conjugate branch. Complex ridge фиксирован как `1e-8`,
+intercept запрещён.
+
+| Support `D` | Real MUL/sample | Real ADD/sample | Stored real coefficients |
+|---|---:|---:|---:|
+| no correction | 954 | 947 | 888 |
+| `{0}` | 958 | 951 | 890 |
+| `{0,1}` | 962 | 955 | 892 |
+| `{0,1,2}` | 966 | 959 | 894 |
+| `{0,1,2,3,4}` | 974 | 967 | 898 |
+
+Конвенция: complex multiply = 4 real MUL + 2 real ADD;
+добавление complex tap к base output = ещё 2 real ADD. Conjugation —
+sign/wiring, existing GMP delay state переиспользуется.
+
+Selection score — minimum из full-record и common-interior OOF gains над
+`no_correction`. Оба gain должны быть не менее 0.1 dB; из eligible
+вариантов выбирается минимальный support в 0.02 dB от лучшего score.
+Отрицательные lags означают future samples и недопустимы в inference.
+
+И train OOF residual, и validation residual уже просмотрены при выборе
+семейства/support ceiling. Поэтому result маркируется
+`post_discovery_internal_resampling_only`; validation можно показать только
+как descriptive reused split, а test читать нельзя. Independent acceptance
+требует нового capture/operating point и measurement-path IQ audit.
+DPA-specific delays по уже просмотренному DPA residual не tuning.
+
+### 6.10 Existing first-stage spline DPD — retained, not the next PA step
 
 These are the commands recorded by the old artifacts. They contain
 `--overwrite` and therefore must run only in a clean checkout or after the
@@ -487,7 +530,7 @@ These commands are preserved for reproducibility, but outputs remain
 ablation `experiments/run_spline_memory_ablation.py` is likewise DPD code, not
 a sparse spline-memory PA implementation.
 
-### 6.10 Egor audit reproduction — completed diagnostic
+### 6.11 Egor audit reproduction — completed diagnostic
 
 ```bash
 .venv/bin/python -m experiments.reproduce_egor \
@@ -499,7 +542,7 @@ It reports PA-only, circular inverse→forward reconstruction and correct
 desired-input surrogate path separately. It is not a primary PA/DPD baseline
 until its split/evaluator contract is made apples-to-apples.
 
-### 6.11 OpenDPD control — bundled evidence only on this host
+### 6.12 OpenDPD control — bundled evidence only on this host
 
 The intended upstream reproduction is:
 
@@ -535,10 +578,12 @@ Gate A→B passes:
 - a neural residual branch is allowed only after a simpler branch ablation
   leaves a reproducible residual.
 
-The PA contour uses the same anti-complexity rule: after causal GMP residual
-analysis, test sparse complex spline-memory PA first, then spline/CPWL + short
-FIR. Do not implement both simultaneously, and do not add slow state without
-independent long captures.
+The PA contour uses the same anti-complexity rule: first run the preregistered
+APA conjugate-residual audit. If it passes its internal threshold, audit the
+feedback-path IQ/frequency response and obtain a new capture before physical
+attribution. If it fails, preregister spline/CPWL + short FIR, followed only
+then by sparse complex spline-memory. Do not implement families simultaneously,
+and do not add slow state without independent long captures.
 
 Robustness is a separate stage:
 
@@ -672,10 +717,13 @@ outputs for predistorted waveforms.
 7. [x] Open each frozen GMP test exactly once in separate commits.
 8. [x] Re-evaluate Gate A→B: closed; projected margin remains below 10 dB and
    no second independent evaluator/physical PA exists.
-9. [ ] Synchronize mandatory living docs and deprecate the stale secondary
+9. [x] Synchronize mandatory living docs and deprecate the stale secondary
    `experiments/experiment_plan.md` status ledger.
-10. [ ] Preregister, implement and validate only the low-complexity PA
-    spline/FIR family supported by GMP residual evidence; no tuning on opened
-    test values.
-11. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
+10. [x] Preregister the bounded APA widely-linear/IQ residual audit before fit,
+    including exact operation counts, reused-validation status and no test access.
+11. [ ] Implement/test the conjugate correction and run APA post-discovery
+    leave-one-frame-out audit under strict `<1000 MUL` without test access.
+12. [ ] Based on that audit, perform feedback-path/new-capture work or
+    preregister the next spline/CPWL + short-FIR PA family.
+13. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
     evaluators, then fixed point, robustness/adaptation and finally physical PA.
