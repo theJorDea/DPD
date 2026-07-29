@@ -99,6 +99,7 @@ condition, coefficient norm, boundary requirements and train NMSE.
 - spline-memory branch lower bounds;
 - MP;
 - factorized GMP;
+- widely-linear residual correction;
 - EnhancedESN_FAN scalar and I/Q pair.
 
 Fields are not collapsed into FLOPs:
@@ -134,6 +135,21 @@ Current acceptance convention is `4M+2A` per complex multiply and strict
 - train OOF + validation only, no test;
 - atomic bundle publication and single-writer lock;
 - complete artifact hashes and evidence scope.
+
+### 2.6 Causal widely-linear residual diagnostic
+
+`baseline/widely_linear_pa.py` implements the deliberately narrow correction
+
+```text
+delta_y[n] = sum_d b[d] * conj(x[n-d])
+```
+
+with non-negative unique delays, segmented zero-state inference, explicit
+continuous-streaming state, complex ridge fit, diagnostics and NPZ save/load.
+It is intentionally not phase-equivariant and therefore is an IQ/measurement
+asymmetry diagnostic, not a generic PA inductive bias or proof of PA physics.
+`widely_linear_residual_correction_cost(...)` counts each complex tap and can
+separate reused versus standalone delay-state storage.
 
 ## 3. Experiment runners
 
@@ -205,6 +221,15 @@ verify_selection_before_test_access(selection_manifest)
 One-shot outputs record `refit_performed=false`,
 `post_prediction_gain_fit=false` and `post_prediction_delay_fit=false`.
 
+### 3.5 Widely-linear residual audit
+
+`experiments/audit_widely_linear_pa.py` refits the frozen GMP recipe in each
+leave-one-frame-out fold, then fits only the conjugate correction to that
+fold's fit residual. Candidate selection uses OOF full/common gains; reused
+validation is descriptive and test access is absent. The runner checks source
+and data hashes, exact cost, full rank, frame reset and arbitrary-chunk
+streaming equivalence before publishing an atomic result bundle.
+
 ## 4. Artifact integrity and publication rules
 
 Canonical numerical outputs are immutable:
@@ -226,8 +251,10 @@ improved in future manifests without rewriting existing hash-bound evidence.
 
 ## 5. Tests and invariants
 
-Last recorded complete code suite before one-shot GMP tests: **131/131 passed**.
-Documentation-only commits after that do not change code. Test modules cover:
+Last recorded complete code suite after the widely-linear audit runner:
+**153/153 passed in 1.253 s** on the environment in this document.
+Documentation-only commits after that do not change code.
+Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
 - spline partition of unity/continuity and complex ridge;
@@ -237,6 +264,8 @@ Documentation-only commits after that do not change code. Test modules cover:
 - PA evaluator test guards and no post-hoc fitting;
 - deterministic selector and strict `<1000` exclusion;
 - residual OOF/test isolation/atomic publication;
+- causal widely-linear fit/save/load/streaming, cost and deterministic audit
+  selection/fallback;
 - release predicates and streaming checks;
 - existing spline fixed-point arithmetic/saturation.
 
@@ -247,8 +276,7 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-A new measured suite wall time must be recorded; the old 120-test 0.396 s
-timing is obsolete.
+The previous 120-test 0.396 s timing is obsolete.
 
 ## 6. Key implementation commits
 
@@ -267,6 +295,10 @@ timing is obsolete.
 | `6f60bcb` / `622f88c` | DPA/APA residual results |
 | `434cbbd` / `51ae3a8` | release-gate code and decisions |
 | `8ae235d` / `0e56add` | one-shot frozen GMP tests |
+| `ab8a374` | preregister APA widely-linear residual audit |
+| `f8f75de` / `340c923` | exact correction cost and causal model/tests |
+| `9400e3d` | hash-bound widely-linear audit runner/tests |
+| `5d2e273` | APA widely-linear negative result bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -280,6 +312,7 @@ experiments/results/pa_gmp_dpa200_residuals/
 experiments/results/pa_gmp_apa200_residuals/
 experiments/results/pa_gmp_dpa200_test/
 experiments/results/pa_gmp_apa200_test/
+experiments/results/pa_widely_linear_residual_apa200/
 ```
 
 Normative documents:
@@ -309,6 +342,8 @@ Normative documents:
 9. No 16/14/12-bit selected GMP or spline-memory DPD simulator.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.
+12. Checked APA short conjugate supports failed the 0.1 dB OOF threshold;
+    `no_correction` remains selected and no physical IQ attribution is made.
 
 ## 9. Extension contract for the next PA model
 
@@ -335,10 +370,10 @@ Then add, in separate tasks:
 6. external/new-capture test, not tuning on already opened DPA/APA test;
 7. report update.
 
-The recommended next family is either sparse complex spline-memory PA or
-spline/CPWL memoryless nonlinearity followed by short complex FIR. A
-state-conditioned model is blocked until independent long-capture slow-state
-evidence exists.
+The next preregistered family should be spline/CPWL memoryless nonlinearity
+followed by short complex FIR; sparse complex spline-memory follows only if
+that isolated ablation justifies it. A state-conditioned model is blocked
+until independent long-capture slow-state evidence exists.
 
 ## 10. Immediate next implementation order
 
