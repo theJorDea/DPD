@@ -71,6 +71,18 @@ source-trained frozen model
     -> compare with measured y_target
 ```
 
+`Zero-shot` здесь относится к nonlinear model coefficients/topology. У другого
+measurement capture могут быть иной integer delay, complex gain и feedback
+path. Поэтому nuisance alignment/gain diagnostics можно оценить только на
+`target train` по заранее frozen algorithm, после чего без изменения применить
+к target validation/test. Нужно публиковать два режима, если оба физически
+осмысленны:
+
+1. strict source protocol reuse;
+2. target-train nuisance calibration with frozen model coefficients.
+
+Target validation/test нельзя использовать даже для nuisance fit.
+
 Минимальные направления, каждое отдельным result:
 
 - `DPA_200MHz -> DPA_160MHz`;
@@ -104,8 +116,8 @@ Learning curve:
 N\in\{64,128,256,512,1024,2048,4096,8192,\ldots\},
 \]
 
-но (N) округляется/маскируется так, чтобы causal history и frame boundaries
-были определены. Для very short (N) отдельно указывается effective scored
+но `N` округляется/маскируется так, чтобы causal history и frame boundaries
+были определены. Для very short `N` отдельно указывается effective scored
 sample count после warm-up.
 
 Сравниваются adaptation modes:
