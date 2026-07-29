@@ -40,6 +40,14 @@ VARIANT_COORDINATES = {
     "amplitude_compression_aware_p2": "amplitude",
     "power_uniform": "power",
 }
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REQUIRED_DATASET_FILES = (
+    "spec.json",
+    "train_input.csv",
+    "train_output.csv",
+    "val_input.csv",
+    "val_output.csv",
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -182,6 +190,254 @@ def load_sph_config(path: str | Path) -> dict[str, Any]:
     if missing:
         raise ValueError(f"SPH config is missing keys: {sorted(missing)}")
     return config
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _load_json_object(path: Path, *, name: str) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError(f"{name} must contain one JSON object")
+    return value
+
+
+def _project_path(value: Any, *, name: str) -> Path:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{name} must be a non-empty project-relative path")
+    candidate = Path(value)
+    if candidate.is_absolute():
+        raise ValueError(f"{name} must not be absolute")
+    resolved = (PROJECT_ROOT / candidate).resolve()
+    try:
+        resolved.relative_to(PROJECT_ROOT)
+    except ValueError as error:
+        raise ValueError(f"{name} must stay inside the project root") from error
+    return resolved
+
+
+def _verify_sha256(path: Path, expected: Any, *, name: str) -> str:
+    if not isinstance(expected, str) or len(expected) != 64:
+        raise ValueError(f"{name} has an invalid expected SHA-256")
+    if not path.is_file() or path.is_symlink():
+        raise FileNotFoundError(f"{name} is not a regular file: {path}")
+    actual = _file_sha256(path)
+    if actual != expected:
+        raise ValueError(
+            f"{name} SHA-256 mismatch: expected {expected}, found {actual}"
+        )
+    return actual
+
+
+def verify_sph_preregistered_inputs(
+    config_path: str | Path,
+) -> dict[str, Any]:
+    """Verify every frozen input before any train/validation waveform load."""
+
+    source_config = Path(config_path).resolve()
+    if not source_config.is_file() or source_config.is_symlink():
+        raise FileNotFoundError("SPH config must be a regular file")
+    config_sha256 = _file_sha256(source_config)
+    config = load_sph_config(source_config)
+    validate_search_budget(config)
+    if _file_sha256(source_config) != config_sha256:
+        raise RuntimeError("SPH config changed during parsing")
+
+    evidence = config.get("evidence")
+    if not isinstance(evidence, dict):
+        raise ValueError("SPH config evidence must be an object")
+    evidence_paths: dict[str, Path] = {}
+    single_entries = (
+        "base_selection_manifest",
+        "base_selected_model",
+        "base_residual_manifest",
+        "base_release_gate",
+        "train_oof_residual_report",
+        "validation_residual_report",
+        "design_document",
+    )
+    for label in single_entries:
+        entry = evidence.get(label)
+        if not isinstance(entry, dict):
+            raise ValueError(f"SPH evidence {label} is missing")
+        path = _project_path(entry.get("path"), name=f"evidence.{label}.path")
+        _verify_sha256(path, entry.get("sha256"), name=f"evidence {label}")
+        evidence_paths[label] = path
+
+    negative = evidence.get("negative_linear_ablations")
+    if not isinstance(negative, list) or len(negative) != 2:
+        raise ValueError("SPH evidence requires two negative linear ablations")
+    for index, entry in enumerate(negative):
+        if not isinstance(entry, dict):
+            raise ValueError("negative linear ablation entry must be an object")
+        label = f"negative_linear_ablation_{index}"
+        path = _project_path(entry.get("path"), name=f"evidence.{label}.path")
+        _verify_sha256(path, entry.get("sha256"), name=f"evidence {label}")
+        manifest = _load_json_object(path, name=label)
+        if manifest.get("test_split_accessed") is not False:
+            raise ValueError(f"{label} does not seal test access")
+        if manifest.get("test_file_hashes_recorded") is not False:
+            raise ValueError(f"{label} contains test hashes")
+        if manifest.get("selected_candidate") != "no_correction":
+            raise ValueError(f"{label} did not retain the frozen GMP fallback")
+        evidence_paths[label] = path
+
+    source_entries = evidence.get("source_files_before_new_implementation")
+    if not isinstance(source_entries, dict) or not source_entries:
+        raise ValueError("pre-implementation source hashes are missing")
+    source_status: dict[str, dict[str, Any]] = {}
+    for raw_path, expected in source_entries.items():
+        path = _project_path(raw_path, name="pre-implementation source path")
+        actual = _verify_sha256(
+            path,
+            expected,
+            name=f"pre-implementation source {raw_path}",
+        )
+        source_status[str(raw_path)] = {
+            "expected_sha256": str(expected),
+            "actual_sha256": actual,
+            "match": True,
+        }
+
+    selection_path = evidence_paths["base_selection_manifest"]
+    model_path = evidence_paths["base_selected_model"]
+    residual_path = evidence_paths["base_residual_manifest"]
+    release_path = evidence_paths["base_release_gate"]
+    selection = _load_json_object(selection_path, name="base selection manifest")
+    residual = _load_json_object(residual_path, name="base residual manifest")
+    release = _load_json_object(release_path, name="base release gate")
+    if selection.get("test_split_accessed") is not False:
+        raise ValueError("base selection manifest does not seal test access")
+    if selection.get("model_class") != "complex_generalized_memory_polynomial":
+        raise ValueError("SPH comparison requires the frozen GMP selection")
+    model_sha256 = _file_sha256(model_path)
+    if selection.get("selected_model_sha256") != model_sha256:
+        raise ValueError("base selection model hash disagrees with evidence")
+    if residual.get("test_split_accessed") is not False:
+        raise ValueError("base residual manifest does not seal test access")
+    if residual.get("test_file_hashes_recorded") is not False:
+        raise ValueError("base residual manifest contains test hashes")
+    if residual.get("selection_manifest_sha256") != _file_sha256(selection_path):
+        raise ValueError("base residual selection hash disagrees")
+    if residual.get("selected_model_sha256") != model_sha256:
+        raise ValueError("base residual model hash disagrees")
+    if release.get("test_split_accessed") is not False:
+        raise ValueError("base release-gate evidence unexpectedly accessed test")
+    if release.get("test_file_hashes_recorded") is not False:
+        raise ValueError("base release-gate evidence contains test hashes")
+
+    dataset = _project_path(config.get("dataset"), name="dataset")
+    contract = config.get("dataset_contract")
+    if not isinstance(contract, dict):
+        raise ValueError("dataset_contract must be an object")
+    raw_hashes = contract.get("required_files_sha256")
+    if not isinstance(raw_hashes, dict) or set(raw_hashes) != set(
+        REQUIRED_DATASET_FILES
+    ):
+        raise ValueError("dataset contract must contain exactly spec/train/val")
+    if any(Path(name).name.startswith("test_") for name in raw_hashes):
+        raise ValueError("dataset contract contains a test file hash")
+    selection_hashes = selection.get("dataset_files_sha256")
+    residual_hashes = residual.get("dataset_files_sha256")
+    if raw_hashes != selection_hashes or raw_hashes != residual_hashes:
+        raise ValueError("SPH, GMP selection, and residual dataset hashes differ")
+    dataset_hashes = {name: str(raw_hashes[name]) for name in REQUIRED_DATASET_FILES}
+    for name, expected in dataset_hashes.items():
+        _verify_sha256(dataset / name, expected, name=f"dataset {name}")
+
+    protocol = selection.get("protocol")
+    if not isinstance(protocol, dict):
+        raise ValueError("base selection protocol is missing")
+    if protocol.get("alignment_delay_samples") != 0:
+        raise ValueError("SPH audit requires frozen zero integer alignment")
+    if protocol.get("fractional_delay_applied") is not False:
+        raise ValueError("SPH audit requires no applied fractional delay")
+    if int(protocol.get("nperseg", -1)) != int(contract["nperseg"]):
+        raise ValueError("SPH and GMP nperseg disagree")
+    if int(residual.get("oof_fold_count", -1)) != int(
+        config["search_budget"]["oof_fold_count"]
+    ):
+        raise ValueError("SPH and GMP OOF fold counts disagree")
+    if int(residual.get("common_warmup_samples_per_frame", -1)) != int(
+        contract["common_warmup_samples_per_frame"]
+    ):
+        raise ValueError("SPH and GMP common warmup disagree")
+    if int(residual.get("common_future_cooldown_samples_per_frame", -1)) != int(
+        contract["common_future_cooldown_samples_per_frame"]
+    ):
+        raise ValueError("SPH and GMP common cooldown disagree")
+
+    raw_predictions = residual.get("predictions")
+    if not isinstance(raw_predictions, str) or not raw_predictions.strip():
+        raise ValueError("base residual predictions path is missing")
+    predictions_path = residual_path.parent / Path(raw_predictions).name
+    _verify_sha256(
+        predictions_path,
+        residual.get("predictions_sha256"),
+        name="base residual predictions",
+    )
+    if _file_sha256(source_config) != config_sha256:
+        raise RuntimeError("SPH config changed during integrity verification")
+    return {
+        "config_path": source_config,
+        "config_sha256": config_sha256,
+        "config": config,
+        "dataset": dataset,
+        "dataset_hashes": dataset_hashes,
+        "evidence_paths": evidence_paths,
+        "selection_manifest": selection,
+        "residual_manifest": residual,
+        "reference_predictions_path": predictions_path,
+        "reference_predictions_sha256": _file_sha256(predictions_path),
+        "preimplementation_source_status": source_status,
+        "verified_before_waveform_load": True,
+        "test_file_hashes_recorded": False,
+        "test_split_accessed": False,
+    }
+
+
+def load_verified_gmp_oof_prediction(
+    verified: dict[str, Any],
+) -> np.ndarray:
+    """Load only the train OOF prediction from a hash-verified NPZ bundle."""
+
+    path = verified.get("reference_predictions_path")
+    expected = verified.get("reference_predictions_sha256")
+    if not isinstance(path, Path):
+        raise TypeError("verified reference prediction path is missing")
+    _verify_sha256(path, expected, name="pre-load GMP reference predictions")
+    config = verified["config"]
+    expected_count = int(config["dataset_contract"]["train_sample_count"])
+    with np.load(path, allow_pickle=False) as data:
+        if any(name.startswith("test") for name in data.files):
+            raise ValueError("reference prediction archive contains a test key")
+        expected_schema = int(verified["residual_manifest"]["schema_version"])
+        if int(data["schema_version"]) != expected_schema:
+            raise ValueError("reference prediction schema mismatch")
+        if str(data["model_class"]) != (
+            "complex_generalized_memory_polynomial"
+        ):
+            raise ValueError("reference prediction model class mismatch")
+        prediction = np.asarray(
+            data["train_oof_prediction"],
+            dtype=np.complex128,
+        ).copy()
+        segment_id = np.asarray(data["train_segment_id"], dtype=np.int64)
+    if prediction.shape != (expected_count,) or not np.all(np.isfinite(prediction)):
+        raise ValueError("reference train OOF prediction is invalid")
+    expected_ids = _frame_ids(
+        expected_count,
+        int(config["dataset_contract"]["nperseg"]),
+    )
+    if not np.array_equal(segment_id, expected_ids):
+        raise ValueError("reference train segment IDs disagree with SPH framing")
+    _verify_sha256(path, expected, name="post-load GMP reference predictions")
+    return prediction
 
 
 def _unique_ints(

@@ -1,5 +1,7 @@
 import copy
+import json
 from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -15,10 +17,12 @@ from experiments.select_pa_sph import (
     enumerate_s3_recipes,
     evaluate_oof_recipe,
     load_sph_config,
+    load_verified_gmp_oof_prediction,
     retain_s0_topologies,
     run_staged_oof_search,
     select_ranked_trial,
     validate_search_budget,
+    verify_sph_preregistered_inputs,
 )
 
 
@@ -86,6 +90,51 @@ class SPHRecipeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "operation point"):
             validate_search_budget(config)
 
+
+class SPHIntegrityTests(unittest.TestCase):
+    def test_production_evidence_verifies_before_waveform_load(self) -> None:
+        verified = verify_sph_preregistered_inputs(
+            "experiments/configs/pa_sph_apa200.json"
+        )
+        self.assertTrue(verified["verified_before_waveform_load"])
+        self.assertFalse(verified["test_split_accessed"])
+        self.assertFalse(verified["test_file_hashes_recorded"])
+        self.assertEqual(
+            set(verified["dataset_hashes"]),
+            {
+                "spec.json",
+                "train_input.csv",
+                "train_output.csv",
+                "val_input.csv",
+                "val_output.csv",
+            },
+        )
+        prediction = load_verified_gmp_oof_prediction(verified)
+        self.assertEqual(prediction.shape, (58980,))
+        self.assertEqual(prediction.dtype, np.dtype(np.complex128))
+        self.assertTrue(np.all(np.isfinite(prediction)))
+
+    def test_tampered_dataset_or_evidence_hash_fails_verification(self) -> None:
+        source = Path("experiments/configs/pa_sph_apa200.json")
+        config = json.loads(source.read_text(encoding="utf-8"))
+        with self.subTest("dataset"):
+            with tempfile.TemporaryDirectory() as temporary:
+                path = Path(temporary) / "tampered_dataset.json"
+                changed = copy.deepcopy(config)
+                changed["dataset_contract"]["required_files_sha256"][
+                    "train_input.csv"
+                ] = "0" * 64
+                path.write_text(json.dumps(changed), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "dataset hashes differ"):
+                    verify_sph_preregistered_inputs(path)
+        with self.subTest("evidence"):
+            with tempfile.TemporaryDirectory() as temporary:
+                path = Path(temporary) / "tampered_evidence.json"
+                changed = copy.deepcopy(config)
+                changed["evidence"]["design_document"]["sha256"] = "0" * 64
+                path.write_text(json.dumps(changed), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                    verify_sph_preregistered_inputs(path)
 
 class SPHRankingTests(unittest.TestCase):
     @staticmethod
