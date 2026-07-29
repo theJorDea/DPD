@@ -1,0 +1,3904 @@
+{
+  "budget_summary": {
+    "S0": 7,
+    "S1": 12,
+    "S2": 5,
+    "folds": 3
+  },
+  "counts": {
+    "cache_hits": 2,
+    "completed_oof_fit_calls": 42,
+    "stage_recipe_associations": 16,
+    "unique_recipe_evaluations": 14
+  },
+  "decision": {
+    "cheap_pareto_gate_passed": false,
+    "classification": "neither_evaluator_nor_cheap_pareto",
+    "evaluator_candidate_gate_passed": false,
+    "gate_a_to_b_opened": false,
+    "gate_checks": {
+      "cheap_pareto_common": false,
+      "cheap_pareto_full": false,
+      "evaluator_common": false,
+      "evaluator_every_fold_common": false,
+      "evaluator_every_fold_full": false,
+      "evaluator_full": false
+    },
+    "hard_valid": true,
+    "reason_gate_a_to_b_remains_closed": "post-discovery internal train OOF and reused validation are not independent evaluator confirmation"
+  },
+  "retained_families": [
+    "mixed_diagonal_long"
+  ],
+  "schema_version": 1,
+  "selection_samples": "train leave-one-explicit-frame-out only",
+  "stage_recipe_sha256": {
+    "S0": [
+      "4d7fc029efb6997d35841415510087c2727cb8bc9cd7107304e8330330433fd0",
+      "0599917fce5ec29f2463f63c6622daf8e2a841c1e8217464e81df29b65a5be7c",
+      "096c93fcb17db84ce9451aa088981030e603c358dbfa3dc28a18833585cc6fdd",
+      "9cbcea14f705b123737b0e74e847306c25fb71cead94b71230089945276bd6c1",
+      "54f416297231f6c91425a3403bec1e79e939ad1c3f2d9b232805ac4ebc039ae9",
+      "93f531cf43dd3888f5b376f34cdf660c9776d4251cbd54cd30a80a948fb11e1b",
+      "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3"
+    ],
+    "S1": [
+      "81a6b318074ef25206a848852a1bdaa3d851bf3de0bdb22217978ef30a90124b",
+      "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3",
+      "fcfce8cf88a5d81370c2702812e898e193cbe9b6058813c474f1e11bb684d818",
+      "c9c56fcd91092edb97a6263e53870517c0e5453c0e07aca000db656727fdd294"
+    ],
+    "S2": [
+      "31d7944751077a06f454dc1902c68454f52813a81cb5d064c18b32e3a9b704d8",
+      "99917235ec3d44f4c8f7c82a8806c490c3bbc618ce1599f1c2a4121702eec75b",
+      "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3",
+      "2aae0b2c189903eacf00e45c52061f20936eb198378ea35ebd545af95c3733c9",
+      "6a99aae19a48200e85a03ef1adc08c6b51570a5c0328d15df6f713d843abc0e8"
+    ]
+  },
+  "task": "forward_pa_non_factorized_sparse_spline_memory_selection",
+  "test_split_accessed": false,
+  "unique_trials": {
+    "0599917fce5ec29f2463f63c6622daf8e2a841c1e8217464e81df29b65a5be7c": {
+      "common_interior_nmse_db": -29.55671642201059,
+      "fit_seconds": 0.7120947229996091,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 66.8473597055997,
+            "augmented_solver_rank": 36,
+            "branch_count": 3,
+            "causal_warmup_samples": 2,
+            "data_design_condition_number": 66.87604131453313,
+            "data_design_rank": 36,
+            "feature_count": 36,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.317286915128955,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.00015042277308433642,
+            "training_mse_full": 0.00015199609587221262,
+            "training_nmse_db_after_warmup": -29.597241161956283,
+            "training_nmse_db_full": -29.552381965031923,
+            "training_relative_error_power_after_warmup": 0.001097174950742312,
+            "training_relative_error_power_full": 0.0011085666354819501
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -9.253669357963787,
+          "gain_over_gmp_full_db": -9.21457273025911,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -29.497855368907466,
+            "full_record_nmse_db": -29.502093848831574
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 12,
+            "lookups": 6,
+            "nonlinear_operations": 3,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "3 unique envelope delays; address and weight shared within each group",
+              "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 28,
+            "real_divisions": 0,
+            "real_memory_reads": 18,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 4,
+            "stored_real_coefficients": 72,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 68.53084031904172,
+            "augmented_solver_rank": 36,
+            "branch_count": 3,
+            "causal_warmup_samples": 2,
+            "data_design_condition_number": 68.56202542204171,
+            "data_design_rank": 36,
+            "feature_count": 36,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3115924097190084,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.00015269786175419855,
+            "training_mse_full": 0.00015343066253592556,
+            "training_nmse_db_after_warmup": -29.548621732573608,
+            "training_nmse_db_full": -29.527978236669394,
+            "training_relative_error_power_after_warmup": 0.0011095268764066551,
+            "training_relative_error_power_full": 0.001114813389893855
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -9.104733356776972,
+          "gain_over_gmp_full_db": -8.690293788875273,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -29.604052929627915,
+            "full_record_nmse_db": -29.550599814029844
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 12,
+            "lookups": 6,
+            "nonlinear_operations": 3,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "3 unique envelope delays; address and weight shared within each group",
+              "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 28,
+            "real_divisions": 0,
+            "real_memory_reads": 18,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 4,
+            "stored_real_coefficients": 72,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 62.2390679460436,
+            "augmented_solver_rank": 36,
+            "branch_count": 3,
+            "causal_warmup_samples": 2,
+            "data_design_condition_number": 62.26278816163505,
+            "data_design_rank": 36,
+            "feature_count": 36,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.310521965114354,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.00015158672617041256,
+            "training_mse_full": 0.0001524726690149887,
+            "training_nmse_db_after_warmup": -29.562732697812265,
+            "training_nmse_db_full": -29.537250889469888,
+            "training_relative_error_power_after_warmup": 0.0011059276855222764,
+            "training_relative_error_power_full": 0.0011124356830188855
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -9.222117772813608,
+          "gain_over_gmp_full_db": -8.567989632642139,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -29.569225348276444,
+            "full_record_nmse_db": -29.53364906584902
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 12,
+            "lookups": 6,
+            "nonlinear_operations": 3,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "3 unique envelope delays; address and weight shared within each group",
+              "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 28,
+            "real_divisions": 0,
+            "real_memory_reads": 18,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 4,
+            "stored_real_coefficients": 72,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -29.52868010704912,
+      "gain_over_gmp_common_db": -9.193809684514495,
+      "gain_over_gmp_common_db_from_frozen_metric": -9.193809684514495,
+      "gain_over_gmp_full_db": -8.816730191080595,
+      "gain_over_gmp_full_db_from_frozen_metric": -8.816730191080595,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 7.5432349044289175,
+      "loss_vs_mp_full_db": 7.525648573926276,
+      "minimum_fold_gain_over_gmp_common_db": -9.253669357963787,
+      "minimum_fold_gain_over_gmp_full_db": -9.21457273025911,
+      "operation_count": {
+        "comparisons": 12,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 72,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "family": "diagonal_short_control",
+        "knot_count": 12,
+        "name": "diagonal_short_control_K12_r1e-08_b0:0,1:1,2:2",
+        "ridge": 1e-08,
+        "sha256": "0599917fce5ec29f2463f63c6622daf8e2a841c1e8217464e81df29b65a5be7c"
+      },
+      "recipe_sha256": "0599917fce5ec29f2463f63c6622daf8e2a841c1e8217464e81df29b65a5be7c",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "096c93fcb17db84ce9451aa088981030e603c358dbfa3dc28a18833585cc6fdd": {
+      "common_interior_nmse_db": -23.02573193262297,
+      "fit_seconds": 1.3652468969958136,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 67.28561635177799,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 67.31465516400908,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.17922574569718,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006822611630906246,
+            "training_mse_full": 0.000682789876371212,
+            "training_nmse_db_after_warmup": -23.02985551235947,
+            "training_nmse_db_full": -23.027835561610264,
+            "training_relative_error_power_after_warmup": 0.004977536447226906,
+            "training_relative_error_power_full": 0.00497985209190066
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -15.703730901642164,
+          "gain_over_gmp_full_db": -15.669264742103046,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.04779382522909,
+            "full_record_nmse_db": -23.04740183698764
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 68.97595475020528,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 69.00749499790619,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.1789431440564784,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006805812308106463,
+            "training_mse_full": 0.0006807920532611419,
+            "training_nmse_db_after_warmup": -23.05745717484339,
+            "training_nmse_db_full": -23.056955063782016,
+            "training_relative_error_power_after_warmup": 0.004946001941644741,
+            "training_relative_error_power_full": 0.004946573808420745
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.716737193305693,
+          "gain_over_gmp_full_db": -15.251897705178187,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.992049093099194,
+            "full_record_nmse_db": -22.98899589772693
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 62.71234617571038,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 62.73643028596793,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.1771256724359702,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.000681354896387062,
+            "training_mse_full": 0.0006817986517406798,
+            "training_nmse_db_after_warmup": -23.034809938648188,
+            "training_nmse_db_full": -23.03260953507496,
+            "training_relative_error_power_after_warmup": 0.004971861317269083,
+            "training_relative_error_power_full": 0.004974381006972069
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.754026166877573,
+          "gain_over_gmp_full_db": -15.063076057934211,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.03731695421248,
+            "full_record_nmse_db": -23.038562640556947
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -23.025003272048373,
+      "gain_over_gmp_common_db": -15.724794173902115,
+      "gain_over_gmp_common_db_from_frozen_metric": -15.724794173902115,
+      "gain_over_gmp_full_db": -15.320407026081341,
+      "gain_over_gmp_full_db_from_frozen_metric": -15.320407026081341,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 14.074219393816538,
+      "loss_vs_mp_full_db": 14.029325408927022,
+      "minimum_fold_gain_over_gmp_common_db": -15.754026166877573,
+      "minimum_fold_gain_over_gmp_full_db": -15.669264742103046,
+      "operation_count": {
+        "comparisons": 16,
+        "lookups": 8,
+        "nonlinear_operations": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "4 unique envelope delays; address and weight shared within each group",
+          "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 38,
+        "real_divisions": 0,
+        "real_memory_reads": 24,
+        "real_memory_writes": 2,
+        "real_multiplications": 36,
+        "state_real_values": 48,
+        "stored_real_coefficients": 96,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "diagonal_long",
+        "knot_count": 12,
+        "name": "diagonal_long_K12_r1e-08_b0:0,22:22,23:23,24:24",
+        "ridge": 1e-08,
+        "sha256": "096c93fcb17db84ce9451aa088981030e603c358dbfa3dc28a18833585cc6fdd"
+      },
+      "recipe_sha256": "096c93fcb17db84ce9451aa088981030e603c358dbfa3dc28a18833585cc6fdd",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3": {
+      "common_interior_nmse_db": -32.088147329275884,
+      "fit_seconds": 2.405955473004724,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 79.72993636685358,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.7740269670934,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3314255049096928,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.390065757709696e-05,
+            "training_mse_full": 8.55813446125532e-05,
+            "training_nmse_db_after_warmup": -32.1317083686547,
+            "training_nmse_db_full": -32.04691523803037,
+            "training_relative_error_power_after_warmup": 0.0006121095610140015,
+            "training_relative_error_power_full": 0.0006241780271574968
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.712417121878403,
+          "gain_over_gmp_full_db": -6.6783352153090405,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.03910760499285,
+            "full_record_nmse_db": -32.038331363781644
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 80.91447222628042,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 80.9608301562817,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3209227816500886,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.47508059206373e-05,
+            "training_mse_full": 8.556566547649156e-05,
+            "training_nmse_db_after_warmup": -32.104818486291336,
+            "training_nmse_db_full": -32.06410451687273,
+            "training_relative_error_power_after_warmup": 0.0006159112706357514,
+            "training_relative_error_power_full": 0.0006217124270452511
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.602232773907907,
+          "gain_over_gmp_full_db": -6.233454480784424,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.10655351249698,
+            "full_record_nmse_db": -32.007439122120694
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 76.44227660595305,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.48215894009417,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3292127396088786,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.454716453316886e-05,
+            "training_mse_full": 8.553305851539886e-05,
+            "training_nmse_db_after_warmup": -32.0975532788013,
+            "training_nmse_db_full": -32.04783089650081,
+            "training_relative_error_power_after_warmup": 0.000616942476022733,
+            "training_relative_error_power_full": 0.0006240464404864479
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.672034564801201,
+          "gain_over_gmp_full_db": -6.05748518962303,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.11930855628885,
+            "full_record_nmse_db": -32.04415350886813
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.030003476945566,
+      "gain_over_gmp_common_db": -6.662378777249202,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.662378777249202,
+      "gain_over_gmp_full_db": -6.315406821184148,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.315406821184148,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.011803997163625,
+      "loss_vs_mp_full_db": 5.024325204029829,
+      "minimum_fold_gain_over_gmp_common_db": -6.712417121878403,
+      "minimum_fold_gain_over_gmp_full_db": -6.6783352153090405,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 12,
+        "name": "mixed_diagonal_long_K12_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-08,
+        "sha256": "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3"
+      },
+      "recipe_sha256": "1988672fadfeb91d6f34f001485212c4e3d92b455c8772676a6f8439692854a3",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "2aae0b2c189903eacf00e45c52061f20936eb198378ea35ebd545af95c3733c9": {
+      "common_interior_nmse_db": -32.02885496413053,
+      "fit_seconds": 2.281103871995583,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 75.696726871747,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.7740269670934,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.2948004443854473,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-06,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.510286217383754e-05,
+            "training_mse_full": 8.655883687034453e-05,
+            "training_nmse_db_after_warmup": -32.06992035026451,
+            "training_nmse_db_full": -31.99759217435429,
+            "training_relative_error_power_after_warmup": 0.0006208804210907976,
+            "training_relative_error_power_full": 0.0006313072583210421
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.774845712201806,
+          "gain_over_gmp_full_db": -6.740047331655905,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -31.976679014669447,
+            "full_record_nmse_db": -31.97661924743478
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 76.68533948525995,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 80.9608301562817,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.2936793634468302,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-06,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.584882347733375e-05,
+            "training_mse_full": 8.654847382838161e-05,
+            "training_nmse_db_after_warmup": -32.048913376481465,
+            "training_nmse_db_full": -32.01450570007149,
+            "training_relative_error_power_after_warmup": 0.0006238909161527339,
+            "training_relative_error_power_full": 0.0006288534241072301
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.664006292531873,
+          "gain_over_gmp_full_db": -6.281630246680805,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.044779993873014,
+            "full_record_nmse_db": -31.959263356224312
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 72.77840169203571,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.48215894009417,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.2946157468232566,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-06,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.562597133991473e-05,
+            "training_mse_full": 8.648720056032704e-05,
+            "training_nmse_db_after_warmup": -32.04248863920607,
+            "training_nmse_db_full": -31.999652516010126,
+            "training_relative_error_power_after_warmup": 0.0006248145524688079,
+            "training_relative_error_power_full": 0.0006310078301197755
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.725659660659318,
+          "gain_over_gmp_full_db": -6.099134170460964,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.06568346043073,
+            "full_record_nmse_db": -32.002504528030194
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -31.97948001816905,
+      "gain_over_gmp_common_db": -6.721671142394555,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.721671142394555,
+      "gain_over_gmp_full_db": -6.365930279960665,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.365930279960665,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.071096362308978,
+      "loss_vs_mp_full_db": 5.074848662806346,
+      "minimum_fold_gain_over_gmp_common_db": -6.774845712201806,
+      "minimum_fold_gain_over_gmp_full_db": -6.740047331655905,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 12,
+        "name": "mixed_diagonal_long_K12_r1e-06_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-06,
+        "sha256": "2aae0b2c189903eacf00e45c52061f20936eb198378ea35ebd545af95c3733c9"
+      },
+      "recipe_sha256": "2aae0b2c189903eacf00e45c52061f20936eb198378ea35ebd545af95c3733c9",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "31d7944751077a06f454dc1902c68454f52813a81cb5d064c18b32e3a9b704d8": {
+      "common_interior_nmse_db": -32.088249751390265,
+      "fit_seconds": 2.6712627179949777,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 79.77402696709325,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.7740269670934,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3323670995342463,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 0.0,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.389794683465731e-05,
+            "training_mse_full": 8.558122855191615e-05,
+            "training_nmse_db_after_warmup": -32.131848686923455,
+            "training_nmse_db_full": -32.04692112769344,
+            "training_relative_error_power_after_warmup": 0.0006120897843946917,
+            "training_relative_error_power_full": 0.0006241771806821372
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.7123010186119245,
+          "gain_over_gmp_full_db": -6.678226857098991,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.03922370825933,
+            "full_record_nmse_db": -32.03843972199169
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 80.96083015628166,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 80.9608301562817,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3218332148889833,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 0.0,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.474935171606664e-05,
+            "training_mse_full": 8.55655484019053e-05,
+            "training_nmse_db_after_warmup": -32.10489300575249,
+            "training_nmse_db_full": -32.06411045907879,
+            "training_relative_error_power_after_warmup": 0.0006159007024650401,
+            "training_relative_error_power_full": 0.0006217115763918404
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.602134678042347,
+          "gain_over_gmp_full_db": -6.233500793577164,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.10665160836254,
+            "full_record_nmse_db": -32.00739280932795
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 76.48215894009418,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.48215894009417,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.330124535588951,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 0.0,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.454562120657541e-05,
+            "training_mse_full": 8.553294600126306e-05,
+            "training_nmse_db_after_warmup": -32.09763255577582,
+            "training_nmse_db_full": -32.04783660941477,
+            "training_relative_error_power_after_warmup": 0.0006169312143354236,
+            "training_relative_error_power_full": 0.0006240456195869365
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.671941761440195,
+          "gain_over_gmp_full_db": -6.057523410045242,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.119401359649856,
+            "full_record_nmse_db": -32.044115288445916
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.030011440675466,
+      "gain_over_gmp_common_db": -6.662276355134821,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.662276355134821,
+      "gain_over_gmp_full_db": -6.315398857454248,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.315398857454248,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.011701575049244,
+      "loss_vs_mp_full_db": 5.024317240299929,
+      "minimum_fold_gain_over_gmp_common_db": -6.7123010186119245,
+      "minimum_fold_gain_over_gmp_full_db": -6.678226857098991,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 12,
+        "name": "mixed_diagonal_long_K12_r0e+00_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 0.0,
+        "sha256": "31d7944751077a06f454dc1902c68454f52813a81cb5d064c18b32e3a9b704d8"
+      },
+      "recipe_sha256": "31d7944751077a06f454dc1902c68454f52813a81cb5d064c18b32e3a9b704d8",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "4d7fc029efb6997d35841415510087c2727cb8bc9cd7107304e8330330433fd0": {
+      "common_interior_nmse_db": -22.264933631255744,
+      "fit_seconds": 0.19264410801406484,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 32.76243546078887,
+            "augmented_solver_rank": 12,
+            "branch_count": 1,
+            "causal_warmup_samples": 0,
+            "data_design_condition_number": 32.771027140724826,
+            "data_design_rank": 12,
+            "feature_count": 12,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.1792886358118317,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008132584343307343,
+            "training_mse_full": 0.0008132584343307343,
+            "training_nmse_db_after_warmup": -22.268420533686772,
+            "training_nmse_db_full": -22.268420533686772,
+            "training_relative_error_power_after_warmup": 0.005931410021750164,
+            "training_relative_error_power_full": 0.005931410021750164
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -16.487026814369948,
+          "gain_over_gmp_full_db": -16.451510722113028,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.264497912501305,
+            "full_record_nmse_db": -22.265155856977657
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 2,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "1 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 8,
+            "real_divisions": 0,
+            "real_memory_reads": 6,
+            "real_memory_writes": 0,
+            "real_multiplications": 9,
+            "state_real_values": 0,
+            "stored_real_coefficients": 24,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 32.0054952408749,
+            "augmented_solver_rank": 12,
+            "branch_count": 1,
+            "causal_warmup_samples": 0,
+            "data_design_condition_number": 32.0135845924448,
+            "data_design_rank": 12,
+            "feature_count": 12,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.178217152592473,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008146798826672258,
+            "training_mse_full": 0.0008146798826672258,
+            "training_nmse_db_after_warmup": -22.277229918849123,
+            "training_nmse_db_full": -22.277229918849123,
+            "training_relative_error_power_after_warmup": 0.005919390731053648,
+            "training_relative_error_power_full": 0.005919390731053648
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -16.459426212134176,
+          "gain_over_gmp_full_db": -15.993212220352852,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.24936007427071,
+            "full_record_nmse_db": -22.247681382552265
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 2,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "1 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 8,
+            "real_divisions": 0,
+            "real_memory_reads": 6,
+            "real_memory_writes": 0,
+            "real_multiplications": 9,
+            "state_real_values": 0,
+            "stored_real_coefficients": 24,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 31.64870315925398,
+            "augmented_solver_rank": 12,
+            "branch_count": 1,
+            "causal_warmup_samples": 0,
+            "data_design_condition_number": 31.65664432724776,
+            "data_design_rank": 12,
+            "feature_count": 12,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.176596059330134,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008146304491118795,
+            "training_mse_full": 0.0008146304491118795,
+            "training_nmse_db_after_warmup": -22.259564525471156,
+            "training_nmse_db_full": -22.259564525471156,
+            "training_relative_error_power_after_warmup": 0.005943517522977639,
+            "training_relative_error_power_full": 0.005943517522977639
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -16.51046146108537,
+          "gain_over_gmp_full_db": -15.818847012210021,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.28088166000468,
+            "full_record_nmse_db": -22.282791686281136
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 2,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "1 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 8,
+            "real_divisions": 0,
+            "real_memory_reads": 6,
+            "real_memory_writes": 0,
+            "real_multiplications": 9,
+            "state_real_values": 0,
+            "stored_real_coefficients": 24,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -22.26523250890161,
+      "gain_over_gmp_common_db": -16.485592475269343,
+      "gain_over_gmp_common_db_from_frozen_metric": -16.485592475269343,
+      "gain_over_gmp_full_db": -16.080177789228102,
+      "gain_over_gmp_full_db_from_frozen_metric": -16.080177789228102,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 14.835017695183765,
+      "loss_vs_mp_full_db": 14.789096172073783,
+      "minimum_fold_gain_over_gmp_common_db": -16.51046146108537,
+      "minimum_fold_gain_over_gmp_full_db": -16.451510722113028,
+      "operation_count": {
+        "comparisons": 4,
+        "lookups": 2,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "1 unique envelope delays; address and weight shared within each group",
+          "1 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 8,
+        "real_divisions": 0,
+        "real_memory_reads": 6,
+        "real_memory_writes": 0,
+        "real_multiplications": 9,
+        "state_real_values": 0,
+        "stored_real_coefficients": 24,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ]
+        ],
+        "family": "memoryless_control",
+        "knot_count": 12,
+        "name": "memoryless_control_K12_r1e-08_b0:0",
+        "ridge": 1e-08,
+        "sha256": "4d7fc029efb6997d35841415510087c2727cb8bc9cd7107304e8330330433fd0"
+      },
+      "recipe_sha256": "4d7fc029efb6997d35841415510087c2727cb8bc9cd7107304e8330330433fd0",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "54f416297231f6c91425a3403bec1e79e939ad1c3f2d9b232805ac4ebc039ae9": {
+      "common_interior_nmse_db": -22.271597364764357,
+      "fit_seconds": 1.2539890530024422,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2707.1317521483184,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.4129392105683942e+16,
+            "data_design_rank": 45,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.4291756477763456,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008108721685839815,
+            "training_mse_full": 0.000811117007393615,
+            "training_nmse_db_after_warmup": -22.2798380705526,
+            "training_nmse_db_full": -22.27987121703334,
+            "training_relative_error_power_after_warmup": 0.005915836913367686,
+            "training_relative_error_power_full": 0.005915791762339024
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -16.472684908740803,
+          "gain_over_gmp_full_db": -16.43741179084292,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.27883981813045,
+            "full_record_nmse_db": -22.279254788247766
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2704.637946393004,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.3180502689508872e+16,
+            "data_design_rank": 45,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.3634677108350067,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008110008226281552,
+            "training_mse_full": 0.000810972256104196,
+            "training_nmse_db_after_warmup": -22.29604390627025,
+            "training_nmse_db_full": -22.29703987093864,
+            "training_relative_error_power_after_warmup": 0.005893802916981047,
+            "training_relative_error_power_full": 0.005892451450020276
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -16.456999859692235,
+          "gain_over_gmp_full_db": -15.991026068799378,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.251786426712652,
+            "full_record_nmse_db": -22.24986753410574
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2707.3632806474316,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.911944397208405e+16,
+            "data_design_rank": 45,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.3649814295570012,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0008108385282695162,
+            "training_mse_full": 0.0008110625566254828,
+            "training_nmse_db_after_warmup": -22.279199983825677,
+            "training_nmse_db_full": -22.278627392829726,
+            "training_relative_error_power_after_warmup": 0.00591670616096148,
+            "training_relative_error_power_full": 0.005917486294294599
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -16.507252527157128,
+          "gain_over_gmp_full_db": -15.815553778818668,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -22.284090593932923,
+            "full_record_nmse_db": -22.28608491967249
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 8,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 38,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -22.271764360238834,
+      "gain_over_gmp_common_db": -16.47892874176073,
+      "gain_over_gmp_common_db_from_frozen_metric": -16.47892874176073,
+      "gain_over_gmp_full_db": -16.07364593789088,
+      "gain_over_gmp_full_db_from_frozen_metric": -16.07364593789088,
+      "hard_valid": false,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": false,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 14.828353961675152,
+      "loss_vs_mp_full_db": 14.782564320736562,
+      "minimum_fold_gain_over_gmp_common_db": -16.507252527157128,
+      "minimum_fold_gain_over_gmp_full_db": -16.43741179084292,
+      "operation_count": {
+        "comparisons": 16,
+        "lookups": 8,
+        "nonlinear_operations": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "4 unique envelope delays; address and weight shared within each group",
+          "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 38,
+        "real_divisions": 0,
+        "real_memory_reads": 24,
+        "real_memory_writes": 2,
+        "real_multiplications": 36,
+        "state_real_values": 48,
+        "stored_real_coefficients": 96,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            22
+          ],
+          [
+            0,
+            23
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "family": "current_signal_long_envelope",
+        "knot_count": 12,
+        "name": "current_signal_long_envelope_K12_r1e-08_b0:0,0:22,0:23,0:24",
+        "ridge": 1e-08,
+        "sha256": "54f416297231f6c91425a3403bec1e79e939ad1c3f2d9b232805ac4ebc039ae9"
+      },
+      "recipe_sha256": "54f416297231f6c91425a3403bec1e79e939ad1c3f2d9b232805ac4ebc039ae9",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "6a99aae19a48200e85a03ef1adc08c6b51570a5c0328d15df6f713d843abc0e8": {
+      "common_interior_nmse_db": -26.219217390567657,
+      "fit_seconds": 2.756632845994318,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 22.98682259907434,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.7740269670934,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.9846814068081574,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 0.0001,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0003188455749688608,
+            "training_mse_full": 0.00031927579423233956,
+            "training_nmse_db_after_warmup": -26.333558074193547,
+            "training_nmse_db_full": -26.329046355050053,
+            "training_relative_error_power_after_warmup": 0.0023261846874811985,
+            "training_relative_error_power_full": 0.0023286025274000337
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -12.798904631235011,
+          "gain_over_gmp_full_db": -12.760041206131636,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -25.95262009563624,
+            "full_record_nmse_db": -25.95662537295905
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 22.952699828264425,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 80.9608301562817,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.9825287499792217,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 0.0001,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.00032038164380758147,
+            "training_mse_full": 0.000320670928321432,
+            "training_nmse_db_after_warmup": -26.329580600365887,
+            "training_nmse_db_full": -26.32650395012095,
+            "training_relative_error_power_after_warmup": 0.002328316093072668,
+            "training_relative_error_power_full": 0.002329966114554968
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -12.558129412973315,
+          "gain_over_gmp_full_db": -12.093682643929696,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -26.150656873431572,
+            "full_record_nmse_db": -26.14721095897542
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 22.633447233931104,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.48215894009417,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.9823130641402896,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 0.0001,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0003215059920842228,
+            "training_mse_full": 0.00032170000291761495,
+            "training_nmse_db_after_warmup": -26.296653035589475,
+            "training_nmse_db_full": -26.2946602674155,
+            "training_relative_error_power_after_warmup": 0.002346036131522427,
+            "training_relative_error_power_full": 0.002347112861503423
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -12.214486364089126,
+          "gain_over_gmp_full_db": -11.531877324380403,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -26.576856757000925,
+            "full_record_nmse_db": -26.569761374110755
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -26.217263876283866,
+      "gain_over_gmp_common_db": -12.53130871595743,
+      "gain_over_gmp_common_db_from_frozen_metric": -12.53130871595743,
+      "gain_over_gmp_full_db": -12.128146421845848,
+      "gain_over_gmp_full_db_from_frozen_metric": -12.128146421845848,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 10.880733935871852,
+      "loss_vs_mp_full_db": 10.83706480469153,
+      "minimum_fold_gain_over_gmp_common_db": -12.798904631235011,
+      "minimum_fold_gain_over_gmp_full_db": -12.760041206131636,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 12,
+        "name": "mixed_diagonal_long_K12_r1e-04_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 0.0001,
+        "sha256": "6a99aae19a48200e85a03ef1adc08c6b51570a5c0328d15df6f713d843abc0e8"
+      },
+      "recipe_sha256": "6a99aae19a48200e85a03ef1adc08c6b51570a5c0328d15df6f713d843abc0e8",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "81a6b318074ef25206a848852a1bdaa3d851bf3de0bdb22217978ef30a90124b": {
+      "common_interior_nmse_db": -32.08412474034326,
+      "fit_seconds": 1.2031321399990702,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 79.50059290720212,
+            "augmented_solver_rank": 48,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.53030394293265,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 8,
+            "maximum_absolute_coefficient": 1.3193439308736987,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 19,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.408359406633649e-05,
+            "training_mse_full": 8.577014587383169e-05,
+            "training_nmse_db_after_warmup": -32.12224934634216,
+            "training_nmse_db_full": -32.03734480722772,
+            "training_relative_error_power_after_warmup": 0.0006134442010198794,
+            "training_relative_error_power_full": 0.0006255550281770902
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.718089558538246,
+          "gain_over_gmp_full_db": -6.684160735614036,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.03343516833301,
+            "full_record_nmse_db": -32.03250584347665
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 18,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 15
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 84.57445847681262,
+            "augmented_solver_rank": 48,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 84.61035724262707,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 8,
+            "maximum_absolute_coefficient": 1.3183677725767546,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 20,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.496475688489281e-05,
+            "training_mse_full": 8.577895286661142e-05,
+            "training_nmse_db_after_warmup": -32.09386866285023,
+            "training_nmse_db_full": -32.0532924370622,
+            "training_relative_error_power_after_warmup": 0.0006174661208677568,
+            "training_relative_error_power_full": 0.0006232621540324852
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.60322804274999,
+          "gain_over_gmp_full_db": -6.2351213522034,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.1055582436549,
+            "full_record_nmse_db": -32.00577225070172
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 18,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 15
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 76.1602410197668,
+            "augmented_solver_rank": 48,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.18693029091378,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 8,
+            "maximum_absolute_coefficient": 1.3193205046172027,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 21,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.474835192502727e-05,
+            "training_mse_full": 8.574085299697763e-05,
+            "training_nmse_db_after_warmup": -32.08723113713185,
+            "training_nmse_db_full": -32.03729291786761,
+            "training_relative_error_power_after_warmup": 0.0006184105447434645,
+            "training_relative_error_power_full": 0.0006255625023323904
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.677389573901863,
+          "gain_over_gmp_full_db": -6.0625630703962585,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.11395354718819,
+            "full_record_nmse_db": -32.0390756280949
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 18,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 15
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.025812906778285,
+      "gain_over_gmp_common_db": -6.666401366181823,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.666401366181823,
+      "gain_over_gmp_full_db": -6.319597391351429,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.319597391351429,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.015826586096246,
+      "loss_vs_mp_full_db": 5.0285157741971105,
+      "minimum_fold_gain_over_gmp_common_db": -6.718089558538246,
+      "minimum_fold_gain_over_gmp_full_db": -6.684160735614036,
+      "operation_count": {
+        "comparisons": 18,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 96,
+        "stored_real_constants": 15
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 8,
+        "name": "mixed_diagonal_long_K8_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-08,
+        "sha256": "81a6b318074ef25206a848852a1bdaa3d851bf3de0bdb22217978ef30a90124b"
+      },
+      "recipe_sha256": "81a6b318074ef25206a848852a1bdaa3d851bf3de0bdb22217978ef30a90124b",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "93f531cf43dd3888f5b376f34cdf660c9776d4251cbd54cd30a80a948fb11e1b": {
+      "common_interior_nmse_db": -23.041117021636307,
+      "fit_seconds": 2.6324268040043535,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2735.399700458309,
+            "augmented_solver_rank": 84,
+            "branch_count": 7,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.23075011006283e+16,
+            "data_design_rank": 81,
+            "feature_count": 84,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.4612545594582005,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.000677809805308209,
+            "training_mse_full": 0.0006783408117024526,
+            "training_nmse_db_after_warmup": -23.058283543977197,
+            "training_nmse_db_full": -23.056226826806654,
+            "training_relative_error_power_after_warmup": 0.0049450609132228145,
+            "training_relative_error_power_full": 0.004947403333117837
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -15.695110270640175,
+          "gain_over_gmp_full_db": -15.660860727253741,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.056414456231078,
+            "full_record_nmse_db": -23.055805851836944
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 14,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 62,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 168,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2735.1757984439364,
+            "augmented_solver_rank": 84,
+            "branch_count": 7,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.1696212425213908e+16,
+            "data_design_rank": 81,
+            "feature_count": 84,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.402903055301419,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006764380712519315,
+            "training_mse_full": 0.0006766568303543348,
+            "training_nmse_db_after_warmup": -23.083976428066183,
+            "training_nmse_db_full": -23.083415139987352,
+            "training_relative_error_power_after_warmup": 0.004915892273181596,
+            "training_relative_error_power_full": 0.00491652765082415
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.697108003843681,
+          "gain_over_gmp_full_db": -15.232675649485095,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.011678282561206,
+            "full_record_nmse_db": -23.008217953420022
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 14,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 62,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 168,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2733.975297409392,
+            "augmented_solver_rank": 84,
+            "branch_count": 7,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 1.4699164363969852e+16,
+            "data_design_rank": 81,
+            "feature_count": 84,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 0.39192261224800634,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006771751472897452,
+            "training_mse_full": 0.0006776449580619034,
+            "training_nmse_db_after_warmup": -23.061533642033616,
+            "training_nmse_db_full": -23.059148802240827,
+            "training_relative_error_power_after_warmup": 0.004941361598307594,
+            "training_relative_error_power_full": 0.004944075791654124
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.736146411333827,
+          "gain_over_gmp_full_db": -15.045166633316228,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.055196709756224,
+            "full_record_nmse_db": -23.05647206517493
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 16,
+            "lookups": 14,
+            "nonlinear_operations": 4,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "4 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 62,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 168,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -23.040189242549268,
+      "gain_over_gmp_common_db": -15.70940908488878,
+      "gain_over_gmp_common_db_from_frozen_metric": -15.70940908488878,
+      "gain_over_gmp_full_db": -15.305221055580446,
+      "gain_over_gmp_full_db_from_frozen_metric": -15.305221055580446,
+      "hard_valid": false,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": false,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 14.058834304803202,
+      "loss_vs_mp_full_db": 14.014139438426128,
+      "minimum_fold_gain_over_gmp_common_db": -15.736146411333827,
+      "minimum_fold_gain_over_gmp_full_db": -15.660860727253741,
+      "operation_count": {
+        "comparisons": 16,
+        "lookups": 14,
+        "nonlinear_operations": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "4 unique envelope delays; address and weight shared within each group",
+          "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 62,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 168,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            22,
+            0
+          ],
+          [
+            0,
+            22
+          ],
+          [
+            23,
+            0
+          ],
+          [
+            0,
+            23
+          ],
+          [
+            24,
+            0
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "family": "cross_long_symmetric",
+        "knot_count": 12,
+        "name": "cross_long_symmetric_K12_r1e-08_b0:0,22:0,0:22,23:0,0:23,24:0,0:24",
+        "ridge": 1e-08,
+        "sha256": "93f531cf43dd3888f5b376f34cdf660c9776d4251cbd54cd30a80a948fb11e1b"
+      },
+      "recipe_sha256": "93f531cf43dd3888f5b376f34cdf660c9776d4251cbd54cd30a80a948fb11e1b",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "99917235ec3d44f4c8f7c82a8806c490c3bbc618ce1599f1c2a4121702eec75b": {
+      "common_interior_nmse_db": -32.08824878620873,
+      "fit_seconds": 2.5061094740085537,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 79.77358569887781,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 79.7740269670934,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3323576764012688,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-10,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.389797282953562e-05,
+            "training_mse_full": 8.558122856354332e-05,
+            "training_nmse_db_after_warmup": -32.13184734130883,
+            "training_nmse_db_full": -32.046921127103396,
+            "training_relative_error_power_after_warmup": 0.0006120899740441415,
+            "training_relative_error_power_full": 0.0006241771807669386
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.712302118502727,
+          "gain_over_gmp_full_db": -6.678227879495807,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.039222608368526,
+            "full_record_nmse_db": -32.03843869959488
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 80.9603661824196,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 80.9608301562817,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.321824103700075,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-10,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.47493651185905e-05,
+            "training_mse_full": 8.556554841363449e-05,
+            "training_nmse_db_after_warmup": -32.10489231894585,
+            "training_nmse_db_full": -32.06411045848347,
+            "training_relative_error_power_after_warmup": 0.0006159007998654768,
+            "training_relative_error_power_full": 0.0006217115764770636
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.602135595885834,
+          "gain_over_gmp_full_db": -6.233500266816435,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.106650690519054,
+            "full_record_nmse_db": -32.00739333608868
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 76.48175980763436,
+            "augmented_solver_rank": 72,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 76.48215894009417,
+            "data_design_rank": 72,
+            "feature_count": 72,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.330115410839204,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-10,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.4545635545115e-05,
+            "training_mse_full": 8.553294601253404e-05,
+            "training_nmse_db_after_warmup": -32.09763181923287,
+            "training_nmse_db_full": -32.04783660884249,
+            "training_relative_error_power_after_warmup": 0.0006169313189640551,
+            "training_relative_error_power_full": 0.0006240456196691692
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.671942636630838,
+          "gain_over_gmp_full_db": -6.057522974054272,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.11940048445921,
+            "full_record_nmse_db": -32.044115724436885
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 144,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.030011420580045,
+      "gain_over_gmp_common_db": -6.662277320316356,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.662277320316356,
+      "gain_over_gmp_full_db": -6.3153988775496686,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.3153988775496686,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.011702540230779,
+      "loss_vs_mp_full_db": 5.02431726039535,
+      "minimum_fold_gain_over_gmp_common_db": -6.712302118502727,
+      "minimum_fold_gain_over_gmp_full_db": -6.678227879495807,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 12,
+        "name": "mixed_diagonal_long_K12_r1e-10_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-10,
+        "sha256": "99917235ec3d44f4c8f7c82a8806c490c3bbc618ce1599f1c2a4121702eec75b"
+      },
+      "recipe_sha256": "99917235ec3d44f4c8f7c82a8806c490c3bbc618ce1599f1c2a4121702eec75b",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "9cbcea14f705b123737b0e74e847306c25fb71cead94b71230089945276bd6c1": {
+      "common_interior_nmse_db": -23.045088701823516,
+      "fit_seconds": 1.2584912879974581,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2373.6162504302297,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 19708.711991630593,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.1796786566687545,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 5,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006783369524349177,
+            "training_mse_full": 0.0006788722869059256,
+            "training_nmse_db_after_warmup": -23.05490725599798,
+            "training_nmse_db_full": -23.05282549270265,
+            "training_relative_error_power_after_warmup": 0.004948906792452341,
+            "training_relative_error_power_full": 0.004951279588456997
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -15.69102876931214,
+          "gain_over_gmp_full_db": -15.656670196194632,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.060495957559112,
+            "full_record_nmse_db": -23.059996382896053
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 8,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 32,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2384.384462032212,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 116618.98121988073,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.17913764261408,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006771864557027106,
+            "training_mse_full": 0.0006774163560116744,
+            "training_nmse_db_after_warmup": -23.079174220896324,
+            "training_nmse_db_full": -23.07854305715221,
+            "training_relative_error_power_after_warmup": 0.004921331022854786,
+            "training_relative_error_power_full": 0.004922046295916176
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.695279395637748,
+          "gain_over_gmp_full_db": -15.230499834640387,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.01350689076714,
+            "full_record_nmse_db": -23.01039376826473
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 8,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 32,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2366.2274785734926,
+            "augmented_solver_rank": 48,
+            "branch_count": 4,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 15710.219070208543,
+            "data_design_rank": 48,
+            "feature_count": 48,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.1774567710861135,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 7,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 0.0006780465571106147,
+            "training_mse_full": 0.0006785049662401551,
+            "training_nmse_db_after_warmup": -23.055948599710167,
+            "training_nmse_db_full": -23.05364060805697,
+            "training_relative_error_power_after_warmup": 0.0049477202944919795,
+            "training_relative_error_power_full": 0.004950350383627596
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -15.730135156767854,
+          "gain_over_gmp_full_db": -15.039104015547029,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -23.061207964322197,
+            "full_record_nmse_db": -23.06253468294413
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 4,
+            "lookups": 8,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "1 unique envelope delays; address and weight shared within each group",
+              "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 32,
+            "real_divisions": 0,
+            "real_memory_reads": 24,
+            "real_memory_writes": 2,
+            "real_multiplications": 27,
+            "state_real_values": 48,
+            "stored_real_coefficients": 96,
+            "stored_real_constants": 23
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -23.044329872661145,
+      "gain_over_gmp_common_db": -15.70543740470157,
+      "gain_over_gmp_common_db_from_frozen_metric": -15.70543740470157,
+      "gain_over_gmp_full_db": -15.30108042546857,
+      "gain_over_gmp_full_db_from_frozen_metric": -15.30108042546857,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 14.054862624615993,
+      "loss_vs_mp_full_db": 14.00999880831425,
+      "minimum_fold_gain_over_gmp_common_db": -15.730135156767854,
+      "minimum_fold_gain_over_gmp_full_db": -15.656670196194632,
+      "operation_count": {
+        "comparisons": 4,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "1 unique envelope delays; address and weight shared within each group",
+          "4 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 32,
+        "real_divisions": 0,
+        "real_memory_reads": 24,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 48,
+        "stored_real_coefficients": 96,
+        "stored_real_constants": 23
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            22,
+            0
+          ],
+          [
+            23,
+            0
+          ],
+          [
+            24,
+            0
+          ]
+        ],
+        "family": "signal_long_current_envelope",
+        "knot_count": 12,
+        "name": "signal_long_current_envelope_K12_r1e-08_b0:0,22:0,23:0,24:0",
+        "ridge": 1e-08,
+        "sha256": "9cbcea14f705b123737b0e74e847306c25fb71cead94b71230089945276bd6c1"
+      },
+      "recipe_sha256": "9cbcea14f705b123737b0e74e847306c25fb71cead94b71230089945276bd6c1",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "c9c56fcd91092edb97a6263e53870517c0e5453c0e07aca000db656727fdd294": {
+      "common_interior_nmse_db": -32.06966496093707,
+      "fit_seconds": 5.6231010379997315,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 166.07902347408861,
+            "augmented_solver_rank": 144,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 166.88248244459,
+            "data_design_rank": 144,
+            "feature_count": 144,
+            "knot_count": 24,
+            "maximum_absolute_coefficient": 1.326703058678879,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 1,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.369825689114219e-05,
+            "training_mse_full": 8.537169957209826e-05,
+            "training_nmse_db_after_warmup": -32.1421978809591,
+            "training_nmse_db_full": -32.05756702025562,
+            "training_relative_error_power_after_warmup": 0.0006106329171043294,
+            "training_relative_error_power_full": 0.0006226490043506347
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.72248876094455,
+          "gain_over_gmp_full_db": -6.68847294916948,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.0290359659267,
+            "full_record_nmse_db": -32.028193629921205
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 30,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 288,
+            "stored_real_constants": 47
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 167.7963244670695,
+            "augmented_solver_rank": 144,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 168.63178636560193,
+            "data_design_rank": 144,
+            "feature_count": 144,
+            "knot_count": 24,
+            "maximum_absolute_coefficient": 1.33690529752184,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 2,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.454542233946765e-05,
+            "training_mse_full": 8.535513593110684e-05,
+            "training_nmse_db_after_warmup": -32.115355873999384,
+            "training_nmse_db_full": -32.074803257497,
+            "training_relative_error_power_after_warmup": 0.0006144186823226162,
+            "training_relative_error_power_full": 0.0006201827383097403
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.616270087614133,
+          "gain_over_gmp_full_db": -6.246923145978219,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.092516198790754,
+            "full_record_nmse_db": -31.9939704569269
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 30,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 288,
+            "stored_real_constants": 47
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 272.0853020015811,
+            "augmented_solver_rank": 144,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 275.77115544971434,
+            "data_design_rank": 144,
+            "feature_count": 144,
+            "knot_count": 24,
+            "maximum_absolute_coefficient": 1.3267112841414803,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 3,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.437042600977573e-05,
+            "training_mse_full": 8.535735865470537e-05,
+            "training_nmse_db_after_warmup": -32.106641330935155,
+            "training_nmse_db_full": -32.056761240064944,
+            "training_relative_error_power_after_warmup": 0.000615652811220456,
+            "training_relative_error_power_full": 0.0006227645399609336
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.7034720042044285,
+          "gain_over_gmp_full_db": -6.088061020418429,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.08787111688562,
+            "full_record_nmse_db": -32.01357767807273
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 30,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 288,
+            "stored_real_constants": 47
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.011936732524376,
+      "gain_over_gmp_common_db": -6.680861145588018,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.680861145588018,
+      "gain_over_gmp_full_db": -6.333473565605338,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.333473565605338,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.030286365502441,
+      "loss_vs_mp_full_db": 5.042391948451019,
+      "minimum_fold_gain_over_gmp_common_db": -6.72248876094455,
+      "minimum_fold_gain_over_gmp_full_db": -6.68847294916948,
+      "operation_count": {
+        "comparisons": 30,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 47
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 24,
+        "name": "mixed_diagonal_long_K24_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-08,
+        "sha256": "c9c56fcd91092edb97a6263e53870517c0e5453c0e07aca000db656727fdd294"
+      },
+      "recipe_sha256": "c9c56fcd91092edb97a6263e53870517c0e5453c0e07aca000db656727fdd294",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    },
+    "fcfce8cf88a5d81370c2702812e898e193cbe9b6058813c474f1e11bb684d818": {
+      "common_interior_nmse_db": -32.086841482698674,
+      "fit_seconds": 4.369528818002436,
+      "fold_records": [
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 92.47976957143992,
+            "augmented_solver_rank": 96,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 92.57134732213724,
+            "data_design_rank": 96,
+            "feature_count": 96,
+            "knot_count": 16,
+            "maximum_absolute_coefficient": 1.3379323281547384,
+            "maximum_calibration_radius": 0.9996998789696872,
+            "minimum_nonzero_feature_samples": 3,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.383157289266422e-05,
+            "training_mse_full": 8.551178046156822e-05,
+            "training_nmse_db_after_warmup": -32.13528586820213,
+            "training_nmse_db_full": -32.05044680349366,
+            "training_relative_error_power_after_warmup": 0.0006116055435595251,
+            "training_relative_error_power_full": 0.0006236706687522362
+          },
+          "fit_frame_ids": [
+            1,
+            2
+          ],
+          "fit_support_maximum": 0.9996998789696872,
+          "gain_over_gmp_common_db": -6.714859291741618,
+          "gain_over_gmp_full_db": -6.680780685705827,
+          "held_frame_id": 0,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.036665435129635,
+            "full_record_nmse_db": -32.03588589338486
+          },
+          "held_support_exceedance_fraction": 5.085952598921778e-05,
+          "held_support_maximum": 1.0000000000000002,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 192,
+            "stored_real_constants": 31
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.75152472687125,
+            "full_record_nmse_db": -38.716666579090685
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 90.745038364507,
+            "augmented_solver_rank": 96,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 90.8321893207217,
+            "data_design_rank": 96,
+            "feature_count": 96,
+            "knot_count": 16,
+            "maximum_absolute_coefficient": 1.3218359562372992,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 3,
+            "ridge": 1e-08,
+            "sample_count": 39318,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.468808737974697e-05,
+            "training_mse_full": 8.550202433085398e-05,
+            "training_nmse_db_after_warmup": -32.10803360614194,
+            "training_nmse_db_full": -32.06733586928985,
+            "training_relative_error_power_after_warmup": 0.0006154554748967897,
+            "training_relative_error_power_full": 0.0006212500162068155
+          },
+          "fit_frame_ids": [
+            0,
+            2
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.603165868235422,
+          "gain_over_gmp_full_db": -6.2343443820825755,
+          "held_frame_id": 1,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.105620418169465,
+            "full_record_nmse_db": -32.00654922082254
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9996998789696872,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 192,
+            "stored_real_constants": 31
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.70878628640489,
+            "full_record_nmse_db": -38.24089360290512
+          }
+        },
+        {
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 89.93122284515835,
+            "augmented_solver_rank": 96,
+            "branch_count": 6,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 90.01785079064506,
+            "data_design_rank": 96,
+            "feature_count": 96,
+            "knot_count": 16,
+            "maximum_absolute_coefficient": 1.3307773752871301,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 4,
+            "ridge": 1e-08,
+            "sample_count": 39324,
+            "segment_count": 2,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 8.449362138965141e-05,
+            "training_mse_full": 8.548102125579125e-05,
+            "training_nmse_db_after_warmup": -32.10030450743811,
+            "training_nmse_db_full": -32.05047389471812,
+            "training_relative_error_power_after_warmup": 0.0006165517705541572,
+            "training_relative_error_power_full": 0.0006236667783161194
+          },
+          "fit_frame_ids": [
+            0,
+            1
+          ],
+          "fit_support_maximum": 1.0000000000000002,
+          "gain_over_gmp_common_db": -6.672554621931184,
+          "gain_over_gmp_full_db": -6.057955242917345,
+          "held_frame_id": 2,
+          "held_metrics": {
+            "common_interior_nmse_db": -32.11878849915887,
+            "full_record_nmse_db": -32.04368345557381
+          },
+          "held_support_exceedance_fraction": 0.0,
+          "held_support_maximum": 0.9542203015385244,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 12,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 58,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 54,
+            "state_real_values": 48,
+            "stored_real_coefficients": 192,
+            "stored_real_constants": 31
+          },
+          "reference_gmp_metrics": {
+            "common_interior_nmse_db": -38.79134312109005,
+            "full_record_nmse_db": -38.10163869849116
+          }
+        }
+      ],
+      "full_record_nmse_db": -32.02873461149578,
+      "gain_over_gmp_common_db": -6.663684623826413,
+      "gain_over_gmp_common_db_from_frozen_metric": -6.663684623826413,
+      "gain_over_gmp_full_db": -6.3166756866339355,
+      "gain_over_gmp_full_db_from_frozen_metric": -6.3166756866339355,
+      "hard_valid": true,
+      "hard_validity_checks": {
+        "all_active_features_observed": true,
+        "all_augmented_condition_numbers_finite": true,
+        "all_coefficients_finite_and_bounded": true,
+        "all_data_designs_full_column_rank": true,
+        "all_predictions_finite": true,
+        "all_support_exceedance_limits": true,
+        "real_multiplications_strictly_below_limit": true
+      },
+      "loss_vs_mp_common_db": 5.0131098437408355,
+      "loss_vs_mp_full_db": 5.025594069479617,
+      "minimum_fold_gain_over_gmp_common_db": -6.714859291741618,
+      "minimum_fold_gain_over_gmp_full_db": -6.680780685705827,
+      "operation_count": {
+        "comparisons": 24,
+        "lookups": 12,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "6 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 58,
+        "real_divisions": 0,
+        "real_memory_reads": 36,
+        "real_memory_writes": 2,
+        "real_multiplications": 54,
+        "state_real_values": 48,
+        "stored_real_coefficients": 192,
+        "stored_real_constants": 31
+      },
+      "recipe": {
+        "branches": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            22,
+            22
+          ],
+          [
+            23,
+            23
+          ],
+          [
+            24,
+            24
+          ]
+        ],
+        "family": "mixed_diagonal_long",
+        "knot_count": 16,
+        "name": "mixed_diagonal_long_K16_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24",
+        "ridge": 1e-08,
+        "sha256": "fcfce8cf88a5d81370c2702812e898e193cbe9b6058813c474f1e11bb684d818"
+      },
+      "recipe_sha256": "fcfce8cf88a5d81370c2702812e898e193cbe9b6058813c474f1e11bb684d818",
+      "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+      "reference_gmp_full_record_nmse_db": -38.345410298129714,
+      "research_gate_checks": {
+        "cheap_pareto_common": false,
+        "cheap_pareto_full": false,
+        "evaluator_common": false,
+        "evaluator_every_fold_common": false,
+        "evaluator_every_fold_full": false,
+        "evaluator_full": false
+      }
+    }
+  },
+  "validation_loaded": false
+}
