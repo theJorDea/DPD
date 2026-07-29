@@ -37,6 +37,9 @@ evaluator не является выполненным DPD experiment. Bundled O
 - provisional 10 dB evaluator gate для продолжения DPD не выполнен;
 - release-gates GMP прошли, но они разрешали только по одному frozen test и
   не являются Gate A→B;
+- residual-selected APA conjugate-FIR audit не прошёл 0.1 dB OOF gate:
+  лучший support дал лишь 0.0273/0.0305 dB full/common gain,
+  поэтому frozen decision — `no_correction`;
 - DPD optimization остаётся остановленной до следующего PA-model experiment,
   выбранного по residual evidence, либо до независимого physical-PA capture.
 
@@ -685,13 +688,54 @@ dataset, но evaluator margin остаётся лишь 4.8–6.3 dB на valid
 Следующий model family нельзя выбирать простым расширением GMP grid после
 просмотра test. Максимально информативная последовательность:
 
-1. preregister train-OOF hypothesis из GMP residual diagnostics;
-2. проверить low-complexity `spline/CPWL memoryless nonlinearity + short
-   complex FIR` и sparse complex spline-memory PA на том же A0 protocol;
-3. сравнить только по validation и matched OOF при `<1000` MUL;
-4. state-conditioned branch не запускать без independent long captures;
-5. новый test claim делать на новом capture/operating point, а не повторно
+1. [x] preregister и выполнить bounded APA widely-linear/IQ audit;
+2. [ ] после его negative result preregister low-complexity
+   `spline/CPWL memoryless nonlinearity + short complex FIR` PA;
+3. [ ] только затем проверять sparse complex spline-memory PA,
+   если первая nonlinear family не даст достаточного gain;
+4. сравнивать по train resampling/reused validation при `<1000` MUL, не
+   выдавая уже просмотренные splits за independent confirmation;
+5. state-conditioned branch не запускать без independent long captures;
+6. новый test claim делать на новом capture/operating point, а не повторно
    использовать уже открытый DPA/APA test как selection feedback.
+
+### 10.4 APA widely-linear residual audit
+
+По GMP residual reports была preregistered модель
+
+\[
+\hat y_{WL}[n]=\hat y_{GMP}[n]+\sum_{d\in D}b_d x^*[n-d],
+\]
+
+где supports ограничены `{0}`, `{0,1}`, `{0,1,2}` и `{0,1,2,3,4}`.
+Каждый fold переобучал только coefficients frozen GMP recipe на
+fit frames, затем conjugate coefficients обучались на residual тех же
+fit frames. Test не читался и не хэшировался.
+
+| APA candidate | MUL/sample | OOF gain full, dB | OOF gain common, dB | Minimum fold gain full/common, dB | Eligible |
+|---|---:|---:|---:|---:|---:|
+| `conj_d0` | 958 | 0.0268 | 0.0298 | 0.0241 / 0.0267 | no |
+| `conj_d0_d1` | 962 | **0.0273** | **0.0305** | 0.0239 / 0.0269 | no |
+| `conj_d0_d2` | 966 | 0.0268 | 0.0299 | 0.0245 / 0.0270 | no |
+| `conj_d0_d4` | 974 | 0.0248 | 0.0296 | 0.0184 / 0.0269 | no |
+
+Все correction fits full rank, а streaming/reset checks exact. Но every support
+остался ниже preregistered 0.1 dB full/common threshold. Поэтому selected
+candidate — `no_correction`, operation point остался 954 MUL / 947 ADD,
+а reused validation не участвовал в selection. Wall time — 14.80 s;
+OOF fit time — 13.22 s.
+
+Это опровергает сильную версию гипотезы «заметная
+pseudo-correlation должна дать практически значимый cheap linear
+conjugate correction». Сам diagnostic корректен, но normalized
+correlation не равна explained error power и не заменяет OOF ablation.
+Физическая PA/IQ attribution по этому result не заявляется.
+
+Evidence:
+
+- `experiments/configs/pa_widely_linear_residual_apa200.json`;
+- `experiments/results/pa_widely_linear_residual_apa200/audit_manifest.json`;
+- `experiments/results/pa_widely_linear_residual_apa200/`.
 
 ## 11. Что пока неизвестно или не выполнено
 
@@ -706,7 +750,9 @@ dataset, но evaluator margin остаётся лишь 4.8–6.3 dB на valid
 - Нет captures разных power levels/operating points для adaptation curves.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
-- Нет sparse spline-memory PA или spline/CPWL + FIR PA result.
+- Widely-linear APA residual branch проверена и отклонена по
+  preregistered threshold; всё ещё нет sparse spline-memory PA или
+  spline/CPWL + FIR PA result.
 - Нет bit-accurate 16/14/12-bit PA-model evaluation.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
