@@ -84,7 +84,23 @@ selection или release decision.
 Это measured-data forward identification, но не новая measurement session:
 CSV были собраны upstream, а physical PA не был повторно запущен нами.
 
-### 3.3 Code/repository audit conclusions
+### 3.3 Отрицательный APA widely-linear ablation
+
+Preregistered causal residual corrections
+\(\sum_{d\in D}b_d x^*[n-d]\) с supports `{0}`, `{0,1}`, `{0,1,2}` и
+`{0,1,2,3,4}` были проверены поверх каждого coefficient-OOF GMP fold. Все
+fits full rank и streaming/reset exact, но максимальный gain составил только
+0.02735 dB full и 0.03055 dB common при 962 MUL/sample. Это ниже frozen
+0.1 dB threshold, поэтому выбран `no_correction` и стоимость evaluator
+осталась 954 MUL / 947 ADD.
+
+Это доказывает только отсутствие практически значимого улучшения у
+проверенной short-conjugate family на post-discovery internal resampling.
+Validation уже была просмотрена, test не читался, physical IQ/PA attribution
+не выполнялась. Evidence:
+`experiments/results/pa_widely_linear_residual_apa200/`.
+
+### 3.4 Code/repository audit conclusions
 
 - OpenDPD neural DLA использует правильное deployment direction:
   desired `x -> DPD -> frozen PA`, target `g*x`; circular `y_test` input там не
@@ -152,6 +168,12 @@ errors, которые DPD optimization эксплуатирует, даже е�
 Release-gate PASS означал только, что frozen GMP можно открыть на test один
 раз. Он не означает Gate A→B PASS.
 
+Short widely-linear correction также не открыла Gate A→B: её лучший OOF
+gain примерно в 3.7 раза меньше даже минимального 0.1 dB ablation threshold
+и пренебрежимо мал по сравнению с недостающими 4.1 dB evaluator margin на
+APA. Поэтому pseudo-correlation residual нельзя интерпретировать как готовый
+путь к требуемой PA fidelity.
+
 ## 6. Чего не хватает для Huawei/base-station claim
 
 ### 6.1 Requirements
@@ -202,10 +224,11 @@ Release-gate PASS означал только, что frozen GMP можно от
 | Real-time FPGA-ready | unsupported | analytical counts only; no synthesis/fixed-point GMP |
 | Online adaptation demonstrated | unsupported | no controlled operating-point captures/curves |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
+| Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
-Лучший доступный local experiment — **external-capture PA validation and
+Лучший independent-data experiment — **external-capture PA validation and
 limited recalibration on `APA_200MHz_b`**, после уточнения metadata “measurement
 B”. Причины:
 
@@ -233,6 +256,14 @@ B”. Причины:
    support, cost and wall time.
 7. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
    не выполнен.
+
+Пока provenance/operating-point metadata для measurement B не подтверждены,
+следующий полностью локальный model experiment — заранее ограниченный
+phase-equivariant spline/CPWL PA с короткой causal linear memory. Его topology,
+identifiability constraint, operation count и OOF threshold должны быть
+зафиксированы до fit; already-viewed validation остаётся descriptive, а ранее
+открытый APA test запрещён для selection. Этот experiment может проверить
+новый nonlinear inductive bias, но не заменяет independent capture.
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
