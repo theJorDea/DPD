@@ -13,6 +13,13 @@ residuals равен лишь 5.521/5.867 dB. Поскольку true cascade ч
 GMP evaluators ещё не запускался и нет второго independent evaluator/physical
 PA measurement, Gate A→B остаётся закрытым.
 
+Следующий standalone candidate теперь также проверен: APA SPH (`K=32,L=8`)
+даёт 37 MUL/sample, но −30.4024 dB train-OOF NMSE — на 6.652 dB хуже
+matched MP и на 7.943 dB хуже GMP. Поэтому он остаётся дешёвым отрицательным
+control point, а не новым evaluator. Residual SPH показывает устойчивый
+causal peak около lag 22–24; roadmap переключён на bounded non-factorized
+sparse spline-memory PA.
+
 ## Правила выполнения
 
 - Каждая строка roadmap реализуется отдельным небольшим commit и сразу
@@ -59,6 +66,14 @@ linear-residual ablations:
   full/common OOF gain при 966 MUL, поэтому снова выбран `no_correction`;
 - long-FIR audit также не читал и не хэшировал test; выбранная Pareto-точка
   остаётся исходным APA GMP: 954 MUL / 947 ADD / 236 state reals;
+- standalone APA SPH search завершён train-only: selected `K=32,L=8` имеет
+  −30.4024 dB full OOF NMSE при 37 MUL/36 ADD, fails the ≤3 dB cheap-Pareto
+  loss gate versus MP and is classified `neither_evaluator_nor_cheap_pareto`;
+- SPH `K=48/64` raw-score variants были отклонены из-за rank-deficient
+  control designs (`47/48` и `62–63/64`), поэтому knots дальше не расширяем;
+- SPH residual proper-correlation peak 22–24 samples воспроизведён на train
+  OOF и reused validation; slow-state branch остаётся запрещён при
+  `independent_capture_count=0`;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
 
@@ -169,8 +184,9 @@ Observed result:
 
 ## Этап A2. PA baselines
 
-Статус: MP и causal GMP завершены; локального runnable OpenDPD neural
-checkpoint нет. Следующие PA families ещё не реализованы/не выбраны.
+Статус: MP, causal GMP и standalone APA SPH завершены; локального runnable
+OpenDPD neural checkpoint нет. SPH отклонён как quality evaluator, а следующий
+кандидат ещё не fit’ился.
 
 Порядок:
 
@@ -187,8 +203,10 @@ checkpoint нет. Следующие PA families ещё не реализова
    - [x] freeze winner и открыть test один раз после release-gate PASS.
 3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
    воспроизводимо обучен.
-4. [ ] Spline/CPWL memoryless nonlinearity + short complex FIR.
-5. [ ] Sparse complex spline-memory PA.
+4. [x] Spline/CPWL memoryless nonlinearity + short complex FIR (APA SPH;
+   отрицательный train-OOF result, не evaluator).
+5. [ ] Non-factorized sparse complex spline-memory PA с bounded branch/delay
+   dictionary, мотивированным residual peak 22–24.
 6. [ ] State-conditioned variant только при residual evidence slow state.
 
 Каждый baseline разбивается минимум на отдельные commits: model + tests;
@@ -275,8 +293,11 @@ causal lag 45, но explained error power снова оказался мал:
 Все folds дали положительный gain, были full rank и streaming/reset exact, но
 ни один support не достиг 0.1 dB gate. Поэтому не следует расширять GMP ещё
 большим linear delay grid или превращать эти же lags в spline branches без
-отдельного nonlinear evidence. Следующий experiment — standalone
-phase-equivariant spline/CPWL + short-FIR PA как другой inductive bias.
+отдельного nonlinear evidence. Такой standalone phase-equivariant
+spline/CPWL + short-FIR PA (SPH) уже проверен: его 37-MUL factorized form
+проиграла matched MP на 6.652 dB. Следующий experiment должен добавить только
+недостающую degree of freedom — non-factorized sparse spline-memory branches —
+с жёстким budget/OOF gate.
 
 ## Ближайшая точная последовательность
 
@@ -303,9 +324,15 @@ phase-equivariant spline/CPWL + short-FIR PA как другой inductive bias.
    audit около causal lags 42…49 без test access.
 9. [x] Применить frozen fallback: лучший gain 0.0182/0.0201 dB ниже 0.1 dB,
    поэтому не сохранять long-FIR correction.
-10. [ ] Preregister bounded standalone `spline/CPWL memoryless nonlinearity +
-   short complex FIR` PA audit с exact cost, identifiability и streaming contract.
-11. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+10. [x] Preregister, реализовать и выполнить bounded standalone
+   `spline/CPWL memoryless nonlinearity + short complex FIR` PA audit с exact
+   cost, identifiability и streaming contract; APA SPH отклонён по OOF gate.
+11. [ ] Preregister bounded non-factorized sparse spline-memory PA: сначала
+   фиксировать branch/delay dictionary, rank/support gates и operation budget,
+   затем fit только train OOF.
+12. [ ] Проверить выбранный sparse family на reused validation и новом
+   independent capture/operating point; не использовать старый APA test.
+13. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
