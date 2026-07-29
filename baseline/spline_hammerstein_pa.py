@@ -23,7 +23,11 @@ from typing import Literal
 
 import numpy as np
 
-from .complex_spline_dpd import _strict_knots, local_spline_coordinates
+from .complex_spline_dpd import (
+    _strict_knots,
+    local_spline_coordinates,
+    spline_basis,
+)
 from .complexity import (
     ComplexMultiplyConvention,
     OperationCount,
@@ -31,6 +35,13 @@ from .complexity import (
 )
 
 SplineCoordinate = Literal["amplitude", "power"]
+SplineKnotVariant = Literal[
+    "amplitude_uniform",
+    "amplitude_uniform_power_placement",
+    "amplitude_quantile",
+    "amplitude_compression_aware_p2",
+    "power_uniform",
+]
 
 
 def _complex_vector(values: np.ndarray, *, name: str) -> np.ndarray:
@@ -74,6 +85,183 @@ def _validate_segment_length(segment_length: int) -> int:
     if result < 1:
         raise ValueError("segment_length must be positive")
     return result
+
+
+def _validate_positive_integer(value: int, *, name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, Integral):
+        raise TypeError(f"{name} must be an integer")
+    result = int(value)
+    if result < 1:
+        raise ValueError(f"{name} must be positive")
+    return result
+
+
+def sph_coordinate_values(
+    signal: np.ndarray,
+    coordinate: SplineCoordinate,
+) -> np.ndarray:
+    """Return amplitude or power without hiding a sqrt in power mode."""
+
+    samples = _complex_vector(signal, name="signal")
+    if coordinate not in {"amplitude", "power"}:
+        raise ValueError(f"unknown spline coordinate: {coordinate}")
+    power = samples.real * samples.real + samples.imag * samples.imag
+    return np.sqrt(power) if coordinate == "amplitude" else power
+
+
+def make_sph_knots(
+    pa_input: np.ndarray,
+    count: int,
+    variant: SplineKnotVariant,
+) -> tuple[np.ndarray, SplineCoordinate]:
+    """Construct one preregistered SPH coordinate/knot variant.
+
+    Quantile duplicates are rejected instead of silently reducing ``K``.  The
+    requested model size therefore remains an auditable part of a recipe.
+    """
+
+    knot_count = _validate_positive_integer(count, name="count")
+    if knot_count < 2:
+        raise ValueError("count must be at least two")
+    samples = _complex_vector(pa_input, name="pa_input")
+    power = sph_coordinate_values(samples, "power")
+    maximum_power = float(np.max(power, initial=0.0))
+    if maximum_power <= 0.0:
+        raise ValueError("pa_input must contain a non-zero sample")
+    maximum_amplitude = float(np.sqrt(maximum_power))
+    unit = np.linspace(0.0, 1.0, knot_count, dtype=np.float64)
+
+    if variant == "amplitude_uniform":
+        coordinate: SplineCoordinate = "amplitude"
+        knots = maximum_amplitude * unit
+    elif variant == "amplitude_uniform_power_placement":
+        coordinate = "amplitude"
+        knots = maximum_amplitude * np.sqrt(unit)
+    elif variant == "amplitude_quantile":
+        coordinate = "amplitude"
+        amplitude = np.sqrt(power)
+        knots = np.quantile(amplitude, unit)
+        knots[0] = 0.0
+        knots[-1] = maximum_amplitude
+        if np.unique(knots).size != knot_count:
+            raise ValueError(
+                "amplitude quantiles contain duplicate knots; requested K "
+                "must not be changed silently"
+            )
+    elif variant == "amplitude_compression_aware_p2":
+        coordinate = "amplitude"
+        knots = maximum_amplitude * (1.0 - np.square(1.0 - unit))
+    elif variant == "power_uniform":
+        coordinate = "power"
+        knots = maximum_power * unit
+    else:
+        raise ValueError(f"unknown SPH knot variant: {variant}")
+    return _strict_knots(knots), coordinate
+
+
+def sph_spline_design_matrix(
+    signal: np.ndarray,
+    knots: np.ndarray,
+    coordinate: SplineCoordinate,
+) -> np.ndarray:
+    """Return ``Phi[n,k] = x[n] B_k(s[n])`` for forward PA fitting."""
+
+    samples = _complex_vector(signal, name="signal")
+    knot_array = _strict_knots(knots)
+    values = sph_coordinate_values(samples, coordinate)
+    return samples[:, None] * spline_basis(values, knot_array)
+
+
+def _segmented_delay_rows(
+    values: np.ndarray,
+    delay: int,
+    *,
+    segment_length: int,
+) -> np.ndarray:
+    """Delay vector/matrix rows without crossing explicit frame boundaries."""
+
+    array = np.asarray(values, dtype=np.complex128)
+    if array.ndim not in {1, 2} or array.shape[0] == 0:
+        raise ValueError("values must be a non-empty vector or matrix")
+    if not np.all(np.isfinite(array)):
+        raise ValueError("values contain non-finite entries")
+    if isinstance(delay, bool) or not isinstance(delay, Integral):
+        raise TypeError("delay must be an integer")
+    normalized_delay = int(delay)
+    if normalized_delay < 0:
+        raise ValueError("delay must be causal and non-negative")
+    length = _validate_segment_length(segment_length)
+    if normalized_delay >= length:
+        raise ValueError("delay must be shorter than each explicit frame")
+    output = np.zeros_like(array, dtype=np.complex128)
+    if normalized_delay == 0:
+        output[...] = array
+        return output
+    for start in range(0, array.shape[0], length):
+        stop = min(start + length, array.shape[0])
+        if stop - start > normalized_delay:
+            output[start + normalized_delay : stop] = array[
+                start : stop - normalized_delay
+            ]
+    return output
+
+
+def sph_fir_tail_design_matrix(
+    nonlinear_output: np.ndarray,
+    fir_length: int,
+    *,
+    segment_length: int,
+) -> np.ndarray:
+    """Return columns ``v[n-l]`` for ``l=1..L-1`` with frame resets."""
+
+    nonlinear = _complex_vector(nonlinear_output, name="nonlinear_output")
+    length = _validate_positive_integer(fir_length, name="fir_length")
+    frame_length = _validate_segment_length(segment_length)
+    if length > frame_length:
+        raise ValueError("fir_length must not exceed the explicit frame length")
+    if length == 1:
+        return np.zeros((nonlinear.size, 0), dtype=np.complex128)
+    return np.column_stack(
+        [
+            _segmented_delay_rows(
+                nonlinear,
+                delay,
+                segment_length=frame_length,
+            )
+            for delay in range(1, length)
+        ]
+    )
+
+
+def sph_filtered_control_design_matrix(
+    spline_design: np.ndarray,
+    fir_tail: np.ndarray,
+    *,
+    segment_length: int,
+) -> np.ndarray:
+    """Filter every spline feature by the fixed ``[1, fir_tail]``."""
+
+    design = np.asarray(spline_design, dtype=np.complex128)
+    if design.ndim != 2 or min(design.shape) < 1:
+        raise ValueError("spline_design must be a non-empty matrix")
+    if not np.all(np.isfinite(design)):
+        raise ValueError("spline_design contains non-finite entries")
+    tail = _complex_coefficients(
+        fir_tail,
+        name="fir_tail",
+        allow_empty=True,
+    ).astype(np.complex128, copy=False)
+    length = _validate_segment_length(segment_length)
+    if tail.size >= length:
+        raise ValueError("FIR tail must be shorter than each explicit frame")
+    filtered = design.copy()
+    for delay, coefficient in enumerate(tail, start=1):
+        filtered += coefficient * _segmented_delay_rows(
+            design,
+            delay,
+            segment_length=length,
+        )
+    return filtered
 
 
 @dataclass(frozen=True)
@@ -152,11 +340,7 @@ class SplineHammersteinPA:
     def coordinate_values(self, signal: np.ndarray) -> np.ndarray:
         """Return the fitted spline coordinate without a hidden power sqrt."""
 
-        samples = _complex_vector(signal, name="signal")
-        power = samples.real * samples.real + samples.imag * samples.imag
-        if self.coordinate == "power":
-            return power
-        return np.sqrt(power)
+        return sph_coordinate_values(signal, self.coordinate)
 
     def correction(self, coordinate_values: np.ndarray) -> np.ndarray:
         values = np.asarray(coordinate_values, dtype=np.float64)

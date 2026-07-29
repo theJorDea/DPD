@@ -7,6 +7,11 @@ import numpy as np
 from baseline.spline_hammerstein_pa import (
     SplineHammersteinPA,
     SplineHammersteinState,
+    make_sph_knots,
+    _segmented_delay_rows,
+    sph_filtered_control_design_matrix,
+    sph_fir_tail_design_matrix,
+    sph_spline_design_matrix,
 )
 
 
@@ -164,6 +169,113 @@ class SplineHammersteinInferenceTests(unittest.TestCase):
             )
         with self.assertRaisesRegex(TypeError, "SplineHammersteinState"):
             self.model.predict_chunk(self.signal, object())  # type: ignore[arg-type]
+
+
+class SplineHammersteinDesignTests(unittest.TestCase):
+    def test_all_preregistered_knot_variants_are_exact(self) -> None:
+        signal = np.linspace(0.01, 1.0, 1001).astype(np.complex128)
+        unit = np.linspace(0.0, 1.0, 5)
+        expected = {
+            "amplitude_uniform": (unit, "amplitude"),
+            "amplitude_uniform_power_placement": (
+                np.sqrt(unit),
+                "amplitude",
+            ),
+            "amplitude_compression_aware_p2": (
+                1.0 - np.square(1.0 - unit),
+                "amplitude",
+            ),
+            "power_uniform": (unit, "power"),
+        }
+        for variant, (expected_knots, expected_coordinate) in expected.items():
+            with self.subTest(variant=variant):
+                knots, coordinate = make_sph_knots(signal, 5, variant)
+                np.testing.assert_allclose(knots, expected_knots, atol=1e-15)
+                self.assertEqual(coordinate, expected_coordinate)
+
+        quantile, coordinate = make_sph_knots(
+            signal,
+            5,
+            "amplitude_quantile",
+        )
+        np.testing.assert_allclose(quantile, np.asarray([0.0, 0.2575, 0.505, 0.7525, 1.0]))
+        self.assertEqual(coordinate, "amplitude")
+
+    def test_quantile_duplicates_do_not_silently_change_k(self) -> None:
+        signal = np.asarray([0.0] * 20 + [0.5] * 20 + [1.0] * 20, complex)
+        with self.assertRaisesRegex(ValueError, "duplicate knots"):
+            make_sph_knots(signal, 16, "amplitude_quantile")
+
+    def test_spline_design_has_two_local_features_and_partition(self) -> None:
+        signal = np.asarray(
+            [0.05 + 0.02j, 0.2 - 0.1j, -0.4 + 0.2j, 0.9j]
+        )
+        knots = np.asarray([0.0, 0.2, 0.5, 1.0])
+        design = sph_spline_design_matrix(signal, knots, "amplitude")
+        basis = design / signal[:, None]
+        np.testing.assert_allclose(np.sum(basis, axis=1), 1.0, atol=1e-14)
+        self.assertTrue(np.all(np.count_nonzero(basis, axis=1) <= 2))
+
+    def test_training_design_matches_segmented_inference(self) -> None:
+        rng = np.random.default_rng(1733)
+        signal = 0.3 * (
+            rng.normal(size=131) + 1j * rng.normal(size=131)
+        )
+        model = SplineHammersteinPA(
+            knots=np.asarray([0.0, 0.2, 0.5, 1.2]),
+            control_points=np.asarray(
+                [1.2 + 0.1j, 1.1, 0.9 - 0.1j, 0.7 - 0.2j]
+            ),
+            fir_tail=np.asarray([0.07 + 0.02j, -0.03 + 0.01j]),
+        )
+        spline_design = sph_spline_design_matrix(
+            signal,
+            model.knots,
+            model.coordinate,
+        )
+        filtered = sph_filtered_control_design_matrix(
+            spline_design,
+            model.fir_tail,
+            segment_length=48,
+        )
+        nonlinear = spline_design @ model.control_points
+        tail_design = sph_fir_tail_design_matrix(
+            nonlinear,
+            model.fir_length,
+            segment_length=48,
+        )
+        expected = model.predict_segments(signal, 48)
+        np.testing.assert_allclose(
+            filtered @ model.control_points,
+            expected,
+            rtol=2e-14,
+            atol=2e-14,
+        )
+        np.testing.assert_allclose(
+            nonlinear + tail_design @ model.fir_tail,
+            expected,
+            rtol=2e-14,
+            atol=2e-14,
+        )
+
+    def test_design_rejects_memory_that_crosses_every_frame(self) -> None:
+        nonlinear = np.ones(32, dtype=np.complex128)
+        with self.assertRaisesRegex(ValueError, "must not exceed"):
+            sph_fir_tail_design_matrix(
+                nonlinear,
+                17,
+                segment_length=16,
+            )
+        with self.assertRaisesRegex(ValueError, "shorter"):
+            sph_filtered_control_design_matrix(
+                np.ones((32, 3), dtype=np.complex128),
+                np.ones(16, dtype=np.complex128),
+                segment_length=16,
+            )
+        with self.assertRaisesRegex(TypeError, "delay must be an integer"):
+            _segmented_delay_rows(nonlinear, True, segment_length=16)
+        with self.assertRaisesRegex(ValueError, "causal"):
+            _segmented_delay_rows(nonlinear, -1, segment_length=16)
 
 
 if __name__ == "__main__":
