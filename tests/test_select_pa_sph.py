@@ -2,12 +2,17 @@ import copy
 from pathlib import Path
 import unittest
 
+import numpy as np
+
+from baseline.spline_hammerstein_pa import SplineHammersteinPA
 from experiments.select_pa_sph import (
+    SPHOOFProtocol,
     SPHRecipe,
     enumerate_s0_recipes,
     enumerate_s1_recipes,
     enumerate_s2_recipes,
     enumerate_s3_recipes,
+    evaluate_oof_recipe,
     load_sph_config,
     retain_s0_topologies,
     select_ranked_trial,
@@ -170,6 +175,164 @@ class SPHRankingTests(unittest.TestCase):
             retain_s0_topologies(rows),
             (("amplitude_uniform", 1), ("power_uniform", 2)),
         )
+
+
+class SPHOOFEvaluationTests(unittest.TestCase):
+    @staticmethod
+    def _synthetic_records() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        rng = np.random.default_rng(1811)
+        frames = []
+        for length in (128, 128, 91):
+            radius = np.linspace(0.02, 1.0, length)
+            phase = rng.uniform(-np.pi, np.pi, size=length)
+            frames.append(radius * np.exp(1j * phase))
+        signal = np.concatenate(frames)
+        truth = SplineHammersteinPA(
+            knots=np.linspace(0.0, 1.0, 5),
+            control_points=np.asarray(
+                [1.4 + 0.08j, 1.25, 1.05 - 0.08j, 0.85 - 0.15j, 0.68 - 0.2j]
+            ),
+            fir_tail=np.asarray([0.06 + 0.02j, -0.02 + 0.01j]),
+        )
+        measured = truth.predict_segments(signal, 128)
+        measured += 1e-7 * (
+            rng.normal(size=signal.size) + 1j * rng.normal(size=signal.size)
+        )
+        reference_gmp = (1.05 - 0.03j) * signal
+        return signal, measured, reference_gmp
+
+    def test_train_only_oof_handles_partial_frame_and_exact_streaming(self) -> None:
+        signal, measured, reference_gmp = self._synthetic_records()
+        recipe = SPHRecipe(
+            "amplitude_uniform",
+            5,
+            3,
+            0.0,
+            0.0,
+            0.0,
+        )
+        protocol = SPHOOFProtocol(
+            segment_length=128,
+            common_warmup_samples=4,
+            maximum_alternations=20,
+            minimum_alternations=2,
+            convergence_tolerance=1e-10,
+        )
+        result = evaluate_oof_recipe(
+            recipe,
+            signal,
+            measured,
+            protocol=protocol,
+            reference_gmp_oof_prediction=reference_gmp,
+        )
+        self.assertTrue(result["hard_valid"])
+        self.assertTrue(
+            result["hard_validity_checks"]["all_required_numerics_finite"]
+        )
+        self.assertLess(
+            result["numerical_schedule_diagnostics"][
+                "maximum_serialized_vs_matrix_relative_objective_delta"
+            ],
+            1e-9,
+        )
+        self.assertFalse(result["test_split_accessed"])
+        self.assertEqual(result["accessed_split"], "train_only")
+        self.assertEqual(result["fold_count"], 3)
+        self.assertEqual(
+            [fold["held_sample_count"] for fold in result["fold_reports"]],
+            [128, 128, 91],
+        )
+        self.assertEqual(result["metrics"]["opendpd_complete_frame_count"], 2)
+        self.assertEqual(result["metrics"]["scored_sample_count_common"], 335)
+        self.assertEqual(result["operation_count"]["real_multiplications"], 17)
+        self.assertLess(result["full_record_nmse_db"], -90.0)
+        self.assertGreater(result["gain_over_gmp_full_record_db"], 40.0)
+        self.assertTrue(
+            all(
+                fold["streaming_checks"][
+                    "streaming_chunk_equivalence_passed"
+                ]
+                and fold["streaming_checks"][
+                    "reset_at_frame_equivalence_passed"
+                ]
+                for fold in result["fold_reports"]
+            )
+        )
+
+    def test_held_target_cannot_leak_into_its_oof_prediction(self) -> None:
+        signal, measured, _ = self._synthetic_records()
+        recipe = SPHRecipe(
+            "amplitude_uniform",
+            5,
+            3,
+            0.0,
+            0.0,
+            0.0,
+        )
+        protocol = SPHOOFProtocol(
+            segment_length=128,
+            common_warmup_samples=4,
+            maximum_alternations=8,
+            minimum_alternations=2,
+            convergence_tolerance=1e-9,
+        )
+        original = evaluate_oof_recipe(
+            recipe,
+            signal,
+            measured,
+            protocol=protocol,
+        )
+        changed = measured.copy()
+        changed[:128] += (0.12 - 0.04j) * signal[:128]
+        perturbed = evaluate_oof_recipe(
+            recipe,
+            signal,
+            changed,
+            protocol=protocol,
+        )
+        np.testing.assert_array_equal(
+            original["oof_prediction"][:128],
+            perturbed["oof_prediction"][:128],
+        )
+        self.assertGreater(
+            np.max(
+                np.abs(
+                    original["oof_prediction"][128:]
+                    - perturbed["oof_prediction"][128:]
+                )
+            ),
+            1e-4,
+        )
+
+    def test_oof_protocol_rejects_consumed_frame_or_nonexclusive_budget(
+        self,
+    ) -> None:
+        with self.assertRaisesRegex(ValueError, "consumes"):
+            SPHOOFProtocol(
+                segment_length=8,
+                common_warmup_samples=4,
+                common_cooldown_samples=4,
+            )
+        signal, measured, _ = self._synthetic_records()
+        recipe = SPHRecipe(
+            "amplitude_uniform",
+            5,
+            3,
+            0.0,
+            0.0,
+            0.0,
+        )
+        with self.assertRaisesRegex(ValueError, "strict"):
+            evaluate_oof_recipe(
+                recipe,
+                signal,
+                measured,
+                protocol=SPHOOFProtocol(
+                    segment_length=128,
+                    common_warmup_samples=4,
+                    real_multiplication_limit_exclusive=17,
+                ),
+            )
 
 
 if __name__ == "__main__":
