@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_after_residual_discovery_before_candidate_fit",
+  "date": "2026-07-29",
+  "task": "forward_pa_model_widely_linear_residual_audit",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_widely_linear_residual_apa200",
+  "scope": {
+    "contour": "A_low_complexity_forward_pa_system_identification",
+    "purpose": "test whether the residual of the frozen causal GMP contains a low-cost conjugate-linear component",
+    "not_claimed": [
+      "independent architecture validation",
+      "physical attribution to the PA rather than the feedback path",
+      "Gate A-to-B",
+      "DPD linearization",
+      "physical-PA remeasurement",
+      "Huawei acceptance"
+    ],
+    "test_split_access_permitted": false
+  },
+  "hypothesis": {
+    "model": "y_hat_wl[n] = y_hat_gmp[n] + sum_{d in D} b_d * conj(x[n-d])",
+    "residual_definition": "e[n] = measured_y[n] - y_hat_gmp[n]",
+    "regression_target": "fit b so that sum_d b_d*conj(x[n-d]) approximates e[n]",
+    "interpretation": "a reproducible gain is evidence for a widely-linear measurement-or-PA asymmetry; it is not by itself evidence that the physical PA is the source",
+    "phase_equivariance": "intentionally relaxed only in the measured conjugate direction for this diagnostic",
+    "negative_lag_policy": "negative residual-correlation lags are future-input diagnostics and are forbidden as deployable model features"
+  },
+  "discovery_evidence": {
+    "usage_status": "both train OOF and validation residual reports were inspected while choosing this family; neither is an independent confirmation set for this family",
+    "base_selection_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selection_manifest.json",
+      "sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd"
+    },
+    "base_selected_model": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    },
+    "base_residual_manifest": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/residual_manifest.json",
+      "sha256": "02b694bb28195f4ae774bdb7b45e58a2a10364a099de3c99e3171ed16a64fd28"
+    },
+    "train_oof_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/train_oof_residual_analysis.json",
+      "sha256": "595c99b056c3413f440a7e6729a34f0638157835cb6411075c2c841e70a94263",
+      "causal_pseudo_correlation_magnitude_by_lag": {
+        "0": 0.0832361399289266,
+        "1": 0.08159399538476864,
+        "2": 0.07022420124028153,
+        "3": 0.051699646260591654,
+        "4": 0.03017200474215737
+      }
+    },
+    "validation_residual_report": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/validation_residual_analysis.json",
+      "sha256": "f4bbea617357f5642d895e9fe2a32fb3ae737bc63c1b0d71df03959a6bd3f798",
+      "role": "already-viewed architecture-discovery diagnostic, not confirmation",
+      "causal_pseudo_correlation_magnitude_by_lag": {
+        "0": 0.0678134067030878,
+        "1": 0.06633945389997592,
+        "2": 0.05591920399847335,
+        "3": 0.038727874690394265,
+        "4": 0.018508933189484586
+      }
+    },
+    "source_files": {
+      "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+      "baseline/residual_analysis.py": "b3b2d3a39da541b1fd3924a5c76b9e14119d69c14d8e9da123343c17eaab957d"
+    }
+  },
+  "base_model": {
+    "model_class": "complex_generalized_memory_polynomial",
+    "topology": "both_k2_m2",
+    "gmp_config": {
+      "ka": 7,
+      "la": 30,
+      "kb": 2,
+      "lb": 30,
+      "mb": 2,
+      "kc": 2,
+      "lc": 30,
+      "mc": 2,
+      "leading_policy": "causal_leading"
+    },
+    "solver_mode": "ridge_lstsq",
+    "ridge": 1e-7,
+    "common_warmup_samples_per_frame": 49,
+    "common_future_cooldown_samples_per_frame": 0,
+    "operation_count_per_complex_sample": {
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "nonlinear_operations": 1,
+      "stored_real_coefficients": 888,
+      "state_real_values": 236
+    }
+  },
+  "correction_fit": {
+    "strategy": "two_stage_frozen_family_residual_fit",
+    "joint_refit_with_gmp": false,
+    "fit_intercept": false,
+    "complex_solver": "column_scaled_complex_ridge_lstsq",
+    "ridge": 1e-8,
+    "coefficient_dtype": "complex128",
+    "prediction_dtype": "complex128",
+    "frame_state_policy": "zero/reset delayed-input state at every explicit frame",
+    "oof_protocol": "for each leave-one-explicit-frame-out fold, refit the frozen GMP recipe on fit frames, compute fit-frame residuals, fit conjugate coefficients only on those residuals, and predict the held frame",
+    "full_train_protocol": "use the integrity-verified full-train frozen GMP, fit conjugate coefficients on full-train residuals, then report the already-viewed validation split descriptively",
+    "test_protocol": "forbidden in this audit; a separate frozen release decision and preferably a new capture are required"
+  },
+  "candidate_supports": [
+    {
+      "name": "no_correction",
+      "delays": [],
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "stored_real_coefficients": 888
+    },
+    {
+      "name": "conj_d0",
+      "delays": [0],
+      "real_multiplications": 958,
+      "real_additions": 951,
+      "stored_real_coefficients": 890
+    },
+    {
+      "name": "conj_d0_d1",
+      "delays": [0, 1],
+      "real_multiplications": 962,
+      "real_additions": 955,
+      "stored_real_coefficients": 892
+    },
+    {
+      "name": "conj_d0_d2",
+      "delays": [0, 1, 2],
+      "real_multiplications": 966,
+      "real_additions": 959,
+      "stored_real_coefficients": 894
+    },
+    {
+      "name": "conj_d0_d4",
+      "delays": [0, 1, 2, 3, 4],
+      "real_multiplications": 974,
+      "real_additions": 967,
+      "stored_real_coefficients": 898
+    }
+  ],
+  "operation_count_convention": {
+    "complex_multiply": "4 real multiplications + 2 real additions",
+    "complex_accumulation_into_base_output": "2 real additions per tap",
+    "conjugation": "sign-bit or wiring operation; zero MUL and zero ADD",
+    "per_conjugate_tap_increment": {
+      "real_multiplications": 4,
+      "real_additions": 4,
+      "stored_real_coefficients": 2,
+      "nonlinear_operations": 0
+    },
+    "input_state": "reuse the selected GMP raw complex delay buffer because all candidate delays are within 0..4",
+    "real_multiplication_limit_exclusive": 1000
+  },
+  "selection_rule": {
+    "evidence_class": "post_discovery_internal_resampling_only",
+    "selection_samples": "train split leave-one-explicit-frame-out predictions",
+    "candidate_score": "min(full_record_gain_db, common_interior_gain_db) relative to no_correction; larger is better",
+    "eligibility": {
+      "minimum_oof_full_record_gain_db": 0.1,
+      "minimum_oof_common_interior_gain_db": 0.1,
+      "maximum_worst_fold_degradation_db": 0.1,
+      "full_rank_every_fold": true,
+      "finite_coefficients_and_predictions": true,
+      "causal_streaming_chunk_equivalence": true,
+      "reset_at_frame_equivalence": true,
+      "real_multiplications_strictly_below": 1000
+    },
+    "complexity_tie_break": "among eligible candidates within 0.02 dB of the best candidate_score, choose the fewest conjugate taps",
+    "fallback": "select no_correction if no conjugate support is eligible"
+  },
+  "reporting": {
+    "required_metrics": [
+      "pooled complex NMSE full record",
+      "pooled complex NMSE common interior",
+      "per-frame NMSE",
+      "OpenDPD-compatible NMSE",
+      "error PSD",
+      "AM/AM residual",
+      "AM/PM residual",
+      "post-fit proper and pseudo residual correlations",
+      "fit time",
+      "inference operation count",
+      "stored coefficients and state"
+    ],
+    "validation_label": "already-viewed descriptive validation, never independent confirmation",
+    "test_metrics": "must not be read or emitted"
+  },
+  "follow_up_gate": {
+    "if_internal_audit_passes": "prioritize feedback-path IQ/frequency-response calibration and obtain a new independent capture before attributing the effect to PA physics",
+    "if_internal_audit_fails": "do not retain the conjugate branch; proceed to the next preregistered causal spline/CPWL plus short-FIR hypothesis",
+    "dpa_policy": "do not tune a separate DPA conjugate support from already-viewed DPA residuals; any DPA transfer check must use the APA-frozen support and be labelled non-independent",
+    "state_conditioned_variant": "forbidden because independent_capture_count is zero"
+  }
+}
