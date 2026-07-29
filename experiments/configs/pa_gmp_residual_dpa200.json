@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "selection_manifest": "experiments/results/pa_gmp_dpa200_selection/selection_manifest.json",
+  "selection_manifest_sha256": "933ee11379fc5c825ee3bc8aa5f87592963357abd3c868c42d5fc52d1902728e",
+  "selection_config": "experiments/configs/pa_gmp_dpa200.json",
+  "selection_config_sha256": "7577d7a3e70e5e012a12c08848a2eb4bfddcda07da452718cea50bd04a66633d",
+  "output_dir": "experiments/results/pa_gmp_dpa200_residuals",
+  "expected_common_warmup_samples_per_frame": 49,
+  "expected_common_future_cooldown_samples_per_frame": 0,
+  "lag_grid": {
+    "start": -16,
+    "stop": 128,
+    "step": 1
+  },
+  "envelope_lags": [0, 1, 2, 4, 8, 16, 24, 32, 48, 64, 96, 128],
+  "envelope_powers": [1, 2, 3],
+  "slow_time_constants_samples": [4.0, 16.0, 64.0, 256.0, 1024.0],
+  "amplitude_quantiles": [0.9, 0.95, 0.99],
+  "characteristic_bins": 32,
+  "position_bins": 10,
+  "amplitude_floor_fraction": 1e-6,
+  "minimum_time_constants_per_segment": 20.0,
+  "independent_capture_count": 0,
+  "protocol_lock": {
+    "alignment_decision": "experiments/results/pa_alignment_protocol_decision.json",
+    "alignment_decision_sha256": "c4554c6d62f22bd66420a016743650add4e4379dedb0c84748087e28b54fc2a8",
+    "formal_variant": "A0_integer_only_no_fractional_transform",
+    "integer_delay_samples": 0,
+    "fractional_transform_applied": false
+  },
+  "pretest_release_gate": {
+    "status": "preregistered_before_gmp_residual_run",
+    "scope": "permission_for_one_frozen_gmp_test_evaluation_only",
+    "matched_boundary": {
+      "warmup_samples_per_frame": 49,
+      "future_cooldown_samples_per_frame": 0
+    },
+    "mp_reference": {
+      "residual_manifest": "experiments/results/pa_mp_dpa200_residuals/residual_manifest.json",
+      "residual_manifest_sha256": "88a5b6c36e1aa772446292258a5a94710e26026a142f1b8a3b98fb5e12001545",
+      "predictions_sha256": "de5fdf7c3f2532cfdac2bee97561ad8e39b6fe07917d749329f19ff0b09977d0",
+      "train_oof_full_nmse_db": -35.02043047817903,
+      "train_oof_matched_interior_nmse_db": -35.121492047001624,
+      "validation_full_nmse_db": -34.96174133038673,
+      "validation_matched_interior_nmse_db": -35.05720329858931
+    },
+    "gmp_validation_reference": {
+      "full_nmse_db": -35.365945649075016,
+      "common_interior_nmse_db": -35.46841689181208,
+      "validation_fraction_above_training_maximum": 0.0
+    },
+    "threshold_definition": {
+      "minimum_oof_gain_db": "max(0.10 dB, 0.25 * validation_gain_db)",
+      "gain_sign": "MP_NMSE_dB_minus_GMP_NMSE_dB; positive favors GMP",
+      "validation_metric_absolute_tolerance_db": 1e-9
+    },
+    "thresholds": {
+      "minimum_oof_gain_full_db": 0.10105107967207161,
+      "minimum_oof_gain_common_interior_db": 0.10280339830569396,
+      "maximum_gmp_oof_full_nmse_db": -35.1214815578511,
+      "maximum_gmp_oof_common_interior_nmse_db": -35.22429544530732,
+      "maximum_oof_to_validation_degradation_db": 0.5,
+      "maximum_absolute_full_minus_common_interior_db": 0.5,
+      "maximum_fold_condition_ratio": 10.0,
+      "maximum_fold_coefficient_l2_norm_ratio": 10.0,
+      "maximum_held_to_fit_amplitude_ratio": 1.02,
+      "real_multiplication_limit_exclusive": 1000
+    },
+    "hard_requirements": {
+      "full_train_reproduction": true,
+      "full_rank_every_oof_fold": true,
+      "finite_numerical_diagnostics": true,
+      "validation_within_training_amplitude": true,
+      "causal_streaming_chunk_equivalence": true,
+      "reset_at_frame_equivalence": true,
+      "complete_residual_diagnostic_families": true
+    },
+    "diagnostic_only": {
+      "residual_correlation_is_hard_rejection": false,
+      "slow_state_branch_eligibility_is_hard_rejection": false,
+      "fixed_point_pending": true
+    }
+  }
+}
