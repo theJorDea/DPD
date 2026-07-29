@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task": "freeze_fractional_alignment_protocol_after_sensitivity_gate",
+  "decision_date": "2026-07-29",
+  "scope": "measured_forward_pa_identification_formal_gmp_selection",
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "test_split_accessed": false,
+  "decision_rule": {
+    "primary_metric": "common_causal_interior",
+    "delta_definition": "A1 NMSE dB minus A0 NMSE dB; negative favors A1",
+    "gmp_train_oof_and_validation_max_db": -0.25,
+    "mp_train_oof_and_validation_corroboration_max_db": 0.0,
+    "require_full_record_same_sign": true,
+    "fallback_variant": "a0"
+  },
+  "protocol_semantics": {
+    "sensitivity_a0": "zero fractional shift with the same 32-sample symmetric guard crop used by A1",
+    "formal_a0": "existing uncropped integer-delay-zero pipeline with no fractional transform",
+    "a0_recommendation_meaning": "do not introduce fractional de-embedding; it does not promote the cropped sensitivity control into the formal evaluator",
+    "a1_status": "sensitivity protocol only and not proven feedback-path de-embedding"
+  },
+  "datasets": {
+    "DPA_200MHz": {
+      "sensitivity_report": "experiments/results/pa_alignment_sensitivity_dpa200/fractional_alignment_sensitivity.json",
+      "sensitivity_report_sha256": "16f54b246b764ca6a592f420f8431093ccd98c788eff4df2bc205f0ff94262a1",
+      "runner_recommended_protocol_variant": "a0",
+      "all_preregistered_predicates_passed": false,
+      "failed_predicates": [
+        "gmp_train_oof_common_causal_interior",
+        "gmp_validation_common_causal_interior"
+      ],
+      "observed_deltas_db": {
+        "gmp_train_oof_common_causal_interior": -0.0011406254504322533,
+        "gmp_validation_common_causal_interior": -0.00017436101869350296,
+        "gmp_train_oof_full_record": -0.002116073213265679,
+        "gmp_validation_full_record": -0.0005017193406473552,
+        "mp_train_oof_common_causal_interior": -0.001016868686832595,
+        "mp_validation_common_causal_interior": -0.00042915396812759354
+      },
+      "frozen_protocol_variant": "a0",
+      "manual_override_of_runner_recommendation": false,
+      "formal_gmp_config": "experiments/configs/pa_gmp_dpa200.json",
+      "formal_gmp_config_sha256": "7577d7a3e70e5e012a12c08848a2eb4bfddcda07da452718cea50bd04a66633d",
+      "formal_protocol_variant": "A0_integer_only_no_fractional_transform"
+    },
+    "APA_200MHz": {
+      "sensitivity_report": "experiments/results/pa_alignment_sensitivity_apa200/fractional_alignment_sensitivity.json",
+      "sensitivity_report_sha256": "49323670bc564d7f6095b9da55d7edb1ee44f0be60e680a6df4fd1e0fb5785f8",
+      "runner_recommended_protocol_variant": "a0",
+      "all_preregistered_predicates_passed": false,
+      "failed_predicates": [
+        "gmp_train_oof_common_causal_interior",
+        "gmp_validation_common_causal_interior",
+        "gmp_train_oof_full_record_no_sign_reversal"
+      ],
+      "observed_deltas_db": {
+        "gmp_train_oof_common_causal_interior": -0.008409192775253871,
+        "gmp_validation_common_causal_interior": -0.00654377110029003,
+        "gmp_train_oof_full_record": 0.010699727857755192,
+        "gmp_validation_full_record": -0.0030892427296507208,
+        "mp_train_oof_common_causal_interior": -0.009257442967950169,
+        "mp_validation_common_causal_interior": -0.00967775904693724
+      },
+      "frozen_protocol_variant": "a0",
+      "manual_override_of_runner_recommendation": false,
+      "formal_gmp_config": "experiments/configs/pa_gmp_apa200.json",
+      "formal_gmp_config_sha256": "0e8dc916eab1fa4d8588fca48e18b44f3aa1d167600b0c786476458f46aa8293",
+      "formal_protocol_variant": "A0_integer_only_no_fractional_transform"
+    }
+  },
+  "decision": {
+    "DPA_200MHz": "a0",
+    "APA_200MHz": "a0"
+  },
+  "next_authorized_experiments": [
+    "formal validation-only causal GMP selection for DPA_200MHz using the existing frozen A0 config",
+    "formal validation-only causal GMP selection for APA_200MHz using the existing frozen A0 config"
+  ],
+  "still_forbidden": [
+    "fractional-delay re-estimation on validation or test",
+    "using sensitivity-runner fixed GMP models as formal selected winners",
+    "opening sealed GMP test data before formal validation selection and residual audit",
+    "claiming that A0 or A1 is a calibrated measurement-path de-embedding result"
+  ]
+}
