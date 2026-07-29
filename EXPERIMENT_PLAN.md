@@ -25,19 +25,19 @@ analysis и report — отдельные commits с push после каждо�
 |---|---|---|
 | Requirements audit | выполнен | точное определение Huawei `10^-5` и `<1000 multipliers` всё ещё неизвестно |
 | A0 integer-only PA protocol | реализован | primary current protocol; fractional correction не применяется |
-| A1 fractional-alignment sensitivity | transform, runner и production configs реализованы/tested и зафиксированы; numerical results и protocol decision ещё отсутствуют | только sensitivity, не measurement-path de-embedding |
+| A1 fractional-alignment sensitivity | DPA/APA train-OOF+validation выполнены; A1 rejected, A0 frozen | sensitivity не является measurement-path de-embedding |
 | Complex MP PA selection | DPA и APA выполнены | measured forward validation result |
 | Frozen MP PA test | DPA и APA выполнены | held-out measured forward test result |
 | MP residual analysis | train OOF + validation выполнены | выбор следующего inductive bias, test не использован |
-| Causal factorized GMP PA | model, tests, selector, configs и frozen-test loader готовы; formal sweeps **не запускались** | пока нет GMP quality result |
-| GMP residual analysis | **не реализован** в generic runner и не запускался | current residual CLI поддерживает только MP |
+| Causal factorized GMP PA | DPA/APA selection, residual release gate и one-shot frozen test выполнены | measured forward PA identification; не DPD и не Gate A→B |
+| GMP residual analysis | train coefficient-OOF + validation выполнены для DPA/APA | reproducible OOF gain; test не участвовал в release decision |
 | Sparse spline-memory / CPWL+FIR PA | **не реализованы и не запускались** | следующий PA family только после GMP residual |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
 
 Gate A→B сейчас закрыт. Арифметические margins из уже существующих DPD и новых
-MP PA чисел являются projections, а не выполненными cascade experiments.
+GMP PA чисел являются projections, а не выполненными cascade experiments.
 
 ## 2. Frozen provenance и ресурсы
 
@@ -81,7 +81,10 @@ Availability of evaluators/checkpoints:
 - frozen MP NPZ, selection, validation, test and residual artifacts exist in
   `experiments/results/pa_mp_{dpa200,apa200}_selection/` and
   `experiments/results/pa_mp_{dpa200,apa200}_residuals/`;
-- no `pa_gmp_*_selection/` result directory exists at this snapshot;
+- frozen GMP selection artifacts exist in
+  `experiments/results/pa_gmp_{dpa200,apa200}_selection/`; residual/release
+  artifacts are in `pa_gmp_{dpa200,apa200}_residuals/`, and one-shot test
+  artifacts are in `pa_gmp_{dpa200,apa200}_test/`;
 - OpenDPD bundled JSON records neural checkpoint paths and hashes, but no
   `.pt`, `.pth`, `.ckpt` or `.onnx` binary is present in the vendored tree;
 - MP/GMP OpenDPD controls can be refit from CSV because they are closed-form;
@@ -192,11 +195,13 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Measured after the runner/config changes: **120 tests passed in 0.396 s** on
-the host above. The timing is a local unit-suite measurement, not an inference
+Последний recorded full-suite result перед one-shot GMP tests:
+**131/131 tests passed**. Старое время 0.396 s относилось к 120-test snapshot
+и не переносится на текущий count. Следующий code change обязан сохранить
+новый wall time/execution record; unit-suite timing не является inference
 benchmark.
 
-### 6.2 A0/A1 alignment sensitivity — infrastructure ready, not yet run
+### 6.2 A0/A1 alignment sensitivity — completed, A0 frozen
 
 The current primary protocol is integer-only. Inside the paired sensitivity
 runner, A0 is a zero-fractional-shift control passed through the same FIR
@@ -207,8 +212,7 @@ artifact. The reusable A1 transform is in
 runner is `experiments/evaluate_fractional_alignment_sensitivity.py`.
 Infrastructure tests confirm frame-safe equal support, fixed MP/GMP recipes,
 hash guards, immutable single-writer publication and no test access. Runner
-commit `79089f8` and config commit `754a069` are frozen; the commands below are
-now runnable, but neither numerical result has been produced yet:
+commit `79089f8` and config commit `754a069` are frozen. Выполненные команды:
 
 ```bash
 .venv/bin/python -m experiments.evaluate_fractional_alignment_sensitivity \
@@ -268,11 +272,18 @@ reference are right-zero-padded to the effective segment length, inference is
 run on the padded input, and the resulting delayed output tail is included in
 the segment average. The report records padding and tail-error counts.
 
-The result JSON evaluates every decision predicate after all fixed fits and
-provides a machine-readable A1/A0 recommendation. That recommendation does not
-itself modify configs or freeze the primary protocol. A separate reviewed
-decision commit must accept the recommendation or retain A0 before formal GMP
-selection.
+Result JSON оценивает каждый predicate. Отдельный reviewed decision artifact
+`experiments/results/pa_alignment_protocol_decision.json` заморозил A0 для
+обоих datasets до formal GMP selection; SHA-256:
+`c4554c6d62f22bd66420a016743650add4e4379dedb0c84748087e28b54fc2a8`.
+
+| Dataset | GMP OOF common Δ A1−A0 | GMP validation common Δ | Decision |
+|---|---:|---:|---|
+| DPA_200MHz | −0.0011406 dB | −0.0001744 dB | A0: improvement far below −0.25 dB gate |
+| APA_200MHz | −0.0084092 dB | −0.0065438 dB | A0: below gate and OOF full-record sign reversal |
+
+Test split не читался. A0 означает integer delay zero/no fractional
+transform, а не calibrated feedback-path correction.
 
 The correlation diagnostics currently read approximately −0.00719 sample for
 DPA and +0.07726 sample for APA. These are hypotheses for sensitivity, not a
@@ -326,12 +337,13 @@ first read of `test_input.csv` or `test_output.csv`; it does not refit.
   --config experiments/configs/pa_residual_apa200.json
 ```
 
-This runner is deliberately MP-specific. It performs leave-one-explicit-frame
-out discovery on train and a separate validation diagnostic; it never reads
-test. The existing residual supports testing causal cross-memory/GMP before
-adding slow state.
+Runner теперь dispatches frozen complex MP/GMP from an immutable schema-2
+config. Для каждой OOF fold coefficients refit только на remaining train
+frames; validation остаётся отдельной diagnostic. Test никогда не читается.
+Historical MP configs остаются воспроизводимыми, а GMP использует отдельные
+hash-bound configs из раздела 6.8.
 
-### 6.6 Causal factorized GMP selection — preregistered, not yet run
+### 6.6 Causal factorized GMP selection — completed
 
 Committed configs:
 
@@ -343,7 +355,7 @@ followed by eight ridge and seven non-duplicate truncated-SVD refinements for
 the validation-selected architecture: 154 fits/dataset. All
 selection-eligible topologies are causal and have zero lookahead.
 
-Run DPA and APA as separate tasks:
+Выполненные отдельные commands:
 
 ```bash
 .venv/bin/python -m experiments.select_pa_gmp \
@@ -355,8 +367,7 @@ Run DPA and APA as separate tasks:
   --config experiments/configs/pa_gmp_apa200.json
 ```
 
-Do not run them until A0/A1 sensitivity is resolved or explicitly waived in a
-small documented decision commit. Selection produces:
+Selection outputs:
 
 ```text
 experiments/results/pa_gmp_<dataset>_selection/
@@ -366,46 +377,79 @@ experiments/results/pa_gmp_<dataset>_selection/
   selection_manifest.json
 ```
 
-After each selection, inspect rank/condition, input support, boundary
-full/interior difference, operation/state count and hashes. Commit and push
-the frozen selection before opening test.
+Frozen winners:
 
-### 6.7 Frozen GMP test — separate and not yet run
+| Dataset | Winner | Ridge/solver | Validation full/common | Cost | Final fit / selection wall |
+|---|---|---|---:|---:|---:|
+| DPA | `both_k4_m1`, `ka7/la24`, `kb4/mb1`, causal `kc4/mc1` | 1e−5 / `ridge_lstsq` | −35.3659/−35.4684 dB | 766 MUL, 759 ADD, 356 complex coeff. | 1.234/70.988 s |
+| APA | `both_k2_m2`, `ka7/la30`, `kb2/mb2`, causal `kc2/mc2` | 1e−7 / `ridge_lstsq` | −38.6653/−38.7346 dB | 954 MUL, 947 ADD, 444 complex coeff. | 5.555/212.762 s |
 
-Only after the corresponding selection manifest is frozen:
+Selection manifests:
+
+- DPA SHA-256 `933ee11379fc5c825ee3bc8aa5f87592963357abd3c868c42d5fc52d1902728e`;
+- APA SHA-256 `ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd`.
+
+Оба manifests фиксируют `test_split_accessed=false`. Их нельзя перезапускать
+ради улучшения отчёта после просмотра test.
+
+### 6.7 Frozen GMP test — completed once per dataset
+
+Commands были разрешены только после coefficient-OOF residual audit и
+machine-readable release-gate PASS:
 
 ```bash
 .venv/bin/python -m experiments.evaluate_frozen_pa \
   --selection-manifest \
-  experiments/results/pa_gmp_dpa200_selection/selection_manifest.json
+  experiments/results/pa_gmp_dpa200_selection/selection_manifest.json \
+  --output-dir experiments/results/pa_gmp_dpa200_test
 ```
 
 ```bash
 .venv/bin/python -m experiments.evaluate_frozen_pa \
   --selection-manifest \
-  experiments/results/pa_gmp_apa200_selection/selection_manifest.json
+  experiments/results/pa_gmp_apa200_selection/selection_manifest.json \
+  --output-dir experiments/results/pa_gmp_apa200_test
 ```
 
-Test is a final report, not a reason to change topology, rank cutoff or ridge.
-If test disappoints, record it as a negative result; do not reopen selection.
+| Dataset | Full pooled | OpenDPD-compatible | Common interior | Refit/gain/delay fit |
+|---|---:|---:|---:|---|
+| DPA | −35.385021 dB | −35.398306 dB | −35.419159 dB | false/false/false |
+| APA | −38.608112 dB | −38.608112 dB | −38.707462 dB | false/false/false |
 
-### 6.8 GMP residual analysis, then PA spline — blocked in this snapshot
+Test был открыт ровно один раз per dataset. Разрешение израсходовано; команды
+нельзя повторять с `--overwrite`. Это workflow-specific seal, поскольку
+исторический MP workflow ранее использовал тот же dataset test split. Test
+остался final report и не стал причиной менять topology/ridge.
 
-The current `experiments.analyze_pa_residuals` loader is tied to
-`MemoryPolynomialPA`. It must not be pointed at a GMP manifest. The next small
-implementation task after frozen GMP is:
+### 6.8 GMP residual analysis — completed before test release
 
-1. generalize only the model-loading/prediction part of the residual runner;
-2. retain the same train-OOF/validation boundary-safe analysis and test guard;
-3. add separate GMP residual configs and unit tests;
-4. run and commit GMP residual artifacts;
-5. only then choose between sparse complex spline-memory PA and
-   memoryless spline/CPWL + short complex FIR.
+Generic runner, schema-2 configs и tests завершены. Выполненные commands:
 
-No exact GMP-residual or PA-spline command is published yet because no callable
-API/config exists. This is an implementation blocker, not a completed or
-estimated experiment. State-conditioned PA remains prohibited without
-independent long captures demonstrating slow thermal/bias state.
+```bash
+.venv/bin/python -m experiments.analyze_pa_residuals \
+  --config experiments/configs/pa_gmp_residual_dpa200.json
+.venv/bin/python -m experiments.analyze_pa_residuals \
+  --config experiments/configs/pa_gmp_residual_apa200.json
+
+.venv/bin/python -m experiments.decide_gmp_test_release \
+  --config experiments/configs/pa_gmp_residual_dpa200.json
+.venv/bin/python -m experiments.decide_gmp_test_release \
+  --config experiments/configs/pa_gmp_residual_apa200.json
+```
+
+| Dataset | Train OOF full/common | Validation full/common | OOF gain над matched MP full/common | Residual wall |
+|---|---:|---:|---:|---:|
+| DPA | −35.3157/−35.4224 dB | −35.3659/−35.4684 dB | 0.2952/0.3009 dB | 10.259 s |
+| APA | −38.3454/−38.7505 dB | −38.6653/−38.7346 dB | 1.2911/1.6506 dB | 24.872 s |
+
+Все folds full rank; support, OOF→validation, boundary, operation и streaming
+predicates прошли. Release reports разрешили только one-shot test и явно не
+установили Gate A→B, fixed-point readiness или physical-PA validity.
+
+Следующая PA family выбирается только через новый preregistered train-OOF
+hypothesis: sparse complex spline-memory PA либо memoryless spline/CPWL + short
+complex FIR. Test values выше не являются tuning signal. State-conditioned PA
+остаётся запрещён без independent long captures.
 
 ### 6.9 Existing first-stage spline DPD — retained, not the next PA step
 
@@ -551,7 +595,7 @@ A new PA model is retained as a Pareto point only if:
 8. fixed-point degradation is reported before a hardware claim.
 
 If normalized error power is the intended Huawei error, final acceptance is
-`<10^-5` or pooled NMSE `<-50 dB`; current MP does not pass it.
+`<10^-5` or pooled NMSE `<-50 dB`; current MP/GMP points do not pass it.
 
 ### 8.2 Gate A→B
 
@@ -566,6 +610,16 @@ Surrogate-based DPD optimization resumes only when:
 The 10 dB margin is a conservative internal criterion, not a recovered Huawei
 requirement. Physical-PA remeasurement remains the decisive evidence.
 
+Current arithmetic projection (not a cascade measurement):
+
+| Dataset | GMP validation / test fidelity | Old spline-DPD validation / test residual | Projected margin validation / test |
+|---|---:|---:|---:|
+| DPA | −35.366 / −35.385 dB | −30.532 / −29.864 dB | 4.834 / 5.521 dB |
+| APA | −38.665 / −38.608 dB | −32.380 / −32.741 dB | 6.285 / 5.867 dB |
+
+Обе точки ниже provisional 10 dB; второй independently fitted evaluator и
+physical predistorted capture отсутствуют. Decision: **Gate A→B closed**.
+
 ### 8.3 “Better than OpenDPD”
 
 The claim requires the same dataset or physical PA, split, gain/alignment,
@@ -578,28 +632,25 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 120 tests in 0.396 s measured | completed after runner/config validation |
+| Final unit suite | 131/131 tests passed; current wall not recorded | completed before one-shot test; rerun after next code change |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
-| A0/A1 fixed-model sensitivity | reserve 1–10 min/dataset after production configs exist; replace with measured wall time | not run |
-| GMP DPA 154 fits | **estimate:** fixed 384-feature probe ≈1 s; reserve approximately 5–30 min | not run |
-| GMP APA 154 fits | **estimate:** fixed 384-feature probes ≈4.4–5.3 s; reserve approximately 15–90 min | not run |
-| Frozen PA test | seconds to a few minutes, no fit; record actual wall time | GMP not run |
-| GMP residual | reserve 1–10 min/dataset after generic runner exists | not run |
+| A0/A1 fixed-model sensitivity | 26.191 s DPA / 30.268 s APA wall | completed, A0 frozen |
+| GMP DPA 154 fits | 70.988 s wall; selected final fit 1.234 s | completed |
+| GMP APA 154 fits | 212.762 s wall; selected final fit 5.555 s | completed |
+| Frozen GMP test | 0.066 s DPA / 0.31 s APA process wall, no fit | completed once/dataset |
+| GMP residual | 10.259 s DPA / 24.872 s APA wall | completed pre-test |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
 
-The exploratory timing probes above use one fixed 384-feature fit; they are not
-formal sweep results and do not imply perfectly linear scaling across feature
-counts, ridge/SVD modes or ranks. GMP maximum preregistered dense calibration
-matrix has 450 complex columns: approximately 158 MiB raw complex128 design
-storage on DPA and 405 MiB on APA, before solver workspaces. Sequential
-execution should fit 15 GiB, but this is not a measured peak-memory result.
-Record `/usr/bin/time -v` maximum RSS and wall time for formal runs; replace the
-planning ranges with measured values after the first completed sweep without
-changing the preregistered grid.
+GMP wall times выше измерены для полного formal workflow, но peak RSS не был
+измерен (`/usr/bin/time -v` недоступен в recorded environment). Maximum
+preregistered dense calibration matrix имеет 450 complex columns:
+приблизительно 158 MiB raw complex128 design storage на DPA и 405 MiB на APA,
+до solver workspaces. Это analytical storage estimate, не measured peak.
+Frozen-test host batch wall не является real-time latency/throughput.
 
 Physical PA work has no meaningful local runtime estimate: it requires an RF
 session, calibrated feedback path, operating-point metadata and newly captured
@@ -611,17 +662,20 @@ outputs for predistorted waveforms.
    task (`79089f8`).
 2. [x] Add and review the portable DPA/APA sensitivity configs without running
    either dataset (`754a069`).
-3. Run DPA train/validation sensitivity without test access; commit and push
-   only its immutable result bundle.
-4. Run APA as a separate task; commit and push only its immutable result
-   bundle.
-5. In a separate decision commit, inspect both machine-readable outcomes and
-   freeze A0 or A1 independently for each PA. A runner recommendation is not
-   itself the protocol decision.
-6. Run one causal GMP selection per dataset and commit each frozen selection.
-7. Run each frozen GMP test once in a separate commit.
-8. Generalize residual analysis to GMP; run train-OOF/validation diagnostics.
-9. Implement only the PA spline/FIR family supported by residual evidence.
-10. Re-evaluate the A→B gate.
-11. Only after the gate passes, evaluate DPD through frozen independent
-   evaluators, then fixed point, robustness/adaptation and finally physical PA.
+3. [x] Run DPA and APA train/validation sensitivity as separate immutable
+   result commits, without test access.
+4. [x] Freeze A0 independently for both PA in a reviewed decision artifact.
+5. [x] Run one causal GMP selection per dataset and commit each frozen
+   selection.
+6. [x] Generalize residual analysis to GMP; run coefficient-OOF/validation
+   diagnostics and release gates before test.
+7. [x] Open each frozen GMP test exactly once in separate commits.
+8. [x] Re-evaluate Gate A→B: closed; projected margin remains below 10 dB and
+   no second independent evaluator/physical PA exists.
+9. [ ] Synchronize mandatory living docs and deprecate the stale secondary
+   `experiments/experiment_plan.md` status ledger.
+10. [ ] Preregister, implement and validate only the low-complexity PA
+    spline/FIR family supported by GMP residual evidence; no tuning on opened
+    test values.
+11. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
+    evaluators, then fixed point, robustness/adaptation and finally physical PA.
