@@ -1,0 +1,76 @@
+{
+  "command": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/evaluate_frozen_pa.py --selection-manifest experiments/results/pa_gmp_dpa200_selection/selection_manifest.json --output-dir experiments/results/pa_gmp_dpa200_test",
+  "common_boundary_policy": {
+    "cooldown_samples_per_frame": 0,
+    "source": "validation selection manifest; not refit on test",
+    "warmup_samples_per_frame": 49
+  },
+  "dataset": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/DPA_200MHz",
+  "integrity_checks_completed_before_test_access": true,
+  "model_class": "complex_generalized_memory_polynomial",
+  "model_label": "complex_gmp_both_k4_m1_ka7_l24_causal_leading",
+  "operation_count_per_complex_sample": {
+    "comparisons": 0,
+    "lookups": 0,
+    "nonlinear_operations": 1,
+    "notes": [
+      "complex multiply convention 4m2a",
+      "factorized y=sum_q x[n-q]*h_q kernel",
+      "leading policy causal_leading; lookahead=0 samples",
+      "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+    ],
+    "real_additions": 759,
+    "real_divisions": 0,
+    "real_memory_reads": 1092,
+    "real_memory_writes": 8,
+    "real_multiplications": 766,
+    "state_real_values": 188,
+    "stored_real_coefficients": 712,
+    "stored_real_constants": 9
+  },
+  "post_prediction_delay_fit": false,
+  "post_prediction_gain_fit": false,
+  "primary_test_metric": "test_full_record_pooled_nmse_db; all aligned test samples, including zero-context frame boundaries",
+  "refit_performed": false,
+  "schema_version": 1,
+  "selected_model": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "selected_model_configuration": {
+    "ka": 7,
+    "kb": 4,
+    "kc": 4,
+    "la": 24,
+    "lb": 24,
+    "lc": 24,
+    "leading_policy": "causal_leading",
+    "mb": 1,
+    "mc": 1
+  },
+  "selected_model_sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e",
+  "selected_validation_score_db": -35.365945649075016,
+  "selection_manifest": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_selection/selection_manifest.json",
+  "selection_manifest_sha256": "933ee11379fc5c825ee3bc8aa5f87592963357abd3c868c42d5fc52d1902728e",
+  "task": "frozen_forward_pa_test_evaluation",
+  "test_common_interior": {
+    "complex_nmse_pooled_db": -35.41915892257453,
+    "cooldown_samples_per_frame": 0,
+    "discarded_sample_count": 147,
+    "mse": 0.000392048492856111,
+    "reference_power": 1.365386740104437,
+    "relative_error_power": 0.0002871336606257972,
+    "role": "boundary-excluded diagnostic using the validation-frozen common support; full-record pooled NMSE remains the primary test score",
+    "scored_sample_count": 7533,
+    "time_domain_rms_sample_evm_db": -35.41915892257453,
+    "warmup_samples_per_frame": 49
+  },
+  "test_common_interior_pooled_nmse_db": -35.41915892257453,
+  "test_evaluation": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_test/test_evaluation.json",
+  "test_evaluation_sha256": "32e420d8bb4922c90d1f5952180238d1d5db760c357eeeeb07f13efa2da9a971",
+  "test_files_sha256": {
+    "test_input.csv": "262e1fe4365992735ef9d6f67c4ff557e8e4d8a4f4885b7bc5c7011d07f1b4c0",
+    "test_output.csv": "57d13dc65abf2b8cf77a05d0f1cf90ca0b3520f2da6bb85eb7ba31048d46d9a8"
+  },
+  "test_full_record_pooled_nmse_db": -35.3850213323238,
+  "test_opendpd_nmse_db": -35.39830594838742,
+  "test_prediction": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_dpa200_test/test_prediction.npz",
+  "test_prediction_sha256": "c289fe60eb4f581ae1f3a6c49196855eb514d06bf5caae2816c61568fd234001"
+}
