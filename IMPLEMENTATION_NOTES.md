@@ -293,6 +293,36 @@ objective increases and support violations. The APA publication
 `test_split_accessed=false`. The selected result is intentionally not wired
 into the DPD evaluator because its OOF quality gate failed.
 
+### 3.7 Non-factorized sparse spline-memory PA runner
+
+The sparse PA implementation is split into three independently reviewable
+layers:
+
+- `baseline/sparse_spline_memory_pa.py`: forward phase-equivariant model,
+  segmented complex ridge fit, support/condition diagnostics and exact cost;
+- `experiments/select_pa_sparse_spline_memory.py`: canonical recipe hashes,
+  train-only OOF folds, S0/S1/S2 staged search, cache and gate ranking;
+- `experiments/sparse_pa_benchmark_support.py` plus
+  `experiments/run_pa_sparse_spline_memory.py`: frozen evidence checks,
+  frame-aware metrics, streaming checks and atomic bundle publication.
+
+The production command was:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sparse_spline_memory \
+  --config experiments/configs/pa_sparse_spline_memory_apa200.json
+```
+
+The runner verified hashes before train load, selected only on three explicit
+train frames, froze recipe and full-train coefficients, and loaded validation
+afterward. It contains no test loader. The selected recipe has six branches
+and `K=12`; OOF NMSE is `−32.030011 dB` full / `−32.088250 dB` common, cost is
+`54 MUL / 58 ADD`, and the result is rejected versus both MP and GMP. The
+immutable output is
+`experiments/results/pa_sparse_spline_memory_apa200_selection/` (14 unique
+recipes, 42 OOF fits, 33.5888 s before publication). Residual analysis points
+to lag 9, so any next family must be separately preregistered around that lag.
+
 ## 4. Artifact integrity and publication rules
 
 Canonical numerical outputs are immutable:
@@ -318,18 +348,17 @@ for `baseline/complexity.py`; numerical discovery artifacts and unchanged GMP/
 residual sources match exactly. This is preserved provenance, not repaired by
 rewriting the preregistration.
 
-The SPH bundle was published after all source/config/data hashes and model
-parameter hashes were verified. Its six payload hashes reverify exactly, the
+The SPH and sparse PA bundles were published after all source/config/data hashes and model
+parameter hashes were verified. Their payload hashes reverify exactly, the
 completion manifest was written last inside a temporary directory, and the
 directory was atomically renamed. Validation was loaded only after recipe and
 full-train model freeze; no test file was opened, hashed or named.
 
 ## 5. Tests and invariants
 
-Last recorded complete code suite before the APA SPH run:
-**201/201 passed** on the environment in this document. Documentation-only
-commits after that do not change code. The SPH result itself is an immutable
-numeric artifact; no code was changed while publishing it.
+Last complete code suite after the sparse runner:
+**220/220 passed** on the environment in this document. The sparse result is an
+immutable numeric artifact; no code was changed while publishing it.
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -386,6 +415,10 @@ The previous 120-test 0.396 s timing is obsolete.
 | `b72b69b` / `5a27c54` / `8790330` | SPH recipe validation, OOF evaluator and staged orchestration |
 | `64b19e5` / `1b6ebde` / `252ff2a` | SPH input integrity, atomic runner/publication and progress record |
 | `516afaa` | immutable APA SPH result bundle |
+| `1452437` / `6be677c` / `49a2714` | preregistered sparse PA, forward model and support gate |
+| `f0d77c5` | staged sparse PA OOF search |
+| `841a381` / `4be0921` | sparse PA integrity support and production runner |
+| `5b804f3` | immutable APA sparse PA result bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -402,6 +435,7 @@ experiments/results/pa_gmp_apa200_test/
 experiments/results/pa_widely_linear_residual_apa200/
 experiments/results/pa_long_fir_residual_apa200/
 experiments/results/pa_sph_apa200_selection/
+experiments/results/pa_sparse_spline_memory_apa200_selection/
 ```
 
 Normative documents:
@@ -437,8 +471,9 @@ Normative documents:
     improved, but the best aggregate gain was only 0.018/0.020 dB.
 14. APA standalone SPH is implemented and reproducible, but its −30.402 dB
     train-OOF NMSE is 6.652 dB worse than matched MP; it is not an evaluator.
-15. No non-factorized sparse spline-memory PA has yet been fit; residual lag
-    22–24 is a hypothesis, not a result for the next family.
+15. Non-factorized sparse spline-memory PA has been fit and rejected: its
+    `−32.030 dB` OOF score is 6.315 dB worse than matched GMP. Residual lag 9
+    is now the next bounded hypothesis, not a validation-tuned result.
 
 ## 9. Extension contract for the next PA model
 
@@ -465,17 +500,17 @@ Then add, in separate tasks:
 6. external/new-capture test, not tuning on already opened DPA/APA test;
 7. report update.
 
-The standalone spline/CPWL + short-FIR family has now been isolated and
-rejected on APA OOF. The next preregistered family should be a bounded
-non-factorized sparse complex spline-memory dictionary, with branch/delay
-selection frozen before fit and exact cost/rank/support gates. A
+The standalone spline/CPWL + short-FIR and first non-factorized sparse family
+have now been isolated and rejected on APA OOF. If local work continues, the
+next preregistered family should be a narrow lag-9 sparse dictionary, with
+branch/delay selection frozen before fit and exact cost/rank/support gates. A
 state-conditioned model is blocked until independent long-capture slow-state
 evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Preregister a bounded non-factorized sparse spline-memory PA topology,
-   branch/delay dictionary, fit rule, exact counter and OOF gate.
+1. Preregister a narrow lag-9 sparse spline-memory PA topology, branch/delay
+   dictionary, fit rule, exact counter and OOF gate; stop after a negative gate.
 2. Implement its basis/identifiability/serialization/streaming tests without
    changing the evaluator or reusing the old APA test.
 3. Select using APA train OOF; show reused validation descriptively only.
