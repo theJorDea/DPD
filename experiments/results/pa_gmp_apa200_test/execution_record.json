@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task": "frozen_forward_pa_test_evaluation",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "command": ".venv/bin/python -m experiments.evaluate_frozen_pa --selection-manifest experiments/results/pa_gmp_apa200_selection/selection_manifest.json --output-dir experiments/results/pa_gmp_apa200_test",
+  "working_directory": "/home/jordea/Рабочий стол/Projects/DPD",
+  "source_commit": "8ae235d",
+  "runner": "experiments/evaluate_frozen_pa.py",
+  "record_created_at": "2026-07-29T12:49:26+03:00",
+  "exit_code": 0,
+  "wall_time_seconds": 0.31,
+  "wall_time_source": "POSIX time -p real output; exec_command reported 0.178312336 s",
+  "peak_rss": null,
+  "peak_rss_status": "not measured",
+  "environment": {
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+    "logical_cpu_count": 12
+  },
+  "preflight": {
+    "integrity_checks_completed_before_test_access": true,
+    "selection_manifest_sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd",
+    "selected_model_sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add",
+    "test_access_count": 1,
+    "test_access_policy": "one frozen invocation after release-gate PASS; no retry or overwrite"
+  },
+  "accessed_splits": [
+    "test"
+  ],
+  "refit_performed": false,
+  "post_prediction_gain_fit": false,
+  "post_prediction_delay_fit": false,
+  "selected_model": {
+    "label": "complex_gmp_both_k2_m2_ka7_l30_causal_leading",
+    "configuration": {
+      "ka": 7,
+      "kb": 2,
+      "kc": 2,
+      "la": 30,
+      "lb": 30,
+      "lc": 30,
+      "leading_policy": "causal_leading",
+      "mb": 2,
+      "mc": 2
+    },
+    "real_multiplications_per_sample": 954,
+    "real_additions_per_sample": 947,
+    "stored_real_coefficients": 888,
+    "state_real_values": 236
+  },
+  "result_summary": {
+    "test_full_record_pooled_nmse_db": -38.60811160424926,
+    "test_common_interior_pooled_nmse_db": -38.70746189815044,
+    "test_opendpd_nmse_db": -38.60811160424926,
+    "test_common_warmup_samples_per_frame": 49,
+    "test_common_cooldown_samples_per_frame": 0,
+    "test_common_scored_sample_count": 19613
+  },
+  "artifact_sha256": {
+    "test_evaluation.json": "ba7ff2b2c5b5185acb45ad640e1cc25ed4a835bbd88631a7b932d7f685955c5f",
+    "test_manifest.json": "cf30527acc129ea57949ea7fe885ffd44548bd3e93144d9bb7fee8e78abfc0da",
+    "test_prediction.npz": "b3de2c9563f006a12fe4429c05acbc81d6ea5bd2a21383c6913f2b618708129c"
+  },
+  "evidence_scope": "One workflow-specific frozen forward-model test after GMP release-gate PASS. Historical MP workflows used this dataset test split; therefore this record is not a globally pristine dataset seal, not Gate A-to-B, not DPD linearization, not fixed-point, not physical-PA remeasurement, and not Huawei acceptance."
+}
