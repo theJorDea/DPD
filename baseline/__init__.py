@@ -43,7 +43,10 @@ from .gmp_pa import (
 from .complexity import gmp_inference_cost
 from .spline_hammerstein_pa import (
     SplineHammersteinPA,
+    SplineHammersteinBlockDiagnostics,
+    SplineHammersteinFitDiagnostics,
     SplineHammersteinState,
+    fit_spline_hammerstein_pa,
     make_sph_knots,
     sph_filtered_control_design_matrix,
     sph_fir_tail_design_matrix,
@@ -80,7 +83,10 @@ __all__ = [
     "gmp_terms",
     "gmp_inference_cost",
     "SplineHammersteinPA",
+    "SplineHammersteinBlockDiagnostics",
+    "SplineHammersteinFitDiagnostics",
     "SplineHammersteinState",
+    "fit_spline_hammerstein_pa",
     "make_sph_knots",
     "sph_filtered_control_design_matrix",
     "sph_fir_tail_design_matrix",

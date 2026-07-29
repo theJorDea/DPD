@@ -19,15 +19,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from numbers import Integral
 from pathlib import Path
+import time
 from typing import Literal
 
 import numpy as np
 
 from .complex_spline_dpd import (
+    _second_derivative_operator,
     _strict_knots,
     local_spline_coordinates,
     spline_basis,
 )
+from .metrics import nmse_pooled_db
 from .complexity import (
     ComplexMultiplyConvention,
     OperationCount,
@@ -265,6 +268,221 @@ def sph_filtered_control_design_matrix(
 
 
 @dataclass(frozen=True)
+class SplineHammersteinBlockDiagnostics:
+    """Rank, conditioning, and objective change for one exact block solve."""
+
+    iteration: int
+    block: str
+    feature_count: int
+    data_design_rank: int
+    data_design_condition_number: float
+    data_minimum_singular_value: float
+    data_maximum_singular_value: float
+    augmented_solver_rank: int
+    augmented_condition_number: float
+    augmented_minimum_singular_value: float
+    augmented_maximum_singular_value: float
+    objective_before: float
+    objective_after: float
+    relative_objective_decrease: float
+    coefficient_l2_norm: float
+
+
+@dataclass(frozen=True)
+class SplineHammersteinFitDiagnostics:
+    """Auditable result of deterministic alternating complex LS."""
+
+    sample_count: int
+    segment_length: int
+    segment_count: int
+    knot_count: int
+    knot_strategy: str
+    coordinate: str
+    fir_length: int
+    control_ridge: float
+    smoothness: float
+    fir_ridge: float
+    maximum_alternations: int
+    minimum_alternations: int
+    completed_alternations: int
+    convergence_tolerance: float
+    objective_increase_tolerance: float
+    converged: bool
+    convergence_reason: str
+    zero_model_objective: float
+    memoryless_initial_objective: float
+    optimization_final_objective: float
+    serialized_model_objective: float
+    all_updates_monotonic: bool
+    all_data_designs_full_column_rank: bool
+    minimum_nonzero_control_feature_samples: int
+    maximum_calibration_coordinate: float
+    control_point_l2_norm: float
+    fir_tail_l2_norm: float
+    target_power: float
+    training_mse: float
+    training_relative_error_power: float
+    training_nmse_db: float
+    coefficient_dtype: str
+    fit_wall_time_seconds: float
+    solver: str
+    h0_contract: str
+    updates: tuple[SplineHammersteinBlockDiagnostics, ...]
+
+
+@dataclass(frozen=True)
+class _ComplexSolveDiagnostics:
+    feature_count: int
+    data_design_rank: int
+    data_design_condition_number: float
+    data_minimum_singular_value: float
+    data_maximum_singular_value: float
+    augmented_solver_rank: int
+    augmented_condition_number: float
+    augmented_minimum_singular_value: float
+    augmented_maximum_singular_value: float
+
+
+def _rank_and_condition(
+    singular_values: np.ndarray,
+    shape: tuple[int, int],
+) -> tuple[int, float, float, float]:
+    values = np.asarray(singular_values, dtype=np.float64)
+    if values.ndim != 1 or values.size == 0 or not np.all(np.isfinite(values)):
+        return 0, float("inf"), 0.0, 0.0
+    maximum = float(values[0])
+    minimum = float(values[-1])
+    tolerance = maximum * max(shape) * np.finfo(np.float64).eps
+    rank = int(np.count_nonzero(values > tolerance))
+    condition = (
+        float(maximum / minimum)
+        if rank == shape[1] and minimum > np.finfo(float).tiny
+        else float("inf")
+    )
+    return rank, condition, minimum, maximum
+
+
+def _regularized_complex_lstsq(
+    design: np.ndarray,
+    target: np.ndarray,
+    penalties: tuple[tuple[float, np.ndarray], ...],
+) -> tuple[np.ndarray, _ComplexSolveDiagnostics]:
+    """Solve a mean-square complex LS objective via augmented rows."""
+
+    matrix = np.asarray(design, dtype=np.complex128)
+    desired = _complex_vector(target, name="target")
+    if matrix.ndim != 2 or matrix.shape[0] != desired.size:
+        raise ValueError("design rows must match the one-dimensional target")
+    if matrix.shape[1] < 1 or matrix.shape[1] >= matrix.shape[0]:
+        raise ValueError("complex LS design must be overdetermined and non-empty")
+    if not np.all(np.isfinite(matrix)):
+        raise ValueError("complex LS design contains non-finite values")
+
+    normalization = np.sqrt(float(matrix.shape[0]))
+    normalized = matrix / normalization
+    data_singular_values = np.linalg.svd(normalized, compute_uv=False)
+    data_rank, data_condition, data_minimum, data_maximum = (
+        _rank_and_condition(data_singular_values, matrix.shape)
+    )
+    blocks = [normalized]
+    targets = [desired / normalization]
+    for strength, operator in penalties:
+        if not np.isfinite(strength) or strength < 0.0:
+            raise ValueError("penalty strengths must be finite and non-negative")
+        penalty = np.asarray(operator, dtype=np.complex128)
+        if penalty.ndim != 2 or penalty.shape[1] != matrix.shape[1]:
+            raise ValueError("penalty operator has the wrong feature count")
+        if not np.all(np.isfinite(penalty)):
+            raise ValueError("penalty operator contains non-finite values")
+        if strength > 0.0 and penalty.shape[0] > 0:
+            blocks.append(np.sqrt(strength) * penalty)
+            targets.append(np.zeros(penalty.shape[0], dtype=np.complex128))
+
+    augmented = np.vstack(blocks)
+    augmented_target = np.concatenate(targets)
+    coefficients, _, solver_rank, augmented_singular_values = np.linalg.lstsq(
+        augmented,
+        augmented_target,
+        rcond=None,
+    )
+    if not np.all(np.isfinite(coefficients)):
+        raise FloatingPointError("complex LS returned non-finite coefficients")
+    _, augmented_condition, augmented_minimum, augmented_maximum = (
+        _rank_and_condition(augmented_singular_values, augmented.shape)
+    )
+    return coefficients, _ComplexSolveDiagnostics(
+        feature_count=int(matrix.shape[1]),
+        data_design_rank=data_rank,
+        data_design_condition_number=data_condition,
+        data_minimum_singular_value=data_minimum,
+        data_maximum_singular_value=data_maximum,
+        augmented_solver_rank=int(solver_rank),
+        augmented_condition_number=augmented_condition,
+        augmented_minimum_singular_value=augmented_minimum,
+        augmented_maximum_singular_value=augmented_maximum,
+    )
+
+
+def _sph_objective(
+    prediction: np.ndarray,
+    target: np.ndarray,
+    control_points: np.ndarray,
+    fir_tail: np.ndarray,
+    second_derivative: np.ndarray,
+    *,
+    control_ridge: float,
+    smoothness: float,
+    fir_ridge: float,
+) -> float:
+    error = np.asarray(prediction) - np.asarray(target)
+    value = float(np.mean(np.abs(error) ** 2))
+    value += float(control_ridge * np.sum(np.abs(control_points) ** 2))
+    if second_derivative.shape[0]:
+        curvature = second_derivative @ control_points
+        value += float(smoothness * np.sum(np.abs(curvature) ** 2))
+    value += float(fir_ridge * np.sum(np.abs(fir_tail) ** 2))
+    if not np.isfinite(value):
+        raise FloatingPointError("spline-Hammerstein objective is non-finite")
+    return value
+
+
+def _block_diagnostics(
+    *,
+    iteration: int,
+    block: str,
+    solve: _ComplexSolveDiagnostics,
+    objective_before: float,
+    objective_after: float,
+    coefficient_norm: float,
+    increase_tolerance: float,
+    numerical_scale_floor: float,
+) -> SplineHammersteinBlockDiagnostics:
+    scale = max(abs(objective_before), numerical_scale_floor)
+    increase = objective_after - objective_before
+    if increase > increase_tolerance * scale:
+        raise FloatingPointError(
+            f"{block} block increased the frozen objective by {increase / scale:.3e}"
+        )
+    return SplineHammersteinBlockDiagnostics(
+        iteration=iteration,
+        block=block,
+        feature_count=solve.feature_count,
+        data_design_rank=solve.data_design_rank,
+        data_design_condition_number=solve.data_design_condition_number,
+        data_minimum_singular_value=solve.data_minimum_singular_value,
+        data_maximum_singular_value=solve.data_maximum_singular_value,
+        augmented_solver_rank=solve.augmented_solver_rank,
+        augmented_condition_number=solve.augmented_condition_number,
+        augmented_minimum_singular_value=solve.augmented_minimum_singular_value,
+        augmented_maximum_singular_value=solve.augmented_maximum_singular_value,
+        objective_before=float(objective_before),
+        objective_after=float(objective_after),
+        relative_objective_decrease=float((objective_before - objective_after) / scale),
+        coefficient_l2_norm=float(coefficient_norm),
+    )
+
+
+@dataclass(frozen=True)
 class SplineHammersteinState:
     """Nonlinear-output history ordered from oldest to newest."""
 
@@ -468,3 +686,340 @@ class SplineHammersteinPA:
                 coordinate=str(data["coordinate"]),
                 knot_strategy=str(data["knot_strategy"]),
             )
+
+
+def fit_spline_hammerstein_pa(
+    pa_input: np.ndarray,
+    measured_output: np.ndarray,
+    *,
+    knot_count: int | None = None,
+    knot_variant: SplineKnotVariant = "amplitude_uniform",
+    knots: np.ndarray | None = None,
+    coordinate: SplineCoordinate | None = None,
+    fir_length: int = 1,
+    segment_length: int,
+    control_ridge: float = 1e-8,
+    smoothness: float = 1e-6,
+    fir_ridge: float = 1e-8,
+    maximum_alternations: int = 20,
+    minimum_alternations: int = 2,
+    convergence_tolerance: float = 1e-7,
+    objective_increase_tolerance: float = 1e-10,
+    coefficient_dtype: np.dtype = np.complex128,
+) -> tuple[SplineHammersteinPA, SplineHammersteinFitDiagnostics]:
+    """Fit a forward SPH PA using deterministic alternating complex LS.
+
+    The function consumes only measured PA input and output.  It performs no
+    gain/delay fit, has no random initialization, and does not accept a
+    validation or test sequence.  Every block solve minimizes the same frozen
+    mean-square plus ridge/smoothness objective.
+    """
+
+    start_time = time.perf_counter()
+    samples = _complex_vector(pa_input, name="pa_input")
+    target = _complex_vector(measured_output, name="measured_output")
+    if samples.shape != target.shape:
+        raise ValueError("pa_input and measured_output must have equal length")
+    frame_length = _validate_segment_length(segment_length)
+    length = _validate_positive_integer(fir_length, name="fir_length")
+    if length > frame_length:
+        raise ValueError("fir_length must not exceed the explicit frame length")
+
+    maximum_iterations = _validate_positive_integer(
+        maximum_alternations,
+        name="maximum_alternations",
+    )
+    minimum_iterations = _validate_positive_integer(
+        minimum_alternations,
+        name="minimum_alternations",
+    )
+    if minimum_iterations > maximum_iterations:
+        raise ValueError(
+            "minimum_alternations must not exceed maximum_alternations"
+        )
+    regularization_values = (control_ridge, smoothness, fir_ridge)
+    if any(
+        not np.isfinite(value) or value < 0.0
+        for value in regularization_values
+    ):
+        raise ValueError("regularization strengths must be finite and non-negative")
+    if not np.isfinite(convergence_tolerance) or convergence_tolerance < 0.0:
+        raise ValueError("convergence_tolerance must be finite and non-negative")
+    if (
+        not np.isfinite(objective_increase_tolerance)
+        or objective_increase_tolerance < 0.0
+    ):
+        raise ValueError(
+            "objective_increase_tolerance must be finite and non-negative"
+        )
+    dtype = np.dtype(coefficient_dtype)
+    if not np.issubdtype(dtype, np.complexfloating):
+        raise TypeError("coefficient_dtype must be a complex dtype")
+
+    if knots is None:
+        if knot_count is None:
+            raise ValueError("knot_count is required without explicit knots")
+        knot_array, inferred_coordinate = make_sph_knots(
+            samples,
+            knot_count,
+            knot_variant,
+        )
+        if coordinate is not None and coordinate != inferred_coordinate:
+            raise ValueError("coordinate conflicts with the selected knot variant")
+        fitted_coordinate = inferred_coordinate
+        strategy_label = knot_variant
+    else:
+        knot_array = _strict_knots(knots)
+        if knot_count is not None:
+            if (
+                isinstance(knot_count, bool)
+                or not isinstance(knot_count, Integral)
+            ):
+                raise TypeError("knot_count must be an integer")
+            if int(knot_count) != knot_array.size:
+                raise ValueError("knot_count does not match explicit knots")
+        if coordinate is None:
+            raise ValueError("coordinate is required with explicit knots")
+        if coordinate not in {"amplitude", "power"}:
+            raise ValueError(f"unknown spline coordinate: {coordinate}")
+        fitted_coordinate = coordinate
+        strategy_label = "explicit"
+
+    if knot_array.size >= samples.size:
+        raise ValueError("SPH control solve must be overdetermined")
+    target_power = float(np.mean(np.abs(target) ** 2))
+    if target_power <= 0.0:
+        raise ValueError("measured_output must contain non-zero power")
+
+    spline_design = sph_spline_design_matrix(
+        samples,
+        knot_array,
+        fitted_coordinate,
+    ).astype(np.complex128, copy=False)
+    derivative = _second_derivative_operator(knot_array).astype(
+        np.complex128,
+        copy=False,
+    )
+    control_identity = np.eye(knot_array.size, dtype=np.complex128)
+    control_penalties = (
+        (float(control_ridge), control_identity),
+        (float(smoothness), derivative),
+    )
+    minimum_feature_samples = int(
+        np.min(np.count_nonzero(np.abs(spline_design) > 0.0, axis=0))
+    )
+    maximum_coordinate = float(
+        np.max(sph_coordinate_values(samples, fitted_coordinate))
+    )
+    numerical_scale_floor = np.finfo(np.float64).eps * target_power
+
+    updates: list[SplineHammersteinBlockDiagnostics] = []
+    zero_controls = np.zeros(knot_array.size, dtype=np.complex128)
+    fir_tail = np.zeros(length - 1, dtype=np.complex128)
+    zero_objective = _sph_objective(
+        np.zeros_like(target),
+        target,
+        zero_controls,
+        fir_tail,
+        derivative,
+        control_ridge=float(control_ridge),
+        smoothness=float(smoothness),
+        fir_ridge=float(fir_ridge),
+    )
+    control_points, initial_solve = _regularized_complex_lstsq(
+        spline_design,
+        target,
+        control_penalties,
+    )
+    prediction = spline_design @ control_points
+    objective = _sph_objective(
+        prediction,
+        target,
+        control_points,
+        fir_tail,
+        derivative,
+        control_ridge=float(control_ridge),
+        smoothness=float(smoothness),
+        fir_ridge=float(fir_ridge),
+    )
+    updates.append(
+        _block_diagnostics(
+            iteration=0,
+            block="memoryless_initial_control",
+            solve=initial_solve,
+            objective_before=zero_objective,
+            objective_after=objective,
+            coefficient_norm=float(np.linalg.norm(control_points)),
+            increase_tolerance=float(objective_increase_tolerance),
+            numerical_scale_floor=numerical_scale_floor,
+        )
+    )
+    memoryless_objective = objective
+
+    converged = False
+    convergence_reason = "maximum_alternations_reached"
+    completed_alternations = 0
+    for iteration in range(1, maximum_iterations + 1):
+        iteration_start_objective = objective
+        nonlinear = spline_design @ control_points
+
+        if length > 1:
+            tail_design = sph_fir_tail_design_matrix(
+                nonlinear,
+                length,
+                segment_length=frame_length,
+            )
+            fir_identity = np.eye(length - 1, dtype=np.complex128)
+            next_tail, tail_solve = _regularized_complex_lstsq(
+                tail_design,
+                target - nonlinear,
+                ((float(fir_ridge), fir_identity),),
+            )
+            next_prediction = nonlinear + tail_design @ next_tail
+            next_objective = _sph_objective(
+                next_prediction,
+                target,
+                control_points,
+                next_tail,
+                derivative,
+                control_ridge=float(control_ridge),
+                smoothness=float(smoothness),
+                fir_ridge=float(fir_ridge),
+            )
+            updates.append(
+                _block_diagnostics(
+                    iteration=iteration,
+                    block="fir_tail",
+                    solve=tail_solve,
+                    objective_before=objective,
+                    objective_after=next_objective,
+                    coefficient_norm=float(np.linalg.norm(next_tail)),
+                    increase_tolerance=float(objective_increase_tolerance),
+                    numerical_scale_floor=numerical_scale_floor,
+                )
+            )
+            fir_tail = next_tail
+            prediction = next_prediction
+            objective = next_objective
+
+        filtered_control_design = sph_filtered_control_design_matrix(
+            spline_design,
+            fir_tail,
+            segment_length=frame_length,
+        )
+        next_controls, control_solve = _regularized_complex_lstsq(
+            filtered_control_design,
+            target,
+            control_penalties,
+        )
+        next_prediction = filtered_control_design @ next_controls
+        next_objective = _sph_objective(
+            next_prediction,
+            target,
+            next_controls,
+            fir_tail,
+            derivative,
+            control_ridge=float(control_ridge),
+            smoothness=float(smoothness),
+            fir_ridge=float(fir_ridge),
+        )
+        updates.append(
+            _block_diagnostics(
+                iteration=iteration,
+                block="control_points",
+                solve=control_solve,
+                objective_before=objective,
+                objective_after=next_objective,
+                coefficient_norm=float(np.linalg.norm(next_controls)),
+                increase_tolerance=float(objective_increase_tolerance),
+                numerical_scale_floor=numerical_scale_floor,
+            )
+        )
+        control_points = next_controls
+        prediction = next_prediction
+        objective = next_objective
+        completed_alternations = iteration
+
+        scale = max(abs(iteration_start_objective), numerical_scale_floor)
+        relative_full_decrease = (
+            iteration_start_objective - objective
+        ) / scale
+        if (
+            iteration >= minimum_iterations
+            and relative_full_decrease <= convergence_tolerance
+        ):
+            converged = True
+            convergence_reason = "relative_objective_converged"
+            break
+
+    model = SplineHammersteinPA(
+        knots=knot_array,
+        control_points=control_points.astype(dtype, copy=False),
+        fir_tail=fir_tail.astype(dtype, copy=False),
+        coordinate=fitted_coordinate,
+        knot_strategy=strategy_label,
+    )
+    serialized_prediction = model.predict_segments(samples, frame_length).astype(
+        np.complex128,
+        copy=False,
+    )
+    serialized_objective = _sph_objective(
+        serialized_prediction,
+        target,
+        model.control_points.astype(np.complex128, copy=False),
+        model.fir_tail.astype(np.complex128, copy=False),
+        derivative,
+        control_ridge=float(control_ridge),
+        smoothness=float(smoothness),
+        fir_ridge=float(fir_ridge),
+    )
+    training_mse = float(np.mean(np.abs(serialized_prediction - target) ** 2))
+    relative_error = training_mse / target_power
+    all_full_rank = all(
+        update.data_design_rank == update.feature_count for update in updates
+    )
+    diagnostics = SplineHammersteinFitDiagnostics(
+        sample_count=int(samples.size),
+        segment_length=frame_length,
+        segment_count=int(np.ceil(samples.size / frame_length)),
+        knot_count=int(knot_array.size),
+        knot_strategy=strategy_label,
+        coordinate=fitted_coordinate,
+        fir_length=length,
+        control_ridge=float(control_ridge),
+        smoothness=float(smoothness),
+        fir_ridge=float(fir_ridge),
+        maximum_alternations=maximum_iterations,
+        minimum_alternations=minimum_iterations,
+        completed_alternations=completed_alternations,
+        convergence_tolerance=float(convergence_tolerance),
+        objective_increase_tolerance=float(objective_increase_tolerance),
+        converged=converged,
+        convergence_reason=convergence_reason,
+        zero_model_objective=float(zero_objective),
+        memoryless_initial_objective=float(memoryless_objective),
+        optimization_final_objective=float(objective),
+        serialized_model_objective=float(serialized_objective),
+        all_updates_monotonic=all(
+            update.objective_after
+            <= update.objective_before
+            + objective_increase_tolerance
+            * max(abs(update.objective_before), numerical_scale_floor)
+            for update in updates
+        ),
+        all_data_designs_full_column_rank=all_full_rank,
+        minimum_nonzero_control_feature_samples=minimum_feature_samples,
+        maximum_calibration_coordinate=maximum_coordinate,
+        control_point_l2_norm=float(np.linalg.norm(model.control_points)),
+        fir_tail_l2_norm=float(np.linalg.norm(model.fir_tail)),
+        target_power=target_power,
+        training_mse=training_mse,
+        training_relative_error_power=relative_error,
+        training_nmse_db=nmse_pooled_db(serialized_prediction, target),
+        coefficient_dtype=str(model.control_points.dtype),
+        fit_wall_time_seconds=float(time.perf_counter() - start_time),
+        solver="deterministic_alternating_augmented_complex_lstsq",
+        h0_contract="1+0j fixed and not stored",
+        updates=tuple(updates),
+    )
+    return model, diagnostics

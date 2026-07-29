@@ -7,6 +7,7 @@ import numpy as np
 from baseline.spline_hammerstein_pa import (
     SplineHammersteinPA,
     SplineHammersteinState,
+    fit_spline_hammerstein_pa,
     make_sph_knots,
     _segmented_delay_rows,
     sph_filtered_control_design_matrix,
@@ -276,6 +277,171 @@ class SplineHammersteinDesignTests(unittest.TestCase):
             _segmented_delay_rows(nonlinear, True, segment_length=16)
         with self.assertRaisesRegex(ValueError, "causal"):
             _segmented_delay_rows(nonlinear, -1, segment_length=16)
+
+
+class SplineHammersteinFitTests(unittest.TestCase):
+    def test_memoryless_complex_fit_recovers_known_control_points(self) -> None:
+        rng = np.random.default_rng(1777)
+        radius = rng.uniform(0.01, 1.0, size=2048)
+        phase = rng.uniform(-np.pi, np.pi, size=2048)
+        signal = radius * np.exp(1j * phase)
+        truth = SplineHammersteinPA(
+            knots=np.asarray([0.0, 0.2, 0.45, 0.7, 1.0]),
+            control_points=np.asarray(
+                [1.4 + 0.1j, 1.3 + 0.03j, 1.1 - 0.08j, 0.9 - 0.16j, 0.7 - 0.22j]
+            ),
+            fir_tail=np.asarray([], dtype=np.complex128),
+        )
+        target = truth.predict_segments(signal, 512)
+        fitted, diagnostics = fit_spline_hammerstein_pa(
+            signal,
+            target,
+            knots=truth.knots,
+            coordinate="amplitude",
+            fir_length=1,
+            segment_length=512,
+            control_ridge=0.0,
+            smoothness=0.0,
+            fir_ridge=0.0,
+            maximum_alternations=4,
+            minimum_alternations=2,
+            convergence_tolerance=1e-12,
+        )
+        np.testing.assert_allclose(
+            fitted.control_points,
+            truth.control_points,
+            rtol=3e-14,
+            atol=3e-14,
+        )
+        self.assertEqual(fitted.fir_length, 1)
+        self.assertTrue(diagnostics.converged)
+        self.assertEqual(diagnostics.completed_alternations, 2)
+        self.assertTrue(diagnostics.all_updates_monotonic)
+        self.assertTrue(diagnostics.all_data_designs_full_column_rank)
+        self.assertLess(diagnostics.training_nmse_db, -260.0)
+
+    def test_alternating_fit_recovers_nonzero_short_fir_mapping(self) -> None:
+        rng = np.random.default_rng(1783)
+        radius = rng.uniform(0.02, 1.0, size=4096)
+        phase = rng.uniform(-np.pi, np.pi, size=4096)
+        signal = radius * np.exp(1j * phase)
+        truth = SplineHammersteinPA(
+            knots=np.asarray([0.0, 0.18, 0.42, 0.68, 1.0]),
+            control_points=np.asarray(
+                [1.45 + 0.08j, 1.32, 1.12 - 0.07j, 0.91 - 0.15j, 0.69 - 0.22j]
+            ),
+            fir_tail=np.asarray([0.07 + 0.025j, -0.025 + 0.012j]),
+        )
+        target = truth.predict_segments(signal, 512)
+        fitted, diagnostics = fit_spline_hammerstein_pa(
+            signal,
+            target,
+            knots=truth.knots,
+            coordinate="amplitude",
+            fir_length=truth.fir_length,
+            segment_length=512,
+            control_ridge=0.0,
+            smoothness=0.0,
+            fir_ridge=0.0,
+            maximum_alternations=30,
+            minimum_alternations=2,
+            convergence_tolerance=1e-12,
+        )
+        self.assertTrue(diagnostics.all_updates_monotonic)
+        self.assertTrue(diagnostics.all_data_designs_full_column_rank)
+        self.assertLess(
+            diagnostics.optimization_final_objective,
+            diagnostics.memoryless_initial_objective * 1e-8,
+        )
+        self.assertLess(diagnostics.training_nmse_db, -100.0)
+        np.testing.assert_allclose(
+            fitted.predict_segments(signal, 512),
+            target,
+            rtol=2e-5,
+            atol=2e-7,
+        )
+        np.testing.assert_allclose(
+            fitted.fir_tail,
+            truth.fir_tail,
+            rtol=2e-5,
+            atol=2e-7,
+        )
+
+    def test_fit_is_deterministic_and_records_regularized_objective(self) -> None:
+        rng = np.random.default_rng(1789)
+        signal = 0.4 * (
+            rng.normal(size=1024) + 1j * rng.normal(size=1024)
+        )
+        target = (1.2 - 0.1j) * signal + 0.01 * (
+            rng.normal(size=1024) + 1j * rng.normal(size=1024)
+        )
+        kwargs = dict(
+            knot_count=8,
+            knot_variant="power_uniform",
+            fir_length=2,
+            segment_length=256,
+            control_ridge=1e-8,
+            smoothness=1e-6,
+            fir_ridge=1e-8,
+            maximum_alternations=5,
+            minimum_alternations=2,
+        )
+        first, first_diagnostics = fit_spline_hammerstein_pa(
+            signal,
+            target,
+            **kwargs,
+        )
+        second, second_diagnostics = fit_spline_hammerstein_pa(
+            signal,
+            target,
+            **kwargs,
+        )
+        np.testing.assert_array_equal(first.knots, second.knots)
+        np.testing.assert_array_equal(
+            first.control_points,
+            second.control_points,
+        )
+        np.testing.assert_array_equal(first.fir_tail, second.fir_tail)
+        self.assertEqual(first.coordinate, "power")
+        self.assertEqual(
+            first_diagnostics.optimization_final_objective,
+            second_diagnostics.optimization_final_objective,
+        )
+        self.assertTrue(first_diagnostics.all_updates_monotonic)
+        self.assertEqual(first_diagnostics.h0_contract, "1+0j fixed and not stored")
+
+    def test_fit_rejects_ambiguous_or_invalid_protocol(self) -> None:
+        signal = np.ones(64, dtype=np.complex128)
+        with self.assertRaisesRegex(ValueError, "coordinate is required"):
+            fit_spline_hammerstein_pa(
+                signal,
+                signal,
+                knots=np.asarray([0.0, 0.5, 1.0]),
+                segment_length=32,
+            )
+        with self.assertRaisesRegex(ValueError, "non-zero power"):
+            fit_spline_hammerstein_pa(
+                signal,
+                np.zeros_like(signal),
+                knot_count=4,
+                segment_length=32,
+            )
+        with self.assertRaisesRegex(ValueError, "must not exceed"):
+            fit_spline_hammerstein_pa(
+                signal,
+                signal,
+                knot_count=4,
+                fir_length=33,
+                segment_length=32,
+            )
+        with self.assertRaisesRegex(TypeError, "complex dtype"):
+            fit_spline_hammerstein_pa(
+                signal,
+                signal,
+                knot_count=4,
+                segment_length=32,
+                coefficient_dtype=np.float64,
+            )
 
 
 if __name__ == "__main__":
