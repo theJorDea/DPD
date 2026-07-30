@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "task": "frozen_target_calibrated_pa_fixed_point_train_validation_evaluation",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz_b",
+  "dataset_label": "OpenDPD APA_200MHz_b capture transfer; operating axes unknown",
+  "output_dir": "experiments/results/pa_fixed_point_apa200_b",
+  "evidence_scope": {
+    "capture_transfer_only": true,
+    "power_or_thermal_adaptation_claim": false,
+    "physical_pa_dpd_result": false,
+    "dpd_latency_gate_applicable": false
+  },
+  "access_policy": {
+    "allowed_splits": [
+      "train",
+      "val"
+    ],
+    "test_split_accessed": false,
+    "test_files_named_or_hashed": false,
+    "selection_or_scale_tuning_on_validation": false
+  },
+  "dataset_contract": {
+    "sample_rate_hz": 983040000.0,
+    "frame_length": 19662,
+    "train_frame_lengths": [
+      19662,
+      19662,
+      19656
+    ],
+    "validation_frame_lengths": [
+      19662
+    ],
+    "train_sample_count": 58980,
+    "validation_sample_count": 19662,
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "required_files_sha256": {
+      "spec.json": "9b8565493235122071503153b0c113ecd329fed6f4c67eb3b38a30845a660919",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "22a4be8a899ab04ae5b845d0a6839a569c76ee0c8499d722b15aea3b486c13fc",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "eada577549804d366285a7df46bd28c6153e34f512e285cd8477b77682056615"
+    }
+  },
+  "frozen_models": {
+    "causal_gmp": {
+      "type": "causal_gmp",
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add",
+      "coefficient_override": {
+        "archive_path": "experiments/results/pa_transfer_apa200_to_b_pretest/calibration_coefficients.npz",
+        "archive_sha256": "542d143ce676e0a90e7802341339e0dba23ccbf59a02336aae10370c21a59cd9",
+        "selection_manifest_path": "experiments/results/pa_transfer_apa200_to_b_pretest/transfer_manifest.json",
+        "selection_manifest_sha256": "570c3f98af77961f23d30eaa71f38f35c80745a523656042a2dfee1d7e8ddd00",
+        "key": "causal_gmp__N16384",
+        "array_sha256": "03849924b17005fa72fd939004ba561e1e42bc92f588f12824ce211dae3b59e7",
+        "calibration_samples_per_frame": 16384,
+        "selection_model_name": "causal_gmp",
+        "required_manifest_status": "pretest_train_validation_only"
+      }
+    },
+    "lag9_sparse_spline_memory": {
+      "type": "sparse_spline_memory_pa",
+      "path": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selected_sparse_pa.npz",
+      "sha256": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475",
+      "coefficient_override": {
+        "archive_path": "experiments/results/pa_transfer_apa200_to_b_pretest/calibration_coefficients.npz",
+        "archive_sha256": "542d143ce676e0a90e7802341339e0dba23ccbf59a02336aae10370c21a59cd9",
+        "selection_manifest_path": "experiments/results/pa_transfer_apa200_to_b_pretest/transfer_manifest.json",
+        "selection_manifest_sha256": "570c3f98af77961f23d30eaa71f38f35c80745a523656042a2dfee1d7e8ddd00",
+        "key": "lag9_sparse_spline_memory__N16384",
+        "array_sha256": "8c2b8c976893020fed2bd9a099e13be17323dc8be2114a021e401bcc9e2defa9",
+        "calibration_samples_per_frame": 16384,
+        "selection_model_name": "lag9_sparse_spline_memory",
+        "required_manifest_status": "pretest_train_validation_only"
+      }
+    }
+  },
+  "fixed_point_protocol": {
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "scale_source": "target_train_input_and_target_train_measured_output_peaks_only",
+    "scale_guard_ratio": 1.001,
+    "coefficient_scale_source": "frozen_target_calibrated_coefficient_peak_only",
+    "power_bits": 48,
+    "accumulator_bits": 56,
+    "scalar_accumulator_bits": 56,
+    "interpolation_fraction_bits": 16,
+    "rounding": "nearest_even",
+    "overflow": "saturate_and_count",
+    "knot_collision_policy": "monotone_next_code_repair_and_report",
+    "frame_state_policy": "reset_at_each_explicit_frame",
+    "fixed_point_model_vs_float_reference": "pooled_complex_nmse_db",
+    "no_test_access_in_scale_freeze": true
+  }
+}
