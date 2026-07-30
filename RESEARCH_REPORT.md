@@ -322,19 +322,19 @@ DPD gate; it illustrates why a scalar count alone does not prove real time.
 For DPD the final criterion is measured total streaming time relative to the
 1000-real-MUL reference on one target.
 
-Selected causal GMP PA on DPA/APA and lag-9 sparse PA on APA now have
-train-frozen, bit-accurate 16/14/12-bit software reports with explicit
-accumulators, saturation and exact chunk/reset equivalence. This is PA
-evaluator-numerics evidence; the 1000-real-MUL-equivalent DPD gate does not
-apply to it. Selected spline-memory DPD, cascade and timed target
-implementation remain pending. Required order:
+Selected causal GMP PA on DPA/APA, lag-9 sparse PA on APA, and the hash-bound
+target-calibrated APA-B GMP/sparse payloads now have train-frozen,
+bit-accurate 16/14/12-bit software reports with explicit accumulators,
+saturation and exact chunk/reset equivalence. This is PA evaluator-numerics
+evidence; the 1000-real-MUL-equivalent DPD gate does not apply to it. Target
+GMP loses `2.718 dB` at 12 bit without overflow, whereas target sparse loses
+`0.0935 dB` but starts from lower float fidelity. Selected spline-memory DPD,
+cascade and timed target implementation remain pending. Required order:
 
-1. finish the already-started hash-bound target-calibrated PA payload audit
-   without target-test access;
-2. implement selected spline-memory DPD at 16/14/12 bit;
-3. run correct-direction DPD→frozen-PA cascade;
-4. freeze target/reference timing protocol;
-5. measure FPGA/ASIC/DSP throughput/latency/resources/power and compare all
+1. implement selected spline-memory DPD at 16/14/12 bit;
+2. run correct-direction DPD→frozen-PA cascade;
+3. freeze target/reference timing protocol;
+4. measure FPGA/ASIC/DSP throughput/latency/resources/power and compare all
    DPD operations with the 1000-real-MUL reference.
 
 Detailed contract: `HARDWARE_COST.md`.
@@ -372,6 +372,8 @@ Supported:
   held-out test, with explicit two-access incident audit;
 - lag-9 sparse PA is a reproducible 72-MUL cheap-Pareto point relative to MP
   within the APA capture, with exact floating-point streaming/reset behavior;
+- DPA/APA source and target-calibrated APA-B PA payloads have hash-bound
+  16/14/12-bit arithmetic, saturation and exact chunk/reset evidence;
 - correct pipeline guards, OOF/release/test provenance and streaming software
   equivalence;
 - legacy spline establishes an extremely cheap surrogate-only DPD point;
@@ -388,8 +390,8 @@ Not supported:
 - thermal/state model evidence.
 
 The next local high-information experiment is reproducible high-fidelity
-OpenDPD PA training without the DPD cost cap, after closing the already-started
-target-payload arithmetic task. External prerequisites are the exact
+OpenDPD PA training without the DPD cost cap. The target-payload arithmetic
+task is closed. External prerequisites are the exact
 harmonic/spur and timing definitions plus controlled operating-point
 metadata/capture. The decisive final experiment remains calibrated physical PA
 remeasurement of

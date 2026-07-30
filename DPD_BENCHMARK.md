@@ -296,14 +296,12 @@ quality vs peak predistorted drive
 
 ## 7. Следующий разрешённый шаг
 
-Source DPA/APA bit-accurate PA arithmetic уже выполнена. Сначала завершается
-начатая hash-bound train/validation проверка target-calibrated
-`APA_200MHz_b` coefficients без повторного test access. После этого PA
-quantization expansion прекращается, а контур A продолжает high-fidelity
-OpenDPD PA retraining без DPD cost cap. Параллельные внешние prerequisites —
-exact harmonic/spur and timing-reference definitions, metadata measurement B
-и controlled physical-PA capture с известными power/backoff, bias и
-temperature axes.
+Source DPA/APA и target-calibrated APA-B bit-accurate PA arithmetic уже
+выполнена; target test не открывался. PA quantization expansion прекращается,
+а следующий локальный step контура A — high-fidelity OpenDPD PA retraining
+без DPD cost cap. Параллельные внешние prerequisites — exact harmonic/spur and
+timing-reference definitions, metadata measurement B и controlled physical-PA
+capture с известными power/backoff, bias и temperature axes.
 
 Уже открытый B test нельзя использовать для нового выбора topology,
 regularization или calibration N. Если controlled evidence не даёт второго

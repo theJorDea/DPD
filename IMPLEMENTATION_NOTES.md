@@ -472,8 +472,8 @@ fixed-point DPD cascade is implemented yet.
 
 ## 5. Tests and invariants
 
-Last complete code suite after the fixed-point PA contract:
-**256/256 passed** on the environment in this document. The sparse, transfer
+Last complete code suite after coefficient-payload provenance binding:
+**257/257 passed in 1.75 s** on the environment in this document. The sparse, transfer
 and fixed-point results are immutable numeric artifacts; no code was changed
 while publishing the numerical report.
 Test modules cover:
@@ -552,6 +552,11 @@ The previous 120-test 0.396 s timing is obsolete.
 | `63a3dcf` | immutable APA fixed-point PA result report |
 | `c109eaf` | synchronized roadmap, hardware, PA benchmark and experiment plan |
 | `9561ea0` | immutable DPA fixed-point GMP config and result report |
+| `904e179`–`15d6482` | supervisor requirement clarification and synchronized DPD-only timing/spectral contracts |
+| `da993cb` | hash-bound target-calibrated coefficient override support and tests |
+| `619f680` | preregistered target PA fixed-point config |
+| `62ea00c` | immutable target PA fixed-point result report |
+| `706c0e5` | target quantization benchmark documentation |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -575,6 +580,7 @@ experiments/results/pa_transfer_apa200_to_b_test_release/
 experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
 experiments/results/pa_fixed_point_apa200/fixed_point_report.json
 experiments/results/pa_fixed_point_dpa200/fixed_point_report.json
+experiments/results/pa_fixed_point_apa200_b/fixed_point_report.json
 ```
 
 Normative documents:
@@ -603,8 +609,8 @@ Normative documents:
 7. Peak RSS was not measured for formal fits.
 8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
    generated yet.
-9. DPA/APA source GMP and APA lag-9 sparse PA now have a 16/14/12-bit integer
-   simulator; target payloads, spline-memory DPD and PA→DPD cascade remain
+9. DPA/APA source and target-calibrated APA-B GMP/sparse payloads now have a
+   16/14/12-bit integer report; spline-memory DPD and PA→DPD cascade remain
    pending. PA cost is not checked against the deployment DPD timing gate.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.
@@ -641,7 +647,8 @@ complex deterministic fit + diagnostics
 Then add, in separate tasks:
 
 1. basis/continuity/fit/serialization/streaming/count tests;
-2. preregistered train/validation config under `<1000 MUL`;
+2. preregistered train/validation config with full cost reporting; do not
+   apply the deployment DPD latency gate to a PA evaluator;
 3. selection artifact without test;
 4. coefficient-OOF residual artifact;
 5. independent release decision;
@@ -657,12 +664,9 @@ slow-state evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Record provenance for `APA_200MHz_b` (DUT identity, power/backoff, bias,
-   temperature, capture time and feedback calibration); until then use the
-   label `capture transfer`.
-2. Repeat the frozen PA arithmetic matrix on DPA and target-calibrated
-   payloads; keep source/target and physical-capture scopes separate.
-3. Implement the fixed-point spline-memory DPD and evaluate the correct
+1. Obtain exact harmonic/spur and 1000-real-MUL timing-reference definitions.
+2. Reproduce/train the high-fidelity OpenDPD PA evaluator on frozen local
+   splits without the deployment DPD cost cap.
+3. Record provenance for `APA_200MHz_b` and obtain controlled physical-PA data.
+4. Implement the fixed-point spline-memory DPD and evaluate the correct
    desired-x→DPD→independent-PA cascade only after Gate A→B is reopened.
-4. Obtain controlled physical-PA data. Only if Gate A→B then passes should the
-   frozen-evaluator DPD benchmark be reopened.

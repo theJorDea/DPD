@@ -56,11 +56,12 @@ spectral/timing acceptance definition, high-fidelity evaluator без DPD cost
 cap, measurement-B metadata и controlled physical-PA evidence.
 
 Bit-accurate PA arithmetic is now implemented and executed for frozen DPA/APA
-GMP and APA lag-9 sparse models.  The train-only scale freeze, explicit
-16/14/12-bit formats, integer square-root/interpolation schedule, saturation
-counters and reset/streaming checks are recorded in
+source models and hash-bound target-calibrated `APA_200MHz_b` GMP/sparse
+payloads. The train-only scale freeze, explicit 16/14/12-bit formats, integer
+square-root/interpolation schedule, saturation counters and reset/streaming
+checks are recorded in
 `experiments/results/pa_fixed_point_dpa200/` and
-`experiments/results/pa_fixed_point_apa200/`.  This closes only the PA
+`experiments/results/pa_fixed_point_apa200{,_b}/`. This closes only the PA
 arithmetic subtask; it does not open Gate A→B or make an RTL/physical-PA claim.
 
 ## Правила выполнения
@@ -156,6 +157,13 @@ linear/spline residual ablations:
 - DPA GMP повторён отдельно: validation fixed NMSE `−35.3633/−35.3490/−35.2975`
   dB for 16/14/12 bit versus float `−35.3659 dB`, with no saturation;
   APA lag-9 sparse is not transferred to DPA without a DPA-specific fit.
+- target-calibrated APA-B payloads также проверены train/validation-only:
+  GMP fixed NMSE `−37.8708/−37.6427/−35.1728 dB`, sparse
+  `−35.3576/−35.3515/−35.2650 dB` at 16/14/12 bit; all saturation/collision
+  counts zero and chunk equivalence exact;
+- 12-bit target GMP loses `2.718 dB` versus float, while sparse loses
+  `0.0935 dB`; this is quantization robustness evidence, not sparse quality
+  dominance or a DPD result.
 
 Следовательно, GMP forward-identification result завершён, но release-gate
 PASS нельзя смешивать с Gate A→B. DPD quality, fixed-point, robustness и
@@ -533,7 +541,7 @@ selection/refit.
    результаты запечатаны в DPA/APA configs and reports under
    `experiments/configs/pa_fixed_point_*` and
    `experiments/results/pa_fixed_point_*`.
-19. [ ] Завершить уже начатую hash-bound train/validation fixed-point
+19. [x] Завершить hash-bound train/validation fixed-point
    проверку target-calibrated `APA_200MHz_b` payload без повторного test access;
    после этого не расширять PA quantization без evidence need.
 20. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
@@ -654,8 +662,9 @@ deployment DPD hardware evidence ещё не получено.
   and state memory.
 - Full-record versus arbitrary streaming chunks must be equivalent for causal
   models; отдельный no-future-dependence test подтверждает causality.
-- [x] Измерять arithmetic degradation и exact streaming equivalence на APA
-  train/validation; host Python time хранится отдельно.
+- [x] Измерить arithmetic degradation и exact streaming equivalence на
+  DPA/APA source и target-calibrated APA-B train/validation; host Python time
+  хранится отдельно.
 - [ ] Реализовать selected DPD bit-accurate streaming path.
 - [ ] Зафиксировать target/reference timing kernel и измерить DPD
   latency/throughput; analytical count помечать как lower bound.

@@ -359,8 +359,25 @@ as part of its effective multiplier schedule. These results prove arithmetic
 degradation relative to a frozen floating-point PA model on APA
 train/validation, not physical-PA fidelity, DPD cascade quality, RTL timing or
 power. A separate DPA GMP run also completed: validation fixed-vs-float NMSE
-is `−75.83/−64.25/−52.53 dB` at 16/14/12 bits with zero saturation. Target
-payload fixed-point runs remain pending.
+is `−75.83/−64.25/−52.53 dB` at 16/14/12 bits with zero saturation.
+
+Hash-bound target-calibrated `APA_200MHz_b` payload evaluation is also
+complete on train/validation only:
+
+| Model / bits | Float validation NMSE | Fixed validation NMSE | Fixed-vs-float NMSE |
+|---|---:|---:|---:|
+| target GMP / 16 | −37.8908 dB | −37.8708 dB | −63.04 dB |
+| target GMP / 14 | −37.8908 dB | −37.6427 dB | −50.00 dB |
+| target GMP / 12 | −37.8908 dB | −35.1728 dB | −38.59 dB |
+| target sparse / 16 | −35.3585 dB | −35.3576 dB | −76.22 dB |
+| target sparse / 14 | −35.3585 dB | −35.3515 dB | −64.07 dB |
+| target sparse / 12 | −35.3585 dB | −35.2650 dB | −52.15 dB |
+
+Every target row has zero saturation/collision counts and exact chunk
+equivalence. The 12-bit GMP loss is material (`2.718 dB`) despite no overflow;
+sparse is more quantization-stable but has lower float fidelity. No target test
+was named, hashed or opened. This closes the planned PA arithmetic cleanup,
+not the DPD latency or physical-PA gap.
 
 ## 4. Что доказано только на surrogate
 
@@ -456,8 +473,8 @@ frozen evaluator.
 
 ### 6.4 Hardware
 
-- bit-accurate selected DPD and PA→DPD cascade at 16/14/12 bit (APA source
-  PA GMP/sparse coverage is complete; DPD coverage is not);
+- bit-accurate selected DPD and PA→DPD cascade at 16/14/12 bit (DPA/APA source
+  and target-calibrated PA coverage is complete; DPD coverage is not);
 - exact accumulator/intermediate widths and nonlinear primitive;
 - synthesis/place-and-route target;
 - measured throughput/latency/resources/power;
@@ -472,7 +489,7 @@ frozen evaluator.
 | Huawei `10^-5` met | unsupported | status unresolved after clarification; if normalized power, current GMP fails |
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
-| Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA train/validation GMP plus APA sparse 16/14/12-bit reports; no DPD/RTL claim |
+| Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA source plus target-calibrated APA-B train/validation 16/14/12-bit reports; no DPD/RTL claim |
 | Real-time FPGA-ready | unsupported | analytical counts plus Python integer reference only; no synthesis/target latency |
 | Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
@@ -505,9 +522,9 @@ metadata. Причины:
   адаптировались coefficients;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
-- DPA/APA fixed-point PA arithmetic is now frozen and measured; already-started
-  target-payload cleanup is useful for reproducibility, but cannot replace a
-  more faithful evaluator or physical predistorted capture.
+- DPA/APA source and target-payload fixed-point PA arithmetic is now frozen and
+  measured; further PA quantization cannot replace a more faithful evaluator
+  or physical predistorted capture.
 
 Протокол:
 

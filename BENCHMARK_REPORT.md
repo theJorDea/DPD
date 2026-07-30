@@ -392,7 +392,8 @@ Current status:
 | Item | Result |
 |---|---|
 | First-stage memoryless spline FP16/16/12 numerical emulation | completed, surrogate-only, not selected spline-memory DPD |
-| Selected GMP 16/14/12 bit | not run |
+| Selected source PA 16/14/12 bit | completed for DPA/APA GMP and APA lag-9 sparse; train/validation only |
+| Target-calibrated APA-B PA 16/14/12 bit | completed for hash-bound GMP/sparse payloads; train/validation only, no target test access |
 | Selected spline-memory DPD 16/14/12 bit | not run |
 | GMP→DPD integer cascade | not run |
 | APA_200MHz_b capture transfer/adaptation | held-out release completed; access count 2 with first metric-free failure; metadata axes unknown |
@@ -430,6 +431,10 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - Held-out target confirmed calibrated GMP at −37.895 dB, but sparse reached
   only −34.801 dB full-record. Both fail the possible −50 dB requirement, and
   sparse full-record sensitivity to startup/reset is materially larger.
+- Target fixed-point PA arithmetic has no saturation, but 12-bit GMP loses
+  2.718 dB versus float validation; sparse loses only 0.0935 dB while retaining
+  lower absolute fidelity. Absence of overflow is therefore not sufficient
+  for selecting a word length.
 - Target release was not a strict single-open execution: the first access
   failed before inference/metric due to a frame-length guard bug. The second
   access used unchanged frozen decisions; the incident is retained rather
@@ -464,6 +469,7 @@ Raw locations:
 - `experiments/results/pa_transfer_apa200_to_b_pretest/`;
 - `experiments/results/pa_transfer_apa200_to_b_test_release/`;
 - `experiments/results/pa_transfer_apa200_to_b_test_release_verification.json`;
+- `experiments/results/pa_fixed_point_{dpa200,apa200,apa200_b}/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
@@ -478,4 +484,5 @@ that coefficient-only calibration restores most GMP quality. Sparse remains
 a much cheaper but lower-fidelity point. Physical PA remeasurement and
 controlled power/bias/temperature metadata are still pending. GMP and lag-9
 sparse both fail a possible −50 dB target, and neither supplies an independent
-DPD evaluator with sufficient margin.
+DPD evaluator with sufficient margin. Source/target PA fixed-point coverage is
+complete, but it is not the deployment DPD timing result.
