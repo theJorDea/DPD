@@ -52,6 +52,7 @@ from .spline_hammerstein_pa import (
     sph_fir_tail_design_matrix,
     sph_spline_design_matrix,
 )
+from .fixed_point_sparse_spline_pa import FixedPointSparseSplineMemoryPA
 
 __all__ = [
     "ComplexLinearSplineDPD",
@@ -91,4 +92,5 @@ __all__ = [
     "sph_filtered_control_design_matrix",
     "sph_fir_tail_design_matrix",
     "sph_spline_design_matrix",
+    "FixedPointSparseSplineMemoryPA",
 ]

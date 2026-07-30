@@ -441,6 +441,7 @@ class FixedPointPAStats:
     maximum_power_magnitude: int
     maximum_scalar_accumulator_magnitude: int
     maximum_accumulator_magnitude: int
+    interpolation_saturations: int = 0
     knot_code_collision_count: int = 0
     maximum_knot_code_shift: int = 0
 
@@ -453,6 +454,7 @@ class FixedPointPAStats:
             "scalar_accumulator_saturations",
             "accumulator_saturations",
             "output_saturations",
+            "interpolation_saturations",
             "maximum_power_magnitude",
             "maximum_scalar_accumulator_magnitude",
             "maximum_accumulator_magnitude",
@@ -475,6 +477,7 @@ class FixedPointPAStats:
                 "scalar_accumulator_saturations",
                 "accumulator_saturations",
                 "output_saturations",
+                "interpolation_saturations",
                 "maximum_power_magnitude",
                 "maximum_scalar_accumulator_magnitude",
                 "maximum_accumulator_magnitude",
@@ -507,6 +510,7 @@ class _CounterAccumulator:
     scalar_accumulator_saturations: int = 0
     accumulator_saturations: int = 0
     output_saturations: int = 0
+    interpolation_saturations: int = 0
     maximum_power_magnitude: int = 0
     maximum_scalar_accumulator_magnitude: int = 0
     maximum_accumulator_magnitude: int = 0
@@ -522,6 +526,7 @@ class _CounterAccumulator:
             scalar_accumulator_saturations=self.scalar_accumulator_saturations,
             accumulator_saturations=self.accumulator_saturations,
             output_saturations=self.output_saturations,
+            interpolation_saturations=self.interpolation_saturations,
             maximum_power_magnitude=self.maximum_power_magnitude,
             maximum_scalar_accumulator_magnitude=self.maximum_scalar_accumulator_magnitude,
             maximum_accumulator_magnitude=self.maximum_accumulator_magnitude,
