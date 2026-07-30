@@ -1,0 +1,489 @@
+{
+  "artifact_type": "dpd_only_timing_diagnostic",
+  "claims_scope": {
+    "customer_gate_evaluable": false,
+    "customer_gate_pass": false,
+    "hardware_pass_claim": false,
+    "pa_included": false,
+    "target_reference_known": false
+  },
+  "dpd": {
+    "analytical_deployment_operation_vector": {
+      "comparisons": 5,
+      "lookups": 6,
+      "nonlinear_operations": 1,
+      "notes": [
+        "complex multiply convention 4m2a",
+        "binary interval selection",
+        "1 unique envelope delays; address and weight shared within each group",
+        "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+        "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+      ],
+      "real_additions": 24,
+      "real_divisions": 0,
+      "real_memory_reads": 18,
+      "real_memory_writes": 2,
+      "real_multiplications": 21,
+      "state_real_values": 4,
+      "stored_real_coefficients": 144,
+      "stored_real_constants": 47
+    },
+    "analytical_vector_is_not_timed_python_trace": true,
+    "chunk_results": [
+      {
+        "chunk_invocations_per_repeat": 512,
+        "chunk_size": 1,
+        "chunk_timing_semantics": "single-sample Python API invocation latency",
+        "dpd_numpy_reference": {
+          "elapsed_ns": [
+            89618764,
+            96556653,
+            89448180,
+            89024046,
+            90877768,
+            106439409,
+            93137376,
+            89401459,
+            92577307
+          ],
+          "max_ns_per_sample": 207889.470703125,
+          "max_to_min_spread_ratio": 1.1956253819333262,
+          "median_ns_per_sample": 177495.640625,
+          "median_ns_total": 90877768.0,
+          "min_ns_per_sample": 173875.08984375,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "execution_order": [
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference"
+        ],
+        "host_python_time_ratio_to_scalar_reference": {
+          "maximum": 0.7598999959199055,
+          "median": 0.6777725937496017,
+          "minimum": 0.6394994806439063,
+          "per_repeat": [
+            0.6394994806439063,
+            0.6813280548900745,
+            0.6777725937496017,
+            0.6700282865980992,
+            0.655651290915164,
+            0.7598999959199055,
+            0.6840825646429963,
+            0.6794855296189369,
+            0.6630846234547102
+          ]
+        },
+        "scalar_1000_mul_reference": {
+          "elapsed_ns": [
+            140138916,
+            141718299,
+            131973734,
+            132866101,
+            138606862,
+            140070285,
+            136149320,
+            131572278,
+            139616127
+          ],
+          "max_ns_per_sample": 276793.552734375,
+          "max_to_min_spread_ratio": 1.0771136682759266,
+          "median_ns_per_sample": 270716.52734375,
+          "median_ns_total": 138606862.0,
+          "min_ns_per_sample": 256977.10546875,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "state_reset": "zero once before stream; carried between chunks",
+        "streaming_equivalent": true
+      },
+      {
+        "chunk_invocations_per_repeat": 64,
+        "chunk_size": 8,
+        "chunk_timing_semantics": "amortized Python/NumPy block throughput",
+        "dpd_numpy_reference": {
+          "elapsed_ns": [
+            9944478,
+            11374639,
+            10639049,
+            9693730,
+            11232848,
+            11748519,
+            9786557,
+            11380594,
+            11110154
+          ],
+          "max_ns_per_sample": 22946.326171875,
+          "max_to_min_spread_ratio": 1.2119709337891607,
+          "median_ns_per_sample": 21699.51953125,
+          "median_ns_total": 11110154.0,
+          "min_ns_per_sample": 18933.06640625,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "execution_order": [
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference"
+        ],
+        "host_python_time_ratio_to_scalar_reference": {
+          "maximum": 0.08982789657338916,
+          "median": 0.08461742114203878,
+          "minimum": 0.07045322182402268,
+          "per_repeat": [
+            0.07400517700269879,
+            0.08789122660013066,
+            0.07981206090393633,
+            0.07280711246910682,
+            0.08461742114203878,
+            0.08982789657338916,
+            0.07045322182402268,
+            0.08582671693909093,
+            0.08724644304873011
+          ]
+        },
+        "scalar_1000_mul_reference": {
+          "elapsed_ns": [
+            134375437,
+            129417229,
+            133301269,
+            133142624,
+            132748645,
+            130789203,
+            138908580,
+            132599666,
+            127342200
+          ],
+          "max_ns_per_sample": 271305.8203125,
+          "max_to_min_spread_ratio": 1.090829120275918,
+          "median_ns_per_sample": 259274.697265625,
+          "median_ns_total": 132748645.0,
+          "min_ns_per_sample": 248715.234375,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "state_reset": "zero once before stream; carried between chunks",
+        "streaming_equivalent": true
+      },
+      {
+        "chunk_invocations_per_repeat": 8,
+        "chunk_size": 64,
+        "chunk_timing_semantics": "amortized Python/NumPy block throughput",
+        "dpd_numpy_reference": {
+          "elapsed_ns": [
+            1392013,
+            1574995,
+            1377481,
+            1704196,
+            1400376,
+            1670089,
+            1419630,
+            1718745,
+            1688810
+          ],
+          "max_ns_per_sample": 3356.923828125,
+          "max_to_min_spread_ratio": 1.247744977970658,
+          "median_ns_per_sample": 3076.162109375,
+          "median_ns_total": 1574995.0,
+          "min_ns_per_sample": 2690.392578125,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "execution_order": [
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference"
+        ],
+        "host_python_time_ratio_to_scalar_reference": {
+          "maximum": 0.013216260645426145,
+          "median": 0.011885470099492115,
+          "minimum": 0.010391896457110335,
+          "per_repeat": [
+            0.010692126697138432,
+            0.011885470099492115,
+            0.010391896457110335,
+            0.012643199294531266,
+            0.010763133459477717,
+            0.013195933220631846,
+            0.010847558552024577,
+            0.013216260645426145,
+            0.013207698168594722
+          ]
+        },
+        "scalar_1000_mul_reference": {
+          "elapsed_ns": [
+            130190470,
+            132514321,
+            132553380,
+            134791516,
+            130108579,
+            126560886,
+            130870923,
+            130047753,
+            127865581
+          ],
+          "max_ns_per_sample": 263264.6796875,
+          "max_to_min_spread_ratio": 1.0650329676105459,
+          "median_ns_per_sample": 254278.26171875,
+          "median_ns_total": 130190470.0,
+          "min_ns_per_sample": 247189.23046875,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "state_reset": "zero once before stream; carried between chunks",
+        "streaming_equivalent": true
+      },
+      {
+        "chunk_invocations_per_repeat": 1,
+        "chunk_size": 512,
+        "chunk_timing_semantics": "amortized Python/NumPy block throughput",
+        "dpd_numpy_reference": {
+          "elapsed_ns": [
+            320093,
+            494149,
+            300781,
+            396088,
+            301043,
+            383609,
+            249100,
+            478968,
+            270315
+          ],
+          "max_ns_per_sample": 965.134765625,
+          "max_to_min_spread_ratio": 1.9837374548374147,
+          "median_ns_per_sample": 625.181640625,
+          "median_ns_total": 320093.0,
+          "min_ns_per_sample": 486.5234375,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "execution_order": [
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference",
+          "reference_then_dpd",
+          "dpd_then_reference"
+        ],
+        "host_python_time_ratio_to_scalar_reference": {
+          "maximum": 0.0038710529329938144,
+          "median": 0.0023446988178027874,
+          "minimum": 0.0018764701118838712,
+          "per_repeat": [
+            0.0023446988178027874,
+            0.0038710529329938144,
+            0.002325042559160379,
+            0.0029974566177091468,
+            0.002135314686631613,
+            0.002824236893965358,
+            0.0018764701118838712,
+            0.003453067222820177,
+            0.002040020275000906
+          ]
+        },
+        "scalar_1000_mul_reference": {
+          "elapsed_ns": [
+            136517747,
+            127652349,
+            129365804,
+            132141362,
+            140982967,
+            135827487,
+            132749250,
+            138707986,
+            132506036
+          ],
+          "max_ns_per_sample": 275357.357421875,
+          "max_to_min_spread_ratio": 1.104429084967328,
+          "median_ns_per_sample": 259275.87890625,
+          "median_ns_total": 132749250.0,
+          "min_ns_per_sample": 249320.994140625,
+          "output_dtype": "complex128",
+          "output_shape": [
+            512
+          ],
+          "repeats": 9
+        },
+        "state_reset": "zero once before stream; carried between chunks",
+        "streaming_equivalent": true
+      }
+    ],
+    "model_metadata": {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 0,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 0,
+          "signal_delay": 2
+        }
+      ],
+      "causal_padding": "zeros_before_record_or_reset_segment_start",
+      "continuous_streaming": "use predict_chunk and carry returned state",
+      "equation": "sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+      "independent_segments": "predict_segments resets every boundary",
+      "knot_count": 24,
+      "local_active_control_points_per_branch": 2,
+      "maximum_delay": 2,
+      "model_type": "phase_equivariant_sparse_spline_memory_dpd",
+      "partial_final_segment": "evaluated_without_end_padding",
+      "shared_amplitude_knots": true
+    },
+    "model_storage": {
+      "branch_count": 3,
+      "coefficients_dtype": "complex128",
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "knots_dtype": "float64",
+      "stored_complex_coefficients": 72
+    }
+  },
+  "host": {
+    "cpu_affinity": [
+      0
+    ],
+    "cpu_count": 12,
+    "cpu_governors": {
+      "0": "powersave"
+    },
+    "cpu_model": "12th Gen Intel(R) Core(TM) i5-12450H",
+    "load_average_end_1_5_15_min": [
+      1.0537109375,
+      2.2060546875,
+      8.10986328125
+    ],
+    "load_average_start_1_5_15_min": [
+      1.05859375,
+      2.2265625,
+      8.1484375
+    ],
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.6",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "interpretation": "Only a target-specific streaming measurement against the customer reference kernel can establish the DPD time gate. The paired host-Python ratios are diagnostic and are not a multiplication-equivalent latency claim.",
+  "protocol": {
+    "analytical_schedule_implemented_by_timed_path": false,
+    "concurrent_workload_controlled": false,
+    "cpu_affinity_single_core": true,
+    "measured_pairs_per_chunk": 9,
+    "measurement_class": "host_python_diagnostic",
+    "pairing": "DPD and scalar reference measured adjacently; first function alternates by repeat",
+    "timed_implementation": "Python control plus NumPy complex128 internal reference",
+    "timed_input_key": "desired_input",
+    "warmup_pairs_per_chunk": 2
+  },
+  "provenance": {
+    "command": [
+      "/usr/bin/python",
+      "experiments/benchmark_dpd_timing.py",
+      "--model",
+      "experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+      "--input",
+      "experiments/results/dpd_spectral_replay_dpa200_validation/waveforms.npz",
+      "--output",
+      "experiments/results/dpd_timing_dpa200_validation.json",
+      "--chunk-sizes",
+      "1,8,64,512",
+      "--max-samples",
+      "512",
+      "--warmup",
+      "2",
+      "--repeats",
+      "9",
+      "--git-dir",
+      "/tmp/dpd_remote_audit/.git",
+      "--require-clean-git",
+      "--workload-note",
+      "no known concurrent project workload; OS background activity not sealed"
+    ],
+    "finished_utc": "2026-07-30T15:31:09.514346+00:00",
+    "git": {
+      "commit": "14f7b7375f8e300dfe0002522ae67a1ca21bd9f4",
+      "dirty": false,
+      "status_porcelain": []
+    },
+    "input_archive_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/dpd_spectral_replay_dpa200_validation/waveforms.npz",
+    "input_archive_sha256": "cf7ee33eb563a16ac54595fa253fa8a82a7d2f9b6654a6778ee68efeeccd442b",
+    "model_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+    "model_sha256": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "pre_post_hashes_equal": true,
+    "runner": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/benchmark_dpd_timing.py",
+    "runner_sha256": "354d9c17f4b6734ea0413af987e517cf6b5662fd954d4545af99ad5294aebc61",
+    "source_sha256": {
+      "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+      "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+      "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+      "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+      "experiments/benchmark_dpd_timing.py": "354d9c17f4b6734ea0413af987e517cf6b5662fd954d4545af99ad5294aebc61"
+    },
+    "started_utc": "2026-07-30T15:31:02.329783+00:00",
+    "workload_note": "no known concurrent project workload; OS background activity not sealed"
+  },
+  "reference_contract": {
+    "also_executes": "scalar additions, Python conversions/property access, complex construction and coefficient allocation",
+    "kernel": "scalar_python_500_real_plus_500_imag_products",
+    "multiplication_equivalent_budget": false,
+    "nominal_real_multiplications_per_sample": 1000
+  },
+  "schema_version": 2,
+  "signal": {
+    "input_dtype": "complex128",
+    "sample_count": 512,
+    "source_sample_count": 7680,
+    "timing_prefix": "first samples from desired_input"
+  }
+}
