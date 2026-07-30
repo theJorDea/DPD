@@ -13,6 +13,7 @@ from experiments.release_pa_transfer_apa200_to_b import (
     load_release_config,
     run_from_config,
 )
+from experiments.verify_pa_transfer_release import verify_release
 
 
 RELEASE_CONFIG = Path(
@@ -65,6 +66,15 @@ class TransferReleaseGuardTests(unittest.TestCase):
         config = json.loads(RELEASE_CONFIG.read_text(encoding="utf-8"))
         self.assertIsNone(config["target_test_files"]["input_sha256"])
         self.assertIsNone(config["target_test_files"]["output_sha256"])
+
+    def test_published_release_metrics_and_access_audit_reproduce(self) -> None:
+        result = verify_release(
+            Path("experiments/results/pa_transfer_apa200_to_b_test_release")
+        )
+        self.assertEqual(result["checked_metric_records"], 4)
+        self.assertEqual(result["release_access_count"], 2)
+        self.assertFalse(result["strict_single_open_execution"])
+        self.assertTrue(result["prior_metric_free_incident_verified"])
 
 
 if __name__ == "__main__":
