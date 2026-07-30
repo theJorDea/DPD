@@ -1,6 +1,6 @@
 # Benchmark low-complexity PA models
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## Статус и границы доказательства
 
@@ -24,6 +24,9 @@ GMP evaluator и не открывал контур B.
 на том же `APA_200MHz`: он также является самостоятельной forward-моделью,
 а не residual correction к GMP. Его OOF selection и full-train refit
 опубликованы отдельно; validation загружена только после freeze.
+Residual-guided lag-9 neighborhood был затем проверен отдельным
+preregistered run с тем же frozen implementation; он улучшил parent до
+cheap-Pareto уровня, но не заменил GMP evaluator.
 Данные в CSV являются измеренными входом и выходом PA, поэтому это
 **forward identification on held-out measured data**. Это не означает, что
 физический PA был повторно измерен после построения модели.
@@ -59,10 +62,12 @@ evaluator не является выполненным DPD experiment. Bundled O
   не пройден;
 - sparse run выявил новый воспроизводимый causal proper-correlation peak около
   lag 9 (`|proper|=0.691` train OOF, `0.691` reused validation), тогда как
-  ранее проверенные lag 22–24 branches были недостаточны; это гипотеза для
-  следующего preregistration, а не tuning по validation;
-- DPD optimization остаётся остановленной до следующего PA-model experiment,
-  выбранного по residual evidence, либо до независимого physical-PA capture.
+  ранее проверенные lag 22–24 branches были недостаточны;
+- bounded lag-9 sparse PA достиг `−37.7925/−37.8528 dB` full/common train OOF
+  и `−37.8607 dB` reused validation при `72 MUL/82 ADD`, превзойдя matched MP
+  на `0.738/0.753 dB`, но уступив GMP на `0.553/0.898 dB`;
+- DPD optimization остаётся остановленной: следующий источник информации —
+  independent `APA_200MHz_b`/physical-PA capture, не новый local delay sweep.
 
 ## 1. Определения метрик
 
@@ -922,7 +927,8 @@ The quality decision is unambiguous:
 - the preregistered cheap-Pareto limit was 3 dB versus MP, so the candidate is
   classified `neither_evaluator_nor_cheap_pareto` and Gate A→B remains closed.
 
-Residual analysis is useful for the next hypothesis. The selected model's
+Residual analysis was used to preregister the next bounded hypothesis. The
+selected model's
 train-OOF residual has pooled common NMSE `−32.08825 dB`; the strongest causal
 proper correlation is at lag 9 (`0.69064`), reproduced at `0.69131` on reused
 validation. Radial/tangential envelope correlations are much smaller (largest
@@ -930,7 +936,8 @@ radial-envelope value about `0.140` at lag 2), and the slow-state branch remains
 ineligible because independent-capture count is zero. Thus the present result
 does not justify adding a state or more knots; it justifies preregistering a
 new branch dictionary containing lag-9 neighborhoods, with all gates frozen
-before fitting.
+before fitting. That lag-9 run is now reported in Section 10.8; no further
+local delay expansion is authorized on this capture.
 
 Machine-readable evidence is the immutable directory
 `experiments/results/pa_sparse_spline_memory_apa200_selection/`:
@@ -938,6 +945,58 @@ Machine-readable evidence is the immutable directory
 residual reports, `selected_sparse_pa.npz` and `execution_record.json`.
 The manifest records runtime `33.5888 s`, exact streaming/reset equivalence,
 hash re-verification before publication, and `test_split_accessed=false`.
+
+## 10.8 Residual-guided lag-9 sparse PA — completed cheap-Pareto result
+
+The next experiment was preregistered before candidate fitting in
+`experiments/configs/pa_sparse_spline_memory_lag9_apa200.json`. It allowed nine
+explicit topology families, `K={8,12,16}`, four ridge values and at most 66
+OOF fit calls. The parent model and all residual/config/source/data hashes were
+recorded as immutable evidence; test access remained forbidden.
+
+The selected phase-equivariant model is:
+
+```text
+y_hat[n] = sum_b x[n-m_b] C_b(|x[n-d_b]|)
+(m,d) = (0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)
+K = 12, ridge = 1e-8
+```
+
+| Candidate / split | Full pooled NMSE, dB | Common-interior NMSE, dB | OpenDPD-compatible, dB | MUL / ADD | Stored real coeff. / state |
+|---|---:|---:|---:|---:|---:|
+| Frozen parent sparse, train OOF | −32.030011 | −32.088250 | — | 54 / 58 | 144 / 48 |
+| Lag-9 sparse, train OOF | **−37.792478** | **−37.852832** | — | **72 / 82** | **216 / 48** |
+| Lag-9 sparse, full-train refit | −37.866643 | −37.927296 | −37.833864 | 72 / 82 | 216 / 48 |
+| Lag-9 sparse, reused validation | −37.860728 | −37.898605 | −37.860728 | 72 / 82 | 216 / 48 |
+
+The incremental gate passed in every OOF fold:
+`+5.7624669/+5.7645826 dB` full/common pooled gain over the frozen parent,
+with minimum fold gains `+5.7178445/+5.7313385 dB`. The candidate also passes
+the internal cheap-Pareto rule versus matched MP by
+`0.7381497/0.7528810 dB`, while it remains worse than matched GMP by
+`0.5529319/0.8976938 dB`. Classification is therefore
+`cheap_pareto_only`, not `evaluator_candidate`.
+
+Exact inference bookkeeping uses the `4 real MUL + 2 real ADD` complex-product
+convention: 72 real MUL, 82 real ADD, 6 magnitude nonlinear operations,
+24 comparisons, 18 LUT accesses, 54 reads, 2 writes, 216 stored real
+coefficient values, 23 constants and 48 state real values. The selected design
+has rank `108/108`, augmented condition `2427.39`, maximum coefficient
+`1.15093`, and exact streaming/reset equivalence. Runtime before publication
+was `62.5693 s` on the recorded Python/NumPy host.
+
+The two `(0,d)` envelope-only variants were rejected before ranking because
+their designs were rank deficient (`105/108` and `141/144`): local spline
+partition of unity duplicates the same `x[n]` linear component when the signal
+delay is unchanged. The `K=16` selected topology was also rank deficient in
+OOF folds, so the hard identifiability gate correctly excluded it.
+
+Residual analysis after the selected model no longer shows the lag-9 peak:
+the largest causal proper correlation in train OOF is `0.07106` at lag 32,
+and validation has the same low-magnitude region. This is still
+within-capture evidence. The immutable bundle is
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`; all six
+payload hashes and input hashes were reverified, and `test_split_accessed=false`.
 
 ## 11. Что пока неизвестно или не выполнено
 
@@ -952,10 +1011,10 @@ hash re-verification before publication, and `test_split_accessed=false`.
 - Нет captures разных power levels/operating points для adaptation curves.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
-- Widely-linear, proper long-FIR, standalone SPH и non-factorized sparse
-  spline-memory APA families проверены и отклонены по quality/evaluator
-  gates. Ни одна low-complexity sparse family пока не приблизилась к GMP
-  fidelity.
+- Widely-linear, proper long-FIR и standalone SPH отклонены по quality gates.
+  Первый non-factorized sparse PA также отклонён, а lag-9 sparse family
+  проходит cheap-Pareto gate, но всё ещё уступает GMP по fidelity и не может
+  служить независимым evaluator.
 - Нет bit-accurate 16/14/12-bit PA-model evaluation.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
