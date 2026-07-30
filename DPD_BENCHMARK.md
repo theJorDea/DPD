@@ -13,18 +13,22 @@
   5.521 dB DPA и 5.867 dB APA, ниже internal 10 dB criterion;
 - APA standalone SPH PA search is complete but rejected: 37 MUL/sample at
   −30.402 dB train-OOF NMSE, 6.652 dB worse than matched MP;
-- APA non-factorized sparse spline-memory PA search is complete but rejected:
+- APA non-factorized sparse spline-memory PA search is complete but the first
+  topology is rejected:
   54 MUL/sample at −32.030 dB train-OOF NMSE, 5.024 dB worse than matched MP
   and 6.315 dB worse than GMP;
+- residual-guided lag-9 sparse PA is complete: 72 MUL/sample,
+  −37.792 dB train-OOF NMSE and −37.861 dB reused validation; it passes the
+  incremental/cheap-Pareto gates but remains 0.553 dB worse than GMP;
 - нет второго independently fitted evaluator, нового operating-point capture
   или physical-PA output для predistorted waveform.
 
-Поэтому в этом документе есть два строго разделённых evidence слоя:
+Поэтому в этом документе есть три строго разделённых evidence слоя:
 
 1. уже выполненный **legacy surrogate-only** DPD benchmark;
 2. preregistered future benchmark через independently frozen evaluator;
-3. отрицательные SPH и non-factorized sparse spline-memory **PA-model**
-   results, которые не являются DPD results.
+3. PA-model results (включая lag-9 cheap-Pareto result), которые не являются
+   DPD results.
 
 Ни один результат ниже не является доказательством линеаризации физического PA
 Huawei или превосходства над OpenDPD.
@@ -180,6 +184,21 @@ no DPD was fitted through this model. Its strongest remaining causal proper
 residual correlation occurs at lag 9 (`|rho|=0.690641` on train OOF), which
 justifies one bounded preregistered lag-9 ablation but not DPD optimization.
 
+### 3.6 Why the lag-9 sparse PA result is still not a DPD result
+
+The separately preregistered lag-9 run selected
+`(m,d)={(0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)}`,
+`K=12`, ridge `1e-8`. It reaches `−37.792478 dB` full OOF NMSE and
+`−37.860728 dB` reused validation at 72 real MUL/82 real ADD. The incremental
+parent gate passed by `+5.762467/+5.764583 dB` full/common, and the cheap-Pareto
+gate beats matched MP by `0.738150/0.752881 dB`.
+
+It remains `0.552932/0.897694 dB` behind matched GMP, has only same-capture
+reused validation, and was never evaluated on a predistorted waveform.
+Therefore `cheap_pareto_only` is a contour-A label, not a frozen DPD evaluator;
+Gate A→B remains closed. The immutable bundle is
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`.
+
 ## 4. Gate A→B и запрет silent reuse
 
 Новая DPD optimization разрешается только после одновременного выполнения:
@@ -253,13 +272,14 @@ quality vs peak predistorted drive
 
 ## 7. Следующий разрешённый шаг
 
-Следующий step находится в контуре A, не B: отдельно preregister и проверить
-узкий residual-guided **lag-9 neighborhood** для non-factorized sparse complex
-spline-memory PA. Branch families, knot/ridge budget и OOF acceptance должны
-быть frozen до fit; test остаётся закрыт. Эта проверка является
-within-capture architecture ablation, а не independent evaluator evidence.
+Следующий step находится в контуре A, не B: проверить GMP и surviving lag-9
+PA model на independent `APA_200MHz_b` capture (строго как `capture transfer`,
+пока measurement-B metadata не расшифрованы) и построить limited-calibration
+curves. Нужны source freeze, target-train-only nuisance alignment, zero-shot
+режим и preregistered calibration sample counts; старый APA test не открывать
+повторно для selection.
 
-Если lag-9 family всё ещё ниже quality gate, честный следующий шаг —
-independent `APA_200MHz_b` capture или physical-PA measurement. Legacy DPD
-остаётся surrogate-only; расширять DPD или dictionary под ошибки того же
-evaluator нельзя.
+Если independent transfer не подтверждает ranking/fidelity, честный результат —
+остановить local PA dictionary expansion и получить physical-PA measurement.
+Legacy DPD остаётся surrogate-only; DPD optimization возобновляется только
+после Gate A→B.
