@@ -12,18 +12,23 @@ formal PA results относятся отдельно к `DPA_200MHz` и `APA_20
 объединять разные physical captures как случайные строки одного train/test
 split и задаёт learning curves для быстрой recalibration.
 
-Два дешёвых APA spline-кандидата пока имеют только within-capture
+Три дешёвых APA spline-кандидата пока имеют только within-capture
 train-OOF/reused-validation evidence:
 
 - SPH (`K=32,L=8`): −30.402374 dB full OOF NMSE при 37 MUL/sample;
 - non-factorized sparse spline-memory
   (`(m,d)={(0,0),(1,1),(2,2),(22,22),(23,23),(24,24)}`, `K=12`):
   −32.030011 dB full OOF NMSE при 54 MUL/sample.
+- residual-guided lag-9 sparse spline-memory
+  (parent + `(8,0),(9,0),(10,0)`, `K=12`):
+  −37.792478 dB full OOF NMSE и −37.860728 dB reused validation при
+  72 MUL/sample.
 
-Оба результата хуже matched MP/GMP и поэтому не являются robustness evidence
-или evaluator для DPD. Zero-shot, operating-point transfer и adaptation claim
-не делаются. Validation была только descriptive reused-validation проверкой;
-test split не открывался.
+SPH и первый sparse результат хуже matched MP/GMP. Lag-9 sparse проходит
+cheap-Pareto gate относительно MP, но уступает GMP на `0.553 dB` full OOF и
+по-прежнему не является robustness evidence или независимым evaluator для DPD.
+Zero-shot, operating-point transfer и adaptation claim не делаются. Validation
+была только descriptive reused-validation проверкой; test split не открывался.
 
 ## 2. Доступные captures и границы metadata
 
@@ -246,20 +251,18 @@ waveform/spec и явно называет второй capture “measurement B
 нужно выяснить, что означает B. Без ответа результат будет честно называться
 capture transfer, а не power/thermal adaptation.
 
-Перед transfer run нужно сначала freeze source model family. SPH и первый
-bounded non-factorized sparse spline-memory PA не проходят quality gate:
-sparse-кандидат улучшил SPH примерно на 1.628 dB, но проиграл matched MP на
-5.024 dB и GMP на 6.315 dB по full train OOF NMSE. Поэтому оба сохраняются как
-дешёвые negative controls, а не как source evaluator.
+Перед transfer run нужно freeze source model family. SPH и первый bounded
+non-factorized sparse spline-memory PA сохраняются как negative controls:
+первый sparse проиграл matched MP на 5.024 dB и GMP на 6.315 dB по full OOF.
+Lag-9 sparse — единственный surviving cheap-Pareto point, но он всё ещё
+уступает GMP и не прошёл evaluator gate. Поэтому следующий experiment —
+independent `APA_200MHz_b` capture/physical-PA evaluation, а не дальнейшее
+расширение dictionary на том же capture.
 
-Последний разрешённый локальный diagnostic перед capture-transfer —
-отдельно preregistered узкий lag-9 neighborhood, потому что train-OOF residual
-первого sparse-кандидата имеет сильнейшую causal proper correlation на lag 9
-(`|rho|=0.690641`). Эта проверка не является независимым подтверждением:
-она использует тот же capture и служит только bounded architecture ablation.
-Если она также не проходит quality gate, следующий шаг максимальной
-информационной ценности — independent `APA_200MHz_b` capture/physical-PA
-evaluation, а не дальнейшее расширение dictionary на том же capture.
+Lag-9 validation was loaded only after freeze and confirms the same local
+ranking, но это не independent confirmation. Для каждой модели transfer
+публикуются zero-shot и limited-calibration curves; target test открывается
+только после metadata/config freeze.
 
 Для каждой допущенной к transfer модели публикуются zero-shot и
 limited-calibration curves; target test открывается только после
