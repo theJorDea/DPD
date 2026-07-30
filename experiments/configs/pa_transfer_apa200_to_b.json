@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_target_fit",
+  "date": "2026-07-30",
+  "task": "forward_pa_capture_transfer_and_limited_coefficient_calibration",
+  "source_dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "target_dataset": "vendor/OpenDPD/datasets/APA_200MHz_b",
+  "dataset_relation": "same_declared_excitation_and_timebase; different_measured_output_capture",
+  "unknown_changed_axes": [
+    "capture_time",
+    "output_power_or_backoff",
+    "bias",
+    "temperature",
+    "feedback_path_calibration",
+    "physical_dut_identity"
+  ],
+  "sealed_split_policy": {
+    "source": {
+      "allowed_splits": [
+        "train",
+        "val"
+      ],
+      "held_out_split": "sealed",
+      "held_out_hash_recorded": false
+    },
+    "target": {
+      "allowed_splits": [
+        "train",
+        "val"
+      ],
+      "held_out_split": "sealed",
+      "held_out_hash_recorded": false
+    },
+    "pretest_runner_must_not": [
+      "open the target held-out waveform or output",
+      "hash the target held-out files",
+      "use target held-out metrics for model, N, delay, gain, or mode selection"
+    ]
+  },
+  "dataset_contract": {
+    "sample_rate_hz": 983040000.0,
+    "bandwidth_hz": 200000000.0,
+    "nperseg": 19662,
+    "source_frame_lengths": [
+      19662,
+      19662,
+      19656
+    ],
+    "target_frame_lengths": [
+      19662,
+      19662,
+      19656
+    ],
+    "source_train_input_sha256": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "source_train_output_sha256": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+    "source_val_input_sha256": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "source_val_output_sha256": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2",
+    "source_spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "target_train_input_sha256": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "target_train_output_sha256": "22a4be8a899ab04ae5b845d0a6839a569c76ee0c8499d722b15aea3b486c13fc",
+    "target_val_input_sha256": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "target_val_output_sha256": "eada577549804d366285a7df46bd28c6153e34f512e285cd8477b77682056615",
+    "target_spec_sha256": "9b8565493235122071503153b0c113ecd329fed6f4c67eb3b38a30845a660919",
+    "expected_input_identity": {
+      "train": true,
+      "val": true,
+      "comparison": "byte_sha256_equality"
+    }
+  },
+  "source_models": [
+    {
+      "name": "causal_gmp",
+      "model_path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "model_sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add",
+      "config_path": "experiments/configs/pa_gmp_apa200.json",
+      "config_sha256": "0e8dc916eab1fa4d8588fca48e18b44f3aa1d167600b0c786476458f46aa8293",
+      "manifest_path": "experiments/results/pa_gmp_apa200_selection/selection_manifest.json",
+      "manifest_sha256": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd",
+      "complex_coefficient_count": 444,
+      "source_ridge": 1e-7,
+      "source_solver": "ridge_lstsq",
+      "operation_budget": {
+        "real_multiplications_per_sample": 954,
+        "real_additions_per_sample": 947,
+        "nonlinear_operations_per_sample": 1,
+        "state_real_values": 236,
+        "stored_real_coefficients": 888
+      }
+    },
+    {
+      "name": "lag9_sparse_spline_memory",
+      "model_path": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selected_sparse_pa.npz",
+      "model_sha256": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475",
+      "config_path": "experiments/configs/pa_sparse_spline_memory_lag9_apa200.json",
+      "config_sha256": "93807ab6f3906b3898d805430e3ffe419b85a90ee72c28bfb7c1b2f486f32770",
+      "manifest_path": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selection_manifest.json",
+      "manifest_sha256": "b6188ba8e5cb29e99b1db745b6a9b7280631361fc6c99f39df0af1e7e6ad36ff",
+      "complex_coefficient_count": 108,
+      "source_ridge": 1e-8,
+      "source_solver": "augmented_complex_lstsq",
+      "operation_budget": {
+        "real_multiplications_per_sample": 72,
+        "real_additions_per_sample": 82,
+        "nonlinear_operations_per_sample": 6,
+        "comparisons_per_sample": 24,
+        "lut_accesses_per_sample": 18,
+        "state_real_values": 48,
+        "stored_real_coefficients": 216
+      }
+    }
+  ],
+  "alignment": {
+    "primary_mode": "strict_source_reuse",
+    "source_delay_samples": 0,
+    "max_abs_delay_diagnostic": 32,
+    "fractional_transform": "disabled",
+    "post_prediction_gain_fit": "disabled",
+    "optional_target_train_nuisance_mode": "estimate_integer_delay_and_complex_ls_gain_once_on_target_train_then_freeze"
+  },
+  "framing": {
+    "policy": "reset_at_each_complete_or_partial_frame",
+    "prefix_policy": "take [0:N) independently in each complete target-train frame",
+    "cross_frame_feature_leakage": "forbidden",
+    "common_warmup_samples": {
+      "causal_gmp": 49,
+      "lag9_sparse_spline_memory": 24
+    }
+  },
+  "calibration": {
+    "sample_counts_per_frame": [
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192,
+      16384
+    ],
+    "modes": [
+      "none",
+      "coefficient_only_ridge"
+    ],
+    "coefficient_only_contract": {
+      "architecture_frozen": true,
+      "knots_and_branches_frozen": true,
+      "gmp_ridge": 1e-7,
+      "gmp_solver": "ridge_lstsq",
+      "sparse_ridge": 1e-8,
+      "target_validation_not_used_for_fit": true,
+      "rank_deficient_prefixes": "record_infeasible_without_silent_drop"
+    },
+    "validation_selection_rule": "smallest feasible N within 0.25 dB full-record NMSE of best feasible N; require finite output and zero support violations; tie-break common-interior NMSE then fit wall-clock"
+  },
+  "metrics": [
+    "full_record_pooled_complex_nmse_db",
+    "common_interior_complex_nmse_db",
+    "opendpd_compatible_nmse_db",
+    "time_domain_rms_evm_db",
+    "per_frame_nmse",
+    "finite_output_and_support_violations",
+    "fit_wall_clock_seconds",
+    "inference_wall_clock_seconds",
+    "real_multiplications_per_sample",
+    "real_additions_per_sample",
+    "nonlinear_operations_per_sample",
+    "state_and_coefficient_memory_bytes",
+    "streaming_chunk_max_abs_error"
+  ],
+  "implementation_contract": {
+    "required_modules": [
+      "baseline/gmp_pa.py",
+      "baseline/sparse_spline_memory_pa.py",
+      "baseline/alignment.py",
+      "experiments/transfer_pa_apa200_to_b.py"
+    ],
+    "source_hashes_recorded_in_result": true,
+    "deterministic_numpy_fit": true,
+    "test_access_count_recorded": true
+  },
+  "release_policy": {
+    "pretest_run": "source control and target validation curves only",
+    "held_out_target_release": "separate explicit command after metadata/config/N freeze",
+    "dpd_gate": "remains closed regardless of transfer result until independent evaluator margin and Gate A-to-B predicates pass"
+  }
+}
