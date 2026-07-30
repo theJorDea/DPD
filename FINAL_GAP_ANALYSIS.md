@@ -12,8 +12,9 @@
 - `error < 10^-5` не является Huawei requirement; значение сохраняется только
   как необязательная normalized-error diagnostic;
 - DPD лучше OpenDPD apples-to-apples;
-- fixed-point PA arithmetic reference готова, но fixed-point/real-time
-  hardware implementation не доказана;
+- fixed-point PA и deployment-facing selected-DPD software arithmetic
+  references готовы, но HLS/RTL, target latency/resources/power и effect of
+  fixed-point DPD on the physical PA не доказаны;
 - DPD-only pinned-core software timing diagnostic готов, но customer target
   timing gate остаётся неизмеримым;
 - linearization физического PA или базовой станции Huawei доказана.
@@ -407,6 +408,59 @@ known. Both artifacts therefore set `customer_gate_evaluable=false` and
 Evidence:
 `experiments/results/dpd_timing_{dpa200,apa200}_validation.json`.
 
+### 3.12 Bit-accurate selected-DPD software arithmetic reference
+
+The sealed runner `experiments/evaluate_fixed_point_dpd.py` now evaluates the
+selected three-branch spline-memory DPD at signed 16/14/12 bits. Its only
+allowed waveform path is:
+
+```text
+desired validation x -> integer DPD -> frozen floating PA surrogate
+```
+
+It freezes all formats from train-only input, float-DPD train drive and frozen
+coefficients before parsing validation values. It cannot address measured PA
+outputs or any test file. Both datasets use explicit frame lengths, reset
+state at frame boundaries and apply the same six-sample DPD+surrogate warm-up
+to float and integer paths.
+
+| Dataset / bits | Cascade NMSE | Fixed-vs-float drive | Fixed-vs-float cascade | Configured absolute suppression L/R |
+|---|---:|---:|---:|---:|
+| DPA / float | −30.533243 dB | — | — | 4.800954 / 7.788702 dB |
+| DPA / 16 | −30.532196 dB | −78.924356 dB | −76.391532 dB | 4.797940 / 7.787990 dB |
+| DPA / 14 | −30.533573 dB | −67.012813 dB | −64.350318 dB | 4.793157 / 7.776366 dB |
+| DPA / 12 | −30.514777 dB | −54.871398 dB | −52.168039 dB | 4.781928 / 7.692124 dB |
+| APA / float | −32.384010 dB | — | — | 16.521116 / 13.905361 dB |
+| APA / 16 | −32.385138 dB | −77.823697 dB | −77.351365 dB | 16.511358 / 13.906338 dB |
+| APA / 14 | −32.370317 dB | −65.780618 dB | −65.339870 dB | 16.535354 / 13.871014 dB |
+| APA / 12 | −32.379006 dB | −53.598447 dB | −53.090777 dB | 16.369068 / 13.982148 dB |
+
+Worst degradation over the evaluated formats is `0.018466 dB` cascade NMSE
+and `0.096578 dB` configured absolute adjacent-region suppression on DPA;
+the APA maxima are `0.013693 dB` and `0.152048 dB`. These regions are frozen
+baseband diagnostics, not the still-unknown Huawei harmonic bands. Apparent
+small improvements on individual rows are not claimed as quantization gains.
+
+All six integer rows have zero input/coefficient/power/interpolation/
+scalar-accumulator/accumulator/output saturation, zero knot collisions and
+exact arbitrary-chunk streaming. The schedule is
+`20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT, 28 reads, 2 writes` with four
+real state values per complex sample and respectively 5/3 comparisons for
+DPA/APA. Bit-exact 90-degree rotation was verified only for the evaluated
+signals; it does not prove arbitrary-angle fixed-point phase equivariance.
+
+This is bounded evidence that the chosen integer arithmetic preserves the
+legacy surrogate cascade on reused validation. It does not choose 12, 14 or
+16 bits (`precision_selected_by_runner=false`) and does not establish physical
+PA linearization, customer harmonic suppression, RTL resources or target
+latency. Sixteen bits can be retained as a conservative implementation
+reference; a smaller format needs preregistered hardware constraints and
+independent/physical-PA confirmation.
+
+Evidence:
+`experiments/results/dpd_fixed_point_{dpa200,apa200}_validation/` and
+`experiments/results/dpd_fixed_point_{dpa200,apa200}_spectrum_*_validation/`.
+
 ## 4. Что доказано только на surrogate
 
 Legacy complex spline-memory DPD `signal_delay_012` дал:
@@ -422,14 +476,18 @@ DPD residual даже ниже error самого evaluator. ACLR/EVM/PAPR/peak 
 
 Также surrogate-only:
 
-- first-stage 16/12-bit spline numerical emulation;
+- first-stage 16/12-bit spline numerical emulation and the sealed second-stage
+  16/14/12-bit DPD replay described in §3.12;
 - arithmetic projection существующего DPD относительно нового GMP;
 - Egor correct-direction and circular cascade через learned PA model;
 - любые AM/AM/PSD plots без повторного physical measurement.
 
 Bundled OpenDPD neural numbers — upstream numeric evidence, не локальный rerun:
-checkpoint binaries отсутствуют, current host не имеет NVIDIA GPU. Их нельзя
-объединять с локальными rows как единый execution environment.
+checkpoint binaries отсутствуют, current host не имеет NVIDIA GPU. Sealed CPU
+preflights of the three APA backbones are complete, but use only ten train
+batches, one validation batch and one epoch; they are runtime smoke evidence,
+not validation-quality checkpoints. Эти rows нельзя объединять с upstream
+quality results как единый execution environment.
 
 ## 5. Насколько PA evaluator ограничивает DPD conclusions
 
@@ -452,6 +510,11 @@ errors, которые DPD optimization эксплуатирует, даже е�
 - reset/frame boundary не обязательно соответствует continuous hardware;
 - no feedback-path IQ/frequency-response de-embedding;
 - no physical output confirms spectral regrowth after predistortion.
+
+The fixed-point DPD sweep does not change this gate: every integer path still
+terminates in the old floating PA surrogate. Its at-most `0.018466 dB`
+cascade-NMSE loss proves numerical preservation of that path, not independent
+DPD ranking, evaluator margin or physical linearization.
 
 Release-gate PASS означал только, что frozen GMP можно открыть на test один
 раз. Он не означает Gate A→B PASS.
@@ -502,12 +565,19 @@ frozen evaluator.
 
 ### 6.4 Hardware
 
-- bit-accurate selected DPD and PA→DPD cascade at 16/14/12 bit (DPA/APA source
-  and target-calibrated PA coverage is complete; DPD coverage is not);
-- exact accumulator/intermediate widths and nonlinear primitive;
+- selected-DPD 16/14/12-bit software arithmetic reference is complete, but a
+  final word length has not been selected on independent/physical evidence;
+- HLS/RTL or an equivalent target reference kernel implementing the declared
+  accumulator/intermediate widths, division, integer sqrt and LUT addressing;
 - synthesis/place-and-route target;
 - measured throughput/latency/resources/power;
 - streaming equivalence with deployment state lifetime.
+
+The separately completed fixed-point PA-model matrix is an offline evaluator
+diagnostic; it is not part of the deployment DPD cost gate because the actual
+PA is physical. The current integer-DPD cascade still terminates in a floating
+surrogate. Therefore neither software reference closes the physical system or
+target timing gate.
 
 ## 7. Claims matrix
 
@@ -516,10 +586,11 @@ frozen evaluator.
 | Forward PA results have recorded operation counts | supported | causal GMP reaches −35.385/−38.608 dB at 766/954 MUL/sample; PA cost is not the DPD gate |
 | Huawei harmonic/spur attenuation met | unsupported | exact RF definition and threshold are missing |
 | Huawei `10^-5` gate | not applicable under current clarification | −50 dB may be shown only as an optional normalized-error reference |
-| DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
+| DPD linearizes physical PA | unsupported | float and fixed-point DPD cascades are surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
 | Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA source plus target-calibrated APA-B train/validation 16/14/12-bit reports; no DPD/RTL claim |
-| Real-time FPGA-ready | unsupported | analytical counts, Python integer arithmetic and pinned-host timing diagnostic exist; no synthesis/target latency |
+| Fixed-point DPA/APA DPD arithmetic reference | supported, bounded | sealed desired-input 16/14/12-bit validation replay preserves the floating surrogate cascade with small degradation; no format selection, physical PA or RTL claim |
+| Real-time FPGA-ready | unsupported | exact integer schedule, Python arithmetic and pinned-host timing diagnostic exist; no target kernel, synthesis or target latency |
 | Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
@@ -533,6 +604,7 @@ frozen evaluator.
 | `APA_200MHz_b` proves power/thermal adaptation | unsupported | “measurement B” axes are unknown; no controlled labels |
 | B-capture release was strict single-open | refuted by audit | two accesses: first failed before inference/metric, second completed unchanged frozen protocol |
 | Frozen DPA/APA validation spectral replay | supported as descriptive surrogate evidence | input-only desired path, conventional baseband bands, no measured output opened |
+| Fixed-point DPA/APA spectral preservation | supported as descriptive surrogate evidence | worst configured absolute-region loss is 0.0966/0.1520 dB DPA/APA; bands are not the customer harmonic definition |
 | Frozen DPA/APA legacy-test spectral replay | reproducible but not independent | historical test was already opened by the old ablation; no tuning or reselection performed |
 | DPD-only 1000-MUL-equivalent timing gate | not established | exact streaming and paired pinned-host diagnostic exist; customer target/reference protocol remains unknown |
 
@@ -541,6 +613,8 @@ frozen evaluator.
 External-capture held-out release уже выполнен. Следующий локальный
 high-information step — воспроизводимо обучить **high-fidelity OpenDPD PA
 evaluator без DPD cost cap** и проверить independent DPD ranking protocol.
+Software fixed-point coverage больше не является ближайшим локальным gap:
+PA-model and selected-DPD references at 16/14/12 bits уже опубликованы.
 Следующий decisive independent-data step — **получить controlled physical-PA
 capture с известными operating conditions**; обратный transfer
 `APA_200MHz_b -> APA_200MHz` имеет смысл только при наличии сопоставимых
@@ -554,9 +628,15 @@ metadata. Причины:
   адаптировались coefficients;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
-- DPA/APA source and target-payload fixed-point PA arithmetic is now frozen and
-  measured; further PA quantization cannot replace a more faithful evaluator
-  or physical predistorted capture.
+- DPA/APA source and target-payload PA arithmetic plus DPA/APA selected-DPD
+  arithmetic are now frozen and measured in software; further local
+  quantization sweep cannot replace a more faithful evaluator, target
+  implementation or physical predistorted capture.
+
+До решающего physical-PA experiment необходимо отдельно зафиксировать exact
+harmonic/spur bands, power reference, averaging, threshold и target timing
+reference kernel. Иначе даже новый RF capture нельзя будет однозначно
+классифицировать как customer pass/fail.
 
 Протокол:
 
@@ -567,7 +647,9 @@ metadata. Причины:
 3. Если metadata подтверждает same DUT, preregister обратный transfer
    `APA_200MHz_b -> APA_200MHz` на ещё не использованном split.
 4. Reproduce/train the OpenDPD PA backbone on frozen local splits without the
-   DPD latency cap; keep checkpoints/configs/hashes and do not tune on test.
+   DPD latency cap, using resumable epoch checkpoints and an append-only
+   journal so a long CPU run cannot disappear before publication; keep
+   configs/source/data hashes and do not tune on test.
 5. Получить новый controlled capture с power/backoff, bias, temperature,
    capture time и feedback calibration, frozen до evaluation.
 6. Только после известного operating-point experiment строить adaptation
@@ -575,6 +657,9 @@ metadata. Причины:
 7. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
    не выполнен. Current held-out GMP/sparse results fail this gate; no further
    local DPD or delay-dictionary tuning is authorized from B test.
+8. Перенести conservative 16-bit DPD reference в target HLS/RTL/reference
+   kernel; сравнивать 14/12 bit только по заранее объявленным resource and
+   physical-quality constraints, а не выбирать precision по reused validation.
 
 Пока provenance/operating-point metadata для measurement B не подтверждены,
 результат следует маркировать `capture transfer`, а не power/thermal
