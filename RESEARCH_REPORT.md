@@ -1,6 +1,6 @@
 # Research report: low-complexity PA identification and DPD
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Outcome
 
@@ -22,6 +22,7 @@ evidence, но новая optimization приостановлена: Gate A→B 
 |---|---:|---:|---:|
 | DPA_200MHz | −35.385 dB | 766 / 759 | 356 |
 | APA_200MHz | −38.608 dB | 954 / 947 | 444 |
+| APA_200MHz lag-9 sparse (reused validation) | −37.861 dB | 72 / 82 | 216 |
 
 Если Huawei `10^-5` означает normalized error power, target равен −50 dB и
 не достигнут. Никакого claim “лучше OpenDPD” или “готово для Huawei base
@@ -228,6 +229,12 @@ Therefore Gate A→B is closed.
 
 Detailed analysis: `PA_MODEL_BENCHMARK.md` and `FINAL_GAP_ANALYSIS.md`.
 
+Отдельный lag-9 sparse PA достиг `−37.792478 dB` train-OOF full NMSE и
+`−37.860728 dB` reused validation при 72 MUL/sample. Это улучшение MP по
+quality/cost внутри APA capture, но оно уступает GMP на `0.552932 dB` full OOF
+и не является evaluator для DPD. Следующий decisive result должен быть на
+independent `APA_200MHz_b`/physical PA, а не на новом local split.
+
 ## 8. DPD baseline and proposed method
 
 ### 8.1 Legacy result
@@ -273,9 +280,12 @@ complex solve is preferred over unrelated I/Q models.
 | State-conditioned spline | local 2-D LUT + one-pole states | fixed-beta ridge | unidentifiable on short captures |
 | Tiny residual TCN | tens/hundreds MAC + activations | E2E | surrogate exploitation/latency |
 
-New complexity is allowed only after ablation. Current next PA experiment is
-spline/CPWL + short complex FIR or sparse spline-memory **forward PA model**,
-selected using GMP residual OOF evidence; DPD optimization remains paused.
+New complexity is allowed only after ablation. The bounded residual-guided
+lag-9 sparse spline-memory **forward PA model** experiment is complete and is
+the current low-complexity Pareto point. Further local delay expansion is
+paused; the next PA experiment is independent `APA_200MHz_b`
+transfer/adaptation, with GMP and lag-9 sparse models frozen before target
+access. DPD optimization remains paused.
 
 Detailed shortlist: `research/proposed_methods.md`.
 
@@ -317,6 +327,8 @@ Supported:
 
 - low-complexity causal GMP forward PA identification on held-out measured
   captures under the project operation convention;
+- lag-9 sparse PA is a reproducible 72-MUL cheap-Pareto point relative to MP
+  within the APA capture, with exact floating-point streaming/reset behavior;
 - correct pipeline guards, OOF/release/test provenance and streaming software
   equivalence;
 - legacy spline establishes an extremely cheap surrogate-only DPD point;
