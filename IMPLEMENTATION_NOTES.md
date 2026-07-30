@@ -347,6 +347,58 @@ gates passed; evaluator and Gate A→B remained closed. The immutable bundle is
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`, with
 `62.5693 s` runtime and test access false.
 
+### 3.8 APA capture-transfer runner and release
+
+The transfer implementation is deliberately separate from DPD:
+
+- `experiments/transfer_pa_apa200_to_b.py` loads only source/target train and
+  validation, verifies byte-identical excitation inputs, freezes source
+  topology, and fits coefficients only on chronological target-train
+  prefixes;
+- `experiments/release_pa_transfer_apa200_to_b.py` requires explicit
+  `--release-test`, verifies the pre-test manifest, selected `N`, coefficient
+  hashes and source hashes before opening target test, then publishes an
+  immutable bundle;
+- `experiments/verify_pa_transfer_bundle.py` replays the 20 pre-test metric
+  records without opening test;
+- `experiments/verify_pa_transfer_release.py` replays all 4 held-out records,
+  checks prediction/artifact/data hashes and verifies that test was not used for
+  selection, coefficient fit, delay, gain or bin fitting.
+
+The frozen commands are:
+
+```bash
+.venv/bin/python -m experiments.transfer_pa_apa200_to_b \
+  --config experiments/configs/pa_transfer_apa200_to_b.json
+.venv/bin/python -m experiments.verify_pa_transfer_bundle \
+  --bundle experiments/results/pa_transfer_apa200_to_b_pretest
+.venv/bin/python -m experiments.release_pa_transfer_apa200_to_b \
+  --config experiments/configs/pa_transfer_apa200_to_b_release.json \
+  --release-test
+.venv/bin/python -m experiments.verify_pa_transfer_release \
+  --bundle experiments/results/pa_transfer_apa200_to_b_test_release \
+  --output experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
+```
+
+The pre-test manifest SHA is
+`570c3f98af77961f23d30eaa71f38f35c80745a523656042a2dfee1d7e8ddd00`; the
+held-out release manifest SHA is
+`067a00e66032ae3b0dfde35437a3116ea45931f65ef5bf833aca3ebafe635d07`.
+The source-code hash map is embedded in the release manifest, including
+`experiments/transfer_pa_apa200_to_b.py =
+0b8c4f7ea43d43924516b48db086d639e8beb502741a3d156daa2b9f623f7c82`.
+
+The first held-out attempt exposed a guard bug: the code required three complete
+`19662` target-train frames, while the frozen framing is
+`19662,19662,19656`. It loaded the target pair but stopped before model
+inference and before any metric. The incident is immutable at
+`experiments/results/pa_transfer_apa200_to_b_release_incident_001.json`
+(SHA `d03217f7ec74f49fbcd3f8619c528d7737b907e281d609b90363339ecacb2a34`).
+Only the frame-length guard was corrected; a retry used unchanged models,
+coefficients, selected `N` and metric protocol. The final bundle therefore
+records access count `2` and `strict_single_open_execution=false`; this is
+reported, not concealed.
+
 ## 4. Artifact integrity and publication rules
 
 Canonical numerical outputs are immutable:
@@ -378,11 +430,18 @@ completion manifest was written last inside a temporary directory, and the
 directory was atomically renamed. Validation was loaded only after recipe and
 full-train model freeze; no test file was opened, hashed or named.
 
+The APA transfer release has a distinct disclosed access audit: its first
+process loaded the target test pair before a frame-length guard failed, but
+did not infer or compute a metric. The corrected retry used the unchanged
+frozen protocol. Consequently it is not described as a pristine single-open
+run; `release_access_count=2` and the incident hash are part of the manifest.
+
 ## 5. Tests and invariants
 
-Last complete code suite after the lag-9 contract:
-**222/222 passed** on the environment in this document. The sparse result is an
-immutable numeric artifact; no code was changed while publishing it.
+Last complete code suite after the held-out release contract:
+**234/234 passed** on the environment in this document. The sparse and transfer
+results are immutable numeric artifacts; no code was changed while publishing
+them.
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -449,6 +508,9 @@ The previous 120-test 0.396 s timing is obsolete.
 | `db41e16` | preregistered bounded APA lag-9 config |
 | `c023e7c` | lag-9 config contract tests |
 | `aa9bd38` | immutable APA lag-9 sparse PA result bundle |
+| `790f744`–`503c48a` | APA transfer preregistration, guarded release, incident and verification |
+| `27e15a3`–`48be898` | synchronized PA/benchmark/robustness/gap/roadmap reports |
+| `161837e` | exact APA transfer reproduction protocol and hashes |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -467,6 +529,9 @@ experiments/results/pa_long_fir_residual_apa200/
 experiments/results/pa_sph_apa200_selection/
 experiments/results/pa_sparse_spline_memory_apa200_selection/
 experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/
+experiments/results/pa_transfer_apa200_to_b_pretest/
+experiments/results/pa_transfer_apa200_to_b_test_release/
+experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
 ```
 
 Normative documents:
@@ -506,7 +571,10 @@ Normative documents:
     `−32.030 dB` OOF and 6.315 dB worse than matched GMP. The separately
     preregistered lag-9 family reaches `−37.792 dB` OOF at 72 MUL and passes
     cheap-Pareto, but remains 0.553 dB behind GMP and is not an evaluator.
-16. No independent capture or physical PA has confirmed the lag-9 result.
+16. `APA_200MHz_b` is now an independent capture-transfer check: calibrated
+    GMP reaches −37.895 dB and lag-9 sparse −34.801 dB on held-out full
+    record, but no controlled operating-point metadata or physical PA cascade
+    confirms generalization.
 
 ## 9. Extension contract for the next PA model
 
@@ -542,10 +610,13 @@ slow-state evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Ask/record metadata for `APA_200MHz_b` measurement B and preregister
-   external-capture transfer plus target-train nuisance alignment.
-2. Evaluate GMP and lag-9 sparse PA zero-shot and limited coefficient
-   recalibration on measurement B;
-   target test once after freeze.
-3. Reassess Gate A→B. Resume DPD only after PASS; otherwise continue
-   PA/physical evidence work.
+1. Record provenance for `APA_200MHz_b` (DUT identity, power/backoff, bias,
+   temperature, capture time and feedback calibration); until then use the
+   label `capture transfer`.
+2. Implement the bit-accurate 16/14/12-bit simulator for frozen GMP and lag-9
+   sparse PA: explicit activation/coefficient scaling, accumulator width,
+   rounding, saturation, state lifetime and arbitrary-chunk equivalence.
+3. Publish FP32→fixed-point degradation and exact MUL/ADD/sqrt/LUT/state/memory
+   counts; do not infer FPGA latency from host batch timing.
+4. Obtain controlled physical-PA data. Only if Gate A→B then passes should the
+   frozen-evaluator DPD benchmark be reopened.
