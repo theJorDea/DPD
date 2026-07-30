@@ -55,7 +55,7 @@ def _declared_path(value: object, *, field: str) -> Path:
     path = Path(value)
     if not path.is_absolute():
         path = PROJECT_ROOT / path
-    return path.resolve()
+    return Path(os.path.abspath(path))
 
 
 def _require_hash_map(value: object, *, field: str) -> dict[str, str]:
@@ -399,6 +399,8 @@ def evaluate(
         label="source",
     )
     archive = _declared_path(config["waveform_archive"], field="waveform_archive")
+    if not archive.is_file() or archive.is_symlink():
+        raise FileNotFoundError("waveform_archive must be a regular file")
     expected_archive_hash = config.get("waveform_archive_sha256")
     if (
         not isinstance(expected_archive_hash, str)

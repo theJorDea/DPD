@@ -141,6 +141,19 @@ class FrozenDpdSpectrumRunnerTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 evaluate(config_path, output)
 
+    def test_waveform_symlink_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive = self._archive(root)
+            link = root / "waveform-link.npz"
+            link.symlink_to(archive)
+            config = self._config(root, archive)
+            config["waveform_archive"] = str(link)
+            config_path = root / "config.json"
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(FileNotFoundError, "regular file"):
+                evaluate(config_path, root / "result")
+
 
 if __name__ == "__main__":
     unittest.main()
