@@ -1,6 +1,6 @@
 # DPD benchmark: evidence, protocol and release gate
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Текущий статус
 
@@ -13,6 +13,9 @@
   5.521 dB DPA и 5.867 dB APA, ниже internal 10 dB criterion;
 - APA standalone SPH PA search is complete but rejected: 37 MUL/sample at
   −30.402 dB train-OOF NMSE, 6.652 dB worse than matched MP;
+- APA non-factorized sparse spline-memory PA search is complete but rejected:
+  54 MUL/sample at −32.030 dB train-OOF NMSE, 5.024 dB worse than matched MP
+  and 6.315 dB worse than GMP;
 - нет второго independently fitted evaluator, нового operating-point capture
   или physical-PA output для predistorted waveform.
 
@@ -20,7 +23,8 @@
 
 1. уже выполненный **legacy surrogate-only** DPD benchmark;
 2. preregistered future benchmark через independently frozen evaluator;
-3. отрицательный SPH **PA-model** result, который не является DPD result.
+3. отрицательные SPH и non-factorized sparse spline-memory **PA-model**
+   results, которые не являются DPD results.
 
 Ни один результат ниже не является доказательством линеаризации физического PA
 Huawei или превосходства над OpenDPD.
@@ -154,6 +158,28 @@ therefore a cheap negative control and residual-analysis evidence, not a frozen
 PA evaluator for contour B. No DPD coefficients were tuned or tested through
 SPH, and no new DPD claim is made.
 
+### 3.5 Why the sparse PA result still does not open contour B
+
+The completed non-factorized sparse spline-memory run also belongs to contour
+A:
+
+```text
+measured PA input x -> sparse forward PA model -> measured PA output y_hat
+```
+
+Its selected topology has six causal branches
+`(m,d)={(0,0),(1,1),(2,2),(22,22),(23,23),(24,24)}` with `K=12` knots per
+branch. It reaches −32.030011 dB full train-OOF NMSE at an analytical cost of
+54 real MUL and 58 real ADD per sample. This improves SPH by about 1.628 dB,
+but loses to matched MP by 5.024 dB and GMP by 6.315 dB on the same OOF
+protocol. The model is therefore classified
+`neither_evaluator_nor_cheap_pareto`.
+
+Validation was descriptive reused-validation only, test was not opened, and
+no DPD was fitted through this model. Its strongest remaining causal proper
+residual correlation occurs at lag 9 (`|rho|=0.690641` on train OOF), which
+justifies one bounded preregistered lag-9 ablation but not DPD optimization.
+
 ## 4. Gate A→B и запрет silent reuse
 
 Новая DPD optimization разрешается только после одновременного выполнения:
@@ -191,8 +217,8 @@ Decision: **closed**. GMP one-shot test release PASS не является эт�
 8. SPH: complex spline followed by short complex FIR (already evaluated as a
    PA candidate; include in DPD matrix only after Gate A→B and independent
    evaluator criteria, not as the current evaluator);
-9. one validation-selected non-factorized sparse branch model, if it passes
-   contour-A gates.
+9. one validation-frozen non-factorized sparse branch model, only if a future
+   candidate passes contour-A gates; the completed first sparse model did not.
 
 Architecture progression нельзя менять по test. Для deterministic closed-form
 models stochastic seed не применяется; stochastic models используют минимум
@@ -227,9 +253,13 @@ quality vs peak predistorted drive
 
 ## 7. Следующий разрешённый шаг
 
-Следующий step находится в контуре A, не B: preregister и проверить
-bounded **non-factorized sparse complex spline-memory PA** по train OOF/validation,
-используя residual lags 22–24 как гипотезу, а не как заранее доказанный
-результат. Если fidelity margin всё ещё ниже gate, честный результат —
-продолжать считать legacy DPD surrogate-only и запросить новый physical
-capture/operating point, а не оптимизировать DPD под ошибки evaluator.
+Следующий step находится в контуре A, не B: отдельно preregister и проверить
+узкий residual-guided **lag-9 neighborhood** для non-factorized sparse complex
+spline-memory PA. Branch families, knot/ridge budget и OOF acceptance должны
+быть frozen до fit; test остаётся закрыт. Эта проверка является
+within-capture architecture ablation, а не independent evaluator evidence.
+
+Если lag-9 family всё ещё ниже quality gate, честный следующий шаг —
+independent `APA_200MHz_b` capture или physical-PA measurement. Legacy DPD
+остаётся surrogate-only; расширять DPD или dictionary под ошибки того же
+evaluator нельзя.
