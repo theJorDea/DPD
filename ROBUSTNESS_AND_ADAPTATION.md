@@ -259,11 +259,6 @@ Lag-9 sparse — единственный surviving cheap-Pareto point, но о�
 independent `APA_200MHz_b` capture/physical-PA evaluation, а не дальнейшее
 расширение dictionary на том же capture.
 
-Lag-9 validation was loaded only after freeze and confirms the same local
-ranking, но это не independent confirmation. Для каждой модели transfer
-публикуются zero-shot и limited-calibration curves; target test открывается
-только после metadata/config freeze.
-
 Для каждой допущенной к transfer модели публикуются zero-shot и
 limited-calibration curves; target test открывается только после
 metadata/config freeze.
