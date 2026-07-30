@@ -26,11 +26,14 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import platform
 import random
+import re
+import subprocess
 import sys
 import tempfile
 import time
@@ -41,9 +44,6 @@ import numpy as np
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-
-from baseline.train_spline import load_complex_iq_csv
-
 
 OPENDPD_ROOT = PROJECT_ROOT / "vendor" / "OpenDPD"
 ALLOWED_DATASET_FILES: tuple[str, ...] = (
@@ -61,6 +61,8 @@ SUPPORTED_BACKBONES = {"gru", "tres_gru", "tres_deltagru"}
 SCHEMA_VERSION = 1
 TASK = "opendpd_pa_train_validation_only"
 CONFIG_STATUS = "preregistered_train_validation_only"
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _display_path(path: str | Path) -> str:
@@ -113,6 +115,18 @@ def _contains_forbidden_dataset_path(value: Any) -> bool:
     return False
 
 
+def _validate_sha256(value: Any, *, label: str) -> str:
+    if not isinstance(value, str) or SHA256_PATTERN.fullmatch(value) is None:
+        raise ValueError(f"{label} must be one lowercase SHA-256 digest")
+    return value
+
+
+def _validate_git_commit(value: Any, *, label: str) -> str:
+    if not isinstance(value, str) or GIT_COMMIT_PATTERN.fullmatch(value) is None:
+        raise ValueError(f"{label} must be one full lowercase Git commit ID")
+    return value
+
+
 def load_config(path: str | Path) -> dict[str, Any]:
     """Load and validate a sealed runner configuration.
 
@@ -146,12 +160,28 @@ def load_config(path: str | Path) -> dict[str, Any]:
         raise ValueError(
             "dataset_files must exactly whitelist spec/train/val files"
         )
+    dataset_hashes = value.get("dataset_files_sha256")
+    if not isinstance(dataset_hashes, dict) or set(dataset_hashes) != set(
+        ALLOWED_DATASET_FILES
+    ):
+        raise ValueError(
+            "dataset_files_sha256 must bind every and only allowed dataset file"
+        )
+    for name, digest in dataset_hashes.items():
+        _validate_sha256(digest, label=f"dataset_files_sha256[{name!r}]")
     dataset_dir = value.get("dataset_dir")
     if not isinstance(dataset_dir, str) or not dataset_dir:
         raise ValueError("config.dataset_dir must be a non-empty string")
     candidates = value.get("candidates")
     if not isinstance(candidates, list) or not candidates:
         raise ValueError("config.candidates must be a non-empty list")
+    candidate_names = [
+        candidate.get("name")
+        for candidate in candidates
+        if isinstance(candidate, dict)
+    ]
+    if len(candidate_names) != len(set(candidate_names)):
+        raise ValueError("candidate names must be unique")
     for candidate in candidates:
         _validate_candidate(candidate)
     framing = value.get("framing")
@@ -168,6 +198,21 @@ def load_config(path: str | Path) -> dict[str, Any]:
         number = framing.get(key)
         if not isinstance(number, int) or isinstance(number, bool) or number < 1:
             raise ValueError(f"framing.{key} must be a positive integer")
+    segment_lengths = framing.get("train_segment_lengths")
+    if segment_lengths is not None:
+        if (
+            not isinstance(segment_lengths, list)
+            or not segment_lengths
+            or any(
+                not isinstance(length, int)
+                or isinstance(length, bool)
+                or length < 1
+                for length in segment_lengths
+            )
+        ):
+            raise ValueError(
+                "framing.train_segment_lengths must be positive integers"
+            )
     training = value.get("training")
     if not isinstance(training, dict):
         raise ValueError("config.training must be an object")
@@ -175,13 +220,70 @@ def load_config(path: str | Path) -> dict[str, Any]:
         number = training.get(key)
         if not isinstance(number, int) or isinstance(number, bool) or number < 1:
             raise ValueError(f"training.{key} must be a positive integer")
+    if not isinstance(training.get("seed"), int) or isinstance(
+        training.get("seed"), bool
+    ):
+        raise ValueError("training.seed must be an integer")
+    if not isinstance(training.get("deterministic"), bool):
+        raise ValueError("training.deterministic must be boolean")
+    if training.get("device") not in {"cpu", "cuda"}:
+        raise ValueError("training.device must be cpu or cuda")
     for key in ("lr", "lr_end", "decay_factor", "patience", "grad_clip_val"):
         if key not in training:
             raise ValueError(f"config.training is missing {key}")
+    for key in ("lr", "lr_end", "decay_factor", "grad_clip_val"):
+        number = training[key]
+        if (
+            isinstance(number, bool)
+            or not isinstance(number, (int, float))
+            or not np.isfinite(number)
+            or number < 0
+        ):
+            raise ValueError(f"training.{key} must be finite and non-negative")
+    if training["lr"] <= 0 or training["lr_end"] <= 0:
+        raise ValueError("training learning rates must be positive")
+    if not 0 < training["decay_factor"] <= 1:
+        raise ValueError("training.decay_factor must be in (0, 1]")
+    if not isinstance(training["patience"], int) or isinstance(
+        training["patience"], bool
+    ) or training["patience"] < 0:
+        raise ValueError("training.patience must be a non-negative integer")
+    if "weight_decay" in training:
+        number = training["weight_decay"]
+        if (
+            isinstance(number, bool)
+            or not isinstance(number, (int, float))
+            or not np.isfinite(number)
+            or number < 0
+        ):
+            raise ValueError("training.weight_decay must be finite and non-negative")
+    if "torch_num_threads" in training:
+        number = training["torch_num_threads"]
+        if not isinstance(number, int) or isinstance(number, bool) or number < 1:
+            raise ValueError("training.torch_num_threads must be positive integer")
     if training.get("optimizer") != "adamw" or training.get("loss") != "mse":
         raise ValueError("runner currently reproduces only AdamW + MSE")
     if value.get("selection_metric") != "validation_opendpd_nmse_db":
         raise ValueError("checkpoint selection metric must be validation NMSE")
+    source = value.get("source")
+    if not isinstance(source, dict):
+        raise ValueError("config.source must be an object")
+    _validate_git_commit(
+        source.get("opendpd_commit"),
+        label="source.opendpd_commit",
+    )
+    source_hashes = source.get("files_sha256")
+    if not isinstance(source_hashes, dict):
+        raise ValueError("source.files_sha256 must be an object")
+    required_sources = _required_source_names(value)
+    if set(source_hashes) != required_sources:
+        raise ValueError(
+            "source.files_sha256 must exactly bind the runner, OpenDPD core "
+            f"and selected backbones; required={sorted(required_sources)}"
+        )
+    for name, digest in source_hashes.items():
+        _validate_source_name(name)
+        _validate_sha256(digest, label=f"source.files_sha256[{name!r}]")
     return value
 
 
@@ -193,6 +295,13 @@ def _validate_candidate(candidate: Any) -> None:
     hidden_size = candidate.get("hidden_size")
     if not isinstance(name, str) or not name:
         raise ValueError("candidate.name must be a non-empty string")
+    if (
+        name in {".", ".."}
+        or "/" in name
+        or "\\" in name
+        or Path(name).name != name
+    ):
+        raise ValueError("candidate.name must be one safe directory component")
     if backbone not in SUPPORTED_BACKBONES:
         raise ValueError(
             f"unsupported PA backbone {backbone!r}; "
@@ -206,6 +315,100 @@ def _validate_candidate(candidate: Any) -> None:
         for key in ("thx", "thh"):
             if key not in candidate:
                 raise ValueError(f"DeltaGRU candidate is missing {key}")
+    for key in ("thx", "thh"):
+        if key in candidate:
+            value = candidate[key]
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not np.isfinite(value)
+                or value < 0
+            ):
+                raise ValueError(f"candidate.{key} must be finite and non-negative")
+
+
+def _required_source_names(config: Mapping[str, Any]) -> set[str]:
+    names = {
+        "experiments/train_opendpd_pa.py",
+        "vendor/OpenDPD/models.py",
+        "vendor/OpenDPD/modules/data_collector.py",
+        "vendor/OpenDPD/backbones/__init__.py",
+        "vendor/OpenDPD/backbones/rvtdcnn.py",
+    }
+    for candidate in config.get("candidates", ()):
+        if isinstance(candidate, Mapping) and isinstance(
+            candidate.get("backbone"), str
+        ):
+            names.add(f"vendor/OpenDPD/backbones/{candidate['backbone']}.py")
+    if any(
+        isinstance(candidate, Mapping)
+        and candidate.get("backbone") == "tres_deltagru"
+        for candidate in config.get("candidates", ())
+    ):
+        names.update(
+            {
+                "vendor/OpenDPD/backbones/triton_deltagru.py",
+                "vendor/OpenDPD/quant/__init__.py",
+                "vendor/OpenDPD/quant/modules/__init__.py",
+                "vendor/OpenDPD/quant/modules/ops.py",
+            }
+        )
+    return names
+
+
+def _validate_source_name(name: Any) -> Path:
+    if not isinstance(name, str) or not name:
+        raise ValueError("source file name must be a non-empty string")
+    path = (PROJECT_ROOT / name).resolve()
+    try:
+        path.relative_to(PROJECT_ROOT)
+    except ValueError as error:
+        raise ValueError(f"source path escapes project root: {name}") from error
+    if path.name in FORBIDDEN_DATASET_FILES:
+        raise ValueError(f"source manifest contains forbidden dataset path: {name}")
+    return path
+
+
+def verify_source_inputs(config: Mapping[str, Any]) -> dict[str, Any]:
+    """Verify the vendored commit and exact source payload before waveforms."""
+
+    source = config["source"]
+    expected_commit = str(source["opendpd_commit"])
+    actual_commit = subprocess.check_output(
+        ["git", "-C", str(OPENDPD_ROOT), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    if actual_commit != expected_commit:
+        raise RuntimeError(
+            "vendored OpenDPD commit mismatch: "
+            f"expected {expected_commit}, found {actual_commit}"
+        )
+    dirty_status = subprocess.check_output(
+        ["git", "-C", str(OPENDPD_ROOT), "status", "--porcelain"],
+        text=True,
+    )
+    if dirty_status.strip():
+        raise RuntimeError(
+            "vendored OpenDPD worktree is dirty; refusing an unbound source"
+        )
+    actual_hashes: dict[str, str] = {}
+    for name, expected in source["files_sha256"].items():
+        path = _validate_source_name(name)
+        if not path.is_file():
+            raise FileNotFoundError(f"bound source file is missing: {path}")
+        actual = sha256_file(path)
+        if actual != expected:
+            raise RuntimeError(
+                f"source SHA-256 mismatch for {name}: "
+                f"expected {expected}, found {actual}"
+            )
+        actual_hashes[name] = actual
+    return {
+        "vendored_commit": actual_commit,
+        "vendored_worktree_clean": True,
+        "files": actual_hashes,
+        "verified_before_waveform_access": True,
+    }
 
 
 def resolve_dataset_dir(config: Mapping[str, Any], config_path: str | Path) -> Path:
@@ -214,7 +417,10 @@ def resolve_dataset_dir(config: Mapping[str, Any], config_path: str | Path) -> P
     source = Path(config_path).resolve().parent
     dataset_dir = Path(str(config["dataset_dir"]))
     if not dataset_dir.is_absolute():
-        dataset_dir = (source / dataset_dir).resolve()
+        dataset_dir = source / dataset_dir
+    if dataset_dir.is_symlink():
+        raise ValueError("dataset_dir must not be a symlink")
+    dataset_dir = dataset_dir.resolve()
     if not dataset_dir.is_dir():
         raise FileNotFoundError(f"dataset directory does not exist: {dataset_dir}")
     return dataset_dir
@@ -236,15 +442,28 @@ def verify_allowed_inputs(
     hashes: dict[str, str] = {}
     for name in ALLOWED_DATASET_FILES:
         path = dataset_dir / name
+        if path.is_symlink():
+            raise ValueError(f"dataset file must not be a symlink: {name}")
         if not path.is_file():
             raise FileNotFoundError(f"required train/validation file missing: {path}")
-        hashes[name] = sha256_file(path)
+        if path.resolve().parent != dataset_dir:
+            raise ValueError(f"dataset file resolves outside dataset directory: {name}")
+        actual = sha256_file(path)
+        expected = str(config["dataset_files_sha256"][name])
+        if actual != expected:
+            raise RuntimeError(
+                f"dataset SHA-256 mismatch for {name}: "
+                f"expected {expected}, found {actual}"
+            )
+        hashes[name] = actual
     return dataset_dir, hashes
 
 
 def load_allowed_split(
     dataset_dir: str | Path,
     split: str,
+    *,
+    expected_hashes: Mapping[str, str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Load exactly one allowed split; reject ``test`` before path creation."""
 
@@ -255,9 +474,37 @@ def load_allowed_split(
     root = Path(dataset_dir)
     input_path = root / f"{split}_input.csv"
     output_path = root / f"{split}_output.csv"
-    # ``load_complex_iq_csv`` validates the exact I,Q schema and finite values.
-    features = load_complex_iq_csv(input_path)
-    targets = load_complex_iq_csv(output_path)
+    # Read each file into one immutable byte snapshot and parse that snapshot.
+    # This closes the hash/read TOCTOU window: a replacement between the
+    # preflight hash and parsing is rejected rather than silently consumed.
+    def load_bound(path: Path) -> np.ndarray:
+        payload = path.read_bytes()
+        if expected_hashes is not None:
+            expected = expected_hashes[path.name]
+            actual = hashlib.sha256(payload).hexdigest()
+            if actual != expected:
+                raise RuntimeError(
+                    f"dataset changed between verification and load: {path.name}"
+                )
+        header = payload.splitlines()[0].decode("utf-8").strip()
+        if tuple(part.strip().lower() for part in header.split(",")) != ("i", "q"):
+            raise ValueError(f"{path} must have exactly the header I,Q")
+        values = np.loadtxt(
+            io.BytesIO(payload),
+            delimiter=",",
+            skiprows=1,
+            dtype=np.float64,
+        )
+        if values.ndim == 1:
+            values = values.reshape(1, -1)
+        if values.ndim != 2 or values.shape[1] != 2 or values.shape[0] == 0:
+            raise ValueError(f"{path} must contain at least one two-column IQ row")
+        if not np.all(np.isfinite(values)):
+            raise ValueError(f"{path} contains NaN or infinite values")
+        return values[:, 0] + 1j * values[:, 1]
+
+    features = load_bound(input_path)
+    targets = load_bound(output_path)
     if features.shape != targets.shape:
         raise ValueError(f"{split} input/output lengths differ")
     return features, targets
@@ -271,9 +518,21 @@ def _import_opendpd():
     vendor = str(OPENDPD_ROOT)
     if vendor not in sys.path:
         sys.path.insert(0, vendor)
-    return importlib.import_module("models"), importlib.import_module(
-        "modules.data_collector"
-    )
+    models = importlib.import_module("models")
+    data_collector = importlib.import_module("modules.data_collector")
+    for module_name, module in (
+        ("models", models),
+        ("modules.data_collector", data_collector),
+    ):
+        module_path = getattr(module, "__file__", None)
+        if module_path is None or not Path(module_path).resolve().is_relative_to(
+            OPENDPD_ROOT
+        ):
+            raise RuntimeError(
+                f"{module_name} was imported outside vendored OpenDPD: "
+                f"{module_path!r}; run in a clean Python process"
+            )
+    return models, data_collector
 
 
 def _iq_pairs(signal: np.ndarray) -> np.ndarray:
@@ -290,6 +549,7 @@ def build_dataloaders(
     batch_size: int,
     batch_size_eval: int,
     seed: int,
+    train_segment_lengths: Sequence[int] | None = None,
 ):
     """Build upstream-compatible train-frame and validation-segment loaders."""
 
@@ -319,11 +579,30 @@ def build_dataloaders(
             train_y,
             nperseg=int(framing["nperseg"]),
         )
-        train_set = data_collector.IQFrameDataset(
+        import torch
+        from torch.utils.data import TensorDataset
+
+        frame_features = []
+        frame_targets = []
+        for segment_features, segment_targets in zip(
             segmented.features.numpy(),
             segmented.targets.numpy(),
-            frame_length=int(framing["frame_length"]),
-            stride=int(framing["frame_stride"]),
+        ):
+            segment_set = data_collector.IQFrameDataset(
+                segment_features,
+                segment_targets,
+                frame_length=int(framing["frame_length"]),
+                stride=int(framing["frame_stride"]),
+            )
+            frame_features.append(segment_set.features)
+            frame_targets.append(segment_set.targets)
+        if not frame_features:
+            raise ValueError("segmented train input produced no segments")
+        # TensorDataset preserves the same sample ordering as concatenating
+        # each segment's local upstream frames and never crosses a boundary.
+        train_set = TensorDataset(
+            torch.cat(frame_features, dim=0),
+            torch.cat(frame_targets, dim=0),
         )
     else:  # pragma: no cover - config validation catches this
         raise ValueError(f"unsupported train framing mode: {train_mode}")
@@ -358,7 +637,47 @@ def build_dataloaders(
         "validation_segments": int(len(val_set)),
         "train_mode": train_mode,
         "validation_mode": str(framing["validation_mode"]),
+        "train_boundary_policy": (
+            "flat_concatenated_upstream"
+            if train_mode == "upstream_flat_windows"
+            else "reset_per_segment"
+        ),
+        "train_cross_boundary_window_count": (
+            _count_cross_boundary_windows(
+                train_segment_lengths,
+                total_samples=int(train_x.shape[0]),
+                frame_length=int(framing["frame_length"]),
+                stride=int(framing["frame_stride"]),
+            )
+            if train_mode == "upstream_flat_windows"
+            and train_segment_lengths is not None
+            else 0 if train_mode == "upstream_segment_windows" else None
+        ),
     }
+
+
+def _count_cross_boundary_windows(
+    segment_lengths: Sequence[int],
+    *,
+    total_samples: int,
+    frame_length: int,
+    stride: int,
+) -> int:
+    """Count flat upstream windows crossing declared segment boundaries."""
+
+    if sum(int(length) for length in segment_lengths) != total_samples:
+        raise ValueError(
+            "train_segment_lengths must sum to the loaded train sequence length"
+        )
+    boundaries = np.cumsum(np.asarray(segment_lengths, dtype=np.int64))[:-1]
+    starts = range(0, total_samples - frame_length + 1, stride)
+    return int(
+        sum(
+            1
+            for start in starts
+            if np.any((boundaries > start) & (boundaries < start + frame_length))
+        )
+    )
 
 
 def opendpd_nmse_db(prediction: np.ndarray, target: np.ndarray) -> float:
@@ -496,33 +815,6 @@ def _evaluate(
     )
 
 
-def _source_provenance() -> dict[str, Any]:
-    """Collect source hashes without reading any dataset test path."""
-
-    source_files = [
-        OPENDPD_ROOT / "models.py",
-        OPENDPD_ROOT / "modules" / "data_collector.py",
-    ]
-    # Candidate-specific backbone files are added by ``run_candidate``.
-    result = {
-        "opendpd_root": _display_path(OPENDPD_ROOT),
-        "files": {
-            _display_path(path): sha256_file(path)
-            for path in source_files
-        },
-    }
-    try:
-        import subprocess
-
-        result["vendored_commit"] = subprocess.check_output(
-            ["git", "-C", str(OPENDPD_ROOT), "rev-parse", "HEAD"],
-            text=True,
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        result["vendored_commit"] = None
-    return result
-
-
 def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary_name = tempfile.mkstemp(
@@ -575,9 +867,28 @@ def run_candidate(
     _validate_candidate(candidate)
     if _contains_forbidden_dataset_path(config):
         raise ValueError("forbidden test split filename appears in config")
+    output = Path(output_dir).resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists():
+        raise FileExistsError(f"refusing to reuse OpenDPD output directory: {output}")
+    source = verify_source_inputs(config)
     dataset_dir, dataset_hashes = verify_allowed_inputs(config, config_path)
-    train_input, train_output = load_allowed_split(dataset_dir, "train")
-    val_input, val_output = load_allowed_split(dataset_dir, "val")
+    try:
+        output.mkdir()
+    except FileExistsError as error:
+        raise FileExistsError(
+            f"refusing to reuse OpenDPD output directory: {output}"
+        ) from error
+    train_input, train_output = load_allowed_split(
+        dataset_dir,
+        "train",
+        expected_hashes=dataset_hashes,
+    )
+    val_input, val_output = load_allowed_split(
+        dataset_dir,
+        "val",
+        expected_hashes=dataset_hashes,
+    )
 
     import torch
 
@@ -601,6 +912,7 @@ def run_candidate(
         batch_size=int(training["batch_size"]),
         batch_size_eval=int(training["batch_size_eval"]),
         seed=seed,
+        train_segment_lengths=framing.get("train_segment_lengths"),
     )
     model = _candidate_model(candidate).to(device)
     parameter_count = _parameter_count(model)
@@ -677,20 +989,9 @@ def run_candidate(
     if best_state is None or best_epoch is None:
         raise RuntimeError("no validation-selected checkpoint was produced")
 
-    output = Path(output_dir).resolve()
-    if output.exists() and any(output.iterdir()):
-        raise FileExistsError(
-            f"refusing to overwrite non-empty OpenDPD output directory: {output}"
-        )
-    output.mkdir(parents=True, exist_ok=True)
     checkpoint = output / f"{candidate['name']}.pt"
     _save_checkpoint_atomic(best_state, checkpoint)
-    source = _source_provenance()
-    backbone_path = OPENDPD_ROOT / "backbones" / f"{candidate['backbone']}.py"
-    if backbone_path.is_file():
-        source["files"][_display_path(backbone_path)] = sha256_file(
-            backbone_path
-        )
+    source["opendpd_root"] = _display_path(OPENDPD_ROOT)
     config_hash = sha256_file(config_path)
     report: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
