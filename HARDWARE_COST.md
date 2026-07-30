@@ -1,16 +1,15 @@
 # Hardware cost and fixed-point contract
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Статус и область доказательства
 
-Для selected MP, causal GMP, legacy spline DPD, APA SPH и нового
-non-factorized sparse spline-memory PA имеются
+Для selected MP, causal GMP, legacy spline DPD, APA SPH, первого
+non-factorized sparse spline-memory PA и residual-guided lag-9 sparse PA имеются
 analytical operation/state counts. Для causal GMP и SPH также доказана
 equivalence NumPy full-record, reset-per-frame и arbitrary streaming chunks в
-floating-point. SPH является отрицательным quality result, поэтому его cost
-сохраняется как reproducible cheap lower-bound/control point, а не как
-рекомендованный evaluator.
+floating-point. Lag-9 sparse PA также прошёл exact streaming/reset checks и
+является internal cheap-Pareto point, но не независимым evaluator.
 
 Пока **не выполнены**:
 
@@ -64,6 +63,7 @@ code, buffers, allocator, address logic или output queues.
 | Legacy spline-memory DPD APA | 21 | 24 | 1 | 3 | 6 | 18/2 | 48 | 15 | 4 | 268 |
 | APA standalone SPH (`K=32,L=8`) | **37** | **36** | 1 (`sqrt`) | 5 | 4 | 36/2 | **78** | **63** | **14** | **620** |
 | APA sparse non-factorized (`K=12`, 6 branches) | **54** | **58** | 6 (`sqrt`) | 24 | 12 | 36/2 | **144** | **23** | **48** | **860** |
+| APA lag-9 sparse non-factorized (`K=12`, 9 branches) | **72** | **82** | 6 (`sqrt`) | 24 | 18 | 54/2 | **216** | **23** | **48** | **1,148** |
 
 Sources:
 
@@ -77,6 +77,10 @@ Sources:
 - Sparse PA: `experiments/results/pa_sparse_spline_memory_apa200_selection/selection_manifest.json`
   and `selected_sparse_pa.npz`; the exact counter is recomputed by
   `SparseSplineMemoryPA.operation_count()`.
+- Lag-9 sparse PA:
+  `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selection_manifest.json`
+  and `selected_sparse_pa.npz`; the exact counter is recomputed by the same
+  `SparseSplineMemoryPA.operation_count()` implementation.
 
 MP artifact warning: historical MP manifests were written before delay-line
 state bookkeeping correction and contain stale zero state fields. The table
@@ -132,6 +136,37 @@ The low count does not imply a useful evaluator by itself: train-OOF NMSE is
 `−32.030011 dB`, versus `−38.345410 dB` for matched GMP and `−37.054329 dB`
 for matched MP. The candidate therefore fails the internal cheap-Pareto gate
 and must not be used to claim DPD quality or Huawei real-time readiness.
+
+### 3.3 Residual-guided lag-9 sparse PA cost audit
+
+The selected lag-9 topology adds three delayed-signal branches with the current
+envelope to the six-branch parent:
+
+```text
+(m,d) = (0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)
+```
+
+The exact schedule is:
+
+```text
+72 real MUL, 82 real ADD, 0 divisions,
+6 sqrt nonlinear operations, 24 comparisons, 18 LUT accesses,
+54 real reads, 2 writes, 216 real coefficient values,
+23 constants, 48 persistent state reals.
+```
+
+There are six unique envelope delays, so the six magnitude/address primitives
+are shared; there are nine unique signal delays, which explains the larger
+read count and 72-MUL branch total. Storage is
+`(216 + 23 + 48) * 4 = 1,148` FP32 bytes before code, buffers and interface
+logic. The maximum delay remains 24 samples, so state memory does not grow
+relative to the parent.
+
+The model is a valid low-complexity point on the APA within-capture
+identification frontier (`−37.792478 dB` train OOF, `−37.860728 dB` reused
+validation), but it remains `0.552932 dB` behind matched GMP on full OOF and
+has no fixed-point or synthesized hardware measurement yet. The 72-MUL count
+must not be presented as FPGA DSP usage or as a DPD inference result.
 
 ## 4. Interpreting the cost
 
@@ -331,8 +366,9 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-Сначала расширить integer reference на selected causal GMP и selected sparse
-PA, доказать bit-identical streaming at 16 bit, а затем добавить 14/12 bit.
+Сначала расширить integer reference на selected causal GMP, parent sparse PA и
+lag-9 sparse PA, доказать bit-identical streaming at 16 bit, а затем добавить
+14/12 bit.
 Только после раздельной PA quantization перейти к spline-memory DPD/cascade.
 Такой порядок изолирует degradation PA evaluator от degradation DPD и не
 смешивает две новые реализации в одном experiment.
