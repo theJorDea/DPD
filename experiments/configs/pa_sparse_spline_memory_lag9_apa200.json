@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_candidate_fit_using_frozen_existing_implementation",
+  "date": "2026-07-30",
+  "task": "forward_pa_non_factorized_sparse_spline_memory_selection",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection",
+  "scope": {
+    "contour": "A_low_complexity_forward_pa_system_identification",
+    "purpose": "one bounded residual-guided lag-9 neighborhood ablation after the first sparse PA run",
+    "model_role": "standalone alternative PA model, not an additive correction to GMP",
+    "evidence_class": "post_discovery_internal_resampling_only",
+    "implementation_status": "reuse the already tested sparse spline-memory implementation without changing its feature definition",
+    "not_claimed": [
+      "independent architecture validation",
+      "independent capture robustness",
+      "Gate A-to-B",
+      "DPD linearization",
+      "physical-PA remeasurement",
+      "Huawei acceptance",
+      "superiority over OpenDPD"
+    ],
+    "test_split_access_permitted": false
+  },
+  "direction": {
+    "input": "measured PA input x",
+    "target": "measured PA output y",
+    "equation": "y_hat[n] = sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+    "phase_equivariance": "PA(x*exp(j*phi)) = PA(x)*exp(j*phi)",
+    "inverse_or_ila": false,
+    "post_prediction_gain_fit": false,
+    "post_prediction_delay_fit": false
+  },
+  "hypothesis_origin": {
+    "parent_recipe": {
+      "family": "mixed_diagonal_long",
+      "branches": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24]],
+      "knot_count": 12,
+      "ridge": 0.0,
+      "recipe_sha256": "31d7944751077a06f454dc1902c68454f52813a81cb5d064c18b32e3a9b704d8"
+    },
+    "train_oof_proper_complex_residual_correlation": {
+      "lag_8_magnitude": 0.6423272181314099,
+      "lag_9_magnitude": 0.6906410327780975,
+      "lag_10_magnitude": 0.6536764212108748,
+      "strongest_causal_lag": 9
+    },
+    "validation_reused_descriptive_proper_complex_residual_correlation": {
+      "lag_8_magnitude": 0.6401617219470082,
+      "lag_9_magnitude": 0.6913056499345815,
+      "lag_10_magnitude": 0.6557716923843445,
+      "strongest_causal_lag": 9
+    },
+    "interpretation_limit": "both reports come from the same physical capture family and were inspected before this preregistration; validation is reused descriptive evidence, not confirmation",
+    "bounded_response": "test only exact lag 9 and its immediate 8-to-10 neighborhood; do not expand the delay dictionary after seeing this run"
+  },
+  "dataset_contract": {
+    "required_files_sha256": {
+      "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+    },
+    "sample_rate_hz": 983040000.0,
+    "nperseg": 19662,
+    "train_sample_count": 58980,
+    "validation_sample_count": 19662,
+    "frame_lengths": [19662, 19662, 19656],
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "common_warmup_samples_per_frame": 49,
+    "common_future_cooldown_samples_per_frame": 0,
+    "frame_state_policy": "reset at every explicit complete or partial frame",
+    "test_policy": "test files must not be opened, hashed, named in output, or used for release"
+  },
+  "evidence": {
+    "sph_selection_manifest": {
+      "path": "experiments/results/pa_sph_apa200_selection/selection_manifest.json",
+      "sha256": "12df5309360f1a5e0deba7d54669ab2b408ee9a8ed6dd96d058fc460815df656"
+    },
+    "sph_train_residual_analysis": {
+      "path": "experiments/results/pa_sph_apa200_selection/train_oof_residual_analysis.json",
+      "sha256": "b7ecd43dcc4ebf6f32a228dec9b4e8ac50f132fafd9a015e29fc572260264990"
+    },
+    "gmp_residual_predictions": {
+      "path": "experiments/results/pa_gmp_apa200_residuals/residual_predictions.npz",
+      "sha256": "a82f05705753154aa4205457b36eb5e052d53eba690e7a8a5dc0c825b933c866"
+    },
+    "gmp_selected_model": {
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    },
+    "parent_sparse_config": {
+      "path": "experiments/configs/pa_sparse_spline_memory_apa200.json",
+      "sha256": "021949ae3e8bcc334d6a064c2feb61676e68dc79bcd4e8b522c894b8a597d4b0"
+    },
+    "parent_sparse_selection_manifest": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/selection_manifest.json",
+      "sha256": "2777d239fe043bf753180a69fbc24257021ccfd0e21ee54bd4605cd5dfc80032"
+    },
+    "parent_sparse_staged_trials": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/staged_trials.json",
+      "sha256": "7a8cd8ff0e1d7ab50fb312bf07bb5de005f86e6b660f159cc6c3410a6fe679b7"
+    },
+    "parent_sparse_predictions": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/predictions.npz",
+      "sha256": "c1efefcc90ef3c4dca01cad35036158d01f293c900e860e1e21717bd5ce4e84a"
+    },
+    "parent_sparse_selected_model": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/selected_sparse_pa.npz",
+      "sha256": "79b6ef762f81295e889e23a78bca4aa0c93b133b8755e9cbf86f27446b9a2d7b"
+    },
+    "parent_sparse_train_residual_analysis": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/train_oof_residual_analysis.json",
+      "sha256": "c88d4c51b382ea31c462056c390d70b87d7b7899dad01c7efe96618e150de9c0"
+    },
+    "parent_sparse_validation_residual_analysis": {
+      "path": "experiments/results/pa_sparse_spline_memory_apa200_selection/validation_reused_residual_analysis.json",
+      "sha256": "c7243ee46b4f02d9014fd6abd0e4207a4168da60477a851aeaf9fefbd178292a"
+    }
+  },
+  "reference_models": {
+    "matched_mp_oof": {
+      "full_record_nmse_db": -37.054328680975395,
+      "common_interior_nmse_db": -37.09995132643951,
+      "real_multiplications": 960,
+      "real_additions": 628,
+      "stored_real_coefficients": 300,
+      "state_real_values": 58
+    },
+    "matched_gmp_oof": {
+      "full_record_nmse_db": -38.345410298129714,
+      "common_interior_nmse_db": -38.750526106525086,
+      "real_multiplications": 954,
+      "real_additions": 947,
+      "stored_real_coefficients": 888,
+      "state_real_values": 236
+    },
+    "incremental_control_oof": {
+      "name": "parent_sparse_mixed_diagonal_long_K12_r0",
+      "full_record_nmse_db": -32.030011440675466,
+      "common_interior_nmse_db": -32.088249751390265,
+      "real_multiplications": 54,
+      "real_additions": 58,
+      "stored_real_coefficients": 144,
+      "state_real_values": 48,
+      "fold_records": [
+        {
+          "held_frame_id": 0,
+          "held_metrics": {
+            "full_record_nmse_db": -32.03843972199169,
+            "common_interior_nmse_db": -32.03922370825933
+          }
+        },
+        {
+          "held_frame_id": 1,
+          "held_metrics": {
+            "full_record_nmse_db": -32.00739280932795,
+            "common_interior_nmse_db": -32.10665160836254
+          }
+        },
+        {
+          "held_frame_id": 2,
+          "held_metrics": {
+            "full_record_nmse_db": -32.044115288445916,
+            "common_interior_nmse_db": -32.119401359649856
+          }
+        }
+      ]
+    }
+  },
+  "model": {
+    "name": "phase_equivariant_non_factorized_sparse_spline_memory_pa",
+    "equation": "sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+    "coordinate": "amplitude",
+    "knot_strategy": "uniform_amplitude",
+    "local_support": "two adjacent complex control points per branch and sample",
+    "causality": "all signal and envelope delays are non-negative",
+    "fit": "one joint complex augmented ridge least-squares solve; no normal equations",
+    "coefficient_dtype": "complex128",
+    "identifiability": [
+      "unregularized design full column rank on every OOF fit fold",
+      "all active control features observed on every OOF fit fold",
+      "finite condition number and coefficients",
+      "no duplicate branch pairs"
+    ]
+  },
+  "branch_families": {
+    "parent_selected_control": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24]],
+    "parent_plus_diagonal_lag9_only": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [9, 9]],
+    "parent_plus_signal_lag9_only_current_envelope": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [9, 0]],
+    "short_plus_diagonal_lag8_10": [[0, 0], [1, 1], [2, 2], [8, 8], [9, 9], [10, 10]],
+    "short_plus_signal_lag8_10_current_envelope": [[0, 0], [1, 1], [2, 2], [8, 0], [9, 0], [10, 0]],
+    "parent_plus_diagonal_lag8_10": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [8, 8], [9, 9], [10, 10]],
+    "parent_plus_signal_lag8_10_current_envelope": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [8, 0], [9, 0], [10, 0]],
+    "parent_plus_current_signal_lag8_10_envelope": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [0, 8], [0, 9], [0, 10]],
+    "parent_plus_cross_lag8_10": [[0, 0], [1, 1], [2, 2], [22, 22], [23, 23], [24, 24], [8, 0], [0, 8], [9, 0], [0, 9], [10, 0], [0, 10]]
+  },
+  "search": {
+    "stage_s0_topology_screen": {
+      "knot_count": 12,
+      "ridge": 1e-8,
+      "retain_topologies": 3,
+      "retention_window_db": 0.25
+    },
+    "stage_s1_knot_count": {
+      "knot_counts": [8, 12, 16],
+      "ridge": 1e-8,
+      "use_retained_topologies": true
+    },
+    "stage_s2_ridge": {
+      "ridges": [0.0, 1e-10, 1e-8, 1e-6],
+      "use_selected_topology_and_knot_count": true
+    },
+    "ranking": {
+      "primary": "pooled full-record train OOF NMSE dB",
+      "secondary": "pooled common-interior train OOF NMSE dB",
+      "tie_tolerance_db": 0.02,
+      "tie_breakers": ["lower common NMSE", "fewer MUL", "fewer branches", "fewer knots", "lexical recipe name"]
+    }
+  },
+  "gates": {
+    "real_multiplications_strictly_below": 1000,
+    "maximum_augmented_condition_number": 100000000.0,
+    "maximum_absolute_coefficient": 1000000.0,
+    "maximum_support_exceedance_fraction": 0.001,
+    "cheap_pareto_max_full_loss_vs_mp_db": 3.0,
+    "cheap_pareto_max_common_loss_vs_mp_db": 3.0,
+    "evaluator_min_full_gain_over_gmp_db": 0.25,
+    "evaluator_min_common_gain_over_gmp_db": 0.25,
+    "evaluator_minimum_fold_gain_over_gmp_db": 0.1,
+    "incremental_min_full_gain_db": 0.25,
+    "incremental_min_common_gain_db": 0.25,
+    "incremental_minimum_fold_gain_db": 0.1,
+    "meaning": "internal research gates; none is a Huawei acceptance claim"
+  },
+  "search_budget": {
+    "oof_fold_count": 3,
+    "maximum_s0_recipes": 9,
+    "maximum_s1_recipes": 9,
+    "maximum_s2_recipes": 4,
+    "maximum_unique_recipes": 22,
+    "maximum_oof_fit_calls_without_cache": 66,
+    "final_full_train_fit_calls": 1,
+    "candidate_cache": "canonical recipe hash",
+    "plots_during_fit": false
+  },
+  "preimplementation_source_sha256": {
+    "baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "experiments/select_pa_sparse_spline_memory.py": "d2b3c929a6e357e8c43c104404bf9b3165eafcc5e0258caaba68d1fc620cc7cc",
+    "experiments/run_pa_sparse_spline_memory.py": "abea5505f2cbe420a392571bbda5697d9af54b8f12a6e82c36224aae8069a360",
+    "experiments/sparse_pa_benchmark_support.py": "5bf9799ae6ca08b01a881934c3963a5bca04408adb5d4c52cd64b6a261494a49",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa"
+  },
+  "new_source_files_must_not_exist": [],
+  "selection_policy": {
+    "validation_role": "load only after final recipe and full-train parameters are frozen; descriptive reused evidence",
+    "test_role": "forbidden",
+    "old_apa_test_reuse": false,
+    "dpd_optimization": "paused until Gate A-to-B",
+    "if_incremental_gate_fails": "stop expanding the delay dictionary on APA_200MHz and prioritize independent APA_200MHz_b or physical-PA evidence",
+    "if_incremental_gate_passes_but_quality_gates_fail": "retain as an internal ablation only; do not open DPD contour and prioritize independent capture evidence",
+    "if_quality_gate_passes": "still require independent evaluator or physical-PA confirmation before Gate A-to-B"
+  }
+}
