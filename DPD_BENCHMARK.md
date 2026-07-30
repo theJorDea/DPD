@@ -33,6 +33,10 @@ regions, reference и threshold пока не определены. Поэтом
 - DPA/APA frozen spline-memory DPD has a pinned-core, paired DPD-only timing
   diagnostic with exact chunk equivalence. It is host-Python evidence only,
   not the unknown Huawei target timing gate;
+- sealed DPA/APA 16/14/12-bit DPD validation is complete with train-frozen
+  formats, desired-input direction, zero saturation/collision and exact
+  streaming. It remains a floating-surrogate result and did not select a
+  precision;
 - всё ещё нет второго evaluator с достаточным error margin, controlled
   operating-point labels или physical-PA output для predistorted waveform.
 
@@ -163,6 +167,50 @@ experiments/results/dpd_spectral_replay_apa200_validation/
 experiments/results/dpd_spectral_replay_apa200_validation_spectral/
 ```
 
+### Fixed-point preservation of the frozen validation result
+
+После отдельной preregistration выбранный three-branch DPD был выполнен в
+signed 16/14/12-bit integer arithmetic. Runner открыл только desired
+`train_input.csv` и `val_input.csv`: train зафиксировал input/output/coefficient
+formats, validation не меняла scale, topology или precision. Frozen PA
+surrogate оставался floating, чтобы измерять только деградацию DPD.
+
+| Dataset / format | Fixed-vs-float drive NMSE | Cascade NMSE vs ideal | Configured absolute adjacent suppression L/R | Peak / PAPR |
+|---|---:|---:|---:|---:|
+| DPA float | reference | −30.5332 dB | 4.801 / 7.789 dB | 1.1926 / 10.469 dB |
+| DPA 16 bit | −78.9244 dB | −30.5322 dB | 4.798 / 7.788 dB | 1.1926 / 10.469 dB |
+| DPA 14 bit | −67.0128 dB | −30.5336 dB | 4.793 / 7.776 dB | 1.1927 / 10.469 dB |
+| DPA 12 bit | −54.8714 dB | −30.5148 dB | 4.782 / 7.692 dB | 1.1922 / 10.466 dB |
+| APA float | reference | −32.3840 dB | 16.521 / 13.905 dB | 1.0615 / 10.584 dB |
+| APA 16 bit | −77.8237 dB | −32.3851 dB | 16.511 / 13.906 dB | 1.0615 / 10.583 dB |
+| APA 14 bit | −65.7806 dB | −32.3703 dB | 16.535 / 13.871 dB | 1.0617 / 10.586 dB |
+| APA 12 bit | −53.5984 dB | −32.3790 dB | 16.369 / 13.982 dB | 1.0608 / 10.578 dB |
+
+Worst cascade-NMSE degradation was `0.0185 dB` DPA and `0.0137 dB` APA.
+Worst loss in configured absolute adjacent-region suppression was `0.0966 dB`
+DPA and `0.1520 dB` APA. Peak-amplitude change stayed within `0.00514 dB`.
+All six fixed rows reported zero saturation and knot collisions, exact
+arbitrary-chunk streaming and bit-exact 90-degree rotation for the evaluated
+signals.
+
+The integer reference schedule is `20 MUL, 25 ADD, 1 DIV, 1 integer sqrt,
+8 LUT, 28 reads, 2 writes` per complex sample with four persistent state
+reals; DPA/APA interval search costs five/three comparisons. This is not a
+customer-equivalent timing result. Validation had already selected the
+floating model historically, so no word length is declared a winner and this
+is not untouched final evidence. Bundles:
+
+```text
+experiments/results/dpd_fixed_point_dpa200_validation/
+experiments/results/dpd_fixed_point_apa200_validation/
+experiments/results/dpd_fixed_point_{dpa200,apa200}_spectrum_{float,16bit,14bit,12bit}_validation/
+```
+
+They prove preservation of one legacy surrogate result under the declared
+integer arithmetic. They do not prove physical-PA or independent-evaluator
+fixed-point behavior, RF harmonic attenuation, RTL resources or target
+latency.
+
 ### Descriptive legacy test replay (historically opened split)
 
 The same frozen coefficients and surrogate were replayed on the already-opened
@@ -222,14 +270,17 @@ Both force `customer_gate_evaluable=false` and `hardware_pass_claim=false`.
 - desired \(x\) действительно использован как test input в этом evaluator;
 - имеются numerical NMSE/EVM/ACLR/PAPR/peak-drive artifacts;
 - continuous streaming state transfer exact for chunks 1, 8, 64 and 512 in
-  the host reference.
+  the host reference;
+- declared 16/14/12-bit integer arithmetic preserves the frozen
+  validation-surrogate result with zero saturation/collision.
 
 Он не доказывает:
 
 - качество через новый GMP evaluator;
 - ranking относительно OpenDPD на едином evaluator;
 - устойчивость к evaluator mismatch;
-- fixed-point degradation нового two-loop pipeline;
+- fixed-point behavior on an independent evaluator or physical PA;
+- RTL/HLS resources, timing closure or a chosen reciprocal/sqrt datapath;
 - target sample-rate throughput/latency или прохождение 1000-MUL-equivalent
   customer timing gate;
 - physical-PA spectral mask или Huawei acceptance.
@@ -380,10 +431,10 @@ Source DPA/APA и target-calibrated APA-B bit-accurate PA arithmetic уже
 timing-reference definitions, metadata measurement B и controlled physical-PA
 capture с известными power/backoff, bias и temperature axes.
 
-DPD timing instrumentation теперь готова и frozen-host streaming semantics
-проверены, но hardware gate остаётся закрытым до fixed-point DPD и
-target-specific reference measurement. Это не открывает Gate A→B и не
-разрешает новое DPD tuning через старый surrogate.
+DPD integer reference, timing instrumentation и frozen-host streaming
+semantics теперь готовы, но hardware gate остаётся закрытым до target HLS/RTL,
+target-specific reference-kernel measurement и physical-PA replay. Это не
+открывает Gate A→B и не разрешает новое DPD tuning через старый surrogate.
 
 Уже открытый B test нельзя использовать для нового выбора topology,
 regularization или calibration N. Если controlled evidence не даёт второго
