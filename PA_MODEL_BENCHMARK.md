@@ -27,12 +27,12 @@ GMP evaluator и не открывал контур B.
 Residual-guided lag-9 neighborhood был затем проверен отдельным
 preregistered run с тем же frozen implementation; он улучшил parent до
 cheap-Pareto уровня, но не заменил GMP evaluator.
-После freeze source family выполнен отдельный train/validation-only capture
-transfer `APA_200MHz -> APA_200MHz_b`. Target held-out split не открывался и
-не хэшировался. Zero-shot fidelity резко падает примерно до −23.8 dB, тогда
-как coefficient-only recalibration на длинном target-train prefix возвращает
-GMP к −37.89 dB; это evidence capture drift, а не доказательство power или
-thermal adaptation.
+После freeze source family выполнен отдельный preregistered capture transfer
+`APA_200MHz -> APA_200MHz_b`, включая frozen one-shot held-out release.
+Zero-shot fidelity резко падает примерно до −23.8 dB, тогда как
+coefficient-only recalibration на длинном target-train prefix возвращает GMP
+к −37.895 dB на held-out test; это evidence capture drift, а не доказательство
+power или thermal adaptation.
 Данные в CSV являются измеренными входом и выходом PA, поэтому это
 **forward identification on held-out measured data**. Это не означает, что
 физический PA был повторно измерен после построения модели.
@@ -73,12 +73,20 @@ evaluator не является выполненным DPD experiment. Bundled O
   и `−37.8607 dB` reused validation при `72 MUL/82 ADD`, превзойдя matched MP
   на `0.738/0.753 dB`, но уступив GMP на `0.553/0.898 dB`;
 - DPD optimization остаётся остановленной: следующий источник информации —
-  independent `APA_200MHz_b`/physical-PA capture, не новый local delay sweep.
+  capture metadata и controlled physical-PA experiment, не новый local delay
+  sweep.
 - На independent declared capture `APA_200MHz_b` zero-shot source transfer
   дал `−23.7948 dB` GMP и `−23.7014 dB` lag-9 sparse на validation. После
   coefficient-only target-train calibration (`N=16384` samples/frame) GMP
-  достиг `−37.8908 dB`, sparse `−35.3585 dB`; held-out target split всё ещё
-  запечатан, поэтому это pre-test transfer evidence.
+  достиг `−37.8908 dB`, sparse `−35.3585 dB`.
+- Frozen held-out release подтвердил GMP: `−37.8952 dB` full-record и
+  `−38.0038 dB` common-support test NMSE. Sparse дал `−34.8015 dB`
+  full-record и `−35.4380 dB` common-support; его full-record degradation
+  относительно validation равна `0.5570 dB`, но common-support degradation
+  только `0.0080 dB`, поэтому основная нестабильность локализована на
+  24-sample frame boundary.
+- Ни GMP (`1.6236e-4`), ни sparse (`3.3102e-4`) не достигли `1e-5`
+  normalized error power на target test. Gate A→B остаётся закрытым.
 
 ## 1. Определения метрик
 
@@ -1009,7 +1017,7 @@ within-capture evidence. The immutable bundle is
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`; all six
 payload hashes and input hashes were reverified, and `test_split_accessed=false`.
 
-## 10.9 APA_200MHz → APA_200MHz_b capture transfer — pre-test result
+## 10.9 APA_200MHz → APA_200MHz_b capture transfer
 
 Перед запуском target fit был зафиксирован
 `experiments/configs/pa_transfer_apa200_to_b.json`. Source и target inputs
@@ -1027,8 +1035,8 @@ compare with target measured y
 Target coefficient adaptation refit-ит только complex coefficients на
 `[0:N)` prefix каждой из трёх target-train frames. `N` и solver axes были
 зафиксированы заранее; validation загружена только после завершения всех
-prefix fits. Target held-out split не открывался, не хэшировался и не
-использовался для выбора N.
+prefix fits. После выбора `N=16384` для обеих families topology, coefficients,
+metrics и release hashes были повторно заморожены до held-out evaluation.
 
 | Model / mode | N per frame | Target val full NMSE | Common NMSE | Fit time, s | MUL / ADD | FP32 model+state |
 |---|---:|---:|---:|---:|---:|---:|
@@ -1067,6 +1075,66 @@ Machine-readable bundle и независимый verifier:
 - verifier проверяет 20 metric records, payload/source/data hashes и sealed
   held-out boundary.
 
+### 10.9.1 Frozen held-out release
+
+Target test использовался только в направлении forward identification:
+
+```text
+target measured x_test
+    -> frozen zero-shot or target-train-calibrated PA model
+    -> y_hat_test
+    -> compare with target measured y_test
+```
+
+Ни topology, ни `N`, ни coefficients, ни metric protocol по test не
+выбирались. Результаты:
+
+| Model / mode | Target test full NMSE | Common NMSE | Relative error power | Fit time, s | Inference batch, s | MUL / ADD |
+|---|---:|---:|---:|---:|---:|---:|
+| GMP zero-shot | −23.795441 | −23.800907 | 4.1731e−3 | 0 | 0.03616 | 954 / 947 |
+| GMP coefficient-only, N=16384 | **−37.895152** | **−38.003839** | **1.6236e−4** | 6.860 | 0.03637 | 954 / 947 |
+| lag-9 sparse zero-shot | −23.695838 | −23.700933 | 4.2699e−3 | 0 | 0.00620 | 72 / 82 |
+| lag-9 sparse coefficient-only, N=16384 | −34.801474 | −35.437986 | 3.3102e−4 | 1.513 | 0.00547 | 72 / 82 |
+
+Для GMP validation и held-out test практически совпали:
+`−37.890764 -> −37.895152 dB`. У sparse full-record score изменился
+`−35.358475 -> −34.801474 dB`, но на общем steady-state support
+`−35.446027 -> −35.437986 dB`. Следовательно, примерно `0.55 dB` различия
+full-record связано главным образом с causal startup/reset boundary, а не с
+разрушением steady-state transfer. Оба представления публикуются; удобный
+common score не заменяет primary full-record score.
+
+Sparse вариант в `13.25x` дешевле GMP по real MUL, примерно в `4.53x`
+быстрее калибруется и в этом host batch был примерно в `6.65x` быстрее, но
+проигрывает GMP `3.094 dB` по primary held-out NMSE (`2.566 dB` на common
+support). Поэтому это cost/quality Pareto point, а не evaluator replacement.
+
+Release audit не является идеальным single-open execution. Первый process
+загрузил target test pair, затем остановился до model inference из-за
+ошибочной проверки train-frame lengths: код ожидал
+`19662+19662+19662`, тогда как frozen train framing равен
+`19662+19662+19656`. Ни test metric, ни prediction тогда не вычислялись и
+никакое selection decision не менялось. Исправлен только guard, после чего
+тот же frozen protocol был выполнен со вторым доступом. Поэтому:
+
+- held-out access count: `2`;
+- first access: metric-free, before inference;
+- `strict_single_open_execution=false`;
+- test used for selection/coefficient fit: `false`.
+
+Артефакты:
+
+- release config:
+  `experiments/configs/pa_transfer_apa200_to_b_release.json`;
+- incident:
+  `experiments/results/pa_transfer_apa200_to_b_release_incident_001.json`;
+- immutable release:
+  `experiments/results/pa_transfer_apa200_to_b_test_release/`;
+- independent verification:
+  `experiments/results/pa_transfer_apa200_to_b_test_release_verification.json`;
+- verifier reproduced 4 metric records, test/data/source/pretest hashes,
+  incident linkage and the two-access audit.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -1078,8 +1146,8 @@ Machine-readable bundle и независимый verifier:
   calibration/de-embedding всё ещё отсутствует; A0 frozen без correction.
 - Нет independent long captures для thermal/trapping state.
 - Нет captures с известными и контролируемыми power levels/operating points
-  для adaptation claim; `APA_200MHz_b` остаётся нерасшифрованным capture
-  transfer.
+  для adaptation claim; held-out `APA_200MHz_b` release завершён, но
+  measurement B остаётся нерасшифрованным capture transfer.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
 - Widely-linear, proper long-FIR и standalone SPH отклонены по quality gates.
@@ -1097,6 +1165,8 @@ Machine-readable bundle и независимый verifier:
 > NMSE при 766/954 counted real multiplications/sample. Он улучшает локальный
 > MP, особенно на APA, но не достигает возможной −50 dB цели и не обеспечивает
 > 10 dB evaluator margin для текущего surrogate-only DPD residual. Release
-> gates и one-shot tests завершены; Gate A→B остаётся закрытым, поэтому DPD
-> optimization всё ещё приостановлена до более независимого и/или точного PA
-> evidence.
+> gates, one-shot source tests и target capture-transfer release завершены.
+> Target-calibrated GMP достиг −37.895 dB на B-capture held-out test, но
+> normalized error power 1.62e−4 всё ещё выше возможного требования 1e−5.
+> Gate A→B остаётся закрытым, поэтому DPD optimization приостановлена до
+> controlled physical-PA и/или более точного independent PA evidence.
