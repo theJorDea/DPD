@@ -23,6 +23,8 @@ evidence, но новая optimization приостановлена: Gate A→B 
 | DPA_200MHz | −35.385 dB | 766 / 759 | 356 |
 | APA_200MHz | −38.608 dB | 954 / 947 | 444 |
 | APA_200MHz lag-9 sparse (reused validation) | −37.861 dB | 72 / 82 | 216 |
+| APA_200MHz_b calibrated GMP (held-out test) | −37.895 dB | 954 / 947 | 444 |
+| APA_200MHz_b calibrated lag-9 sparse (held-out test) | −34.801 dB | 72 / 82 | 216 |
 
 Если Huawei `10^-5` означает normalized error power, target равен −50 dB и
 не достигнут. Никакого claim “лучше OpenDPD” или “готово для Huawei base
@@ -232,8 +234,10 @@ Detailed analysis: `PA_MODEL_BENCHMARK.md` and `FINAL_GAP_ANALYSIS.md`.
 Отдельный lag-9 sparse PA достиг `−37.792478 dB` train-OOF full NMSE и
 `−37.860728 dB` reused validation при 72 MUL/sample. Это улучшение MP по
 quality/cost внутри APA capture, но оно уступает GMP на `0.552932 dB` full OOF
-и не является evaluator для DPD. Следующий decisive result должен быть на
-independent `APA_200MHz_b`/physical PA, а не на новом local split.
+и не является evaluator для DPD. На независимом `APA_200MHz_b` capture
+zero-shot обе families дают около −23.8 dB; после `N=16384` coefficient-only
+calibration held-out test даёт GMP `−37.895 dB`, sparse `−34.801 dB`. Это
+capture-transfer evidence, но не controlled power/thermal result.
 
 ## 8. DPD baseline and proposed method
 
@@ -282,10 +286,11 @@ complex solve is preferred over unrelated I/Q models.
 
 New complexity is allowed only after ablation. The bounded residual-guided
 lag-9 sparse spline-memory **forward PA model** experiment is complete and is
-the current low-complexity Pareto point. Further local delay expansion is
-paused; the next PA experiment is independent `APA_200MHz_b`
-transfer/adaptation, with GMP and lag-9 sparse models frozen before target
-access. DPD optimization remains paused.
+the current low-complexity Pareto point. Independent `APA_200MHz_b`
+transfer/adaptation is also complete through held-out test: GMP is the
+quality point, sparse is the cheaper point. Further local delay expansion and
+DPD optimization remain paused until controlled operating-point/physical-PA
+evidence closes the evaluator gap.
 
 Detailed shortlist: `research/proposed_methods.md`.
 
@@ -297,7 +302,8 @@ lookups, reads/writes, coefficients and state. At native Fs, APA GMP represents
 real time.
 
 Existing integer reference covers only first-stage memoryless spline 16/12-bit
-software arithmetic and declares `bit_true_rtl=false`. Required order:
+software arithmetic and declares `bit_true_rtl=false`. Selected GMP and
+lag-9 sparse PA fixed-point evaluation is still pending. Required order:
 
 1. selected causal GMP integer datapath at 16 bit;
 2. 14/12 bit ablation with frozen scale/accumulator;
@@ -313,11 +319,20 @@ Detailed contract: `HARDWARE_COST.md`.
 temperature metadata are insufficient. They must be treated as capture
 transfer, never pooled random splits.
 
-Highest-information local experiment is source-frozen `APA_200MHz ->
-APA_200MHz_b` zero-shot PA modeling plus limited coefficient recalibration
-versus (N=64,128,256,\ldots). Target nuisance alignment may use target train
-only with a frozen algorithm; target validation chooses update settings and
-target test is opened once.
+The source-frozen `APA_200MHz -> APA_200MHz_b` zero-shot PA modeling and
+limited coefficient recalibration is complete, including held-out release:
+
+| Model / mode | Target test full NMSE | Common NMSE | Fit time | MUL/sample |
+|---|---:|---:|---:|---:|
+| GMP zero-shot | −23.795441 dB | −23.800907 dB | 0 | 954 |
+| GMP coefficient-only, N=16384 | **−37.895152 dB** | **−38.003839 dB** | 6.860 s | 954 |
+| lag-9 sparse zero-shot | −23.695838 dB | −23.700933 dB | 0 | 72 |
+| lag-9 sparse coefficient-only, N=16384 | −34.801474 dB | −35.437986 dB | 1.513 s | 72 |
+
+Target nuisance alignment was estimated from target train only. The release
+audit records two accesses because the first failed before inference/metric;
+the retry used unchanged frozen choices. This is capture-transfer evidence,
+not known power/thermal adaptation.
 
 Detailed protocol: `ROBUSTNESS_AND_ADAPTATION.md`.
 
@@ -327,6 +342,8 @@ Supported:
 
 - low-complexity causal GMP forward PA identification on held-out measured
   captures under the project operation convention;
+- fixed-topology coefficient-only transfer calibration on `APA_200MHz_b`
+  held-out test, with explicit two-access incident audit;
 - lag-9 sparse PA is a reproducible 72-MUL cheap-Pareto point relative to MP
   within the APA capture, with exact floating-point streaming/reset behavior;
 - correct pipeline guards, OOF/release/test provenance and streaming software
@@ -340,10 +357,12 @@ Not supported:
 - physical PA DPD linearization;
 - better-than-OpenDPD claim;
 - fixed-point GMP/DPD or FPGA readiness;
-- generalization/adaptation under controlled drift;
+- generalization/adaptation under controlled drift or known physical axes;
 - thermal/state model evidence.
 
-The decisive final experiment remains calibrated physical PA remeasurement of
+The next high-information experiment is a bit-accurate selected-PA audit,
+followed by controlled operating-point metadata/capture. The decisive final
+experiment remains calibrated physical PA remeasurement of
 no-DPD, OpenDPD and the selected low-cost candidate on the same waveform,
 operating point and spectral evaluator. Until then all DPD conclusions must
 retain their surrogate/forward-model evidence label.
