@@ -324,9 +324,9 @@ causal lag 45, но explained error power снова оказался мал:
 большим linear delay grid или превращать эти же lags в spline branches без
 отдельного nonlinear evidence. Такой standalone phase-equivariant
 spline/CPWL + short-FIR PA (SPH) уже проверен: его 37-MUL factorized form
-проиграла matched MP на 6.652 dB. Следующий experiment должен добавить только
-недостающую degree of freedom — residual-guided lag-9 branch neighborhood —
-с жёстким budget/OOF gate. Уже выполненный sparse run показал, что topology
+проиграла matched MP на 6.652 dB. Residual-guided lag-9 branch neighborhood
+затем был отдельно preregistered и выполнен с жёстким budget/OOF gate; его
+результат описан в A2.6. Уже выполненный sparse run показал, что topology
 только с lag 22–24 недостаточна.
 
 ### A2.5 Sparse non-factorized PA result
