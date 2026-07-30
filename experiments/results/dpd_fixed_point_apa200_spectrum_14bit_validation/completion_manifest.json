@@ -1,0 +1,18 @@
+{
+  "artifact_type": "frozen_dpd_spectral_evaluation_bundle",
+  "artifacts": {
+    "spectra.npz": "e9353d1d5e34b5ffc541ab4c5da6c5d7289ab1fa95ee09a067c9411a5be89c95",
+    "summary.json": "f5406a68546c1719b545c03b6380036fda5b5234ca51fc4e59888d5d59b03ac4"
+  },
+  "atomic_publication": true,
+  "config_sha256": "2a0fb5f79cf3dbe30e4aae4a2a6b602de68e71bc42f0627da6731227863614a5",
+  "fit_performed": false,
+  "input_archive_sha256": "5e6a8677a1af6546dfa1a4be2864771033202660a9fffd6d30cf9b9d1148e4d1",
+  "schema_version": 1,
+  "selection_performed": false,
+  "source_sha256": {
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/spectral_regions.py": "557d20938f4e4c950d696764636bf473a6c52c82f2b994222cd2b8c6ff79f973",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/evaluate_frozen_dpd_spectrum.py": "bbf2423232137a5841d4690e9641368df47d98fb60a3e3aeb13bac910fb95956"
+  }
+}
