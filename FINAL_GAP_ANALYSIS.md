@@ -271,7 +271,8 @@ config SHA `93807ab6…`, recipe SHA
   но cells 10/14 выполняют circular inverse→forward reconstruction известного
   `y_test`; cell 11 — отдельный correct-direction surrogate path.
 - Egor cached (R^2) не заменяет complex NMSE/ACLR; cached values около
-  −31.67 dB PA NMSE и −32.09 dB circular cascade не достигают −50 dB.
+  −31.67 dB PA NMSE и −32.09 dB circular cascade являются только optional
+  diagnostics, а не Huawei −50 dB gate и не evidence of spectral DPD quality.
 - `EnhancedESN_FAN` matrices исполняются dense: DPD pair (R=600) оценивается
   примерно в 728,622 real MUL/sample, а full DPD→PA surrogate cascade — около
   2,020,044; coefficient sparsity без sparse kernel не сокращает runtime.

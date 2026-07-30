@@ -432,9 +432,10 @@ Analytical counts в frozen manifests:
 
 `Nonlinear=1` — вычисление общей amplitude/envelope primitive в принятой
 абстракции counter; это не означает один DSP cycle. Оба kernel укладываются в
-строгое `<1000` по real multiplications/sample, но APA оставляет запас только
-46 MUL. Coefficient/state memory существенно выше локального MP, поэтому GMP
-не доминирует MP по всем Pareto axes.
+исторический preregistered PA-search bound, но APA оставляет запас только
+46 MUL внутри этого старого счётчика. Это не Huawei DPD timing result.
+Coefficient/state memory существенно выше локального MP, поэтому GMP не
+доминирует MP по всем Pareto axes.
 
 Operation records:
 

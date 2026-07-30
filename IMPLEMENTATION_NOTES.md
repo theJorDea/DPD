@@ -487,7 +487,8 @@ Test modules cover:
 - MP/GMP basis, fit, rank truncation, save/load and streaming;
 - exact complexity/state counts;
 - PA evaluator test guards and no post-hoc fitting;
-- deterministic selector and strict `<1000` exclusion;
+- deterministic selector and historical PA-search `<1000` exclusion (not a
+  deployment-DPD acceptance test);
 - residual OOF/test isolation/atomic publication;
 - causal widely-linear fit/save/load/streaming, cost and deterministic audit
   selection/fallback;

@@ -135,7 +135,8 @@ hashed APA test. The selected hard-valid recipe was
 
 SPH is `6.651955/6.662937 dB` worse than MP (full/common) and
 `7.943037/8.313512 dB` worse than GMP. It fails the preregistered ≤3 dB
-cheap-Pareto loss gate despite satisfying the strict multiplier ceiling. The
+cheap-Pareto loss gate despite satisfying the historical PA-search arithmetic
+bound. The
 immutable bundle is
 `experiments/results/pa_sph_apa200_selection/`; its execution record reports
 620.531 s before publication, 60 unique recipes and 180 completed OOF fits.
@@ -452,8 +453,11 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - Bundled OpenDPD checkpoints/GPU are unavailable, but a sealed CPU
   train/validation runner has completed bounded GRU/TRes-GRU/TRes-DeltaGRU
   preflight. Full validation-quality training remains pending.
-- Existing Egor circular score does not establish deployment DPD and dense
-  reservoir cost exceeds the multiplier gate by orders of magnitude.
+- Existing Egor circular score does not establish deployment DPD. The DPD
+  reservoir pair alone requires about 728,622 dense real MUL/sample before
+  additions, activations and memory traffic, so it is implausible under the
+  reference-time budget; definitive pass/fail still requires same-target
+  total streaming-time measurement.
 - Peak RSS, physical hardware latency and capture-level confidence intervals
   are unavailable; they are not estimated as measurements.
 
