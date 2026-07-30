@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "task": "opendpd_pa_train_validation_only",
+  "status": "runtime_preflight_not_quality",
+  "command": [
+    "/tmp/dpd_opendpd_venv/bin/python",
+    "experiments/train_opendpd_pa.py",
+    "--config",
+    "experiments/configs/opendpd_pa_cpu_preflight_apa200.json",
+    "--max-epochs",
+    "1",
+    "--max-train-batches",
+    "10",
+    "--max-val-batches",
+    "1",
+    "--output-root",
+    "experiments/results/opendpd_pa_cpu_preflight_apa200"
+  ],
+  "purpose": "bounded CPU runtime smoke only; no quality claim",
+  "dataset": "APA_200MHz",
+  "test_split_accessed": false,
+  "test_file_hashes_recorded": false,
+  "candidate_reports": {
+    "gru_h28": {
+      "fit_seconds": 0.5943433250067756,
+      "parameter_count": 2746,
+      "bounded_train_batches": 10,
+      "bounded_validation_batches": 1,
+      "reported_validation_nmse_db": -4.2956767082214355,
+      "quality_result": false
+    },
+    "tres_gru_h27": {
+      "fit_seconds": 0.6487637919926783,
+      "parameter_count": 2751,
+      "bounded_train_batches": 10,
+      "bounded_validation_batches": 1,
+      "reported_validation_nmse_db": -6.356640338897705,
+      "quality_result": false
+    },
+    "tres_deltagru_h27": {
+      "fit_seconds": 3.369923413003562,
+      "parameter_count": 2751,
+      "bounded_train_batches": 10,
+      "bounded_validation_batches": 1,
+      "reported_validation_nmse_db": -3.0569090843200684,
+      "quality_result": false
+    }
+  },
+  "interpretation": {
+    "cpu_runtime_ordering": "TRes-DeltaGRU is approximately 5x slower than GRU/TRes-GRU in this bounded run.",
+    "upstream_train_boundary_policy": "flat_concatenated_upstream",
+    "cross_boundary_window_count": 398,
+    "full_training_not_run": true,
+    "dpd_latency_gate_applicable": false
+  }
+}
