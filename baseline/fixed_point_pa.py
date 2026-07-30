@@ -548,6 +548,73 @@ def _signed_bits_saturate(value: int, bits: int) -> tuple[int, int]:
     return int(value), 0
 
 
+def _saturate_array_bits(values: np.ndarray, bits: int) -> tuple[np.ndarray, int]:
+    minimum = -(1 << (bits - 1))
+    maximum = (1 << (bits - 1)) - 1
+    array = np.asarray(values, dtype=np.int64)
+    clipped = np.clip(array, minimum, maximum).astype(np.int64, copy=False)
+    return clipped, int(np.count_nonzero(array != clipped))
+
+
+def _saturate_array_format(
+    values: np.ndarray,
+    fmt: FixedPointFormat,
+) -> tuple[np.ndarray, int]:
+    """Clip an integer-code array to a fixed-point format's code range."""
+
+    array = np.asarray(values, dtype=np.int64)
+    clipped = np.clip(
+        array,
+        fmt.minimum_code,
+        fmt.maximum_code,
+    ).astype(np.int64, copy=False)
+    return clipped, int(np.count_nonzero(array != clipped))
+
+
+def _checked_array_product(
+    left: np.ndarray,
+    right: np.ndarray,
+    *,
+    label: str,
+) -> np.ndarray:
+    left = np.asarray(left, dtype=np.int64)
+    right = np.asarray(right, dtype=np.int64)
+    if left.shape != right.shape:
+        raise ValueError("integer product operands must have matching shapes")
+    maximum_left = int(np.max(np.abs(left), initial=0))
+    maximum_right = int(np.max(np.abs(right), initial=0))
+    checked_int64_product(maximum_left, maximum_right, label=label)
+    return (left * right).astype(np.int64, copy=False)
+
+
+def _checked_array_add(
+    left: np.ndarray,
+    right: np.ndarray,
+    *,
+    label: str,
+) -> np.ndarray:
+    left = np.asarray(left, dtype=np.int64)
+    right = np.asarray(right, dtype=np.int64)
+    if left.shape != right.shape:
+        raise ValueError("integer add operands must have matching shapes")
+    maximum_left = int(np.max(np.abs(left), initial=0))
+    maximum_right = int(np.max(np.abs(right), initial=0))
+    checked_int64_product(maximum_left + maximum_right, 1, label=label)
+    return (left + right).astype(np.int64, copy=False)
+
+
+def _delay_codes(values: np.ndarray, delay: int) -> np.ndarray:
+    values = np.asarray(values, dtype=np.int64)
+    if delay < 0:
+        raise ValueError("fixed-point delay must be non-negative")
+    result = np.zeros(values.shape, dtype=np.int64)
+    if delay == 0:
+        result[:] = values
+    elif delay < values.size:
+        result[delay:] = values[:-delay]
+    return result
+
+
 def _round_shift_scalar(value: int, shift: int, *, label: str) -> int:
     checked_int64_product(value, 1, label=label)
     return int(round_shift_even(np.asarray([value], dtype=np.int64), shift)[0])
@@ -592,49 +659,61 @@ def _integer_power_codes(
 ) -> dict[int, np.ndarray]:
     """Compute amplitude powers in the explicitly declared power format."""
 
-    size = int(real_codes.size)
     powers: dict[int, np.ndarray] = {}
     if maximum_exponent <= 0:
         return powers
-    amplitude = np.zeros(size, dtype=np.int64)
-    for index, (real, imag) in enumerate(zip(real_codes, imag_codes, strict=True)):
-        rr = checked_int64_product(int(real), int(real), label="input.real.square")
-        ii = checked_int64_product(int(imag), int(imag), label="input.imag.square")
-        radicand = rr + ii
-        if radicand > _INT64_MAX:
-            raise OverflowError("input power exceeds signed int64 range")
-        radius = integer_sqrt_round_even(radicand)
-        clipped, count = _signed_scalar_saturate(radius, config.power_format)
-        amplitude[index] = clipped
-        counters.power_saturations += count
-        counters.maximum_power_magnitude = max(
+    real_codes = np.asarray(real_codes, dtype=np.int64)
+    imag_codes = np.asarray(imag_codes, dtype=np.int64)
+    real_square = _checked_array_product(
+        real_codes,
+        real_codes,
+        label="input.real.square",
+    )
+    imag_square = _checked_array_product(
+        imag_codes,
+        imag_codes,
+        label="input.imag.square",
+    )
+    radicand = _checked_array_add(
+        real_square,
+        imag_square,
+        label="input.power",
+    )
+    amplitude_raw = integer_sqrt_array(radicand)
+    amplitude, count = _saturate_array_format(
+        amplitude_raw,
+        config.power_format,
+    )
+    counters.power_saturations += count
+    counters.maximum_power_magnitude = int(
+        max(
             counters.maximum_power_magnitude,
-            abs(int(clipped)),
+            np.max(np.abs(amplitude), initial=0),
         )
+    )
     powers[1] = amplitude
     for exponent in range(2, maximum_exponent + 1):
         previous = powers[exponent - 1]
-        current = np.empty(size, dtype=np.int64)
-        for index, (left, right) in enumerate(
-            zip(previous, amplitude, strict=True)
-        ):
-            product = checked_int64_product(
-                int(left),
-                int(right),
-                label=f"power^{exponent}.product",
-            )
-            rounded = _round_shift_scalar(
-                product,
-                config.input_format.fractional_bits,
-                label=f"power^{exponent}.shift",
-            )
-            clipped, count = _signed_scalar_saturate(rounded, config.power_format)
-            current[index] = clipped
-            counters.power_saturations += count
-            counters.maximum_power_magnitude = max(
+        product = _checked_array_product(
+            previous,
+            amplitude,
+            label=f"power^{exponent}.product",
+        )
+        rounded = round_shift_even(
+            product,
+            config.input_format.fractional_bits,
+        )
+        current, count = _saturate_array_format(
+            rounded,
+            config.power_format,
+        )
+        counters.power_saturations += count
+        counters.maximum_power_magnitude = int(
+            max(
                 counters.maximum_power_magnitude,
-                abs(int(clipped)),
+                np.max(np.abs(current), initial=0),
             )
+        )
         powers[exponent] = current
     return powers
 
@@ -689,8 +768,8 @@ class FixedPointGMPPA:
             counters=counters,
         )
         size = int(real_codes.size)
-        output_real = np.zeros(size, dtype=np.int64)
-        output_imag = np.zeros(size, dtype=np.int64)
+        output_accumulator_real = np.zeros(size, dtype=np.int64)
+        output_accumulator_imag = np.zeros(size, dtype=np.int64)
         coefficient_fraction_bits = self.config.coefficient_format.fractional_bits
         power_fraction_bits = self.config.power_format.fractional_bits
         scalar_shift = coefficient_fraction_bits
@@ -701,117 +780,144 @@ class FixedPointGMPPA:
             - self.config.output_format.fractional_bits
         )
 
-        for index in range(size):
-            accumulator_real = 0
-            accumulator_imag = 0
-            for signal_delay, delayed_terms in self._terms_by_signal_delay.items():
-                scalar_real = 0
-                scalar_imag = 0
-                for coefficient_index, term in delayed_terms:
-                    coeff_real = int(self._coefficient_real[coefficient_index])
-                    coeff_imag = int(self._coefficient_imag[coefficient_index])
-                    if term.exponent == 0:
-                        power_code = scalar_scale
-                    else:
-                        power_index = index - term.envelope_delay
-                        power_code = (
-                            int(powers[term.exponent][power_index])
-                            if power_index >= 0
-                            else 0
-                        )
-                    scalar_real += checked_int64_product(
-                        coeff_real,
-                        power_code,
+        for signal_delay, delayed_terms in self._terms_by_signal_delay.items():
+            scalar_real = np.zeros(size, dtype=np.int64)
+            scalar_imag = np.zeros(size, dtype=np.int64)
+            for coefficient_index, term in delayed_terms:
+                coefficient_real = int(self._coefficient_real[coefficient_index])
+                coefficient_imag = int(self._coefficient_imag[coefficient_index])
+                if term.exponent == 0:
+                    power = np.full(size, scalar_scale, dtype=np.int64)
+                else:
+                    power = _delay_codes(
+                        powers[term.exponent],
+                        term.envelope_delay,
+                    )
+                coefficient_real_codes = np.full(
+                    size,
+                    coefficient_real,
+                    dtype=np.int64,
+                )
+                coefficient_imag_codes = np.full(
+                    size,
+                    coefficient_imag,
+                    dtype=np.int64,
+                )
+                scalar_real = _checked_array_add(
+                    scalar_real,
+                    _checked_array_product(
+                        coefficient_real_codes,
+                        power,
                         label="gmp.scalar.real",
-                    )
-                    scalar_imag += checked_int64_product(
-                        coeff_imag,
-                        power_code,
+                    ),
+                    label="gmp.scalar.real.sum",
+                )
+                scalar_imag = _checked_array_add(
+                    scalar_imag,
+                    _checked_array_product(
+                        coefficient_imag_codes,
+                        power,
                         label="gmp.scalar.imag",
-                    )
-                scalar_real = _round_shift_scalar(
-                    scalar_real,
-                    scalar_shift,
-                    label="gmp.scalar.real.shift",
+                    ),
+                    label="gmp.scalar.imag.sum",
                 )
-                scalar_imag = _round_shift_scalar(
-                    scalar_imag,
-                    scalar_shift,
-                    label="gmp.scalar.imag.shift",
-                )
-                scalar_real, sat_r = _signed_bits_saturate(
-                    scalar_real,
-                    self.config.scalar_accumulator_bits,
-                )
-                scalar_imag, sat_i = _signed_bits_saturate(
-                    scalar_imag,
-                    self.config.scalar_accumulator_bits,
-                )
-                counters.scalar_accumulator_saturations += sat_r + sat_i
-                counters.maximum_scalar_accumulator_magnitude = max(
-                    counters.maximum_scalar_accumulator_magnitude,
-                    abs(scalar_real),
-                    abs(scalar_imag),
-                )
-                signal_index = index - signal_delay
-                signal_real = int(real_codes[signal_index]) if signal_index >= 0 else 0
-                signal_imag = int(imag_codes[signal_index]) if signal_index >= 0 else 0
-                product_real, product_imag = _complex_product_int(
-                    signal_real,
-                    signal_imag,
-                    scalar_real,
-                    scalar_imag,
-                    label="gmp.output",
-                )
-                accumulator_real += product_real
-                accumulator_imag += product_imag
 
-            accumulator_real, sat_r = _signed_bits_saturate(
-                accumulator_real,
-                self.config.accumulator_bits,
+            scalar_real = round_shift_even(scalar_real, scalar_shift)
+            scalar_imag = round_shift_even(scalar_imag, scalar_shift)
+            scalar_real, sat_r = _saturate_array_bits(
+                scalar_real,
+                self.config.scalar_accumulator_bits,
             )
-            accumulator_imag, sat_i = _signed_bits_saturate(
-                accumulator_imag,
-                self.config.accumulator_bits,
+            scalar_imag, sat_i = _saturate_array_bits(
+                scalar_imag,
+                self.config.scalar_accumulator_bits,
             )
-            counters.accumulator_saturations += sat_r + sat_i
-            counters.maximum_accumulator_magnitude = max(
+            counters.scalar_accumulator_saturations += sat_r + sat_i
+            counters.maximum_scalar_accumulator_magnitude = int(
+                max(
+                    counters.maximum_scalar_accumulator_magnitude,
+                    np.max(np.abs(scalar_real), initial=0),
+                    np.max(np.abs(scalar_imag), initial=0),
+                )
+            )
+            delayed_real = _delay_codes(real_codes, signal_delay)
+            delayed_imag = _delay_codes(imag_codes, signal_delay)
+            product_real = _checked_array_add(
+                _checked_array_product(
+                    delayed_real,
+                    scalar_real,
+                    label="gmp.output.rr",
+                ),
+                -_checked_array_product(
+                    delayed_imag,
+                    scalar_imag,
+                    label="gmp.output.ii",
+                ),
+                label="gmp.output.real",
+            )
+            product_imag = _checked_array_add(
+                _checked_array_product(
+                    delayed_real,
+                    scalar_imag,
+                    label="gmp.output.ri",
+                ),
+                _checked_array_product(
+                    delayed_imag,
+                    scalar_real,
+                    label="gmp.output.ir",
+                ),
+                label="gmp.output.imag",
+            )
+            output_accumulator_real = _checked_array_add(
+                output_accumulator_real,
+                product_real,
+                label="gmp.output.accumulator.real",
+            )
+            output_accumulator_imag = _checked_array_add(
+                output_accumulator_imag,
+                product_imag,
+                label="gmp.output.accumulator.imag",
+            )
+
+        output_accumulator_real, sat_r = _saturate_array_bits(
+            output_accumulator_real,
+            self.config.accumulator_bits,
+        )
+        output_accumulator_imag, sat_i = _saturate_array_bits(
+            output_accumulator_imag,
+            self.config.accumulator_bits,
+        )
+        counters.accumulator_saturations += sat_r + sat_i
+        counters.maximum_accumulator_magnitude = int(
+            max(
                 counters.maximum_accumulator_magnitude,
-                abs(accumulator_real),
-                abs(accumulator_imag),
+                np.max(np.abs(output_accumulator_real), initial=0),
+                np.max(np.abs(output_accumulator_imag), initial=0),
             )
-            if output_shift >= 0:
-                output_real[index] = _round_shift_scalar(
-                    accumulator_real,
-                    output_shift,
-                    label="gmp.output.real.shift",
-                )
-                output_imag[index] = _round_shift_scalar(
-                    accumulator_imag,
-                    output_shift,
-                    label="gmp.output.imag.shift",
-                )
-            else:
-                left_shift = -output_shift
-                output_real[index] = checked_int64_product(
-                    accumulator_real,
-                    1 << left_shift,
-                    label="gmp.output.real.left_shift",
-                )
-                output_imag[index] = checked_int64_product(
-                    accumulator_imag,
-                    1 << left_shift,
-                    label="gmp.output.imag.left_shift",
-                )
-            output_real[index], sat_r = _signed_scalar_saturate(
-                int(output_real[index]),
-                self.config.output_format,
+        )
+        if output_shift >= 0:
+            output_real = round_shift_even(output_accumulator_real, output_shift)
+            output_imag = round_shift_even(output_accumulator_imag, output_shift)
+        else:
+            output_real = _checked_array_product(
+                output_accumulator_real,
+                np.full(size, 1 << (-output_shift), dtype=np.int64),
+                label="gmp.output.real.left_shift",
             )
-            output_imag[index], sat_i = _signed_scalar_saturate(
-                int(output_imag[index]),
-                self.config.output_format,
+            output_imag = _checked_array_product(
+                output_accumulator_imag,
+                np.full(size, 1 << (-output_shift), dtype=np.int64),
+                label="gmp.output.imag.left_shift",
             )
-            counters.output_saturations += sat_r + sat_i
+        output_real, sat_r = _saturate_array_format(
+            output_real,
+            self.config.output_format,
+        )
+        output_imag, sat_i = _saturate_array_format(
+            output_imag,
+            self.config.output_format,
+        )
+        counters.output_saturations += sat_r + sat_i
         return (
             self.config.output_format.dequantize(output_real)
             + 1j * self.config.output_format.dequantize(output_imag)
