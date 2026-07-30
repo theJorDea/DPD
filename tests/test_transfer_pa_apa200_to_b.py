@@ -17,6 +17,7 @@ from experiments.transfer_pa_apa200_to_b import (
     metric_summary,
     run_from_config,
 )
+from experiments.verify_pa_transfer_bundle import verify_bundle
 
 
 CONFIG = Path("experiments/configs/pa_transfer_apa200_to_b.json")
@@ -122,6 +123,15 @@ class TransferContractTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "dataset hash mismatch"):
                     run_from_config(path, progress=lambda _: None)
                 loader.assert_not_called()
+
+    def test_published_pretest_bundle_reproduces_and_seals_metrics(self) -> None:
+        result = verify_bundle(
+            Path("experiments/results/pa_transfer_apa200_to_b_pretest")
+        )
+        self.assertTrue(result["artifact_hashes_verified"])
+        self.assertTrue(result["dataset_hashes_verified"])
+        self.assertTrue(result["test_never_opened_or_hashed"])
+        self.assertGreaterEqual(result["checked_metric_records"], 10)
 
 
 if __name__ == "__main__":
