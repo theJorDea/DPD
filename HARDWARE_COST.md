@@ -10,10 +10,14 @@ analytical operation/state counts. Для causal GMP и SPH также дока�
 equivalence NumPy full-record, reset-per-frame и arbitrary streaming chunks в
 floating-point. Lag-9 sparse PA также прошёл exact streaming/reset checks и
 является internal cheap-Pareto point, но не независимым evaluator.
+На независимом `APA_200MHz_b` capture эти же frozen costs были проверены в
+zero-shot и coefficient-only transfer режимах; transfer не меняет inference
+topology, только коэффициенты.
 
 Пока **не выполнены**:
 
 - bit-accurate 16/14/12-bit evaluation selected PA GMP;
+- bit-accurate 16/14/12-bit evaluation selected lag-9 sparse PA;
 - bit-accurate evaluation selected spline-memory DPD;
 - fixed-point PA→DPD cascade;
 - synthesis/place-and-route на FPGA/ASIC;
@@ -167,6 +171,25 @@ identification frontier (`−37.792478 dB` train OOF, `−37.860728 dB` reused
 validation), but it remains `0.552932 dB` behind matched GMP on full OOF and
 has no fixed-point or synthesized hardware measurement yet. The 72-MUL count
 must not be presented as FPGA DSP usage or as a DPD inference result.
+
+### 3.4 Capture-transfer cost/quality evidence
+
+The frozen `APA_200MHz -> APA_200MHz_b` release reuses exactly these inference
+costs and FP32 storage values:
+
+| Model / mode | Target test full NMSE | Common NMSE | Fit time | Host batch inference | MUL / ADD | FP32 model+state |
+|---|---:|---:|---:|---:|---:|---:|
+| GMP zero-shot | −23.795441 dB | −23.800907 dB | 0 | 0.03616 s | 954 / 947 | 4,532 B |
+| GMP coefficient-only, N=16384 | **−37.895152 dB** | **−38.003839 dB** | 6.860 s | 0.03637 s | 954 / 947 | 4,532 B |
+| lag-9 sparse zero-shot | −23.695838 dB | −23.700933 dB | 0 | 0.00620 s | 72 / 82 | 1,148 B |
+| lag-9 sparse coefficient-only, N=16384 | −34.801474 dB | −35.437986 dB | 1.513 s | 0.00547 s | 72 / 82 | 1,148 B |
+
+At `N=16384`, sparse is `13.25x` cheaper in real MUL, about `4.53x` faster
+to fit and about `6.65x` faster in this host batch call, but is `3.094 dB`
+worse than GMP on primary held-out full-record NMSE. These are analytical and
+host-Python diagnostics, not FPGA/DSP latency. The release used two accesses
+because the first failed before inference/metric; the second used unchanged
+frozen choices. Incident and access count are part of the published bundle.
 
 ## 4. Interpreting the cost
 
@@ -366,9 +389,11 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-Сначала расширить integer reference на selected causal GMP, parent sparse PA и
-lag-9 sparse PA, доказать bit-identical streaming at 16 bit, а затем добавить
-14/12 bit.
+Сначала расширить integer reference на selected causal GMP и lag-9 sparse PA,
+доказать bit-identical streaming at 16 bit, а затем добавить 14/12 bit.
+Calibration coefficients из `APA_200MHz_b` не меняют datapath counter, поэтому
+fixed-point degradation нужно измерять отдельно для source-fitted и
+target-calibrated coefficient payloads.
 Только после раздельной PA quantization перейти к spline-memory DPD/cascade.
 Такой порядок изолирует degradation PA evaluator от degradation DPD и не
 смешивает две новые реализации в одном experiment.
