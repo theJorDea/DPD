@@ -1,0 +1,58 @@
+{
+  "claim_scope": {
+    "descriptive_previously_opened_test": false,
+    "physical_pa_measurement": false,
+    "rf_harmonic_claim": false,
+    "surrogate_only": true
+  },
+  "fit_performed": false,
+  "framing": {
+    "complete_frames_only": true,
+    "crop_policy": "input archive contains exact complete frames",
+    "frame_origin_samples": 0,
+    "state_reset_policy": "DPD and PA reset to zero history at each nperseg frame"
+  },
+  "fs_hz": 800000000.0,
+  "gain_or_alignment_retuned": false,
+  "main_region": {
+    "high_hz": 100000000.0,
+    "low_hz": -100000000.0,
+    "name": "main"
+  },
+  "nperseg": 2560,
+  "quantiles": [
+    0.0,
+    0.5,
+    0.95,
+    1.0
+  ],
+  "regions": [
+    {
+      "high_hz": -100000000.0,
+      "low_hz": -120000000.0,
+      "name": "left_adjacent"
+    },
+    {
+      "high_hz": 120000000.0,
+      "low_hz": 100000000.0,
+      "name": "right_adjacent"
+    }
+  ],
+  "schema_version": 1,
+  "selection_performed": false,
+  "source_sha256": {
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/spectral_regions.py": "557d20938f4e4c950d696764636bf473a6c52c82f2b994222cd2b8c6ff79f973",
+    "experiments/evaluate_frozen_dpd_spectrum.py": "bbf2423232137a5841d4690e9641368df47d98fb60a3e3aeb13bac910fb95956"
+  },
+  "split_role": "validation",
+  "task": "frozen_dpd_spectral_evaluation",
+  "waveform_archive": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/dpd_spectral_replay_dpa200_validation/waveforms.npz",
+  "waveform_archive_sha256": "cf7ee33eb563a16ac54595fa253fa8a82a7d2f9b6654a6778ee68efeeccd442b",
+  "waveform_keys": {
+    "desired_input": "desired_input",
+    "dpd_output": "dpd_output",
+    "no_dpd_output": "no_dpd_output",
+    "predistorted_drive": "predistorted_drive"
+  }
+}
