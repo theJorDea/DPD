@@ -1,0 +1,1340 @@
+{
+  "artifact_type": "frozen_pa_fixed_point_train_validation",
+  "claims_scope": {
+    "dpd_linearization_result": false,
+    "hardware_latency_or_resources": false,
+    "physical_pa_result": false,
+    "python_runtime_only": true,
+    "rtl_bit_true": false
+  },
+  "config": {
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/configs/pa_fixed_point_apa200.json",
+    "sha256": "76feca411fbe9c4928fd2a8fd165f3bd0d18189fe475ad0b7315e3f679446fd1"
+  },
+  "dataset": {
+    "alignment_delay_samples": 0,
+    "allowed_splits_opened": [
+      "train",
+      "val"
+    ],
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/APA_200MHz",
+    "required_files_sha256": {
+      "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+    },
+    "test_file_hashes_recorded": false,
+    "test_split_accessed": false,
+    "train_frame_lengths": [
+      19662,
+      19662,
+      19656
+    ],
+    "train_sample_count": 58980,
+    "validation_frame_lengths": [
+      19662
+    ],
+    "validation_sample_count": 19662
+  },
+  "execution": {
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+    "runtime_seconds": 3.6733131460059667,
+    "started_unix_time": 1785376729.2529225
+  },
+  "models": {
+    "causal_gmp": {
+      "float_reference_operation_count": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+        ],
+        "real_additions": 947,
+        "real_divisions": 0,
+        "real_memory_reads": 1362,
+        "real_memory_writes": 8,
+        "real_multiplications": 954,
+        "state_real_values": 236,
+        "stored_real_coefficients": 888,
+        "stored_real_constants": 9
+      },
+      "float_train_peak": 0.9927799645322044,
+      "formats": {
+        "12": {
+          "causal_history_samples": 31,
+          "coefficient": {
+            "bits": 12,
+            "fractional_bits": 8,
+            "representable_maximum": 7.99609375,
+            "representable_minimum": -8.0,
+            "scale": 0.00390625
+          },
+          "coefficient_peak_from_frozen_model": 6.057092940731898,
+          "fixed_schedule_coefficient_memory_bytes": 1332,
+          "fixed_schedule_operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          },
+          "fixed_schedule_state_memory_bytes": 354,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 12,
+            "fractional_bits": 10,
+            "representable_maximum": 1.9990234375,
+            "representable_minimum": -2.0,
+            "scale": 0.0009765625
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 12,
+            "fractional_bits": 10,
+            "representable_maximum": 1.9990234375,
+            "representable_minimum": -2.0,
+            "scale": 0.0009765625
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 10,
+            "representable_maximum": 137438953471.99902,
+            "representable_minimum": -137438953472.0,
+            "scale": 0.0009765625
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -34.34380386170231,
+              "common_interior_time_domain_rms_evm_db": -34.34380386170231,
+              "full_record_nmse_db": -34.337588366117664,
+              "full_record_time_domain_rms_evm_db": -34.337588366117664,
+              "opendpd_compatible_nmse_db": -34.30395019637691,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -34.23213955047191,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -34.375760842281906,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -34.40713527779459,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -36.26860252112701,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.82316575027788,
+              "common_interior_time_domain_rms_evm_db": -38.82316575027788,
+              "full_record_nmse_db": -38.796128436743274,
+              "full_record_time_domain_rms_evm_db": -38.796128436743274,
+              "opendpd_compatible_nmse_db": -38.77426113454087,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.82089546536474,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -38.727626803717,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -38.84016117276469,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.20791707700118423,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 1010472,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 1024,
+              "maximum_scalar_accumulator_magnitude": 3564,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -34.45396783780773,
+              "common_interior_time_domain_rms_evm_db": -34.45396783780773,
+              "full_record_nmse_db": -34.42816814151615,
+              "full_record_time_domain_rms_evm_db": -34.42816814151615,
+              "opendpd_compatible_nmse_db": -34.42816814151615,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -34.42816814151615,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -36.41286061667841,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.7390129317458,
+              "common_interior_time_domain_rms_evm_db": -38.739012931745805,
+              "full_record_nmse_db": -38.6652576615637,
+              "full_record_time_domain_rms_evm_db": -38.6652576615637,
+              "opendpd_compatible_nmse_db": -38.6652576615637,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.6652576615637,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.06798672099830583,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 954747,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 998,
+              "maximum_scalar_accumulator_magnitude": 3553,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        },
+        "14": {
+          "causal_history_samples": 31,
+          "coefficient": {
+            "bits": 14,
+            "fractional_bits": 10,
+            "representable_maximum": 7.9990234375,
+            "representable_minimum": -8.0,
+            "scale": 0.0009765625
+          },
+          "coefficient_peak_from_frozen_model": 6.057092940731898,
+          "fixed_schedule_coefficient_memory_bytes": 1554,
+          "fixed_schedule_operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          },
+          "fixed_schedule_state_memory_bytes": 413,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 14,
+            "fractional_bits": 12,
+            "representable_maximum": 1.999755859375,
+            "representable_minimum": -2.0,
+            "scale": 0.000244140625
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 14,
+            "fractional_bits": 12,
+            "representable_maximum": 1.999755859375,
+            "representable_minimum": -2.0,
+            "scale": 0.000244140625
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 12,
+            "representable_maximum": 34359738367.999756,
+            "representable_minimum": -34359738368.0,
+            "scale": 0.000244140625
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -38.59698321907448,
+              "common_interior_time_domain_rms_evm_db": -38.59698321907448,
+              "full_record_nmse_db": -38.57120738434189,
+              "full_record_time_domain_rms_evm_db": -38.57120738434189,
+              "opendpd_compatible_nmse_db": -38.54792058762666,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.58687622040108,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -38.508964954852246,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -38.618017611165484,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -51.52759573009399,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.82316575027788,
+              "common_interior_time_domain_rms_evm_db": -38.82316575027788,
+              "full_record_nmse_db": -38.796128436743274,
+              "full_record_time_domain_rms_evm_db": -38.796128436743274,
+              "opendpd_compatible_nmse_db": -38.77426113454087,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.82089546536474,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -38.727626803717,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -38.84016117276469,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.2137558730028104,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 16153500,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 4096,
+              "maximum_scalar_accumulator_magnitude": 14258,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -38.50246747585021,
+              "common_interior_time_domain_rms_evm_db": -38.50246747585022,
+              "full_record_nmse_db": -38.43202308312307,
+              "full_record_time_domain_rms_evm_db": -38.43202308312306,
+              "opendpd_compatible_nmse_db": -38.43202308312307,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.43202308312307,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -51.62370297784311,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.7390129317458,
+              "common_interior_time_domain_rms_evm_db": -38.739012931745805,
+              "full_record_nmse_db": -38.6652576615637,
+              "full_record_time_domain_rms_evm_db": -38.6652576615637,
+              "opendpd_compatible_nmse_db": -38.6652576615637,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.6652576615637,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.06922939998912625,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 15296189,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 3991,
+              "maximum_scalar_accumulator_magnitude": 14216,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        },
+        "16": {
+          "causal_history_samples": 31,
+          "coefficient": {
+            "bits": 16,
+            "fractional_bits": 12,
+            "representable_maximum": 7.999755859375,
+            "representable_minimum": -8.0,
+            "scale": 0.000244140625
+          },
+          "coefficient_peak_from_frozen_model": 6.057092940731898,
+          "fixed_schedule_coefficient_memory_bytes": 1776,
+          "fixed_schedule_operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          },
+          "fixed_schedule_state_memory_bytes": 472,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 16,
+            "fractional_bits": 14,
+            "representable_maximum": 1.99993896484375,
+            "representable_minimum": -2.0,
+            "scale": 6.103515625e-05
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 16,
+            "fractional_bits": 14,
+            "representable_maximum": 1.99993896484375,
+            "representable_minimum": -2.0,
+            "scale": 6.103515625e-05
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 14,
+            "representable_maximum": 8589934591.999939,
+            "representable_minimum": -8589934592.0,
+            "scale": 6.103515625e-05
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -38.81071358916786,
+              "common_interior_time_domain_rms_evm_db": -38.81071358916786,
+              "full_record_nmse_db": -38.78376169906543,
+              "full_record_time_domain_rms_evm_db": -38.78376169906543,
+              "opendpd_compatible_nmse_db": -38.76303401314236,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.80993447139839,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -38.716133554886326,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -38.8254946272608,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -64.20836602516188,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.82316575027788,
+              "common_interior_time_domain_rms_evm_db": -38.82316575027788,
+              "full_record_nmse_db": -38.796128436743274,
+              "full_record_time_domain_rms_evm_db": -38.796128436743274,
+              "opendpd_compatible_nmse_db": -38.77426113454087,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.82089546536474,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -38.727626803717,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -38.84016117276469,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58887,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.21253979500033893,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 258467240,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 16384,
+              "maximum_scalar_accumulator_magnitude": 57038,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -38.719198635086755,
+              "common_interior_time_domain_rms_evm_db": -38.719198635086755,
+              "full_record_nmse_db": -38.64587587527226,
+              "full_record_time_domain_rms_evm_db": -38.64587587527226,
+              "opendpd_compatible_nmse_db": -38.64587587527226,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.64587587527226,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -64.19748483865331,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -38.7390129317458,
+              "common_interior_time_domain_rms_evm_db": -38.739012931745805,
+              "full_record_nmse_db": -38.6652576615637,
+              "full_record_time_domain_rms_evm_db": -38.6652576615637,
+              "opendpd_compatible_nmse_db": -38.6652576615637,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -38.6652576615637,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19631,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.07193530999938957,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 244557413,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 15965,
+              "maximum_scalar_accumulator_magnitude": 56869,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        }
+      },
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "scale_freeze_source": "train input peak, train measured output peak, and frozen model train prediction peak; no validation values",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add",
+      "train_measured_output_peak": 1.0,
+      "type": "causal_gmp"
+    },
+    "lag9_sparse_spline_memory": {
+      "float_reference_operation_count": {
+        "comparisons": 24,
+        "lookups": 18,
+        "nonlinear_operations": 6,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "6 unique envelope delays; address and weight shared within each group",
+          "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 82,
+        "real_divisions": 0,
+        "real_memory_reads": 54,
+        "real_memory_writes": 2,
+        "real_multiplications": 72,
+        "state_real_values": 48,
+        "stored_real_coefficients": 216,
+        "stored_real_constants": 23
+      },
+      "float_train_peak": 0.9989642723206951,
+      "formats": {
+        "12": {
+          "causal_history_samples": 24,
+          "coefficient": {
+            "bits": 12,
+            "fractional_bits": 10,
+            "representable_maximum": 1.9990234375,
+            "representable_minimum": -2.0,
+            "scale": 0.0009765625
+          },
+          "coefficient_peak_from_frozen_model": 1.1507955329098611,
+          "fixed_schedule_coefficient_memory_bytes": 324,
+          "fixed_schedule_operation_count": {
+            "comparisons": 24,
+            "lookups": 30,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary integer knot interval selection",
+              "integer sqrt is counted as one nonlinear operation",
+              "weight division may map to reciprocal multiply plus shift in RTL",
+              "interpolation uses two active control points per branch"
+            ],
+            "real_additions": 88,
+            "real_divisions": 6,
+            "real_memory_reads": 96,
+            "real_memory_writes": 2,
+            "real_multiplications": 66,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 12
+          },
+          "fixed_schedule_state_memory_bytes": 72,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 12,
+            "fractional_bits": 10,
+            "representable_maximum": 1.9990234375,
+            "representable_minimum": -2.0,
+            "scale": 0.0009765625
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 12,
+            "fractional_bits": 10,
+            "representable_maximum": 1.9990234375,
+            "representable_minimum": -2.0,
+            "scale": 0.0009765625
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 10,
+            "representable_maximum": 137438953471.99902,
+            "representable_minimum": -137438953472.0,
+            "scale": 0.0009765625
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.81620028890346,
+              "common_interior_time_domain_rms_evm_db": -37.81620028890346,
+              "full_record_nmse_db": -37.75703635086439,
+              "full_record_time_domain_rms_evm_db": -37.75703635086439,
+              "opendpd_compatible_nmse_db": -37.72378668581652,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.79012730550141,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.657446066131634,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.824548029990574,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -53.63939028625725,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.927533331540374,
+              "common_interior_time_domain_rms_evm_db": -37.927533331540374,
+              "full_record_nmse_db": -37.8666429776386,
+              "full_record_time_domain_rms_evm_db": -37.8666429776386,
+              "opendpd_compatible_nmse_db": -37.833864456757674,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.89233573763452,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.77539317588083,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.93302460529323,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.052979337007855065,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 1020221,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 1024,
+              "maximum_scalar_accumulator_magnitude": 1178,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.7845709279729,
+              "common_interior_time_domain_rms_evm_db": -37.7845709279729,
+              "full_record_nmse_db": -37.74643339280797,
+              "full_record_time_domain_rms_evm_db": -37.74643339280797,
+              "opendpd_compatible_nmse_db": -37.74643339280797,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.74643339280797,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -53.59233687666639,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.89976716544509,
+              "common_interior_time_domain_rms_evm_db": -37.89976716544509,
+              "full_record_nmse_db": -37.860728312080326,
+              "full_record_time_domain_rms_evm_db": -37.860728312080326,
+              "opendpd_compatible_nmse_db": -37.860728312080326,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.860728312080326,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.022676893990137614,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 966211,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 998,
+              "maximum_scalar_accumulator_magnitude": 1178,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        },
+        "14": {
+          "causal_history_samples": 24,
+          "coefficient": {
+            "bits": 14,
+            "fractional_bits": 12,
+            "representable_maximum": 1.999755859375,
+            "representable_minimum": -2.0,
+            "scale": 0.000244140625
+          },
+          "coefficient_peak_from_frozen_model": 1.1507955329098611,
+          "fixed_schedule_coefficient_memory_bytes": 378,
+          "fixed_schedule_operation_count": {
+            "comparisons": 24,
+            "lookups": 30,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary integer knot interval selection",
+              "integer sqrt is counted as one nonlinear operation",
+              "weight division may map to reciprocal multiply plus shift in RTL",
+              "interpolation uses two active control points per branch"
+            ],
+            "real_additions": 88,
+            "real_divisions": 6,
+            "real_memory_reads": 96,
+            "real_memory_writes": 2,
+            "real_multiplications": 66,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 12
+          },
+          "fixed_schedule_state_memory_bytes": 84,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 14,
+            "fractional_bits": 12,
+            "representable_maximum": 1.999755859375,
+            "representable_minimum": -2.0,
+            "scale": 0.000244140625
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 14,
+            "fractional_bits": 12,
+            "representable_maximum": 1.999755859375,
+            "representable_minimum": -2.0,
+            "scale": 0.000244140625
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 12,
+            "representable_maximum": 34359738367.999756,
+            "representable_minimum": -34359738368.0,
+            "scale": 0.000244140625
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.9195075244745,
+              "common_interior_time_domain_rms_evm_db": -37.9195075244745,
+              "full_record_nmse_db": -37.85854033663885,
+              "full_record_time_domain_rms_evm_db": -37.85854033663885,
+              "opendpd_compatible_nmse_db": -37.82727279286216,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.88631059962951,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.76823498609481,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.921855844249144,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -65.34864087190896,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.927533331540374,
+              "common_interior_time_domain_rms_evm_db": -37.927533331540374,
+              "full_record_nmse_db": -37.8666429776386,
+              "full_record_time_domain_rms_evm_db": -37.8666429776386,
+              "opendpd_compatible_nmse_db": -37.833864456757674,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.89233573763452,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.77539317588083,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.93302460529323,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.05004374199779704,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 16314155,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 4096,
+              "maximum_scalar_accumulator_magnitude": 4714,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.89155426324726,
+              "common_interior_time_domain_rms_evm_db": -37.89155426324726,
+              "full_record_nmse_db": -37.85233481711236,
+              "full_record_time_domain_rms_evm_db": -37.85233481711236,
+              "opendpd_compatible_nmse_db": -37.85233481711236,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.85233481711236,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -65.290011577699,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.89976716544509,
+              "common_interior_time_domain_rms_evm_db": -37.89976716544509,
+              "full_record_nmse_db": -37.860728312080326,
+              "full_record_time_domain_rms_evm_db": -37.860728312080326,
+              "opendpd_compatible_nmse_db": -37.860728312080326,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.860728312080326,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.016018815003917553,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 15461881,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 3991,
+              "maximum_scalar_accumulator_magnitude": 4714,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        },
+        "16": {
+          "causal_history_samples": 24,
+          "coefficient": {
+            "bits": 16,
+            "fractional_bits": 14,
+            "representable_maximum": 1.99993896484375,
+            "representable_minimum": -2.0,
+            "scale": 6.103515625e-05
+          },
+          "coefficient_peak_from_frozen_model": 1.1507955329098611,
+          "fixed_schedule_coefficient_memory_bytes": 432,
+          "fixed_schedule_operation_count": {
+            "comparisons": 24,
+            "lookups": 30,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary integer knot interval selection",
+              "integer sqrt is counted as one nonlinear operation",
+              "weight division may map to reciprocal multiply plus shift in RTL",
+              "interpolation uses two active control points per branch"
+            ],
+            "real_additions": 88,
+            "real_divisions": 6,
+            "real_memory_reads": 96,
+            "real_memory_writes": 2,
+            "real_multiplications": 66,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 12
+          },
+          "fixed_schedule_state_memory_bytes": 96,
+          "guard_ratio": 1.001,
+          "input": {
+            "bits": 16,
+            "fractional_bits": 14,
+            "representable_maximum": 1.99993896484375,
+            "representable_minimum": -2.0,
+            "scale": 6.103515625e-05
+          },
+          "input_peak_from_train": 1.0000000000000002,
+          "output": {
+            "bits": 16,
+            "fractional_bits": 14,
+            "representable_maximum": 1.99993896484375,
+            "representable_minimum": -2.0,
+            "scale": 6.103515625e-05
+          },
+          "output_peak_from_train_and_float_model": 1.0,
+          "power": {
+            "bits": 48,
+            "fractional_bits": 14,
+            "representable_maximum": 8589934591.999939,
+            "representable_minimum": -8589934592.0,
+            "scale": 6.103515625e-05
+          },
+          "selection_or_tuning": {
+            "scales_frozen_before_validation": true,
+            "used_for_selection": false,
+            "validation_used_to_modify_model": false
+          },
+          "train": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.926953858401866,
+              "common_interior_time_domain_rms_evm_db": -37.926953858401866,
+              "full_record_nmse_db": -37.86612859198409,
+              "full_record_time_domain_rms_evm_db": -37.86612859198409,
+              "opendpd_compatible_nmse_db": -37.83314607812024,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.89162984059003,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.77466231565044,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.93292618114519,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "fixed_vs_float_nmse_db": -77.39807684875683,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.927533331540374,
+              "common_interior_time_domain_rms_evm_db": -37.927533331540374,
+              "full_record_nmse_db": -37.8666429776386,
+              "full_record_time_domain_rms_evm_db": -37.8666429776386,
+              "opendpd_compatible_nmse_db": -37.833864456757674,
+              "opendpd_complete_frame_count": 2,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.89233573763452,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 1,
+                  "full_record_nmse_db": -37.77539317588083,
+                  "sample_count": 19662
+                },
+                {
+                  "frame_id": 2,
+                  "full_record_nmse_db": -37.93302460529323,
+                  "sample_count": 19656
+                }
+              ],
+              "scored_sample_count_common": 58908,
+              "scored_sample_count_full": 58980
+            },
+            "inference_seconds": 0.04663412299123593,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 261032342,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 16384,
+              "maximum_scalar_accumulator_magnitude": 18855,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 58980,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true,
+                true,
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          },
+          "validation": {
+            "fixed_metrics": {
+              "common_interior_nmse_db": -37.89941291740888,
+              "common_interior_time_domain_rms_evm_db": -37.89941291740888,
+              "full_record_nmse_db": -37.86037662590754,
+              "full_record_time_domain_rms_evm_db": -37.86037662590754,
+              "opendpd_compatible_nmse_db": -37.86037662590754,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.86037662590754,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "fixed_vs_float_nmse_db": -77.28629006918166,
+            "float_reference_metrics": {
+              "common_interior_nmse_db": -37.89976716544509,
+              "common_interior_time_domain_rms_evm_db": -37.89976716544509,
+              "full_record_nmse_db": -37.860728312080326,
+              "full_record_time_domain_rms_evm_db": -37.860728312080326,
+              "opendpd_compatible_nmse_db": -37.860728312080326,
+              "opendpd_complete_frame_count": 1,
+              "per_frame": [
+                {
+                  "frame_id": 0,
+                  "full_record_nmse_db": -37.860728312080326,
+                  "sample_count": 19662
+                }
+              ],
+              "scored_sample_count_common": 19638,
+              "scored_sample_count_full": 19662
+            },
+            "inference_seconds": 0.015523330992436968,
+            "stats": {
+              "accumulator_saturations": 0,
+              "coefficient_saturations": 0,
+              "input_saturations": 0,
+              "interpolation_saturations": 0,
+              "knot_code_collision_count": 0,
+              "maximum_accumulator_magnitude": 247381481,
+              "maximum_knot_code_shift": 0,
+              "maximum_power_magnitude": 15965,
+              "maximum_scalar_accumulator_magnitude": 18855,
+              "output_saturations": 0,
+              "power_saturations": 0,
+              "sample_count": 19662,
+              "scalar_accumulator_saturations": 0
+            },
+            "streaming": {
+              "per_frame": [
+                true
+              ],
+              "streaming_chunk_equivalence_passed": true
+            }
+          }
+        }
+      },
+      "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selected_sparse_pa.npz",
+      "scale_freeze_source": "train input peak, train measured output peak, and frozen model train prediction peak; no validation values",
+      "sha256": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475",
+      "train_measured_output_peak": 1.0,
+      "type": "sparse_spline_memory_pa"
+    }
+  },
+  "output_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/pa_fixed_point_apa200/fixed_point_report.json",
+  "protocol": {
+    "accumulator_bits": 56,
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "coefficient_scale_source": "frozen_model_coefficient_peak_only",
+    "fixed_point_model_vs_float_reference": "pooled_complex_nmse_db",
+    "frame_state_policy": "reset_at_each_explicit_frame",
+    "interpolation_fraction_bits": 16,
+    "knot_collision_policy": "monotone_next_code_repair_and_report",
+    "no_test_access_in_scale_freeze": true,
+    "overflow": "saturate_and_count",
+    "power_bits": 48,
+    "rounding": "nearest_even",
+    "scalar_accumulator_bits": 56,
+    "scale_guard_ratio": 1.001,
+    "scale_source": "train_input_and_train_measured_output_peaks_only"
+  },
+  "schema_version": 1
+}
