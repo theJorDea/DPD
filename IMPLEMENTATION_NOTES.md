@@ -1,6 +1,6 @@
 # Implementation notes
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Repository layout and dependency policy
 
@@ -320,8 +320,32 @@ and `K=12`; OOF NMSE is `−32.030011 dB` full / `−32.088250 dB` common, cost 
 `54 MUL / 58 ADD`, and the result is rejected versus both MP and GMP. The
 immutable output is
 `experiments/results/pa_sparse_spline_memory_apa200_selection/` (14 unique
-recipes, 42 OOF fits, 33.5888 s before publication). Residual analysis points
-to lag 9, so any next family must be separately preregistered around that lag.
+recipes, 42 OOF fits, 33.5888 s before publication). Residual analysis pointed
+to lag 9, so the follow-up family was separately preregistered around that lag.
+
+The generic selector now supports an optional
+`reference_models.incremental_control_oof` contract. When present,
+`_annotate_research_gates(...)` compares pooled and per-fold NMSE against the
+frozen parent and records explicit minimum-gain checks; the production runner
+serializes those fields without changing legacy config behavior. The lag-9
+config requires `+0.25 dB` pooled full/common and `+0.10 dB` in every fold,
+in addition to the existing MP/GMP gates.
+
+The lag-9 production command was:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sparse_spline_memory \
+  --config experiments/configs/pa_sparse_spline_memory_lag9_apa200.json
+```
+
+It selected
+`parent_plus_signal_lag8_10_current_envelope_K12_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24,8:0,9:0,10:0`.
+Train OOF full/common NMSE was `−37.792478/−37.852832 dB`, reused validation
+was `−37.860728/−37.898605 dB`, and the exact schedule was `72 MUL/82 ADD`
+with 216 coefficient reals and 48 state reals. Incremental and cheap-Pareto
+gates passed; evaluator and Gate A→B remained closed. The immutable bundle is
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`, with
+`62.5693 s` runtime and test access false.
 
 ## 4. Artifact integrity and publication rules
 
@@ -356,8 +380,8 @@ full-train model freeze; no test file was opened, hashed or named.
 
 ## 5. Tests and invariants
 
-Last complete code suite after the sparse runner:
-**220/220 passed** on the environment in this document. The sparse result is an
+Last complete code suite after the lag-9 contract:
+**222/222 passed** on the environment in this document. The sparse result is an
 immutable numeric artifact; no code was changed while publishing it.
 Test modules cover:
 
@@ -374,6 +398,7 @@ Test modules cover:
 - phase-equivariant long-FIR fit/save/load/streaming, incremental state cost
   and shared audit dispatch;
 - release predicates and streaming checks;
+- optional incremental-control gate and bounded lag-9 preregistration contract;
 - existing spline fixed-point arithmetic/saturation.
 
 Run after any code change:
@@ -419,6 +444,11 @@ The previous 120-test 0.396 s timing is obsolete.
 | `f0d77c5` | staged sparse PA OOF search |
 | `841a381` / `4be0921` | sparse PA integrity support and production runner |
 | `5b804f3` | immutable APA sparse PA result bundle |
+| `5d21002` | incremental parent-control gate and fold-wise gain checks |
+| `7275ffd` | explicit frozen-implementation preregistration status |
+| `db41e16` | preregistered bounded APA lag-9 config |
+| `c023e7c` | lag-9 config contract tests |
+| `aa9bd38` | immutable APA lag-9 sparse PA result bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -436,6 +466,7 @@ experiments/results/pa_widely_linear_residual_apa200/
 experiments/results/pa_long_fir_residual_apa200/
 experiments/results/pa_sph_apa200_selection/
 experiments/results/pa_sparse_spline_memory_apa200_selection/
+experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/
 ```
 
 Normative documents:
@@ -471,9 +502,11 @@ Normative documents:
     improved, but the best aggregate gain was only 0.018/0.020 dB.
 14. APA standalone SPH is implemented and reproducible, but its −30.402 dB
     train-OOF NMSE is 6.652 dB worse than matched MP; it is not an evaluator.
-15. Non-factorized sparse spline-memory PA has been fit and rejected: its
-    `−32.030 dB` OOF score is 6.315 dB worse than matched GMP. Residual lag 9
-    is now the next bounded hypothesis, not a validation-tuned result.
+15. The first non-factorized sparse spline-memory PA was rejected:
+    `−32.030 dB` OOF and 6.315 dB worse than matched GMP. The separately
+    preregistered lag-9 family reaches `−37.792 dB` OOF at 72 MUL and passes
+    cheap-Pareto, but remains 0.553 dB behind GMP and is not an evaluator.
+16. No independent capture or physical PA has confirmed the lag-9 result.
 
 ## 9. Extension contract for the next PA model
 
@@ -501,22 +534,18 @@ Then add, in separate tasks:
 7. report update.
 
 The standalone spline/CPWL + short-FIR and first non-factorized sparse family
-have now been isolated and rejected on APA OOF. If local work continues, the
-next preregistered family should be a narrow lag-9 sparse dictionary, with
-branch/delay selection frozen before fit and exact cost/rank/support gates. A
-state-conditioned model is blocked until independent long-capture slow-state
-evidence exists.
+have been isolated and rejected on APA OOF. The narrow lag-9 dictionary is now
+also frozen and completed: it passes cheap-Pareto but not the evaluator gate.
+No further local delay expansion is allowed before independent capture
+evidence. A state-conditioned model is blocked until independent long-capture
+slow-state evidence exists.
 
 ## 10. Immediate next implementation order
 
-1. Preregister a narrow lag-9 sparse spline-memory PA topology, branch/delay
-   dictionary, fit rule, exact counter and OOF gate; stop after a negative gate.
-2. Implement its basis/identifiability/serialization/streaming tests without
-   changing the evaluator or reusing the old APA test.
-3. Select using APA train OOF; show reused validation descriptively only.
-4. Ask/record metadata for `APA_200MHz_b` measurement B and preregister
+1. Ask/record metadata for `APA_200MHz_b` measurement B and preregister
    external-capture transfer plus target-train nuisance alignment.
-5. Evaluate zero-shot and limited coefficient recalibration on measurement B;
+2. Evaluate GMP and lag-9 sparse PA zero-shot and limited coefficient
+   recalibration on measurement B;
    target test once after freeze.
-6. Reassess Gate A→B. Resume DPD only after PASS; otherwise continue
+3. Reassess Gate A→B. Resume DPD only after PASS; otherwise continue
    PA/physical evidence work.
