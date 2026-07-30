@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "date_time": "2026-07-30T04:09:16+03:00",
+  "task": "frozen_apa_capture_transfer_held_out_release",
+  "status": "failed_after_first_held_out_load_before_model_inference",
+  "git_commit": "52ca533b4f6bfd7dc891089b73edebdee985a440",
+  "release_config": "experiments/configs/pa_transfer_apa200_to_b_release.json",
+  "release_config_sha256": "e1808673eae86fff88c8693f680109d91f8c38ada6659d9794374741317a058f",
+  "command": ".venv/bin/python -m experiments.release_pa_transfer_apa200_to_b --config experiments/configs/pa_transfer_apa200_to_b_release.json --release-test",
+  "completed_before_failure": {
+    "pretest_bundle_verified": true,
+    "selected_N_and_coefficient_hashes_verified": true,
+    "source_code_hashes_verified": true,
+    "target_test_hashes_computed_in_process": true,
+    "target_train_loaded": true,
+    "target_held_out_pair_loaded": true
+  },
+  "not_completed": {
+    "model_inference_started": false,
+    "target_test_metric_computed": false,
+    "target_test_metric_printed": false,
+    "target_test_hashes_persisted": false,
+    "result_bundle_published": false
+  },
+  "exception": {
+    "type": "ValueError",
+    "message": "target train length is incompatible with release protocol",
+    "source": "experiments/release_pa_transfer_apa200_to_b.py",
+    "reason": "the guard incorrectly required three complete 19662-sample train frames; the frozen dataset contract is 19662,19662,19656"
+  },
+  "selection_integrity": {
+    "model_changed_after_access": false,
+    "coefficients_changed_after_access": false,
+    "selected_N_changed_after_access": false,
+    "metric_protocol_changed_after_access": false,
+    "test_metric_available_for_tuning": false
+  },
+  "retry_policy": {
+    "permitted_scope": "fix frame-length validation and rerun the exact frozen models, coefficients, N and metrics",
+    "required_final_access_count": 2,
+    "must_reference_this_incident": true,
+    "must_not_claim_strict_single-open_execution": true
+  }
+}
