@@ -154,6 +154,20 @@ def _load_selected_coefficients(
     return selected
 
 
+def _verify_pretest_source_code(manifest: dict[str, Any]) -> dict[str, str]:
+    source_code_paths = {
+        name: _project_path(name, name="release source")
+        for name in manifest["source_code_sha256"]
+    }
+    actual = {
+        name: file_sha256(path) for name, path in source_code_paths.items()
+    }
+    for name, expected in manifest["source_code_sha256"].items():
+        if actual[name] != expected:
+            raise RuntimeError(f"source code changed since pre-test: {name}")
+    return actual
+
+
 def _model_with_coefficients(model: Any, coefficients: np.ndarray) -> Any:
     if model.__class__.__name__ == "GeneralizedMemoryPolynomialPA":
         return model.__class__(model.config, coefficients)
@@ -269,6 +283,7 @@ def run_from_config(
         pretest_manifest,
         pretest_info["pretest_bundle"],
     )
+    source_code_hashes = _verify_pretest_source_code(pretest_manifest)
 
     target_dataset = _project_path(
         release_config["target_dataset"],
@@ -387,17 +402,6 @@ def run_from_config(
             f"selected-N "
             f"{selected_result.full_record_metrics['complex_nmse_pooled_db']:.6f} dB"
         )
-
-    source_code_paths = {
-        name: _project_path(name, name="release source")
-        for name in pretest_manifest["source_code_sha256"]
-    }
-    source_code_hashes = {
-        name: file_sha256(path) for name, path in source_code_paths.items()
-    }
-    for name, expected in pretest_manifest["source_code_sha256"].items():
-        if source_code_hashes[name] != expected:
-            raise RuntimeError(f"source code changed since pre-test: {name}")
 
     output = _project_path(release_config["output_dir"], name="release output")
     lock, lock_payload = _acquire_lock(output)
