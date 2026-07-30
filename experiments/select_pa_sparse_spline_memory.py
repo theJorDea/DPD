@@ -627,32 +627,123 @@ def _annotate_research_gates(
     loss_mp_common = common - float(mp["common_interior_nmse_db"])
     gain_gmp_full = float(gmp["full_record_nmse_db"]) - full
     gain_gmp_common = float(gmp["common_interior_nmse_db"]) - common
-    record.update(
-        {
-            "loss_vs_mp_full_db": loss_mp_full,
-            "loss_vs_mp_common_db": loss_mp_common,
-            "gain_over_gmp_full_db_from_frozen_metric": gain_gmp_full,
-            "gain_over_gmp_common_db_from_frozen_metric": gain_gmp_common,
-            "research_gate_checks": {
-                "cheap_pareto_full": loss_mp_full
-                <= float(gates["cheap_pareto_max_full_loss_vs_mp_db"]),
-                "cheap_pareto_common": loss_mp_common
-                <= float(gates["cheap_pareto_max_common_loss_vs_mp_db"]),
-                "evaluator_full": gain_gmp_full
-                >= float(gates["evaluator_min_full_gain_over_gmp_db"]),
-                "evaluator_common": gain_gmp_common
-                >= float(gates["evaluator_min_common_gain_over_gmp_db"]),
-                "evaluator_every_fold_full": float(
-                    record["minimum_fold_gain_over_gmp_full_db"]
-                )
-                >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
-                "evaluator_every_fold_common": float(
-                    record["minimum_fold_gain_over_gmp_common_db"]
-                )
-                >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
-            },
+    checks = {
+        "cheap_pareto_full": loss_mp_full
+        <= float(gates["cheap_pareto_max_full_loss_vs_mp_db"]),
+        "cheap_pareto_common": loss_mp_common
+        <= float(gates["cheap_pareto_max_common_loss_vs_mp_db"]),
+        "evaluator_full": gain_gmp_full
+        >= float(gates["evaluator_min_full_gain_over_gmp_db"]),
+        "evaluator_common": gain_gmp_common
+        >= float(gates["evaluator_min_common_gain_over_gmp_db"]),
+        "evaluator_every_fold_full": float(
+            record["minimum_fold_gain_over_gmp_full_db"]
+        )
+        >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
+        "evaluator_every_fold_common": float(
+            record["minimum_fold_gain_over_gmp_common_db"]
+        )
+        >= float(gates["evaluator_minimum_fold_gain_over_gmp_db"]),
+    }
+    annotation: dict[str, Any] = {
+        "loss_vs_mp_full_db": loss_mp_full,
+        "loss_vs_mp_common_db": loss_mp_common,
+        "gain_over_gmp_full_db_from_frozen_metric": gain_gmp_full,
+        "gain_over_gmp_common_db_from_frozen_metric": gain_gmp_common,
+        "research_gate_checks": checks,
+    }
+
+    incremental = references.get("incremental_control_oof")
+    if incremental is not None:
+        required_gate_names = (
+            "incremental_min_full_gain_db",
+            "incremental_min_common_gain_db",
+            "incremental_minimum_fold_gain_db",
+        )
+        missing = [name for name in required_gate_names if name not in gates]
+        if missing:
+            raise ValueError(
+                f"incremental control is missing gate thresholds: {missing}"
+            )
+        control_folds = {
+            int(fold["held_frame_id"]): fold
+            for fold in incremental["fold_records"]
         }
-    )
+        candidate_folds = {
+            int(fold["held_frame_id"]): fold for fold in record["fold_records"]
+        }
+        if set(control_folds) != set(candidate_folds):
+            raise ValueError(
+                "incremental control fold IDs disagree with candidate OOF folds"
+            )
+        fold_gains = [
+            {
+                "held_frame": held_frame,
+                "full_record_gain_db": (
+                    float(
+                        control_folds[held_frame]["held_metrics"][
+                            "full_record_nmse_db"
+                        ]
+                    )
+                    - float(
+                        candidate_folds[held_frame]["held_metrics"][
+                            "full_record_nmse_db"
+                        ]
+                    )
+                ),
+                "common_interior_gain_db": (
+                    float(
+                        control_folds[held_frame]["held_metrics"][
+                            "common_interior_nmse_db"
+                        ]
+                    )
+                    - float(
+                        candidate_folds[held_frame]["held_metrics"][
+                            "common_interior_nmse_db"
+                        ]
+                    )
+                ),
+            }
+            for held_frame in sorted(control_folds)
+        ]
+        gain_parent_full = (
+            float(incremental["full_record_nmse_db"]) - full
+        )
+        gain_parent_common = (
+            float(incremental["common_interior_nmse_db"]) - common
+        )
+        minimum_fold_full = min(
+            fold["full_record_gain_db"] for fold in fold_gains
+        )
+        minimum_fold_common = min(
+            fold["common_interior_gain_db"] for fold in fold_gains
+        )
+        annotation.update(
+            {
+                "gain_over_incremental_control_full_db": gain_parent_full,
+                "gain_over_incremental_control_common_db": gain_parent_common,
+                "minimum_fold_gain_over_incremental_control_full_db": (
+                    minimum_fold_full
+                ),
+                "minimum_fold_gain_over_incremental_control_common_db": (
+                    minimum_fold_common
+                ),
+                "incremental_control_fold_gains": fold_gains,
+            }
+        )
+        checks.update(
+            {
+                "incremental_full": gain_parent_full
+                >= float(gates["incremental_min_full_gain_db"]),
+                "incremental_common": gain_parent_common
+                >= float(gates["incremental_min_common_gain_db"]),
+                "incremental_every_fold_full": minimum_fold_full
+                >= float(gates["incremental_minimum_fold_gain_db"]),
+                "incremental_every_fold_common": minimum_fold_common
+                >= float(gates["incremental_minimum_fold_gain_db"]),
+            }
+        )
+    record.update(annotation)
 
 
 def run_staged_search(
@@ -794,6 +885,17 @@ def run_staged_search(
             "evaluator_every_fold_common",
         )
     )
+    incremental_keys = (
+        "incremental_full",
+        "incremental_common",
+        "incremental_every_fold_full",
+        "incremental_every_fold_common",
+    )
+    incremental_hypothesis = (
+        hard and all(bool(gate_checks[name]) for name in incremental_keys)
+        if all(name in gate_checks for name in incremental_keys)
+        else None
+    )
     if cheap and evaluator:
         classification = "cheap_pareto_and_evaluator_candidate"
     elif cheap:
@@ -807,6 +909,7 @@ def run_staged_search(
         "hard_valid": hard,
         "cheap_pareto_gate_passed": cheap,
         "evaluator_candidate_gate_passed": evaluator,
+        "incremental_hypothesis_gate_passed": incremental_hypothesis,
         "gate_checks": gate_checks,
         "gate_a_to_b_opened": False,
         "reason_gate_a_to_b_remains_closed": (

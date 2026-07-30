@@ -178,6 +178,9 @@ class SparseSplineMemoryStagedSearchTests(unittest.TestCase):
                 "evaluator_min_full_gain_over_gmp_db": -1000.0,
                 "evaluator_min_common_gain_over_gmp_db": -1000.0,
                 "evaluator_minimum_fold_gain_over_gmp_db": -1000.0,
+                "incremental_min_full_gain_db": 0.25,
+                "incremental_min_common_gain_db": 0.25,
+                "incremental_minimum_fold_gain_db": 0.1,
             },
             "reference_models": {
                 "matched_mp_oof": {
@@ -187,6 +190,20 @@ class SparseSplineMemoryStagedSearchTests(unittest.TestCase):
                 "matched_gmp_oof": {
                     "full_record_nmse_db": -10.0,
                     "common_interior_nmse_db": -10.0,
+                },
+                "incremental_control_oof": {
+                    "full_record_nmse_db": -10.0,
+                    "common_interior_nmse_db": -10.0,
+                    "fold_records": [
+                        {
+                            "held_frame_id": held_frame,
+                            "held_metrics": {
+                                "full_record_nmse_db": -10.0,
+                                "common_interior_nmse_db": -10.0,
+                            },
+                        }
+                        for held_frame in range(3)
+                    ],
                 },
             },
             "search_budget": {
@@ -236,6 +253,9 @@ class SparseSplineMemoryStagedSearchTests(unittest.TestCase):
         self.assertLessEqual(search["unique_recipe_evaluations"], 6)
         self.assertLessEqual(search["completed_oof_fit_calls"], 18)
         self.assertTrue(search["final_trial"]["hard_valid"])
+        self.assertTrue(
+            search["decision"]["incremental_hypothesis_gate_passed"]
+        )
         self.assertFalse(search["decision"]["gate_a_to_b_opened"])
 
 

@@ -254,20 +254,31 @@ def run_from_config(
             "validation_loaded_after_parameter_hashes": frozen_parameter_hashes,
             "test_split_accessed": False,
         }
-        final_trial_metrics = {
-            key: final_trial[key]
-            for key in (
-                "full_record_nmse_db",
-                "common_interior_nmse_db",
-                "reference_gmp_full_record_nmse_db",
-                "reference_gmp_common_interior_nmse_db",
-                "gain_over_gmp_full_db",
-                "gain_over_gmp_common_db",
-                "minimum_fold_gain_over_gmp_full_db",
-                "minimum_fold_gain_over_gmp_common_db",
-                "loss_vs_mp_full_db",
-                "loss_vs_mp_common_db",
+        final_trial_metric_names = [
+            "full_record_nmse_db",
+            "common_interior_nmse_db",
+            "reference_gmp_full_record_nmse_db",
+            "reference_gmp_common_interior_nmse_db",
+            "gain_over_gmp_full_db",
+            "gain_over_gmp_common_db",
+            "minimum_fold_gain_over_gmp_full_db",
+            "minimum_fold_gain_over_gmp_common_db",
+            "loss_vs_mp_full_db",
+            "loss_vs_mp_common_db",
+        ]
+        final_trial_metric_names.extend(
+            name
+            for name in (
+                "gain_over_incremental_control_full_db",
+                "gain_over_incremental_control_common_db",
+                "minimum_fold_gain_over_incremental_control_full_db",
+                "minimum_fold_gain_over_incremental_control_common_db",
+                "incremental_control_fold_gains",
             )
+            if name in final_trial
+        )
+        final_trial_metrics = {
+            key: final_trial[key] for key in final_trial_metric_names
         }
         manifest_payload = {
             "schema_version": 1,
