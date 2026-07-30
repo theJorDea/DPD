@@ -71,6 +71,16 @@ peak/PAPR and provenance manifests. These are descriptive surrogate results:
 they do not define Huawei's still-unknown RF harmonic metric and do not open
 Gate A→B.
 
+Selected spline-memory DPD integer arithmetic is also complete at signed
+16/14/12 bit. Sealed train→freeze→validation runners opened only desired input
+files, preserved the correct `desired x -> fixed DPD -> frozen float PA
+surrogate` direction and reported zero saturation/collision with exact chunks.
+Worst cascade-NMSE loss was `0.0185 dB` DPA and `0.0137 dB` APA; worst loss in
+configured absolute adjacent-region suppression was `0.0966/0.1520 dB`.
+This closes the local DPD quantization subtask only. Validation was already
+used to choose the float DPD, the PA remains the old surrogate, and no
+physical-PA, RTL or customer-timing claim follows.
+
 ## Правила выполнения
 
 - Каждая строка roadmap реализуется отдельным небольшим commit и сразу
@@ -163,6 +173,15 @@ linear/spline residual ablations:
   schedule остаётся Python arithmetic reference, не synthesized hardware.
 - sealed spectral-region evaluator and input-only frozen spline validation
   replays are complete for DPA/APA; no measured split output was opened.
+- selected spline-memory DPD has a bit-accurate integer reference and sealed
+  16/14/12-bit DPA/APA validation bundles; all six rows have zero saturation
+  and knot collision, exact arbitrary chunks and bit-exact tested 90-degree
+  rotation;
+- fixed integer schedule is `20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT,
+  28 reads, 2 writes` and four state reals/sample; this is not target latency;
+- 12-bit worst configured absolute adjacent-region suppression loss versus
+  float is `0.0966 dB` DPA and `0.1520 dB` APA on the reused validation
+  surrogate;
 - DPA GMP повторён отдельно: validation fixed NMSE `−35.3633/−35.3490/−35.2975`
   dB for 16/14/12 bit versus float `−35.3659 dB`, with no saturation;
   APA lag-9 sparse is not transferred to DPA without a DPA-specific fit.
@@ -175,8 +194,9 @@ linear/spline residual ablations:
   dominance or a DPD result.
 
 Следовательно, GMP forward-identification result завершён, но release-gate
-PASS нельзя смешивать с Gate A→B. DPD quality, fixed-point, robustness и
-physical-PA linearization этим результатом не доказаны.
+PASS нельзя смешивать с Gate A→B. DPD integer arithmetic теперь доказана
+только для legacy surrogate path; independent-evaluator quality, robustness,
+target hardware timing и physical-PA linearization не доказаны.
 
 ## Этап 0. Requirements contract
 
@@ -558,12 +578,18 @@ selection/refit.
 19. [x] Завершить hash-bound train/validation fixed-point
    проверку target-calibrated `APA_200MHz_b` payload без повторного test access;
    после этого не расширять PA quantization без evidence need.
-20. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
+20. [x] Реализовать bit-accurate selected spline-memory DPD с explicit state,
+   causality, phase-rotation diagnostic и exact operation/memory count.
+21. [x] Preregister и выполнить DPA/APA 16/14/12-bit
+   desired-x→fixed-DPD→frozen-float-surrogate validation и одинаковую
+   spectral evaluation; test/measured output не открывать, precision не
+   выбирать по reused validation.
+22. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
    без DPD latency cap и проверить independent ranking; sealed runner/config
    и bounded CPU preflight готовы, full quality run pending.
-21. [ ] Получить controlled physical-PA capture с известными operating axes и
+23. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
-22. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+24. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
@@ -662,11 +688,12 @@ Analytical `MUL/sample` остаётся одной колонкой, не ок�
 
 ## Этап D. Hardware reference
 
-Статус: PA arithmetic reference выполнен как evaluator-numerics evidence;
-deployment DPD hardware evidence ещё не получено.
+Статус: PA evaluator arithmetic и selected DPD integer arithmetic references
+выполнены; deployment target hardware evidence ещё не получено.
 
-- [x] Bit-accurate simulator для frozen causal GMP и lag-9 sparse PA; DPD
-  simulator и PA→DPD cascade пока не запускались.
+- [x] Bit-accurate simulator для frozen causal GMP и lag-9 sparse PA.
+- [x] Bit-accurate selected spline-memory DPD path и
+  desired-x→fixed-DPD→frozen-float-surrogate validation cascade.
 - PA fixed-point cost не проверяется против 1000-real-MUL-equivalent DPD gate.
 - Formats: signed 16, 14 и 12 bit coefficients/activations.
 - Explicit accumulator/state widths, scaling, rounding and saturation.
@@ -680,9 +707,13 @@ deployment DPD hardware evidence ещё не получено.
 - [x] Измерить arithmetic degradation и exact streaming equivalence на
   DPA/APA source и target-calibrated APA-B train/validation; host Python time
   хранится отдельно.
-- [ ] Реализовать selected DPD bit-accurate streaming path.
+- [x] Измерить selected DPD 16/14/12-bit degradation, saturation, peak/PAPR,
+  configured baseband spectrum и exact streaming на DPA/APA validation.
+- [ ] Зафиксировать DPD reciprocal/division, integer-sqrt и accumulator
+  microarchitecture в target HLS/RTL и провести bit-exact vector replay.
 - [ ] Зафиксировать target/reference timing kernel и измерить DPD
   latency/throughput; analytical count помечать как lower bound.
+- [ ] Повторить exported fixed-DPD waveforms через controlled physical PA.
 
 Артефакт: `HARDWARE_COST.md`.
 
