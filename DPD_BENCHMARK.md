@@ -2,6 +2,13 @@
 
 Дата среза: 2026-07-30.
 
+Уточнение научного руководителя от 2026-07-30: complexity limit относится
+только к deployment DPD и задаётся как время всех операций, эквивалентное
+времени 1000 real multiplications. PA evaluator этим limit не ограничен.
+Primary quality должна отражать затухание паразитных гармоник; exact RF
+regions, reference и threshold пока не определены. Поэтому ACLR/baseband PSD
+сохраняются как diagnostics и не выдаются за окончательную customer metric.
+
 ## 1. Текущий статус
 
 Контур B пока **не открыт для новой optimization**. Формальный PA-model этап
@@ -261,6 +268,8 @@ models stochastic seed не применяется; stochastic models испол
 
 Для каждого dataset/evaluator/model сохраняются:
 
+- customer-defined harmonic/spur attenuation после фиксации exact RF
+  bands/reference/threshold;
 - full-record и common-interior pooled complex NMSE;
 - OpenDPD-compatible NMSE;
 - sample-domain RMS EVM и, если waveform metadata достаточно, demodulated EVM;
@@ -279,6 +288,7 @@ Winner не выбирается одной метрикой. Публикует
 
 ```text
 quality vs operations/sample
+quality vs measured 1000-real-MUL-equivalent DPD latency
 quality vs calibration time
 quality vs coefficient+state memory
 quality vs peak predistorted drive
@@ -286,11 +296,14 @@ quality vs peak predistorted drive
 
 ## 7. Следующий разрешённый шаг
 
-Следующий step по-прежнему находится в контуре A, не B: выполнить bit-accurate
-16/14/12-bit evaluation frozen GMP и lag-9 sparse PA с explicit
-scale/accumulator/saturation/state contract. Затем получить metadata
-measurement B и controlled physical-PA capture с известными power/backoff,
-bias и temperature axes.
+Source DPA/APA bit-accurate PA arithmetic уже выполнена. Сначала завершается
+начатая hash-bound train/validation проверка target-calibrated
+`APA_200MHz_b` coefficients без повторного test access. После этого PA
+quantization expansion прекращается, а контур A продолжает high-fidelity
+OpenDPD PA retraining без DPD cost cap. Параллельные внешние prerequisites —
+exact harmonic/spur and timing-reference definitions, metadata measurement B
+и controlled physical-PA capture с известными power/backoff, bias и
+temperature axes.
 
 Уже открытый B test нельзя использовать для нового выбора topology,
 regularization или calibration N. Если controlled evidence не даёт второго

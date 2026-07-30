@@ -19,11 +19,19 @@ desired x -> frozen DPD -> independently frozen PA evaluator/physical PA
 model/tests, preregistered config, validation selection, frozen test, residual
 analysis и report — отдельные commits с push после каждого завершённого шага.
 
+Уточнение научного руководителя от 2026-07-30 меняет acceptance contract:
+1000-real-MUL-equivalent time budget относится только к streaming DPD, не к
+PA model; формулы слайда ненормативны; primary quality связана с затуханием
+паразитных гармоник. Exact bands/reference/threshold и target timing reference
+ещё не получены. Поэтому PA fidelity searches больше не ограничиваются
+`<1000 MUL`, а DPD хранит полный operation vector и впоследствии проходит
+target timing measurement.
+
 ## 1. Текущий статус
 
 | Step | Status на дату среза | Допустимый вывод |
 |---|---|---|
-| Requirements audit | выполнен | точное определение Huawei `10^-5` и `<1000 multipliers` всё ещё неизвестно |
+| Requirements audit | обновлён после ответа руководителя | DPD-only latency scope известен; exact spur metric и timing reference всё ещё неизвестны |
 | A0 integer-only PA protocol | реализован | primary current protocol; fractional correction не применяется |
 | A1 fractional-alignment sensitivity | DPA/APA train-OOF+validation выполнены; A1 rejected, A0 frozen | sensitivity не является measurement-path de-embedding |
 | Complex MP PA selection | DPA и APA выполнены | measured forward validation result |
@@ -233,9 +241,12 @@ FMA = 1 real MUL + 1 real ADD
 sqrt/nonlinear, compare, lookup and memory traffic are separate columns
 ```
 
-The project gate is strictly `<1000`, so a candidate with exactly 1000 real
-MUL/complex sample is rejected. Parameter count is never substituted for
-operation count.
+Для уже завершённых PA searches strict `<1000 MUL/complex sample` сохраняется
+как historical preregistered search bound. Это не Huawei gate для PA model.
+Для deployment DPD hard condition имеет вид
+`T_DPD/sample <= T_reference(1000 real MUL)` на одном target/word length и
+охватывает все operations/memory effects. Parameter count никогда не
+подменяет ни operation vector, ни measured latency.
 
 ## 6. Exact commands and execution order
 
@@ -282,7 +293,8 @@ Required production config contract:
 - `output_dir` and `alignment_filter={tap_count,kaiser_beta}`;
 - `max_real_multiplications_per_sample=1000`, interpreted as an exclusive
   ceiling, so every MP/GMP probe must satisfy strictly fewer than 1000 real
-  multiplications per complex sample;
+  multiplications per complex sample; это frozen historical PA-search
+  contract, не актуальный Huawei DPD acceptance rule;
 - A0 zero fractional shift and A1 delay read from the train-frozen MP
   selection manifest, never refit on validation/test;
 - `tap_count=65`, Kaiser `beta=8.6`, 32-sample symmetric guard per frame for
@@ -940,8 +952,8 @@ A new PA model is retained as a Pareto point only if:
 1. topology and solver were selected without test;
 2. validation pooled NMSE improves, or a declared cost reduction compensates
    for a quality loss;
-3. strict `<1000` real MUL/sample is satisfied for a qualifying Huawei
-   candidate;
+3. full operation/state/memory cost is reported, but the DPD latency budget is
+   not applied to this offline PA evaluator;
 4. full-record and common-interior results show whether gain is a boundary
    artifact;
 5. rank/condition and coefficient norm are numerically acceptable;
@@ -949,8 +961,10 @@ A new PA model is retained as a Pareto point only if:
 7. no validation/test input exceeds model support without an explicit count;
 8. fixed-point degradation is reported before a hardware claim.
 
-If normalized error power is the intended Huawei error, final acceptance is
-`<10^-5` or pooled NMSE `<-50 dB`; current MP/GMP points do not pass it.
+If normalized error power is retained as an additional diagnostic, `10^-5`
+would equal pooled NMSE `<-50 dB`; current MP/GMP points do not pass it. The
+clarified primary acceptance direction is harmonic/spur attenuation, whose
+exact RF bands, reference and threshold remain unresolved.
 
 ### 8.2 Gate A→B
 
@@ -975,7 +989,25 @@ Current arithmetic projection (not a cascade measurement):
 Обе точки ниже provisional 10 dB; второй independently fitted evaluator и
 physical predistorted capture отсутствуют. Decision: **Gate A→B closed**.
 
-### 8.3 “Better than OpenDPD”
+### 8.3 DPD spectral and latency acceptance
+
+DPD quality is evaluated only on the correct path
+`desired x -> DPD -> frozen evaluator/physical PA`. Once the customer freezes
+the definition, harmonic/spur attenuation is the primary acceptance metric.
+Until then ACLR, baseband PSD, NMSE and EVM remain separately labelled
+diagnostics; they are not silently renamed “harmonic attenuation”.
+
+Complexity passes only after the streaming DPD implementation satisfies
+
+```text
+T_DPD/sample <= T_reference(1000 real multiplications)
+```
+
+on the same target, numeric format, resource allocation and timing protocol.
+The analytical operation vector remains mandatory for explanation and
+portability, but real-MUL count alone is not a pass.
+
+### 8.4 “Better than OpenDPD”
 
 The claim requires the same dataset or physical PA, split, gain/alignment,
 framing, spectral definitions and test discipline; at least three seeds for
@@ -1038,7 +1070,8 @@ outputs for predistorted waveforms.
 10. [x] Preregister the bounded APA widely-linear/IQ residual audit before fit,
     including exact operation counts, reused-validation status and no test access.
 11. [x] Implement/test the conjugate correction and run APA post-discovery
-    leave-one-frame-out audit under strict `<1000 MUL` without test access.
+    leave-one-frame-out audit under its frozen historical strict `<1000 MUL`
+    bound without test access.
 12. [x] Apply the negative-result branch: keep `no_correction`, make no
     physical IQ attribution and do not tune DPA conjugate delays.
 13. [x] Preregister, implement and run the nested proper-complex long-FIR

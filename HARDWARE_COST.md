@@ -2,6 +2,12 @@
 
 Дата среза: 2026-07-30.
 
+Уточнение научного руководителя: 1000-real-MUL-equivalent time budget
+относится к модулю DPD, а не к behavioral PA model. Все операции DPD вместе
+сравниваются по времени с одним reference kernel; поэтому таблицы PA ниже
+являются audit стоимости evaluator, но не Huawei complexity gate. Пока target
+и timing kernel не определены, финальный DPD pass/fail по latency невозможен.
+
 ## 1. Статус и область доказательства
 
 Для selected MP, causal GMP, legacy spline DPD, APA SPH, первого
@@ -30,9 +36,9 @@ topology, только коэффициенты.
 - synthesis/place-and-route на FPGA/ASIC;
 - measured latency, throughput, DSP/LUT/BRAM use, power или timing closure.
 
-Следовательно, `<1000 real multiplications/sample` сейчас является analytical
-software-schedule constraint, а не количеством физических multipliers в
-конкретном Huawei device.
+Следовательно, completed PA fixed-point work доказывает только численную
+реализуемость evaluator arithmetic. Он не обязан укладываться в DPD timing
+budget и не заменяет bit-accurate/timed implementation самого predistorter.
 
 Source of the completed PA arithmetic evidence:
 `experiments/configs/pa_fixed_point_apa200.json`,
@@ -60,8 +66,9 @@ Primary convention:
 - stored coefficient, constant and persistent state.
 
 Optional Gauss complex multiply `3 MUL + 5 ADD` может быть отдельной hardware
-schedule, но не используется для текущих `<1000` decisions. Parameter count
-никогда не заменяет operations/sample.
+schedule. Parameter count никогда не заменяет operations/sample. Для DPD ни
+эта convention, ни одна колонка `MUL` не заменяет measured equivalent latency:
+`div/sqrt/LUT/compare/memory` входят в суммарное время.
 
 ## 3. Current analytical Pareto points
 
@@ -277,9 +284,10 @@ Selected three-branch spline reuses the same envelope coordinate and needs
 другая trained model/ablation, не бесплатная optimization существующего
 result.
 
-### 4.3 Sample-rate implication
+### 4.3 Sample-rate implication and why one count is insufficient
 
-Даже `<1000 MUL/sample` означает высокую aggregate rate:
+Даже около 1000 MUL/sample означает высокую aggregate rate. Следующие строки
+относятся к PA evaluators и не являются DPD acceptance:
 
 | Evaluator | Fs | Counted real MUL rate |
 |---|---:|---:|
@@ -288,8 +296,9 @@ result.
 
 Это не требует буквально столько отдельных multipliers: pipelining,
 time/interleaving, SIMD and DSP packing меняют mapping. Но один serial MAC не
-обеспечит target sample rate. Нужны target clock, allowed latency, parallelism
-и physical DSP-block definition Huawei.
+обеспечит target sample rate. Для DPD нужны target clock, allowed latency,
+parallelism и эталонный kernel, после чего проверяется
+`T_DPD/sample <= T_reference(1000 real MUL)`.
 
 ## 5. Fixed-point implementations: exact scope and limitation
 
@@ -458,14 +467,16 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-PA arithmetic coverage достигнута на APA source capture; следующий bounded
-step — повторить тот же frozen format matrix на source DPA и на target
-`APA_200MHz_b` train/validation после фиксации measurement metadata.  Эти
-коэффициентные payloads не меняют datapath counter, но могут менять
-quantization headroom, поэтому degradation должен быть опубликован отдельно.
+PA arithmetic coverage достигнута на DPA/APA source captures. Уже начатый
+bounded cleanup — проверить frozen target-calibrated `APA_200MHz_b`
+coefficient payloads на train/validation с hash-bound provenance, не открывая
+target test. Он нужен для evaluator reproducibility, не для DPD cost gate; на
+этом расширение PA quantization без нового evidence need останавливается.
 
-Только после этого, и отдельно от PA quantization, можно реализовать
-spline-memory DPD fixed-point path и correct desired-x→DPD→frozen-PA cascade.
+Следующий deployment-relevant hardware step — selected spline-memory DPD
+fixed-point path и correct desired-x→DPD→frozen-PA cascade. После получения
+target/timing-reference definition измеряются latency и throughput всех
+операций DPD относительно reference 1000-real-MUL kernel.
 Synthesis/throughput следует запускать лишь после выбора конкретного
 word-length/reciprocal/sqrt implementation; до этого analytical counts
 помечаются lower bounds.
