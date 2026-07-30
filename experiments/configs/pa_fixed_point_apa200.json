@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task": "frozen_pa_fixed_point_train_validation_evaluation",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_label": "OpenDPD APA_200MHz",
+  "output_dir": "experiments/results/pa_fixed_point_apa200",
+  "access_policy": {
+    "allowed_splits": [
+      "train",
+      "val"
+    ],
+    "test_split_accessed": false,
+    "test_files_named_or_hashed": false,
+    "selection_or_scale_tuning_on_validation": false
+  },
+  "dataset_contract": {
+    "sample_rate_hz": 983040000.0,
+    "frame_length": 19662,
+    "train_frame_lengths": [
+      19662,
+      19662,
+      19656
+    ],
+    "validation_frame_lengths": [
+      19662
+    ],
+    "train_sample_count": 58980,
+    "validation_sample_count": 19662,
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "required_files_sha256": {
+      "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+      "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+      "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+      "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+      "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+    }
+  },
+  "frozen_models": {
+    "causal_gmp": {
+      "type": "causal_gmp",
+      "path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "sha256": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add"
+    },
+    "lag9_sparse_spline_memory": {
+      "type": "sparse_spline_memory_pa",
+      "path": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selected_sparse_pa.npz",
+      "sha256": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475"
+    }
+  },
+  "fixed_point_protocol": {
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "scale_source": "train_input_and_train_measured_output_peaks_only",
+    "scale_guard_ratio": 1.001,
+    "coefficient_scale_source": "frozen_model_coefficient_peak_only",
+    "power_bits": 48,
+    "accumulator_bits": 56,
+    "scalar_accumulator_bits": 56,
+    "interpolation_fraction_bits": 16,
+    "rounding": "nearest_even",
+    "overflow": "saturate_and_count",
+    "knot_collision_policy": "monotone_next_code_repair_and_report",
+    "frame_state_policy": "reset_at_each_explicit_frame",
+    "fixed_point_model_vs_float_reference": "pooled_complex_nmse_db",
+    "no_test_access_in_scale_freeze": true
+  }
+}

@@ -755,6 +755,16 @@ class FixedPointGMPPA:
             np.zeros(0, dtype=np.int64),
         )
 
+    def operation_count(self):
+        """Return the frozen factorized GMP arithmetic schedule.
+
+        The integer reference preserves the same factorization as the
+        floating-point model; rounding, saturation checks and integer square
+        root are reported separately in ``FixedPointPAStats``.
+        """
+
+        return self.model.operation_count
+
     def _predict_codes(
         self,
         real_codes: np.ndarray,
