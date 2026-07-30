@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "task": "legacy_frozen_spline_memory_dpd_replay",
+  "split": "val",
+  "fit_performed": false,
+  "selection_performed": false,
+  "gain_or_alignment_retuned": false,
+  "selected_family": "signal_delay_012",
+  "alignment_delay_samples": 0,
+  "nperseg": 19662,
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+  "split_input_sha256": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+  "model_path": "experiments/results/spline_memory_apa200/signal_delay_012.npz",
+  "surrogate_path": "experiments/results/spline_memory_apa200/pa_surrogate.npz",
+  "selection_report": "experiments/results/spline_memory_apa200/memory_ablation_report.json",
+  "artifact_sha256": {
+    "experiments/results/spline_memory_apa200/signal_delay_012.npz": "7e37cff04f931b16f3e124221e910234c649e760d1e1c39bc40356eb09daa46d",
+    "experiments/results/spline_memory_apa200/pa_surrogate.npz": "433ec86cbb7f77fb87e6696dcfc6b8eab6bfeeeeaaf021c13a64de9c569c8a70",
+    "experiments/results/spline_memory_apa200/memory_ablation_report.json": "c936a2ff0aa0fadb449ae8cd2f361e0d5e820bf14224c9fa060e69bd5208594d"
+  },
+  "source_sha256": {
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/pa_models.py": "16d003361e3bfd95888d1f420b7963b8814c6cc9996d1f4f8f5a1ac74b5ae935",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "experiments/replay_frozen_spline_memory_dpd.py": "a41ee1ac854bcf9d62863ca90f3240023a547630635a507283df72682bc5d93c"
+  },
+  "target_gain": {
+    "real": 1.1625658972794473,
+    "imag": -0.00353163254492116
+  },
+  "expected_model": {
+    "branches": [
+      {
+        "signal_delay": 0,
+        "envelope_delay": 0
+      },
+      {
+        "signal_delay": 1,
+        "envelope_delay": 0
+      },
+      {
+        "signal_delay": 2,
+        "envelope_delay": 0
+      }
+    ],
+    "knot_count": 8,
+    "knot_strategy": "quantile"
+  },
+  "expected_surrogate": {
+    "orders": [
+      1,
+      3,
+      5,
+      7,
+      9
+    ],
+    "delays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+}
