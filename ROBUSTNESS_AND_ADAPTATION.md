@@ -6,11 +6,11 @@
 
 Полноценный robustness/adaptation benchmark для известных operating-point
 изменений **ещё не выполнен**. Первый preregistered capture-transfer run
-`APA_200MHz -> APA_200MHz_b` уже выполнен на train/validation; target
-held-out split остаётся запечатанным. Поэтому ниже разделены completed
-capture-transfer evidence и ещё не доказанные power/thermal claims.
+`APA_200MHz -> APA_200MHz_b` уже выполнен на train/validation и frozen
+held-out test. Поэтому ниже разделены completed capture-transfer evidence и
+ещё не доказанные power/thermal claims.
 
-Этот документ фиксирует protocol до запуска transfer experiments. Он запрещает
+Этот документ фиксирует protocol и его фактическое выполнение. Он запрещает
 объединять разные physical captures как случайные строки одного train/test
 split и задаёт learning curves для быстрой recalibration.
 
@@ -31,7 +31,8 @@ cheap-Pareto gate относительно MP, но уступает GMP на `0
 по-прежнему не является robustness evidence или независимым evaluator для DPD.
 Zero-shot capture transfer теперь измерен отдельным frozen source protocol.
 Operating-point, thermal и physical-PA adaptation claim по-прежнему не делаются:
-metadata для “measurement B” неизвестна, а target held-out split не открывался.
+metadata для “measurement B” неизвестна, хотя target held-out release уже
+завершён.
 
 ## 2. Доступные captures и границы metadata
 
@@ -281,22 +282,55 @@ published models прошли streaming/reset equivalence. Independent verifier
 или sparse до −35.36 dB за 1.51 s. Sparse остаётся примерно на 2.53 dB хуже
 GMP после полной calibration, хотя требует в 13.25 раз меньше real MUL.
 
+### 9.1 Frozen target held-out result
+
+Release config
+`experiments/configs/pa_transfer_apa200_to_b_release.json` связал уже
+выбранные `N=16384`, topology, coefficient hashes и metric protocol до test.
+Held-out direction остался обычной forward identification:
+`x_test -> PA model -> y_hat_test`, сравнение с measured `y_test`.
+
+| Model / mode | Target test full NMSE | Common NMSE | Relative error power | Fit s | MUL / ADD |
+|---|---:|---:|---:|---:|---:|
+| GMP zero-shot | −23.795441 | −23.800907 | 4.1731e−3 | 0 | 954 / 947 |
+| GMP coefficient-only, N=16384 | **−37.895152** | **−38.003839** | **1.6236e−4** | 6.860 | 954 / 947 |
+| Lag-9 sparse zero-shot | −23.695838 | −23.700933 | 4.2699e−3 | 0 | 72 / 82 |
+| Lag-9 sparse coefficient-only, N=16384 | −34.801474 | −35.437986 | 3.3102e−4 | 1.513 | 72 / 82 |
+
+Calibrated GMP сохранил validation quality на test с изменением всего
+`−0.0044 dB`. Sparse full-record ухудшился на `0.5570 dB`, но common-support
+изменился только на `0.0080 dB`; это указывает на чувствительность к первым
+24 causal startup samples, а не на сравнимое ухудшение steady-state.
+
+Access audit содержит два test access. Первый процесс загрузил held-out pair,
+но остановился до model inference/metric из-за неверного guard для последней
+короткой train frame. После исправления только этого guard неизменённые
+frozen models и metrics были выполнены при втором доступе. Поэтому
+`strict_single_open_execution=false`, но test не использовался ни для
+selection, ни для coefficient fit. Incident:
+`experiments/results/pa_transfer_apa200_to_b_release_incident_001.json`;
+verified release:
+`experiments/results/pa_transfer_apa200_to_b_test_release_verification.json`.
+
 Что не доказано: что B означает power/thermal drift; transfer на другой
-waveform; physical-PA generalization; DPD linearization; target held-out
-performance.
+waveform; physical-PA generalization; DPD linearization; extrapolation за
+пределы этого same-excitation capture pair.
 
 ## 10. Следующий эксперимент максимальной ценности
 
 1. Получить metadata для “measurement B” (power/backoff, bias, temperature,
    capture time, DUT and feedback calibration).
-2. После metadata freeze выполнить отдельный one-shot target held-out release
-   для уже frozen zero-shot/selected-N records; target test не использовать
-   для изменения N или topology.
+2. Сопоставить release result с этими metadata; не переименовывать completed
+   capture transfer в power/thermal adaptation задним числом без controlled
+   experimental design.
 3. Выполнить обратное направление `APA_200MHz_b -> APA_200MHz` как
    symmetry check, только если source/target metadata и protocol остаются
    сопоставимыми.
 4. Затем проверить known operating-point captures и limited recalibration.
-5. DPD contour не открывать до Gate A→B и independent evaluator margin.
+5. На physical PA получить новый capture с явно заданными power/backoff,
+   bias, temperature и feedback calibration; повторить zero-shot +
+   limited-sample curve.
+6. DPD contour не открывать до Gate A→B и independent evaluator margin.
 
 Для DPA изменение 160↔200 MHz смешивает waveform, modulation и sample rate;
 его следует выполнять вторым stress test с explicit resampling/time-memory
