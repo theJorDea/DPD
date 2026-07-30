@@ -41,8 +41,10 @@ class FixedPointDPDRunnerTests(unittest.TestCase):
             "selected_family": "signal_delay_012",
             "alignment_delay_samples": 0,
             "nperseg": 128,
-            "train_sample_count": 256,
+            "train_sample_count": 250,
             "validation_sample_count": 256,
+            "train_frame_lengths": [128, 122],
+            "validation_frame_lengths": [128, 128],
             "dataset": "dataset",
             "model_path": "model.npz",
             "surrogate_path": "surrogate.npz",
@@ -98,9 +100,12 @@ class FixedPointDPDRunnerTests(unittest.TestCase):
         }
         spec_path = dataset / "spec.json"
         spec_path.write_text(json.dumps(spec), encoding="utf-8")
-        indices = np.arange(256)
-        train = np.exp(2j * np.pi * 5 * indices / 128)
-        validation = 0.75 * np.exp(2j * np.pi * 7 * indices / 128)
+        train_indices = np.arange(250)
+        validation_indices = np.arange(256)
+        train = np.exp(2j * np.pi * 5 * train_indices / 128)
+        validation = 0.75 * np.exp(
+            2j * np.pi * 7 * validation_indices / 128
+        )
         train_path = dataset / "train_input.csv"
         validation_path = dataset / "val_input.csv"
         _write_iq(train_path, train)
@@ -196,6 +201,11 @@ class FixedPointDPDRunnerTests(unittest.TestCase):
         config = self._base_config()
         config["test_input_sha256"] = "5" * 64
         with self.assertRaisesRegex(ValueError, "unknown"):
+            runner.validate_config(config)
+
+        config = self._base_config()
+        config["train_frame_lengths"] = [128, 121]
+        with self.assertRaisesRegex(ValueError, "partition"):
             runner.validate_config(config)
 
     def test_static_statistics_are_not_multiplied_across_frames(self) -> None:
@@ -378,6 +388,10 @@ class FixedPointDPDRunnerTests(unittest.TestCase):
                 ],
                 2,
             )
+            self.assertEqual(
+                report["dataset"]["train_frame_lengths"],
+                (128, 122),
+            )
 
             float_operations = report["float_reference"][
                 "dpd_operation_count"
@@ -460,6 +474,16 @@ class FixedPointDPDRunnerTests(unittest.TestCase):
                 )
                 self.assertTrue(
                     record["validation"]["phase_equivariance"]["bit_exact"]
+                )
+                self.assertFalse(
+                    record["train"]["fixed_vs_float_drive"][
+                        "opendpd_equal_length_frame_compatible"
+                    ]
+                )
+                self.assertTrue(
+                    record["validation"]["fixed_vs_float_drive"][
+                        "opendpd_equal_length_frame_compatible"
+                    ]
                 )
                 stats = record["validation"]["stats"]
                 for name in (

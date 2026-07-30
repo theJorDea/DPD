@@ -114,8 +114,10 @@ def validate_config(config: dict[str, Any]) -> None:
         "surrogate_path",
         "target_gain",
         "task",
+        "train_frame_lengths",
         "train_input_sha256",
         "train_sample_count",
+        "validation_frame_lengths",
         "validation_sample_count",
     }
     unknown = set(config) - allowed_keys
@@ -177,10 +179,20 @@ def validate_config(config: dict[str, Any]) -> None:
             or value <= 0
         ):
             raise ValueError(f"{name} must be a positive integer")
-    if int(validation_count) % int(nperseg):
-        raise ValueError("validation must contain complete spectral frames")
-    if int(train_count) % int(nperseg):
-        raise ValueError("train must contain complete spectral frames")
+    _frame_contract(
+        config.get("train_frame_lengths"),
+        field="train_frame_lengths",
+        sample_count=int(train_count),
+        frame_length=int(nperseg),
+        allow_partial_final=True,
+    )
+    _frame_contract(
+        config.get("validation_frame_lengths"),
+        field="validation_frame_lengths",
+        sample_count=int(validation_count),
+        frame_length=int(nperseg),
+        allow_partial_final=False,
+    )
 
     protocol = config.get("fixed_point_protocol")
     if not isinstance(protocol, dict):
@@ -250,13 +262,32 @@ def validate_config(config: dict[str, Any]) -> None:
             raise ValueError(f"{name} must be a SHA-256 string")
 
 
-def _frame_lengths(sample_count: int, segment_length: int) -> tuple[int, ...]:
-    if sample_count <= 0 or segment_length <= 0:
-        raise ValueError("sample and segment lengths must be positive")
-    return tuple(
-        min(segment_length, sample_count - start)
-        for start in range(0, sample_count, segment_length)
-    )
+def _frame_contract(
+    value: object,
+    *,
+    field: str,
+    sample_count: int,
+    frame_length: int,
+    allow_partial_final: bool,
+) -> tuple[int, ...]:
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"{field} must be a non-empty list")
+    if any(
+        not isinstance(length, int)
+        or isinstance(length, bool)
+        or length <= 0
+        or length > frame_length
+        for length in value
+    ):
+        raise ValueError(f"{field} contains an invalid frame length")
+    lengths = tuple(int(length) for length in value)
+    if sum(lengths) != sample_count:
+        raise ValueError(f"{field} does not partition the declared samples")
+    if any(length != frame_length for length in lengths[:-1]):
+        raise ValueError(f"{field} permits only one partial final frame")
+    if not allow_partial_final and lengths[-1] != frame_length:
+        raise ValueError(f"{field} must contain complete spectral frames")
+    return lengths
 
 
 def _segments(
@@ -326,7 +357,7 @@ def _paired_metrics(
     reference: np.ndarray,
     *,
     warmup_samples: int,
-    segment_length: int,
+    frame_lengths: tuple[int, ...],
 ) -> dict[str, Any]:
     """Report pooled and OpenDPD-style metrics under one framing contract."""
 
@@ -335,26 +366,65 @@ def _paired_metrics(
     if (
         estimate_array.ndim != 1
         or reference_array.shape != estimate_array.shape
-        or estimate_array.size % segment_length
+        or sum(frame_lengths) != estimate_array.size
     ):
-        raise ValueError("paired metrics require equal complete 1-D frames")
-    if warmup_samples >= segment_length:
+        raise ValueError("paired metrics require equal explicitly framed arrays")
+    if warmup_samples >= min(frame_lengths):
         raise ValueError("warmup must leave at least one sample per frame")
-    estimate_frames = estimate_array.reshape(-1, segment_length)
-    reference_frames = reference_array.reshape(-1, segment_length)
+    estimate_frames = _segments(estimate_array, frame_lengths)
+    reference_frames = _segments(reference_array, frame_lengths)
+    estimate_scored = np.concatenate(
+        tuple(frame[warmup_samples:] for frame in estimate_frames)
+    )
+    reference_scored = np.concatenate(
+        tuple(frame[warmup_samples:] for frame in reference_frames)
+    )
     result = _paired_time_metrics(
-        estimate_array,
-        reference_array,
-        warmup_samples=warmup_samples,
-        segment_length=segment_length,
+        estimate_scored,
+        reference_scored,
     )
-    result["complex_nmse_opendpd_full_frame_db"] = nmse_opendpd_db(
-        estimate_frames,
-        reference_frames,
+    result.update(
+        {
+            "sample_count": int(estimate_scored.size),
+            "discarded_causal_warmup_samples_total": (
+                len(frame_lengths) * warmup_samples
+            ),
+            "causal_warmup_samples_per_frame": warmup_samples,
+            "frame_lengths": frame_lengths,
+            "warmup_policy": "discard_at_every_explicit_frame_start",
+        }
     )
-    result["complex_nmse_opendpd_scored_interior_db"] = nmse_opendpd_db(
-        estimate_frames[:, warmup_samples:],
-        reference_frames[:, warmup_samples:],
+    result.pop("causal_warmup_samples_per_segment")
+    result.pop("segment_length")
+    result["complex_nmse_opendpd_full_frame_db"] = float(
+        np.mean(
+            [
+                nmse_opendpd_db(frame_estimate, frame_reference)
+                for frame_estimate, frame_reference in zip(
+                    estimate_frames,
+                    reference_frames,
+                    strict=True,
+                )
+            ]
+        )
+    )
+    result["complex_nmse_opendpd_scored_interior_db"] = float(
+        np.mean(
+            [
+                nmse_opendpd_db(
+                    frame_estimate[warmup_samples:],
+                    frame_reference[warmup_samples:],
+                )
+                for frame_estimate, frame_reference in zip(
+                    estimate_frames,
+                    reference_frames,
+                    strict=True,
+                )
+            ]
+        )
+    )
+    result["opendpd_equal_length_frame_compatible"] = bool(
+        len(set(frame_lengths)) == 1
     )
     return result
 
@@ -425,7 +495,7 @@ def _phase_equivariance(
             rotated_output,
             expected,
             warmup_samples=evaluator.model.maximum_delay,
-            segment_length=max(frame_lengths),
+            frame_lengths=frame_lengths,
         ),
         "rotated_input_stats": stats,
     }
@@ -625,7 +695,13 @@ def evaluate(
     train_input = load_complex_iq_csv(dataset / "train_input.csv")
     if train_input.size != int(config["train_sample_count"]):
         raise ValueError("train input sample count disagrees with config")
-    train_lengths = _frame_lengths(train_input.size, nperseg)
+    train_lengths = _frame_contract(
+        config["train_frame_lengths"],
+        field="train_frame_lengths",
+        sample_count=train_input.size,
+        frame_length=nperseg,
+        allow_partial_final=True,
+    )
     float_train_drive = model.predict_segments(train_input, nperseg)
     input_peak = peak_amplitude(train_input)
     drive_peak = peak_amplitude(float_train_drive)
@@ -661,9 +737,13 @@ def evaluate(
     validation_input = load_complex_iq_csv(dataset / "val_input.csv")
     if validation_input.size != int(config["validation_sample_count"]):
         raise ValueError("validation input sample count disagrees with config")
-    validation_lengths = _frame_lengths(validation_input.size, nperseg)
-    if any(length != nperseg for length in validation_lengths):
-        raise ValueError("validation contains an incomplete spectral frame")
+    validation_lengths = _frame_contract(
+        config["validation_frame_lengths"],
+        field="validation_frame_lengths",
+        sample_count=validation_input.size,
+        frame_length=nperseg,
+        allow_partial_final=False,
+    )
     gain = _complex_from_json(config["target_gain"], field="target_gain")
     ideal_output = gain * validation_input
     float_validation_drive = model.predict_segments(
@@ -753,13 +833,13 @@ def evaluate(
                 no_dpd_output,
                 ideal_output,
                 warmup_samples=cascade_warmup,
-                segment_length=nperseg,
+                frame_lengths=validation_lengths,
             ),
             "float_dpd_vs_ideal": _paired_metrics(
                 float_dpd_output,
                 ideal_output,
                 warmup_samples=cascade_warmup,
-                segment_length=nperseg,
+                frame_lengths=validation_lengths,
             ),
             "predistorted_drive": _waveform_metrics(
                 float_validation_drive
@@ -835,7 +915,7 @@ def evaluate(
                     train_fixed,
                     float_train_drive,
                     warmup_samples=model.maximum_delay,
-                    segment_length=nperseg,
+                    frame_lengths=train_lengths,
                 ),
                 "fixed_drive": _waveform_metrics(train_fixed),
                 "python_integer_reference_timing": _timing_record(
@@ -850,19 +930,19 @@ def evaluate(
                     validation_fixed,
                     float_validation_drive,
                     warmup_samples=model.maximum_delay,
-                    segment_length=nperseg,
+                    frame_lengths=validation_lengths,
                 ),
                 "fixed_vs_float_cascade": _paired_metrics(
                     fixed_output,
                     float_dpd_output,
                     warmup_samples=cascade_warmup,
-                    segment_length=nperseg,
+                    frame_lengths=validation_lengths,
                 ),
                 "fixed_cascade_vs_ideal": _paired_metrics(
                     fixed_output,
                     ideal_output,
                     warmup_samples=cascade_warmup,
-                    segment_length=nperseg,
+                    frame_lengths=validation_lengths,
                 ),
                 "fixed_drive": _waveform_metrics(validation_fixed),
                 "peak_change_vs_float_db": _amplitude_ratio_db(
