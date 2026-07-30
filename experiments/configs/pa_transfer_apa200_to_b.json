@@ -5,6 +5,7 @@
   "task": "forward_pa_capture_transfer_and_limited_coefficient_calibration",
   "source_dataset": "vendor/OpenDPD/datasets/APA_200MHz",
   "target_dataset": "vendor/OpenDPD/datasets/APA_200MHz_b",
+  "output_dir": "experiments/results/pa_transfer_apa200_to_b_pretest",
   "dataset_relation": "same_declared_excitation_and_timebase; different_measured_output_capture",
   "unknown_changed_axes": [
     "capture_time",
@@ -79,6 +80,17 @@
       "complex_coefficient_count": 444,
       "source_ridge": 1e-7,
       "source_solver": "ridge_lstsq",
+      "architecture": {
+        "ka": 7,
+        "la": 30,
+        "kb": 2,
+        "lb": 30,
+        "mb": 2,
+        "kc": 2,
+        "lc": 30,
+        "mc": 2,
+        "leading_policy": "causal_leading"
+      },
       "operation_budget": {
         "real_multiplications_per_sample": 954,
         "real_additions_per_sample": 947,
@@ -98,6 +110,45 @@
       "complex_coefficient_count": 108,
       "source_ridge": 1e-8,
       "source_solver": "augmented_complex_lstsq",
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          22,
+          22
+        ],
+        [
+          23,
+          23
+        ],
+        [
+          24,
+          24
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "knot_count": 12,
       "operation_budget": {
         "real_multiplications_per_sample": 72,
         "real_additions_per_sample": 82,
