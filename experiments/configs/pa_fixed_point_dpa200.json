@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "task": "frozen_pa_fixed_point_train_validation_evaluation",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "dataset_label": "OpenDPD DPA_200MHz",
+  "output_dir": "experiments/results/pa_fixed_point_dpa200",
+  "access_policy": {
+    "allowed_splits": [
+      "train",
+      "val"
+    ],
+    "test_split_accessed": false,
+    "test_files_named_or_hashed": false,
+    "selection_or_scale_tuning_on_validation": false
+  },
+  "dataset_contract": {
+    "sample_rate_hz": 800000000.0,
+    "frame_length": 2560,
+    "train_frame_lengths": [
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560
+    ],
+    "validation_frame_lengths": [
+      2560,
+      2560,
+      2560
+    ],
+    "train_sample_count": 23040,
+    "validation_sample_count": 7680,
+    "alignment_delay_samples": 0,
+    "fractional_delay_applied": false,
+    "required_files_sha256": {
+      "spec.json": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+      "train_input.csv": "05da7e48c14d1eadb003a43363d6b9f658a164b564b660f5edee21b9e9d4d0f3",
+      "train_output.csv": "f3d9b3173e78a4c292028b304271ee16c52c2262dd122f593ca7b8b65097dff3",
+      "val_input.csv": "aa7b345c57eef8476ca6b5b5eb73fd0dce0f8d72f5e716ed36cfb0b91af8b8a3",
+      "val_output.csv": "5c012ab8218062cd870eed700fc273dd7e72820462c480df8380f08cf4f1092a"
+    }
+  },
+  "frozen_models": {
+    "causal_gmp": {
+      "type": "causal_gmp",
+      "path": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+      "sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e"
+    }
+  },
+  "fixed_point_protocol": {
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "scale_source": "train_input_and_train_measured_output_peaks_only",
+    "scale_guard_ratio": 1.001,
+    "coefficient_scale_source": "frozen_model_coefficient_peak_only",
+    "power_bits": 48,
+    "accumulator_bits": 56,
+    "scalar_accumulator_bits": 56,
+    "interpolation_fraction_bits": 16,
+    "rounding": "nearest_even",
+    "overflow": "saturate_and_count",
+    "knot_collision_policy": "not_applicable_for_gmp",
+    "frame_state_policy": "reset_at_each_explicit_frame",
+    "fixed_point_model_vs_float_reference": "pooled_complex_nmse_db",
+    "no_test_access_in_scale_freeze": true
+  }
+}
