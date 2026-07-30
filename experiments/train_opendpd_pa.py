@@ -10,6 +10,8 @@ validation NMSE convention, but owns the data access and training loop:
   ``val_input.csv`` and ``val_output.csv`` are permitted;
 * no path containing ``test_input.csv`` or ``test_output.csv`` is resolved;
 * checkpoint selection uses validation NMSE only;
+* deterministic model/optimizer/scheduler/RNG state is journaled after every
+  completed epoch and may be resumed only under the exact frozen contract;
 * the resulting artifact is explicitly marked as train/validation-only.
 
 The runner is intentionally usable as a module without PyTorch installed.
@@ -25,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import fcntl
 import hashlib
 import io
 import json
@@ -63,6 +66,15 @@ TASK = "opendpd_pa_train_validation_only"
 CONFIG_STATUS = "preregistered_train_validation_only"
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+RESUME_SCHEMA_VERSION = 1
+RESUME_MANIFEST = "run_manifest.json"
+RESUME_DIRECTORY = "resume"
+RESUME_STATES_DIRECTORY = "states"
+RESUME_JOURNAL_DIRECTORY = "journal"
+STATE_FILE_PATTERN = re.compile(
+    r"^state_epoch_(?P<epoch>[0-9]{6})_(?P<digest>[0-9a-f]{16})\.pt$"
+)
+JOURNAL_FILE_PATTERN = re.compile(r"^epoch_(?P<epoch>[0-9]{6})\.json$")
 
 
 def _display_path(path: str | Path) -> str:
@@ -226,6 +238,10 @@ def load_config(path: str | Path) -> dict[str, Any]:
         raise ValueError("training.seed must be an integer")
     if not isinstance(training.get("deterministic"), bool):
         raise ValueError("training.deterministic must be boolean")
+    if training["deterministic"] is not True:
+        raise ValueError(
+            "sealed resumable OpenDPD training requires deterministic=true"
+        )
     if training.get("device") not in {"cpu", "cuda"}:
         raise ValueError("training.device must be cpu or cuda")
     for key in ("lr", "lr_end", "decay_factor", "patience", "grad_clip_val"):
@@ -718,9 +734,9 @@ def _seed_everything(seed: int, *, deterministic: bool) -> None:
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if deterministic:
-        torch.use_deterministic_algorithms(True)
-        torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(bool(deterministic))
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = bool(deterministic)
 
 
 def _parameter_count(model: Any) -> int:
@@ -829,6 +845,7 @@ def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary_name, path)
+        _fsync_directory(path.parent)
     finally:
         if os.path.exists(temporary_name):
             os.unlink(temporary_name)
@@ -846,49 +863,771 @@ def _save_checkpoint_atomic(state_dict: Mapping[str, Any], path: Path) -> None:
     os.close(fd)
     try:
         torch.save(state_dict, temporary_name)
+        with Path(temporary_name).open("rb") as stream:
+            os.fsync(stream.fileno())
         os.replace(temporary_name, path)
+        _fsync_directory(path.parent)
     finally:
         if os.path.exists(temporary_name):
             os.unlink(temporary_name)
 
 
-def run_candidate(
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _write_json_exclusive_atomic(path: Path, value: Mapping[str, Any]) -> str:
+    """Publish one immutable JSON object without replacing an existing file."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_symlink() or path.exists():
+        raise FileExistsError(f"refusing to replace immutable artifact: {path}")
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        dir=str(path.parent),
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        try:
+            os.link(temporary_name, path)
+        except FileExistsError as error:
+            raise FileExistsError(
+                f"refusing to replace immutable artifact: {path}"
+            ) from error
+        _fsync_directory(path.parent)
+        return sha256_file(path)
+    finally:
+        if os.path.exists(temporary_name):
+            os.unlink(temporary_name)
+
+
+def _read_json_object(path: Path, *, label: str) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file():
+        raise RuntimeError(f"{label} must be one regular non-symlink file")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"cannot read {label}: {path}") from error
+    if not isinstance(value, dict):
+        raise RuntimeError(f"{label} must contain one JSON object")
+    return value
+
+
+def _resume_paths(output: Path) -> tuple[Path, Path, Path]:
+    resume_root = output / RESUME_DIRECTORY
+    return (
+        resume_root,
+        resume_root / RESUME_STATES_DIRECTORY,
+        resume_root / RESUME_JOURNAL_DIRECTORY,
+    )
+
+
+def _ensure_resume_directories(output: Path) -> tuple[Path, Path, Path]:
+    paths = _resume_paths(output)
+    for path in paths:
+        if path.is_symlink():
+            raise RuntimeError(f"resume directory must not be a symlink: {path}")
+        existed = path.exists()
+        path.mkdir(exist_ok=True)
+        if not path.is_dir():
+            raise RuntimeError(f"resume path is not a directory: {path}")
+        if not existed:
+            _fsync_directory(path.parent)
+    return paths
+
+
+def _cpu_model() -> str | None:
+    try:
+        for line in Path("/proc/cpuinfo").read_text(
+            encoding="utf-8",
+            errors="replace",
+        ).splitlines():
+            if line.lower().startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    except (OSError, IndexError):
+        return None
+    return platform.processor() or None
+
+
+def _runtime_signature(torch: Any, device: Any) -> dict[str, Any]:
+    signature: dict[str, Any] = {
+        "python": sys.version,
+        "numpy": str(np.__version__),
+        "torch": str(torch.__version__),
+        "torch_build_config_sha256": hashlib.sha256(
+            torch.__config__.show().encode("utf-8")
+        ).hexdigest(),
+        "device": str(device),
+        "torch_threads": int(torch.get_num_threads()),
+        "torch_interop_threads": int(torch.get_num_interop_threads()),
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "cpu_model": _cpu_model(),
+        "deterministic_algorithms_enabled": bool(
+            torch.are_deterministic_algorithms_enabled()
+        ),
+        "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
+        "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
+        "float32_matmul_precision": str(
+            torch.get_float32_matmul_precision()
+        ),
+        "cuda_matmul_allow_tf32": bool(
+            torch.backends.cuda.matmul.allow_tf32
+        ),
+        "cudnn_allow_tf32": bool(torch.backends.cudnn.allow_tf32),
+        "thread_environment": {
+            name: os.environ.get(name)
+            for name in (
+                "OPENBLAS_NUM_THREADS",
+                "OMP_NUM_THREADS",
+                "MKL_NUM_THREADS",
+                "CUBLAS_WORKSPACE_CONFIG",
+                "CUDA_LAUNCH_BLOCKING",
+                "NVIDIA_TF32_OVERRIDE",
+                "OPENDPD_DISABLE_TRITON_DELTAGRU",
+            )
+        },
+    }
+    if device.type == "cuda":
+        index = (
+            int(device.index)
+            if device.index is not None
+            else int(torch.cuda.current_device())
+        )
+        signature["cuda"] = {
+            "torch_cuda_version": str(torch.version.cuda),
+            "cudnn_version": torch.backends.cudnn.version(),
+            "device_count": int(torch.cuda.device_count()),
+            "selected_device_index": index,
+            "selected_device_name": str(torch.cuda.get_device_name(index)),
+            "selected_device_capability": list(
+                torch.cuda.get_device_capability(index)
+            ),
+        }
+        try:
+            driver_lines = subprocess.check_output(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=driver_version",
+                    "--format=csv,noheader",
+                ],
+                text=True,
+                timeout=5,
+            ).splitlines()
+            signature["cuda"]["driver_version"] = driver_lines[index].strip()
+        except (OSError, subprocess.SubprocessError, IndexError):
+            signature["cuda"]["driver_version"] = None
+    else:
+        signature["cuda"] = None
+    return signature
+
+
+def _build_resume_contract(
+    config: Mapping[str, Any],
+    config_path: str | Path,
+    candidate: Mapping[str, Any],
+    *,
+    output: Path,
+    source: Mapping[str, Any],
+    dataset_dir: Path,
+    dataset_hashes: Mapping[str, str],
+    requested_epochs: int,
+    effective_epochs: int,
+    max_epochs: int | None,
+    max_train_batches: int | None,
+    max_val_batches: int | None,
+    runtime_signature: Mapping[str, Any],
+) -> dict[str, Any]:
+    return {
+        "schema_version": RESUME_SCHEMA_VERSION,
+        "task": TASK,
+        "config": {
+            "path": _display_path(config_path),
+            "sha256": sha256_file(config_path),
+            "canonical_sha256": sha256_json(config),
+        },
+        "candidate": dict(candidate),
+        "candidate_sha256": sha256_json(dict(candidate)),
+        "output_directory": _display_path(output),
+        "dataset": {
+            "directory": _display_path(dataset_dir),
+            "files_sha256": dict(dataset_hashes),
+            "test_file_hashes_recorded": False,
+        },
+        "source": dict(source),
+        "recipe": {
+            "requested_epochs": int(requested_epochs),
+            "effective_epochs": int(effective_epochs),
+            "max_epochs_argument": max_epochs,
+            "max_train_batches": max_train_batches,
+            "max_validation_batches": max_val_batches,
+            "training": dict(config["training"]),
+            "framing": dict(config["framing"]),
+        },
+        "runtime_signature": dict(runtime_signature),
+        "scope": {
+            "test_split_accessed": False,
+            "test_path_resolved": False,
+            "test_file_hashes_recorded": False,
+            "selection_split": "validation",
+        },
+    }
+
+
+def _initialize_or_verify_run_manifest(
+    output: Path,
+    contract: Mapping[str, Any],
+    *,
+    resume: bool,
+) -> dict[str, Any]:
+    contract_hash = sha256_json(contract)
+    manifest = {
+        "schema_version": RESUME_SCHEMA_VERSION,
+        "artifact_type": "opendpd_pa_resumable_run_manifest",
+        "task": TASK,
+        "status": "in_progress_until_completion_manifest",
+        "resume_contract": dict(contract),
+        "resume_contract_sha256": contract_hash,
+        "test_split_accessed": False,
+        "test_path_resolved": False,
+        "test_file_hashes_recorded": False,
+    }
+    path = output / RESUME_MANIFEST
+    if resume:
+        observed = _read_json_object(path, label="resume run manifest")
+        if observed != manifest:
+            raise RuntimeError(
+                "resume contract mismatch; config/candidate/source/data/runtime "
+                "or execution limits changed"
+            )
+    else:
+        _write_json_exclusive_atomic(path, manifest)
+    _ensure_resume_directories(output)
+    return manifest
+
+
+def _capture_rng_state(
+    torch: Any,
+    train_loader: Any,
+    *,
+    include_cuda: bool,
+) -> dict[str, Any]:
+    python_state = random.getstate()
+    numpy_state = np.random.get_state()
+    generator = getattr(train_loader, "generator", None)
+    if generator is None:
+        raise RuntimeError("train DataLoader has no resumable shuffle generator")
+    return {
+        "python": {
+            "version": int(python_state[0]),
+            "state": [int(value) for value in python_state[1]],
+            "gauss_next": (
+                None
+                if python_state[2] is None
+                else float(python_state[2])
+            ),
+        },
+        "numpy": {
+            "bit_generator": str(numpy_state[0]),
+            "state": [int(value) for value in numpy_state[1]],
+            "position": int(numpy_state[2]),
+            "has_gauss": int(numpy_state[3]),
+            "cached_gaussian": float(numpy_state[4]),
+        },
+        "torch_cpu": torch.get_rng_state(),
+        "torch_cuda": (
+            list(torch.cuda.get_rng_state_all())
+            if include_cuda
+            else []
+        ),
+        "train_loader_generator": generator.get_state(),
+    }
+
+
+def _restore_rng_state(
+    torch: Any,
+    train_loader: Any,
+    state: Mapping[str, Any],
+) -> None:
+    python_state = state["python"]
+    random.setstate(
+        (
+            int(python_state["version"]),
+            tuple(int(value) for value in python_state["state"]),
+            python_state["gauss_next"],
+        )
+    )
+    numpy_state = state["numpy"]
+    np.random.set_state(
+        (
+            str(numpy_state["bit_generator"]),
+            np.asarray(numpy_state["state"], dtype=np.uint32),
+            int(numpy_state["position"]),
+            int(numpy_state["has_gauss"]),
+            float(numpy_state["cached_gaussian"]),
+        )
+    )
+    torch.set_rng_state(state["torch_cpu"])
+    cuda_states = list(state["torch_cuda"])
+    if cuda_states:
+        if not torch.cuda.is_available():
+            raise RuntimeError("resume state requires CUDA RNG on a CPU runtime")
+        torch.cuda.set_rng_state_all(cuda_states)
+    generator = getattr(train_loader, "generator", None)
+    if generator is None:
+        raise RuntimeError("train DataLoader has no resumable shuffle generator")
+    generator.set_state(state["train_loader_generator"])
+
+
+def _make_resume_state(
+    torch: Any,
+    *,
+    contract_hash: str,
+    completed_epochs: int,
+    model: Any,
+    optimizer: Any,
+    scheduler: Any,
+    best_metric: float,
+    best_epoch: int | None,
+    best_state: Mapping[str, Any] | None,
+    history: Sequence[Mapping[str, Any]],
+    productive_fit_seconds: float,
+    train_loader: Any,
+) -> dict[str, Any]:
+    return {
+        "schema_version": RESUME_SCHEMA_VERSION,
+        "artifact_type": "opendpd_pa_epoch_resume_state",
+        "task": TASK,
+        "resume_contract_sha256": contract_hash,
+        "completed_epochs": int(completed_epochs),
+        "current_model_state_dict": copy.deepcopy(model.state_dict()),
+        "optimizer_state_dict": copy.deepcopy(optimizer.state_dict()),
+        "scheduler_state_dict": copy.deepcopy(scheduler.state_dict()),
+        "best_validation_opendpd_nmse_db": (
+            None if not np.isfinite(best_metric) else float(best_metric)
+        ),
+        "best_epoch": best_epoch,
+        "best_model_state_dict": (
+            None if best_state is None else copy.deepcopy(best_state)
+        ),
+        "history": [dict(row) for row in history],
+        "productive_fit_seconds": float(productive_fit_seconds),
+        "rng_state": _capture_rng_state(
+            torch,
+            train_loader,
+            include_cuda=any(
+                bool(parameter.is_cuda)
+                for parameter in model.parameters()
+            ),
+        ),
+        "test_split_accessed": False,
+        "test_path_resolved": False,
+        "test_file_hashes_recorded": False,
+    }
+
+
+def _validate_resume_state(
+    state: Any,
+    *,
+    contract_hash: str,
+    completed_epochs: int,
+) -> dict[str, Any]:
+    if not isinstance(state, dict):
+        raise RuntimeError("resume checkpoint must contain one mapping")
+    if (
+        state.get("schema_version") != RESUME_SCHEMA_VERSION
+        or state.get("artifact_type") != "opendpd_pa_epoch_resume_state"
+        or state.get("task") != TASK
+    ):
+        raise RuntimeError("resume checkpoint schema/task mismatch")
+    if state.get("resume_contract_sha256") != contract_hash:
+        raise RuntimeError("resume checkpoint contract hash mismatch")
+    if state.get("completed_epochs") != completed_epochs:
+        raise RuntimeError("resume checkpoint completed-epoch count mismatch")
+    if any(
+        state.get(key) is not False
+        for key in (
+            "test_split_accessed",
+            "test_path_resolved",
+            "test_file_hashes_recorded",
+        )
+    ):
+        raise RuntimeError("resume checkpoint violates the sealed test scope")
+    history = state.get("history")
+    if not isinstance(history, list) or len(history) != completed_epochs:
+        raise RuntimeError("resume checkpoint history length mismatch")
+    for index, row in enumerate(history):
+        if not isinstance(row, dict) or row.get("epoch") != index:
+            raise RuntimeError("resume checkpoint history is not contiguous")
+    productive = state.get("productive_fit_seconds")
+    if (
+        isinstance(productive, bool)
+        or not isinstance(productive, (int, float))
+        or not np.isfinite(productive)
+        or productive < 0
+    ):
+        raise RuntimeError("resume checkpoint productive time is invalid")
+    best_epoch = state.get("best_epoch")
+    best_metric = state.get("best_validation_opendpd_nmse_db")
+    best_state = state.get("best_model_state_dict")
+    if completed_epochs == 0:
+        if best_epoch is not None or best_metric is not None or best_state is not None:
+            raise RuntimeError("initial resume checkpoint contains a best model")
+    elif (
+        not isinstance(best_epoch, int)
+        or isinstance(best_epoch, bool)
+        or not 0 <= best_epoch < completed_epochs
+        or isinstance(best_metric, bool)
+        or not isinstance(best_metric, (int, float))
+        or not np.isfinite(best_metric)
+        or not isinstance(best_state, Mapping)
+    ):
+        raise RuntimeError("resume checkpoint best-model metadata is invalid")
+    required_mappings = (
+        "current_model_state_dict",
+        "optimizer_state_dict",
+        "scheduler_state_dict",
+        "rng_state",
+    )
+    if any(not isinstance(state.get(key), Mapping) for key in required_mappings):
+        raise RuntimeError("resume checkpoint is missing state mappings")
+    return state
+
+
+def _save_resume_state_content_addressed(
+    state: Mapping[str, Any],
+    *,
+    states_dir: Path,
+    completed_epochs: int,
+) -> tuple[Path, str]:
+    import torch
+
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=f".state_epoch_{completed_epochs:06d}.",
+        suffix=".tmp",
+        dir=str(states_dir),
+    )
+    os.close(fd)
+    try:
+        torch.save(dict(state), temporary_name)
+        with Path(temporary_name).open("rb") as stream:
+            os.fsync(stream.fileno())
+        digest = sha256_file(temporary_name)
+        path = states_dir / (
+            f"state_epoch_{completed_epochs:06d}_{digest[:16]}.pt"
+        )
+        if path.is_symlink() or path.exists():
+            raise FileExistsError(
+                f"refusing to replace immutable resume checkpoint: {path}"
+            )
+        try:
+            os.link(temporary_name, path)
+        except FileExistsError as error:
+            raise FileExistsError(
+                f"refusing to replace immutable resume checkpoint: {path}"
+            ) from error
+        _fsync_directory(states_dir)
+        return path, digest
+    finally:
+        if os.path.exists(temporary_name):
+            os.unlink(temporary_name)
+
+
+def _journal_record(
+    *,
+    contract: Mapping[str, Any],
+    contract_hash: str,
+    completed_epochs: int,
+    state_path: Path,
+    state_sha256: str,
+    state: Mapping[str, Any],
+    previous_journal_sha256: str | None,
+    session_id: str,
+    recovered_orphan: bool,
+) -> dict[str, Any]:
+    output = Path(str(contract["output_directory"]))
+    if not output.is_absolute():
+        output = (PROJECT_ROOT / output).resolve()
+    relative_state = state_path.resolve().relative_to(output.resolve())
+    return {
+        "schema_version": RESUME_SCHEMA_VERSION,
+        "artifact_type": "opendpd_pa_append_only_epoch_journal",
+        "task": TASK,
+        "status": (
+            "initial_state"
+            if completed_epochs == 0
+            else "completed_epoch"
+        ),
+        "resume_contract_sha256": contract_hash,
+        "config_sha256": contract["config"]["sha256"],
+        "candidate_sha256": contract["candidate_sha256"],
+        "dataset_manifest_sha256": sha256_json(
+            contract["dataset"]["files_sha256"]
+        ),
+        "source_manifest_sha256": sha256_json(contract["source"]),
+        "completed_epochs": int(completed_epochs),
+        "configured_epochs": int(contract["recipe"]["requested_epochs"]),
+        "contracted_epochs": int(contract["recipe"]["effective_epochs"]),
+        "history_length": len(state["history"]),
+        "last_history_row": (
+            None if not state["history"] else dict(state["history"][-1])
+        ),
+        "best_epoch": state["best_epoch"],
+        "best_validation_opendpd_nmse_db": state[
+            "best_validation_opendpd_nmse_db"
+        ],
+        "productive_fit_seconds": float(state["productive_fit_seconds"]),
+        "state_path": relative_state.as_posix(),
+        "state_sha256": state_sha256,
+        "previous_journal_sha256": previous_journal_sha256,
+        "session_id": session_id,
+        "recovered_after_interrupted_journal_publication": bool(
+            recovered_orphan
+        ),
+        "test_split_accessed": False,
+        "test_path_resolved": False,
+        "test_file_hashes_recorded": False,
+    }
+
+
+def _publish_journal_record(
+    output: Path,
+    record: Mapping[str, Any],
+) -> tuple[Path, str]:
+    _, _, journal_dir = _resume_paths(output)
+    completed_epochs = int(record["completed_epochs"])
+    path = journal_dir / f"epoch_{completed_epochs:06d}.json"
+    digest = _write_json_exclusive_atomic(path, record)
+    return path, digest
+
+
+def _load_resume_layout(
+    output: Path,
+    *,
+    contract: Mapping[str, Any],
+    contract_hash: str,
+) -> tuple[list[dict[str, Any]], Path | None]:
+    _, states_dir, journal_dir = _ensure_resume_directories(output)
+    journal_files = sorted(
+        path
+        for path in journal_dir.iterdir()
+        if not path.name.startswith(".")
+    )
+    records: list[dict[str, Any]] = []
+    expected_state_paths: set[Path] = set()
+    previous_digest: str | None = None
+    for expected_epoch, path in enumerate(journal_files):
+        match = JOURNAL_FILE_PATTERN.fullmatch(path.name)
+        if match is None or int(match.group("epoch")) != expected_epoch:
+            raise RuntimeError("resume journal files are not contiguous")
+        record = _read_json_object(path, label="resume journal entry")
+        if (
+            record.get("schema_version") != RESUME_SCHEMA_VERSION
+            or record.get("artifact_type")
+            != "opendpd_pa_append_only_epoch_journal"
+            or record.get("task") != TASK
+            or record.get("resume_contract_sha256") != contract_hash
+            or record.get("completed_epochs") != expected_epoch
+            or record.get("history_length") != expected_epoch
+            or record.get("configured_epochs")
+            != int(contract["recipe"]["requested_epochs"])
+            or record.get("contracted_epochs")
+            != int(contract["recipe"]["effective_epochs"])
+            or record.get("previous_journal_sha256") != previous_digest
+            or record.get("test_split_accessed") is not False
+            or record.get("test_path_resolved") is not False
+            or record.get("test_file_hashes_recorded") is not False
+        ):
+            raise RuntimeError("resume journal entry failed contract validation")
+        relative = record.get("state_path")
+        if not isinstance(relative, str):
+            raise RuntimeError("resume journal state path is invalid")
+        relative_path = Path(relative)
+        expected_prefix = (
+            Path(RESUME_DIRECTORY) / RESUME_STATES_DIRECTORY
+        )
+        if (
+            relative_path.is_absolute()
+            or relative_path.parent != expected_prefix
+            or ".." in relative_path.parts
+        ):
+            raise RuntimeError("resume journal state path escapes its directory")
+        state_path = output / relative_path
+        if state_path.is_symlink() or not state_path.is_file():
+            raise RuntimeError("resume journal checkpoint is missing or a symlink")
+        state_match = STATE_FILE_PATTERN.fullmatch(state_path.name)
+        expected_digest = record.get("state_sha256")
+        if (
+            state_match is None
+            or int(state_match.group("epoch")) != expected_epoch
+            or not isinstance(expected_digest, str)
+            or SHA256_PATTERN.fullmatch(expected_digest) is None
+            or state_match.group("digest") != expected_digest[:16]
+            or sha256_file(state_path) != expected_digest
+        ):
+            raise RuntimeError("resume journal checkpoint hash/name mismatch")
+        if record.get("config_sha256") != contract["config"]["sha256"]:
+            raise RuntimeError("resume journal config hash mismatch")
+        if record.get("candidate_sha256") != contract["candidate_sha256"]:
+            raise RuntimeError("resume journal candidate hash mismatch")
+        if record.get("dataset_manifest_sha256") != sha256_json(
+            contract["dataset"]["files_sha256"]
+        ):
+            raise RuntimeError("resume journal dataset hash mismatch")
+        if record.get("source_manifest_sha256") != sha256_json(
+            contract["source"]
+        ):
+            raise RuntimeError("resume journal source hash mismatch")
+        previous_digest = sha256_file(path)
+        expected_state_paths.add(state_path)
+        records.append(record)
+
+    state_files = sorted(
+        path
+        for path in states_dir.iterdir()
+        if not path.name.startswith(".")
+    )
+    extras = [path for path in state_files if path not in expected_state_paths]
+    if len(extras) > 1:
+        raise RuntimeError("multiple unjournaled resume checkpoints found")
+    orphan: Path | None = None
+    if extras:
+        orphan = extras[0]
+        if orphan.is_symlink() or not orphan.is_file():
+            raise RuntimeError("unjournaled resume checkpoint is not a regular file")
+        match = STATE_FILE_PATTERN.fullmatch(orphan.name)
+        expected_epoch = len(records)
+        if (
+            match is None
+            or int(match.group("epoch")) != expected_epoch
+            or sha256_file(orphan)[:16] != match.group("digest")
+        ):
+            raise RuntimeError("unjournaled resume checkpoint is not the next epoch")
+    return records, orphan
+
+
+def _load_torch_resume_state(
+    path: Path,
+    *,
+    device: Any,
+    contract_hash: str,
+    completed_epochs: int,
+) -> dict[str, Any]:
+    import torch
+
+    if path.is_symlink() or not path.is_file():
+        raise RuntimeError("resume checkpoint must be a regular non-symlink file")
+    try:
+        state = torch.load(path, map_location=device, weights_only=True)
+    except Exception as error:
+        raise RuntimeError(f"cannot safely load resume checkpoint: {path}") from error
+    return _validate_resume_state(
+        state,
+        contract_hash=contract_hash,
+        completed_epochs=completed_epochs,
+    )
+
+
+def _restore_training_state(
+    torch: Any,
+    state: Mapping[str, Any],
+    *,
+    model: Any,
+    optimizer: Any,
+    scheduler: Any,
+    train_loader: Any,
+) -> tuple[
+    int,
+    float,
+    int | None,
+    dict[str, Any] | None,
+    list[dict[str, Any]],
+    float,
+]:
+    model.load_state_dict(state["current_model_state_dict"])
+    optimizer.load_state_dict(state["optimizer_state_dict"])
+    scheduler.load_state_dict(state["scheduler_state_dict"])
+    _restore_rng_state(torch, train_loader, state["rng_state"])
+    completed = int(state["completed_epochs"])
+    metric = state["best_validation_opendpd_nmse_db"]
+    return (
+        completed,
+        float("inf") if metric is None else float(metric),
+        state["best_epoch"],
+        (
+            None
+            if state["best_model_state_dict"] is None
+            else copy.deepcopy(state["best_model_state_dict"])
+        ),
+        [dict(row) for row in state["history"]],
+        float(state["productive_fit_seconds"]),
+    )
+
+
+def _run_candidate_locked(
     config: Mapping[str, Any],
     config_path: str | Path,
     candidate: Mapping[str, Any],
     *,
     output_dir: str | Path,
+    resume: bool = False,
     max_epochs: int | None = None,
     max_train_batches: int | None = None,
     max_val_batches: int | None = None,
 ) -> dict[str, Any]:
-    """Train one candidate and atomically publish a sealed report/checkpoint."""
+    """Train or exactly resume one sealed train/validation-only candidate."""
 
     _validate_candidate(candidate)
     if _contains_forbidden_dataset_path(config):
         raise ValueError("forbidden test split filename appears in config")
-    output = Path(output_dir).resolve()
+    for label, value in (
+        ("max_epochs", max_epochs),
+        ("max_train_batches", max_train_batches),
+        ("max_val_batches", max_val_batches),
+    ):
+        if value is not None and (
+            not isinstance(value, int)
+            or isinstance(value, bool)
+            or value < 1
+        ):
+            raise ValueError(f"{label} must be a positive integer")
+
+    output_argument = Path(output_dir)
+    if output_argument.is_symlink():
+        raise ValueError("OpenDPD output directory must not be a symlink")
+    output = output_argument.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
-    if output.exists():
+    if output.exists() and not resume:
         raise FileExistsError(f"refusing to reuse OpenDPD output directory: {output}")
+    if resume:
+        if not output.is_dir() or output.is_symlink():
+            raise RuntimeError("resume requires one existing regular output directory")
+        if not (output / RESUME_MANIFEST).is_file():
+            raise RuntimeError(
+                "existing OpenDPD directory is not resumable: "
+                "run_manifest.json is missing; the legacy empty run cannot "
+                "be recovered"
+            )
+        if (output / "completion_manifest.json").exists():
+            raise RuntimeError("completed OpenDPD output cannot be resumed")
+
+    file_config = load_config(config_path)
+    if sha256_json(file_config) != sha256_json(dict(config)):
+        raise RuntimeError(
+            "run_candidate config mapping differs from its bound config file"
+        )
     source = verify_source_inputs(config)
     dataset_dir, dataset_hashes = verify_allowed_inputs(config, config_path)
-    try:
-        output.mkdir()
-    except FileExistsError as error:
-        raise FileExistsError(
-            f"refusing to reuse OpenDPD output directory: {output}"
-        ) from error
-    train_input, train_output = load_allowed_split(
-        dataset_dir,
-        "train",
-        expected_hashes=dataset_hashes,
-    )
-    val_input, val_output = load_allowed_split(
-        dataset_dir,
-        "val",
-        expected_hashes=dataset_hashes,
-    )
 
     import torch
 
@@ -902,6 +1641,53 @@ def run_candidate(
     if device.type != "cpu":
         if device.type != "cuda" or not torch.cuda.is_available():
             raise RuntimeError(f"requested device is unavailable: {device}")
+    requested_epochs = int(training["n_epochs"])
+    epochs = requested_epochs if max_epochs is None else min(
+        requested_epochs, int(max_epochs)
+    )
+    if epochs < 1:
+        raise ValueError("max_epochs must leave at least one epoch")
+
+    contract = _build_resume_contract(
+        config,
+        config_path,
+        candidate,
+        output=output,
+        source=source,
+        dataset_dir=dataset_dir,
+        dataset_hashes=dataset_hashes,
+        requested_epochs=requested_epochs,
+        effective_epochs=epochs,
+        max_epochs=max_epochs,
+        max_train_batches=max_train_batches,
+        max_val_batches=max_val_batches,
+        runtime_signature=_runtime_signature(torch, device),
+    )
+    contract_hash = sha256_json(contract)
+    if not resume:
+        try:
+            output.mkdir()
+            _fsync_directory(output.parent)
+        except FileExistsError as error:
+            raise FileExistsError(
+                f"refusing to reuse OpenDPD output directory: {output}"
+            ) from error
+    _initialize_or_verify_run_manifest(
+        output,
+        contract,
+        resume=resume,
+    )
+
+    train_input, train_output = load_allowed_split(
+        dataset_dir,
+        "train",
+        expected_hashes=dataset_hashes,
+    )
+    val_input, val_output = load_allowed_split(
+        dataset_dir,
+        "val",
+        expected_hashes=dataset_hashes,
+    )
 
     train_loader, val_loader, loader_info = build_dataloaders(
         train_input,
@@ -935,19 +1721,116 @@ def run_candidate(
         eps=1e-8,
     )
     criterion = torch.nn.MSELoss()
-    requested_epochs = int(training["n_epochs"])
-    epochs = requested_epochs if max_epochs is None else min(
-        requested_epochs, int(max_epochs)
-    )
-    if epochs < 1:
-        raise ValueError("max_epochs must leave at least one epoch")
 
     best_metric = float("inf")
     best_epoch: int | None = None
     best_state: dict[str, Any] | None = None
     history: list[dict[str, Any]] = []
-    start = time.perf_counter()
-    for epoch in range(epochs):
+    productive_fit_seconds = 0.0
+    completed_epochs = 0
+    session_id = f"{os.getpid()}-{time.time_ns()}"
+
+    records, orphan = _load_resume_layout(
+        output,
+        contract=contract,
+        contract_hash=contract_hash,
+    )
+    if orphan is not None:
+        orphan_state = _load_torch_resume_state(
+            orphan,
+            device=device,
+            contract_hash=contract_hash,
+            completed_epochs=len(records),
+        )
+        previous_digest = (
+            None
+            if not records
+            else sha256_file(
+                output
+                / RESUME_DIRECTORY
+                / RESUME_JOURNAL_DIRECTORY
+                / f"epoch_{len(records) - 1:06d}.json"
+            )
+        )
+        orphan_record = _journal_record(
+            contract=contract,
+            contract_hash=contract_hash,
+            completed_epochs=len(records),
+            state_path=orphan,
+            state_sha256=sha256_file(orphan),
+            state=orphan_state,
+            previous_journal_sha256=previous_digest,
+            session_id=session_id,
+            recovered_orphan=True,
+        )
+        _publish_journal_record(output, orphan_record)
+        records.append(orphan_record)
+
+    if not records:
+        initial_state = _make_resume_state(
+            torch,
+            contract_hash=contract_hash,
+            completed_epochs=0,
+            model=model,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            best_metric=best_metric,
+            best_epoch=best_epoch,
+            best_state=best_state,
+            history=history,
+            productive_fit_seconds=productive_fit_seconds,
+            train_loader=train_loader,
+        )
+        _, states_dir, _ = _resume_paths(output)
+        state_path, state_digest = _save_resume_state_content_addressed(
+            initial_state,
+            states_dir=states_dir,
+            completed_epochs=0,
+        )
+        initial_record = _journal_record(
+            contract=contract,
+            contract_hash=contract_hash,
+            completed_epochs=0,
+            state_path=state_path,
+            state_sha256=state_digest,
+            state=initial_state,
+            previous_journal_sha256=None,
+            session_id=session_id,
+            recovered_orphan=False,
+        )
+        _publish_journal_record(output, initial_record)
+        records.append(initial_record)
+        current_state = initial_state
+    else:
+        state_path = output / str(records[-1]["state_path"])
+        current_state = _load_torch_resume_state(
+            state_path,
+            device=device,
+            contract_hash=contract_hash,
+            completed_epochs=int(records[-1]["completed_epochs"]),
+        )
+
+    (
+        completed_epochs,
+        best_metric,
+        best_epoch,
+        best_state,
+        history,
+        productive_fit_seconds,
+    ) = _restore_training_state(
+        torch,
+        current_state,
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        train_loader=train_loader,
+    )
+    if completed_epochs > epochs:
+        raise RuntimeError("resume state exceeds the contracted epoch count")
+    resumed_from_completed_epochs = completed_epochs
+
+    for epoch in range(completed_epochs, epochs):
+        epoch_start = time.perf_counter()
         train_loss = _train_epoch(
             model,
             train_loader,
@@ -966,6 +1849,11 @@ def run_candidate(
         )
         val_nmse = opendpd_nmse_db(val_prediction, val_target)
         val_pooled = pooled_nmse_db(val_prediction, val_target)
+        if not all(
+            np.isfinite(value)
+            for value in (train_loss, val_loss, val_nmse, val_pooled)
+        ):
+            raise RuntimeError("non-finite OpenDPD epoch metric")
         scheduler.step(val_nmse)
         row = {
             "epoch": epoch,
@@ -980,29 +1868,93 @@ def run_candidate(
             best_metric = val_nmse
             best_epoch = epoch
             best_state = copy.deepcopy(model.state_dict())
+        productive_fit_seconds += time.perf_counter() - epoch_start
+        completed_epochs = epoch + 1
+        epoch_state = _make_resume_state(
+            torch,
+            contract_hash=contract_hash,
+            completed_epochs=completed_epochs,
+            model=model,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            best_metric=best_metric,
+            best_epoch=best_epoch,
+            best_state=best_state,
+            history=history,
+            productive_fit_seconds=productive_fit_seconds,
+            train_loader=train_loader,
+        )
+        _, states_dir, journal_dir = _resume_paths(output)
+        state_path, state_digest = _save_resume_state_content_addressed(
+            epoch_state,
+            states_dir=states_dir,
+            completed_epochs=completed_epochs,
+        )
+        previous_digest = sha256_file(
+            journal_dir / f"epoch_{completed_epochs - 1:06d}.json"
+        )
+        record = _journal_record(
+            contract=contract,
+            contract_hash=contract_hash,
+            completed_epochs=completed_epochs,
+            state_path=state_path,
+            state_sha256=state_digest,
+            state=epoch_state,
+            previous_journal_sha256=previous_digest,
+            session_id=session_id,
+            recovered_orphan=False,
+        )
+        _publish_journal_record(output, record)
+        records.append(record)
         print(
             f"[{candidate['name']}] epoch={epoch + 1}/{epochs} "
             f"train_loss={train_loss:.6g} val_nmse={val_nmse:.6f} dB",
             flush=True,
         )
-    elapsed = time.perf_counter() - start
     if best_state is None or best_epoch is None:
         raise RuntimeError("no validation-selected checkpoint was produced")
+
+    config_hash = str(contract["config"]["sha256"])
+    if sha256_file(config_path) != config_hash:
+        raise RuntimeError(
+            "config changed during OpenDPD training; final publication aborted"
+        )
+    final_source = verify_source_inputs(config)
+    if final_source != source:
+        raise RuntimeError(
+            "source provenance changed during OpenDPD training; "
+            "final publication aborted"
+        )
+    final_dataset_dir, final_dataset_hashes = verify_allowed_inputs(
+        config,
+        config_path,
+    )
+    if (
+        final_dataset_dir != dataset_dir
+        or final_dataset_hashes != dataset_hashes
+    ):
+        raise RuntimeError(
+            "dataset provenance changed during OpenDPD training; "
+            "final publication aborted"
+        )
 
     checkpoint = output / f"{candidate['name']}.pt"
     _save_checkpoint_atomic(best_state, checkpoint)
     source["opendpd_root"] = _display_path(OPENDPD_ROOT)
-    config_hash = sha256_file(config_path)
+    bounded_execution = any(
+        contract["recipe"][key] is not None
+        for key in (
+            "max_epochs_argument",
+            "max_train_batches",
+            "max_validation_batches",
+        )
+    )
     report: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "task": TASK,
         "status": (
             "runtime_preflight_not_quality"
-            if (
-                max_epochs is not None
-                or max_train_batches is not None
-                or max_val_batches is not None
-            )
+            if bounded_execution
             else "completed_train_validation_only"
         ),
         "config": {
@@ -1014,6 +1966,7 @@ def run_candidate(
             "dpd_latency_gate_applicable": False,
             "test_split_accessed": False,
             "test_path_resolved": False,
+            "test_file_hashes_recorded": False,
             "selection_split": "validation",
             "selection_metric": "validation_opendpd_nmse_db",
         },
@@ -1035,6 +1988,7 @@ def run_candidate(
             "deterministic": deterministic,
             "epochs_requested": requested_epochs,
             "epochs_executed": epochs,
+            "max_epochs_argument": max_epochs,
             "batch_size": int(training["batch_size"]),
             "batch_size_eval": int(training["batch_size_eval"]),
             "frame_length": int(framing["frame_length"]),
@@ -1061,17 +2015,149 @@ def run_candidate(
             "test_used_for_selection": False,
         },
         "history": history,
+        "resume": {
+            "enabled": True,
+            "invocation_used_resume_flag": bool(resume),
+            "resumed_from_completed_epochs": resumed_from_completed_epochs,
+            "initial_state_saved": True,
+            "checkpoint_after_every_completed_epoch": True,
+            "incomplete_epoch_replayed_from_last_completed_state": True,
+            "run_manifest": _display_path(output / RESUME_MANIFEST),
+            "run_manifest_sha256": sha256_file(output / RESUME_MANIFEST),
+            "resume_contract_sha256": contract_hash,
+            "journal_entry_count": len(records),
+            "session_count_observed_in_journal": len(
+                {str(record["session_id"]) for record in records}
+            ),
+            "final_state": str(records[-1]["state_path"]),
+            "final_state_sha256": str(records[-1]["state_sha256"]),
+            "final_journal": _display_path(
+                output
+                / RESUME_DIRECTORY
+                / RESUME_JOURNAL_DIRECTORY
+                / f"epoch_{epochs:06d}.json"
+            ),
+            "final_journal_sha256": sha256_file(
+                output
+                / RESUME_DIRECTORY
+                / RESUME_JOURNAL_DIRECTORY
+                / f"epoch_{epochs:06d}.json"
+            ),
+        },
         "runtime": {
-            "fit_seconds": elapsed,
+            "fit_seconds": productive_fit_seconds,
+            "fit_seconds_definition": (
+                "sum of completed train+validation epoch bodies; excludes "
+                "checkpoint/journal publication and discarded partial epochs"
+            ),
             "python": platform.python_version(),
             "platform": platform.platform(),
             "torch": str(torch.__version__),
             "torch_threads": int(torch.get_num_threads()),
             "cuda_available": bool(torch.cuda.is_available()),
+            "resume_runtime_signature": contract["runtime_signature"],
         },
     }
     _write_json_atomic(output / "training_report.json", report)
+    completion = {
+        "schema_version": RESUME_SCHEMA_VERSION,
+        "artifact_type": "opendpd_pa_training_completion_manifest",
+        "task": TASK,
+        "status": report["status"],
+        "quality_result": report["status"] == "completed_train_validation_only",
+        "resume_contract_sha256": contract_hash,
+        "artifacts": {
+            "run_manifest": {
+                "path": _display_path(output / RESUME_MANIFEST),
+                "sha256": sha256_file(output / RESUME_MANIFEST),
+            },
+            "final_resume_state": {
+                "path": str(records[-1]["state_path"]),
+                "sha256": str(records[-1]["state_sha256"]),
+            },
+            "final_journal": {
+                "path": report["resume"]["final_journal"],
+                "sha256": report["resume"]["final_journal_sha256"],
+            },
+            "selected_checkpoint": {
+                "path": _display_path(checkpoint),
+                "sha256": sha256_file(checkpoint),
+            },
+            "training_report": {
+                "path": _display_path(output / "training_report.json"),
+                "sha256": sha256_file(output / "training_report.json"),
+            },
+        },
+        "scope": {
+            "test_split_accessed": False,
+            "test_path_resolved": False,
+            "test_file_hashes_recorded": False,
+            "selection_split": "validation",
+        },
+        "published_last": True,
+    }
+    _write_json_exclusive_atomic(
+        output / "completion_manifest.json",
+        completion,
+    )
     return report
+
+
+def _run_lock_path(output: Path) -> Path:
+    return output.parent / f".{output.name}.opendpd-run.lock"
+
+
+def _acquire_run_lock(output: Path) -> tuple[int, Path]:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    path = _run_lock_path(output)
+    if path.is_symlink():
+        raise RuntimeError(f"OpenDPD run lock must not be a symlink: {path}")
+    existed = path.exists()
+    flags = os.O_CREAT | os.O_RDWR
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except (BlockingIOError, OSError) as error:
+        os.close(descriptor)
+        raise RuntimeError(
+            f"another OpenDPD process already owns the run lock: {path}"
+        ) from error
+    if not existed:
+        _fsync_directory(path.parent)
+    return descriptor, path
+
+
+def run_candidate(
+    config: Mapping[str, Any],
+    config_path: str | Path,
+    candidate: Mapping[str, Any],
+    *,
+    output_dir: str | Path,
+    resume: bool = False,
+    max_epochs: int | None = None,
+    max_train_batches: int | None = None,
+    max_val_batches: int | None = None,
+) -> dict[str, Any]:
+    """Serialize one candidate run and delegate to the sealed implementation."""
+
+    output = Path(output_dir).resolve()
+    descriptor, _ = _acquire_run_lock(output)
+    try:
+        return _run_candidate_locked(
+            config,
+            config_path,
+            candidate,
+            output_dir=output_dir,
+            resume=resume,
+            max_epochs=max_epochs,
+            max_train_batches=max_train_batches,
+            max_val_batches=max_val_batches,
+        )
+    finally:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        os.close(descriptor)
 
 
 def run_config(
@@ -1079,6 +2165,7 @@ def run_config(
     *,
     candidate_names: Sequence[str] | None = None,
     output_root: str | Path | None = None,
+    resume: bool = False,
     max_epochs: int | None = None,
     max_train_batches: int | None = None,
     max_val_batches: int | None = None,
@@ -1110,6 +2197,7 @@ def run_config(
                 config_path,
                 candidate,
                 output_dir=root / candidate["name"],
+                resume=resume,
                 max_epochs=max_epochs,
                 max_train_batches=max_train_batches,
                 max_val_batches=max_val_batches,
@@ -1125,6 +2213,14 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--candidate", action="append", dest="candidates")
     parser.add_argument("--output-root", type=Path)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "resume only from a hash-matched append-only epoch journal; "
+            "completed or legacy empty outputs are rejected"
+        ),
+    )
     parser.add_argument("--max-epochs", type=int)
     parser.add_argument("--max-train-batches", type=int)
     parser.add_argument("--max-val-batches", type=int)
@@ -1137,6 +2233,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.config,
         candidate_names=args.candidates,
         output_root=args.output_root,
+        resume=args.resume,
         max_epochs=args.max_epochs,
         max_train_batches=args.max_train_batches,
         max_val_batches=args.max_val_batches,

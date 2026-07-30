@@ -139,6 +139,15 @@ class OpenDPDSealedRunnerTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "selection metric"):
                 runner.load_config(path)
 
+    def test_config_requires_deterministic_resume_trajectory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            config = _base_config("dataset")
+            config["training"]["deterministic"] = False
+            path = Path(temporary) / "config.json"
+            path.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "requires deterministic=true"):
+                runner.load_config(path)
+
     def test_test_split_is_rejected_before_path_construction(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "forbidden split"):
             runner.load_allowed_split("/does/not/exist", "test")
