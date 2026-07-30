@@ -1,0 +1,16 @@
+{
+  "command": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/run_pa_sparse_spline_memory.py --config experiments/configs/pa_sparse_spline_memory_lag9_apa200.json",
+  "full_train_model_frozen_before_validation_load": true,
+  "numpy": "2.5.1",
+  "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+  "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+  "runtime_seconds_before_publication": 62.56927275500493,
+  "schema_version": 1,
+  "selection_recipe_frozen_before_validation_load": true,
+  "test_split_accessed": false,
+  "validation_loaded_after_parameter_hashes": {
+    "coefficients": "d3351fa7cac58494801d1b696948dd9718b3b6f34c1cf631950943fbb1c3f364",
+    "knots": "2a3d84c12396588ec00cb4c82e66da2bc117fb684c9dcc8767b89b3b0db573f1"
+  },
+  "validation_loaded_after_recipe_sha256": "5a2cb735d6637c5a9bd1f449268a2b9c98eeba3e6d9e65245c52fa273cc8a6c6"
+}

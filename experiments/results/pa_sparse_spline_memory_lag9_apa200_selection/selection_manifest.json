@@ -1,0 +1,331 @@
+{
+  "accessed_splits": [
+    "train",
+    "validation"
+  ],
+  "artifacts": {
+    "execution_record.json": {
+      "path": "execution_record.json",
+      "sha256": "ad5e971f09f0cd3b75d8553ad1c6682e5f179e33ce30df7f7522c25f28577480"
+    },
+    "predictions.npz": {
+      "path": "predictions.npz",
+      "sha256": "5f05e581f291829a8f9535ba04e5ee90051f2f32dc6915744164c2e3c6edcd53"
+    },
+    "selected_sparse_pa.npz": {
+      "path": "selected_sparse_pa.npz",
+      "sha256": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475"
+    },
+    "staged_trials.json": {
+      "path": "staged_trials.json",
+      "sha256": "2dad6a38e506e1808e5ca82bcdd65ec829cee67cb9bbb34c122e9572ef22ab41"
+    },
+    "train_oof_residual_analysis.json": {
+      "path": "train_oof_residual_analysis.json",
+      "sha256": "8f082c7940c27613b6c34759d931782d6ff6d8d8072b4b12f39ab6a4d0d55b2b"
+    },
+    "validation_reused_residual_analysis.json": {
+      "path": "validation_reused_residual_analysis.json",
+      "sha256": "e4279921c95db9db96c3404aca65597023c9bc8825c8476e244f9d7581550a6b"
+    }
+  },
+  "config": "experiments/configs/pa_sparse_spline_memory_lag9_apa200.json",
+  "config_sha256": "93807ab6f3906b3898d805430e3ffe419b85a90ee72c28bfb7c1b2f486f32770",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_files_sha256": {
+    "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+    "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+  },
+  "decision": {
+    "cheap_pareto_gate_passed": true,
+    "classification": "cheap_pareto_only",
+    "evaluator_candidate_gate_passed": false,
+    "gate_a_to_b_opened": false,
+    "gate_checks": {
+      "cheap_pareto_common": true,
+      "cheap_pareto_full": true,
+      "evaluator_common": false,
+      "evaluator_every_fold_common": false,
+      "evaluator_every_fold_full": false,
+      "evaluator_full": false,
+      "incremental_common": true,
+      "incremental_every_fold_common": true,
+      "incremental_every_fold_full": true,
+      "incremental_full": true
+    },
+    "hard_valid": true,
+    "incremental_hypothesis_gate_passed": true,
+    "reason_gate_a_to_b_remains_closed": "post-discovery internal train OOF and reused validation are not independent evaluator confirmation"
+  },
+  "dpd_optimization_status": "paused",
+  "final_recipe": {
+    "branches": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        22,
+        22
+      ],
+      [
+        23,
+        23
+      ],
+      [
+        24,
+        24
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "family": "parent_plus_signal_lag8_10_current_envelope",
+    "knot_count": 12,
+    "name": "parent_plus_signal_lag8_10_current_envelope_K12_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24,8:0,9:0,10:0",
+    "ridge": 1e-08,
+    "sha256": "5a2cb735d6637c5a9bd1f449268a2b9c98eeba3e6d9e65245c52fa273cc8a6c6"
+  },
+  "gate_a_to_b_opened": false,
+  "input_integrity": {
+    "all_hashes_verified_before_waveform_load": true,
+    "all_inputs_reverified_before_publication": true,
+    "test_never_opened_or_hashed": true
+  },
+  "new_source_files_present_after_implementation": {},
+  "preimplementation_source_hashes": {
+    "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+    "baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "experiments/run_pa_sparse_spline_memory.py": "abea5505f2cbe420a392571bbda5697d9af54b8f12a6e82c36224aae8069a360",
+    "experiments/select_pa_sparse_spline_memory.py": "d2b3c929a6e357e8c43c104404bf9b3165eafcc5e0258caaba68d1fc620cc7cc",
+    "experiments/sparse_pa_benchmark_support.py": "5bf9799ae6ca08b01a881934c3963a5bca04408adb5d4c52cd64b6a261494a49"
+  },
+  "publication": {
+    "atomic_directory_rename": true,
+    "completion_manifest_written_last_inside_temporary_bundle": true,
+    "immutable_bundle": true
+  },
+  "reference_gmp_reproduction": {
+    "delta_db": {
+      "common_interior_nmse_db": 0.0,
+      "full_record_nmse_db": 0.0
+    },
+    "frozen_expected": {
+      "common_interior_nmse_db": -38.750526106525086,
+      "full_record_nmse_db": -38.345410298129714,
+      "real_additions": 947,
+      "real_multiplications": 954,
+      "state_real_values": 236,
+      "stored_real_coefficients": 888
+    },
+    "metrics": {
+      "common_interior_nmse_db": -38.750526106525086,
+      "common_interior_time_domain_rms_evm_db": -38.750526106525086,
+      "full_record_nmse_db": -38.345410298129714,
+      "full_record_time_domain_rms_evm_db": -38.345410298129714,
+      "opendpd_compatible_nmse_db": -38.4787800909979,
+      "opendpd_complete_frame_count": 2,
+      "per_frame": [
+        {
+          "frame_id": 0,
+          "full_record_nmse_db": -38.716666579090685,
+          "sample_count": 19662
+        },
+        {
+          "frame_id": 1,
+          "full_record_nmse_db": -38.24089360290512,
+          "sample_count": 19662
+        },
+        {
+          "frame_id": 2,
+          "full_record_nmse_db": -38.10163869849116,
+          "sample_count": 19656
+        }
+      ],
+      "scored_sample_count_common": 58833,
+      "scored_sample_count_full": 58980
+    },
+    "passed": true,
+    "tolerance_db": 1e-09
+  },
+  "schema_version": 1,
+  "selected_fit_diagnostics": {
+    "augmented_design_condition_number": 2427.3900128857777,
+    "augmented_solver_rank": 108,
+    "branch_count": 9,
+    "causal_warmup_samples": 24,
+    "data_design_condition_number": 10595.975471025235,
+    "data_design_rank": 108,
+    "feature_count": 108,
+    "knot_count": 12,
+    "maximum_absolute_coefficient": 1.1509301664374236,
+    "maximum_calibration_radius": 1.0000000000000002,
+    "minimum_nonzero_feature_samples": 8,
+    "ridge": 1e-08,
+    "sample_count": 58980,
+    "segment_count": 3,
+    "solver": "augmented_complex_lstsq",
+    "training_mse_after_warmup": 2.2116657392899455e-05,
+    "training_mse_full": 2.2433773421483003e-05,
+    "training_nmse_db_after_warmup": -37.927533331540374,
+    "training_nmse_db_full": -37.8666429776386,
+    "training_relative_error_power_after_warmup": 0.00016115606956780293,
+    "training_relative_error_power_full": 0.0001634314757232574
+  },
+  "selected_operation_count": {
+    "comparisons": 24,
+    "lookups": 18,
+    "nonlinear_operations": 6,
+    "notes": [
+      "complex multiply convention 4m2a",
+      "binary interval selection",
+      "6 unique envelope delays; address and weight shared within each group",
+      "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+      "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+    ],
+    "real_additions": 82,
+    "real_divisions": 0,
+    "real_memory_reads": 54,
+    "real_memory_writes": 2,
+    "real_multiplications": 72,
+    "state_real_values": 48,
+    "stored_real_coefficients": 216,
+    "stored_real_constants": 23
+  },
+  "selection_samples": "train leave-one-explicit-frame-out only",
+  "source_sha256": {
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/residual_analysis.py": "0eb9d417d5314ced7271c0d32945c401f4b430d024866838900123ec529054bd",
+    "baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "experiments/run_pa_sparse_spline_memory.py": "abea5505f2cbe420a392571bbda5697d9af54b8f12a6e82c36224aae8069a360",
+    "experiments/select_pa_sparse_spline_memory.py": "d2b3c929a6e357e8c43c104404bf9b3165eafcc5e0258caaba68d1fc620cc7cc",
+    "experiments/sparse_pa_benchmark_support.py": "5bf9799ae6ca08b01a881934c3963a5bca04408adb5d4c52cd64b6a261494a49"
+  },
+  "status": "post_discovery_internal_resampling_and_reused_validation",
+  "streaming_and_reset_checks": {
+    "maximum_segmented_reset_error": 0.0,
+    "maximum_streaming_error": 0.0,
+    "segmented_reset_equivalence_passed": true,
+    "streaming_chunk_equivalence_passed": true
+  },
+  "task": "forward_pa_non_factorized_sparse_spline_memory_selection",
+  "test_file_hashes_recorded": false,
+  "test_split_accessed": false,
+  "train_full_refit_metrics": {
+    "common_interior_nmse_db": -37.92729569002188,
+    "common_interior_time_domain_rms_evm_db": -37.92729569002188,
+    "full_record_nmse_db": -37.8666429776386,
+    "full_record_time_domain_rms_evm_db": -37.8666429776386,
+    "opendpd_compatible_nmse_db": -37.833864456757674,
+    "opendpd_complete_frame_count": 2,
+    "per_frame": [
+      {
+        "frame_id": 0,
+        "full_record_nmse_db": -37.89233573763452,
+        "sample_count": 19662
+      },
+      {
+        "frame_id": 1,
+        "full_record_nmse_db": -37.77539317588083,
+        "sample_count": 19662
+      },
+      {
+        "frame_id": 2,
+        "full_record_nmse_db": -37.93302460529323,
+        "sample_count": 19656
+      }
+    ],
+    "scored_sample_count_common": 58833,
+    "scored_sample_count_full": 58980
+  },
+  "train_input_support": {
+    "coordinate": "amplitude",
+    "count_above_fit_maximum": 0,
+    "fit_maximum": 1.0000000000000002,
+    "fraction_above_fit_maximum": 0.0,
+    "observed_maximum": 1.0000000000000002
+  },
+  "train_oof_metrics": {
+    "common_interior_nmse_db": -37.852832314533494,
+    "full_record_nmse_db": -37.792478362763205,
+    "gain_over_gmp_common_db": -0.8976937919915926,
+    "gain_over_gmp_full_db": -0.5529319353665088,
+    "gain_over_incremental_control_common_db": 5.764582563143229,
+    "gain_over_incremental_control_full_db": 5.762466922087739,
+    "incremental_control_fold_gains": [
+      {
+        "common_interior_gain_db": 5.742488553381712,
+        "full_record_gain_db": 5.726386148858147,
+        "held_frame": 0
+      },
+      {
+        "common_interior_gain_db": 5.731338475090261,
+        "full_record_gain_db": 5.717844499057897,
+        "held_frame": 1
+      },
+      {
+        "common_interior_gain_db": 5.820704832277933,
+        "full_record_gain_db": 5.844372802488714,
+        "held_frame": 2
+      }
+    ],
+    "loss_vs_mp_common_db": -0.7528809880939846,
+    "loss_vs_mp_full_db": -0.7381496817878102,
+    "minimum_fold_gain_over_gmp_common_db": -0.9698124652302127,
+    "minimum_fold_gain_over_gmp_full_db": -0.9518407082408444,
+    "minimum_fold_gain_over_incremental_control_common_db": 5.731338475090261,
+    "minimum_fold_gain_over_incremental_control_full_db": 5.717844499057897,
+    "reference_gmp_common_interior_nmse_db": -38.750526106525086,
+    "reference_gmp_full_record_nmse_db": -38.345410298129714
+  },
+  "validation_input_support": {
+    "coordinate": "amplitude",
+    "count_above_fit_maximum": 0,
+    "fit_maximum": 1.0000000000000002,
+    "fraction_above_fit_maximum": 0.0,
+    "observed_maximum": 0.9744293190811968
+  },
+  "validation_reused_metrics": {
+    "common_interior_nmse_db": -37.89860513438171,
+    "common_interior_time_domain_rms_evm_db": -37.89860513438171,
+    "full_record_nmse_db": -37.860728312080326,
+    "full_record_time_domain_rms_evm_db": -37.860728312080326,
+    "opendpd_compatible_nmse_db": -37.860728312080326,
+    "opendpd_complete_frame_count": 1,
+    "per_frame": [
+      {
+        "frame_id": 0,
+        "full_record_nmse_db": -37.860728312080326,
+        "sample_count": 19662
+      }
+    ],
+    "scored_sample_count_common": 19613,
+    "scored_sample_count_full": 19662
+  },
+  "validation_role": "loaded after recipe and coefficient freeze; reused descriptive evidence, not independent confirmation"
+}
