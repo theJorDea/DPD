@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "preregistered_before_held_out_release",
+  "date": "2026-07-30",
+  "task": "frozen_apa_capture_transfer_held_out_release",
+  "pretest_config": "experiments/configs/pa_transfer_apa200_to_b.json",
+  "pretest_config_sha256": "4ca1c44bb66aa8b06eb00f164f1651d0622cb208d2d902991fd0b5bebec7ca2f",
+  "pretest_bundle": "experiments/results/pa_transfer_apa200_to_b_pretest",
+  "pretest_manifest_sha256": "570c3f98af77961f23d30eaa71f38f35c80745a523656042a2dfee1d7e8ddd00",
+  "output_dir": "experiments/results/pa_transfer_apa200_to_b_test_release",
+  "scope": {
+    "evidence_class": "capture_transfer_final_held_out_report",
+    "metadata_status": "measurement_B_axes_unknown_and_reported_explicitly",
+    "physical_pa_claim": false,
+    "power_or_thermal_adaptation_claim": false,
+    "dpd_claim": false,
+    "open_test_only_after_all_pretest_hashes_and_selected_N_are_verified": true
+  },
+  "target_dataset": "vendor/OpenDPD/datasets/APA_200MHz_b",
+  "target_test_files": {
+    "input": "test_input.csv",
+    "output": "test_output.csv",
+    "hashes_recorded_only_at_release": true,
+    "input_sha256": null,
+    "output_sha256": null
+  },
+  "frozen_models": [
+    {
+      "name": "causal_gmp",
+      "source_model_path": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+      "calibration_coefficient_key": "causal_gmp__N16384",
+      "selected_sample_count_per_frame": 16384,
+      "operation_real_multiplications": 954,
+      "operation_real_additions": 947
+    },
+    {
+      "name": "lag9_sparse_spline_memory",
+      "source_model_path": "experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/selected_sparse_pa.npz",
+      "calibration_coefficient_key": "lag9_sparse_spline_memory__N16384",
+      "selected_sample_count_per_frame": 16384,
+      "operation_real_multiplications": 72,
+      "operation_real_additions": 82
+    }
+  ],
+  "protocol": {
+    "alignment_delay_samples": 0,
+    "fractional_transform": "disabled",
+    "post_prediction_gain_fit": "disabled",
+    "frame_state_policy": "reset_at_each_nperseg_frame",
+    "nperseg": 19662,
+    "common_warmup_samples": {
+      "causal_gmp": 49,
+      "lag9_sparse_spline_memory": 24
+    },
+    "target_train_only_protocol_nuisance": true
+  },
+  "required_metrics": [
+    "full_record_pooled_complex_nmse_db",
+    "common_interior_complex_nmse_db",
+    "opendpd_compatible_nmse_db",
+    "time_domain_rms_evm_db",
+    "error_psd",
+    "am_am_residual",
+    "am_pm_residual",
+    "input_support",
+    "real_multiplications_per_sample",
+    "real_additions_per_sample",
+    "fit_wall_clock_seconds",
+    "inference_wall_clock_seconds",
+    "streaming_chunk_equivalence",
+    "target_test_hashes"
+  ],
+  "release_guard": {
+    "required_cli_acknowledgement": "--release-test",
+    "selection_source": "pretest target validation only",
+    "forbidden_actions": [
+      "fit coefficients on target held-out samples",
+      "select N or model using target held-out metrics",
+      "refit delay/gain/bins using target held-out samples",
+      "rerun source architecture search after target held-out load"
+    ]
+  }
+}
