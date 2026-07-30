@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task": "frozen_spline_memory_dpd_fixed_point",
+  "split": "val",
+  "fit_performed": false,
+  "selection_performed": false,
+  "gain_or_alignment_retuned": false,
+  "selected_family": "signal_delay_012",
+  "alignment_delay_samples": 0,
+  "nperseg": 2560,
+  "train_sample_count": 23040,
+  "validation_sample_count": 7680,
+  "train_frame_lengths": [
+    2560,
+    2560,
+    2560,
+    2560,
+    2560,
+    2560,
+    2560,
+    2560,
+    2560
+  ],
+  "validation_frame_lengths": [
+    2560,
+    2560,
+    2560
+  ],
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "dataset_spec_sha256": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+  "train_input_sha256": "05da7e48c14d1eadb003a43363d6b9f658a164b564b660f5edee21b9e9d4d0f3",
+  "split_input_sha256": "aa7b345c57eef8476ca6b5b5eb73fd0dce0f8d72f5e716ed36cfb0b91af8b8a3",
+  "model_path": "experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+  "surrogate_path": "experiments/results/spline_memory_dpa200/pa_surrogate.npz",
+  "selection_report": "experiments/results/spline_memory_dpa200/memory_ablation_report.json",
+  "artifact_sha256": {
+    "experiments/results/spline_memory_dpa200/signal_delay_012.npz": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "experiments/results/spline_memory_dpa200/pa_surrogate.npz": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a",
+    "experiments/results/spline_memory_dpa200/memory_ablation_report.json": "aacfedc664fe69cdeadcf2e35866a74425cdfacd7240756a5bcc013fdfc2d259"
+  },
+  "source_sha256": {
+    "baseline/__init__.py": "83c9543ac2dd93ce9a62d898cda8e33b0a82d6a4fce250c4982e61dcd4bce215",
+    "baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+    "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+    "baseline/fixed_point_pa.py": "7f7be75bcf38d71328afc6354c4c83598bcb7be4f6e9a16c41ade3fc49b80a40",
+    "baseline/fixed_point_sparse_spline_pa.py": "50015777208e3aff9bf4c9b097ae56c78dec4acb39856650ce547a89492c5598",
+    "baseline/fixed_point_spline_memory_dpd.py": "79bae9e20db891e7f8c36e3d659b061a3c0661ea9b42433a03acc37c4eea0009",
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/pa_models.py": "16d003361e3bfd95888d1f420b7963b8814c6cc9996d1f4f8f5a1ac74b5ae935",
+    "baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/spline_hammerstein_pa.py": "3031b76e609aece58d27436270e010de94d389cbdfa9e418529a4bdfcde1da06",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "experiments/replay_frozen_spline_memory_dpd.py": "a41ee1ac854bcf9d62863ca90f3240023a547630635a507283df72682bc5d93c",
+    "experiments/evaluate_fixed_point_dpd.py": "5dd089cf68785e2e573a56435f33db6ad20e7206ac6aa763d124af4ec2db2395"
+  },
+  "target_gain": {
+    "real": 3.16563831355586,
+    "imag": -3.5213034658761794e-11
+  },
+  "expected_model": {
+    "branches": [
+      {
+        "signal_delay": 0,
+        "envelope_delay": 0
+      },
+      {
+        "signal_delay": 1,
+        "envelope_delay": 0
+      },
+      {
+        "signal_delay": 2,
+        "envelope_delay": 0
+      }
+    ],
+    "knot_count": 24,
+    "knot_strategy": "quantile"
+  },
+  "expected_surrogate": {
+    "orders": [
+      1,
+      3,
+      5,
+      7,
+      9
+    ],
+    "delays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "access_policy": {
+    "allowed_waveform_files": [
+      "train_input.csv",
+      "val_input.csv"
+    ],
+    "measured_output_opened": false,
+    "test_split_accessed": false
+  },
+  "fixed_point_protocol": {
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "scale_guard_ratio": 1.001,
+    "power_bits": 48,
+    "accumulator_bits": 56,
+    "scalar_accumulator_bits": 56,
+    "interpolation_fraction_bits": 16,
+    "rounding": "nearest_even",
+    "overflow": "saturate_and_count"
+  }
+}
