@@ -1,6 +1,6 @@
 # Experiment plan and execution protocol
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 Цель второго этапа — не продолжать оптимизировать DPD через evaluator
 сопоставимой точности, а последовательно решить два разных контура:
@@ -33,12 +33,14 @@ analysis и report — отдельные commits с push после каждо�
 | GMP residual analysis | train coefficient-OOF + validation выполнены для DPA/APA | reproducible OOF gain; test не участвовал в release decision |
 | Standalone APA SPH (`spline/CPWL + short FIR`) | выполнен train-only staged OOF; selected `K=32,L=8` rejected | 37 MUL/sample, но −30.4024 dB OOF; не evaluator и не Gate A→B |
 | Non-factorized sparse spline-memory PA | выполнен train-only staged OOF; selected `K=12`, 6 branches rejected | 54 MUL/sample, −32.0300 dB OOF; reused validation only, Gate A→B closed |
+| Residual-guided lag-9 sparse PA | выполнен preregistered train-only staged OOF; selected 9-branch `K=12` family | 72 MUL/sample, −37.7925 dB OOF, cheap-Pareto only; evaluator gate closed |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
 
-Gate A→B сейчас закрыт. Арифметические margins из уже существующих DPD и новых
-GMP PA чисел являются projections, а не выполненными cascade experiments.
+Gate A→B сейчас закрыт. Lag-9 result is a within-capture PA-model result;
+arithmetic margins из уже существующих DPD и PA чисел являются projections, а
+не выполненными independent cascade experiments.
 
 ## 2. Frozen provenance и ресурсы
 
@@ -196,8 +198,8 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result перед APA SPH experiment:
-**201/201 tests passed**. Более ранние 131/131 и 120-test snapshots являются
+Последний recorded full-suite result после lag-9 runner/config contract:
+**222/222 tests passed**. Более ранние 201/201, 131/131 и 120-test snapshots являются
 историческими и не заменяют текущий count. Следующий code change обязан сохранить
 новый wall time/execution record; unit-suite timing не является inference
 benchmark.
@@ -646,14 +648,53 @@ Because only one topology survived S0, the run made 16 stage associations,
 Residual analysis found the strongest causal proper-correlation at lag 9
 (`0.69064` train OOF and `0.69131` reused validation). Radial-envelope
 correlation was secondary and the slow-state branch was ineligible because
-`independent_capture_count=0`. The next local search, if justified after this
-negative result, must preregister a narrow lag-9 neighborhood rather than
-expand all delays or knots.
+`independent_capture_count=0`. This evidence was used only to preregister the
+bounded lag-9 run below; it did not authorize an unbounded delay or knot sweep.
 
 Evidence bundle:
 `experiments/results/pa_sparse_spline_memory_apa200_selection/`.
 
-### 6.13 Existing first-stage spline DPD — retained, not the next PA step
+### 6.13 APA residual-guided lag-9 sparse PA — completed cheap-Pareto result
+
+The config was committed before fitting:
+`experiments/configs/pa_sparse_spline_memory_lag9_apa200.json`.
+
+Exact command:
+
+```bash
+.venv/bin/python -m experiments.run_pa_sparse_spline_memory \
+  --config experiments/configs/pa_sparse_spline_memory_lag9_apa200.json
+```
+
+The runner verified 11 evidence records, 9 source hashes and the complete
+dataset contract before waveform load. It evaluated nine S0 families, retained
+one topology, tested `K={8,12,16}` and four ridge values. The actual run made
+16 stage associations, 14 unique recipe evaluations, 42 OOF fold fits and
+two cache hits; the preregistered worst-case budget was 22 associations/66
+fold fits. Validation loaded only after recipe and full-train coefficient
+freeze; test was never opened or hashed.
+
+| Item | Recorded result |
+|---|---|
+| Selected recipe | `parent_plus_signal_lag8_10_current_envelope_K12_r1e-08_b0:0,1:1,2:2,22:22,23:23,24:24,8:0,9:0,10:0` |
+| Train OOF full/common NMSE | −37.792478 / −37.852832 dB |
+| Full-train refit full/common NMSE | −37.866643 / −37.927296 dB |
+| Reused validation full/common NMSE | −37.860728 / −37.898605 dB |
+| Gain versus frozen parent full/common | +5.762467 / +5.764583 dB |
+| Minimum fold gain full/common | +5.717845 / +5.731338 dB |
+| Gain versus matched MP full/common | +0.738150 / +0.752881 dB |
+| Loss versus matched GMP full/common | +0.552932 / +0.897694 dB |
+| Exact cost | 72 MUL, 82 ADD, 6 sqrt, 24 comparisons, 18 LUT |
+| Storage/state | 216 real coefficients, 23 constants, 48 state reals |
+| Identifiability | rank 108/108, augmented condition 2427.39 |
+| Runtime | 62.5693 s before atomic publication |
+| Decision | `cheap_pareto_only`; evaluator gate and Gate A→B closed |
+
+Envelope-only `(0,d)` variants were hard-invalid because their designs were
+rank-deficient; `K=16` was also rejected in OOF folds by the rank gate. Bundle:
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`.
+
+### 6.14 Existing first-stage spline DPD — retained, not the next PA step
 
 These are the commands recorded by the old artifacts. They contain
 `--overwrite` and therefore must run only in a clean checkout or after the
@@ -689,7 +730,7 @@ These commands are preserved for reproducibility, but outputs remain
 ablation `experiments/run_spline_memory_ablation.py` is likewise DPD code, not
 a sparse spline-memory PA implementation.
 
-### 6.14 Egor audit reproduction — completed diagnostic
+### 6.15 Egor audit reproduction — completed diagnostic
 
 ```bash
 .venv/bin/python -m experiments.reproduce_egor \
@@ -701,7 +742,7 @@ It reports PA-only, circular inverse→forward reconstruction and correct
 desired-input surrogate path separately. It is not a primary PA/DPD baseline
 until its split/evaluator contract is made apples-to-apples.
 
-### 6.15 OpenDPD control — bundled evidence only on this host
+### 6.16 OpenDPD control — bundled evidence only on this host
 
 The intended upstream reproduction is:
 
@@ -741,11 +782,11 @@ Gate A→B passes:
 The APA conjugate and proper long-FIR residual audits are complete; both
 failed their 0.1 dB internal thresholds, so `no_correction` remains frozen.
 The standalone factorized SPH PA audit is also complete and failed the
-three-dB cheap-Pareto gate, despite its 37-MUL cost. The non-factorized sparse
-family has now been executed and likewise failed the quality gate. If local
-work continues, the next isolated PA task is a narrow lag-9-guided branch
-dictionary; do not implement families simultaneously, and do not add slow
-state without independent long captures.
+three-dB cheap-Pareto gate, despite its 37-MUL cost. The first non-factorized
+sparse family failed the quality gate; the separately completed lag-9 family
+passes the cheap-Pareto gate but not the GMP/evaluator gate. Local delay
+expansion is now frozen; do not add slow state without independent long
+captures.
 
 Robustness is a separate stage:
 
@@ -839,7 +880,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 220/220 tests passed; 1.52 s discovery wall | completed after sparse runner/code |
+| Final unit suite | 222/222 tests passed; 1.55 s discovery wall | completed after lag-9 contract |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -850,6 +891,7 @@ verification or an explicit `surrogate-only` limitation.
 | GMP residual | 10.259 s DPA / 24.872 s APA wall | completed pre-test |
 | APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | APA sparse staged search | 33.589 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only |
+| APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
@@ -898,9 +940,11 @@ outputs for predistorted waveforms.
 16. [x] Preregister, implement and execute the bounded non-factorized sparse
     spline-memory PA family; selected APA result fails the quality/evaluator
     gates and is preserved as a negative bundle.
-17. [ ] Preregister and run a narrow residual-guided lag-9 branch family with
-    the same train-only OOF/rank/support/operation contract; stop if it fails.
-18. [ ] Validate any surviving sparse family on reused validation and a new
-    independent capture/operating point; do not reopen the old APA test.
+17. [x] Preregister and run a narrow residual-guided lag-9 branch family with
+    the same train-only OOF/rank/support/operation contract; cheap-Pareto and
+    incremental gates passed, evaluator gate failed.
+18. [ ] Validate the surviving lag-9 sparse family and GMP on a new independent
+    capture/operating point with limited-calibration curves; do not reopen the
+    old APA test.
 19. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
     evaluators, then fixed point, robustness/adaptation and finally physical PA.
