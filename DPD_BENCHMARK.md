@@ -20,8 +20,11 @@
 - residual-guided lag-9 sparse PA is complete: 72 MUL/sample,
   −37.792 dB train-OOF NMSE and −37.861 dB reused validation; it passes the
   incremental/cheap-Pareto gates but remains 0.553 dB worse than GMP;
-- нет второго independently fitted evaluator, нового operating-point capture
-  или physical-PA output для predistorted waveform.
+- independent `APA_200MHz_b` capture-transfer release is complete: after frozen
+  `N=16384` coefficient-only calibration, GMP reaches −37.895 dB held-out
+  full NMSE and lag-9 sparse −34.801 dB;
+- всё ещё нет второго evaluator с достаточным error margin, controlled
+  operating-point labels или physical-PA output для predistorted waveform.
 
 Поэтому в этом документе есть три строго разделённых evidence слоя:
 
@@ -194,10 +197,20 @@ parent gate passed by `+5.762467/+5.764583 dB` full/common, and the cheap-Pareto
 gate beats matched MP by `0.738150/0.752881 dB`.
 
 It remains `0.552932/0.897694 dB` behind matched GMP, has only same-capture
-reused validation, and was never evaluated on a predistorted waveform.
-Therefore `cheap_pareto_only` is a contour-A label, not a frozen DPD evaluator;
-Gate A→B remains closed. The immutable bundle is
+reused validation on source, and its independent B-capture held-out score after
+calibration is `−34.801474 dB` full / `−35.437986 dB` common. It was never
+evaluated on a predistorted waveform. Therefore `cheap_pareto_only` is a
+contour-A label, not a frozen DPD evaluator; Gate A→B remains closed. The
+immutable source bundle is
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`.
+
+The B-capture release is useful robustness evidence, not a DPD evaluator:
+zero-shot GMP/sparse are `−23.795441/−23.695838 dB`, while calibrated GMP is
+`−37.895152 dB`. The sparse model is about `13.25x` cheaper in real MUL and
+`4.53x` faster to calibrate, but about `3.094 dB` worse than GMP on the
+primary held-out score. The release audit records two accesses because the
+first failed before inference/metric; no topology, `N` or coefficient choice
+changed after that access.
 
 ## 4. Gate A→B и запрет silent reuse
 
@@ -219,8 +232,9 @@ Gate A→B remains closed. The immutable bundle is
 | DPA | −30.532 / −29.864 dB | −35.366 / −35.385 dB | 4.834 / 5.521 dB |
 | APA | −32.380 / −32.741 dB | −38.665 / −38.608 dB | 6.285 / 5.867 dB |
 
-Decision: **closed**. GMP one-shot test release PASS не является этим gate.
-Уже открытые DPA/APA test values нельзя использовать для выбора нового DPD.
+Decision: **closed**. GMP one-shot test release PASS и B-capture transfer
+release не являются этим gate. Уже открытые DPA/APA/B test values нельзя
+использовать для выбора нового DPD.
 
 ## 5. Frozen future benchmark matrix
 
@@ -272,14 +286,14 @@ quality vs peak predistorted drive
 
 ## 7. Следующий разрешённый шаг
 
-Следующий step находится в контуре A, не B: проверить GMP и surviving lag-9
-PA model на independent `APA_200MHz_b` capture (строго как `capture transfer`,
-пока measurement-B metadata не расшифрованы) и построить limited-calibration
-curves. Нужны source freeze, target-train-only nuisance alignment, zero-shot
-режим и preregistered calibration sample counts; старый APA test не открывать
-повторно для selection.
+Следующий step по-прежнему находится в контуре A, не B: выполнить bit-accurate
+16/14/12-bit evaluation frozen GMP и lag-9 sparse PA с explicit
+scale/accumulator/saturation/state contract. Затем получить metadata
+measurement B и controlled physical-PA capture с известными power/backoff,
+bias и temperature axes.
 
-Если independent transfer не подтверждает ranking/fidelity, честный результат —
-остановить local PA dictionary expansion и получить physical-PA measurement.
-Legacy DPD остаётся surrogate-only; DPD optimization возобновляется только
-после Gate A→B.
+Уже открытый B test нельзя использовать для нового выбора topology,
+regularization или calibration N. Если controlled evidence не даёт второго
+evaluator с достаточным margin, честный результат — остановить local PA
+dictionary expansion и получить physical-PA measurement. Legacy DPD остаётся
+surrogate-only; DPD optimization возобновляется только после Gate A→B.
