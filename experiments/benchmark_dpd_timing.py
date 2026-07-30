@@ -8,6 +8,7 @@ kernel are still unknown.  PA evaluation is intentionally absent.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import platform
@@ -26,6 +27,7 @@ from baseline.spline_memory_dpd import (  # noqa: E402
     SparseSplineMemoryDPD,
     SplineMemoryState,
 )
+from baseline.metrics import as_complex  # noqa: E402
 
 REFERENCE_REAL_MULS = 1000
 
@@ -235,6 +237,14 @@ def _json_ready(value: Any) -> Any:
     return value
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def _argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, type=Path)
@@ -251,7 +261,10 @@ def main(argv: list[str] | None = None) -> int:
     with np.load(args.input, allow_pickle=False) as archive:
         if "desired_input" not in archive.files:
             raise ValueError("input archive must contain desired_input")
-        signal = np.asarray(archive["desired_input"])
+        signal = as_complex(
+            np.asarray(archive["desired_input"]),
+            name="desired_input",
+        )
     chunk_sizes = tuple(
         int(value.strip())
         for value in args.chunk_sizes.split(",")
@@ -264,6 +277,15 @@ def main(argv: list[str] | None = None) -> int:
         warmup=args.warmup,
         repeats=args.repeats,
     )
+    result["provenance"] = {
+        "model_path": str(args.model.resolve()),
+        "model_sha256": _file_sha256(args.model.resolve()),
+        "input_archive_path": str(args.input.resolve()),
+        "input_archive_sha256": _file_sha256(args.input.resolve()),
+        "runner": str(Path(__file__).resolve()),
+        "runner_sha256": _file_sha256(Path(__file__).resolve()),
+        "command": [sys.executable, *sys.argv],
+    }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(_json_ready(result), indent=2, sort_keys=True)
