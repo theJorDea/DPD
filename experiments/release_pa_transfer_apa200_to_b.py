@@ -43,6 +43,12 @@ from experiments.verify_pa_transfer_bundle import verify_bundle
 
 Progress = Callable[[str], None]
 RELEASE_SCHEMA_VERSION = 1
+PRIOR_RELEASE_INCIDENT = (
+    "experiments/results/pa_transfer_apa200_to_b_release_incident_001.json"
+)
+PRIOR_RELEASE_INCIDENT_SHA256 = (
+    "d03217f7ec74f49fbcd3f8619c528d7737b907e281d609b90363339ecacb2a34"
+)
 
 
 def _json_ready(value: Any) -> Any:
@@ -168,6 +174,28 @@ def _verify_pretest_source_code(manifest: dict[str, Any]) -> dict[str, str]:
     return actual
 
 
+def _verify_prior_release_incident() -> dict[str, Any]:
+    path = _project_path(PRIOR_RELEASE_INCIDENT, name="prior release incident")
+    if file_sha256(path) != PRIOR_RELEASE_INCIDENT_SHA256:
+        raise RuntimeError("prior release incident record hash mismatch")
+    incident = json.loads(path.read_text(encoding="utf-8"))
+    if incident.get("status") != (
+        "failed_after_first_held_out_load_before_model_inference"
+    ):
+        raise RuntimeError("prior release incident status changed")
+    if incident.get("not_completed", {}).get("target_test_metric_computed") is not False:
+        raise RuntimeError("prior release incident unexpectedly computed a metric")
+    if incident.get("retry_policy", {}).get("required_final_access_count") != 2:
+        raise RuntimeError("prior release retry policy changed")
+    return {
+        "path": PRIOR_RELEASE_INCIDENT,
+        "sha256": PRIOR_RELEASE_INCIDENT_SHA256,
+        "prior_held_out_access_count": 1,
+        "prior_model_inference_started": False,
+        "prior_test_metric_computed": False,
+    }
+
+
 def _model_with_coefficients(model: Any, coefficients: np.ndarray) -> Any:
     if model.__class__.__name__ == "GeneralizedMemoryPolynomialPA":
         return model.__class__(model.config, coefficients)
@@ -284,6 +312,7 @@ def run_from_config(
         pretest_info["pretest_bundle"],
     )
     source_code_hashes = _verify_pretest_source_code(pretest_manifest)
+    prior_incident = _verify_prior_release_incident()
 
     target_dataset = _project_path(
         release_config["target_dataset"],
@@ -291,32 +320,21 @@ def run_from_config(
     )
     test_input_path = target_dataset / release_config["target_test_files"]["input"]
     test_output_path = target_dataset / release_config["target_test_files"]["output"]
-    # The release config deliberately has null expected hashes.  Hashing is
-    # first performed here, after the pre-test gate and immediately before the
-    # first held-out waveform load.
-    if release_config["target_test_files"]["input_sha256"] is not None:
-        raise RuntimeError("target test input hash was prefilled before release")
-    if release_config["target_test_files"]["output_sha256"] is not None:
-        raise RuntimeError("target test output hash was prefilled before release")
-    target_test_hashes = {
-        "input_sha256": file_sha256(test_input_path),
-        "output_sha256": file_sha256(test_output_path),
-    }
-    progress("[release gate] pretest bundle and selected N verified; opening target held-out pair")
-
     target_train_input, target_train_output = load_split_pair(
         target_dataset,
         "train",
     )
-    test_input, test_output = load_split_pair(target_dataset, "test")
+    expected_train_lengths = tuple(
+        int(value)
+        for value in pretest_config["dataset_contract"]["target_frame_lengths"]
+    )
     nperseg = int(release_config["protocol"]["nperseg"])
-    if target_train_input.size != 3 * nperseg:
-        raise ValueError("target train length is incompatible with release protocol")
-    if test_input.size != nperseg or test_output.size != nperseg:
-        raise ValueError("target held-out length is incompatible with release protocol")
-    if file_sha256(release_config_path) != release_config_hash:
-        raise RuntimeError("release config changed after held-out load")
-
+    if (
+        target_train_input.size != sum(expected_train_lengths)
+        or target_train_output.size != sum(expected_train_lengths)
+        or expected_train_lengths != (19662, 19662, 19656)
+    ):
+        raise ValueError("target train frame lengths disagree with frozen contract")
     protocol = freeze_pa_evaluation_protocol(
         target_train_input,
         target_train_output,
@@ -328,6 +346,26 @@ def run_from_config(
         alignment_delay=int(release_config["protocol"]["alignment_delay_samples"]),
         characteristic_bins=32,
     )
+
+    # The release config deliberately has null expected hashes.  Hashing is
+    # performed here only after the pre-test/source/train/incident gates and
+    # immediately before the retry held-out waveform load.
+    if release_config["target_test_files"]["input_sha256"] is not None:
+        raise RuntimeError("target test input hash was prefilled before release")
+    if release_config["target_test_files"]["output_sha256"] is not None:
+        raise RuntimeError("target test output hash was prefilled before release")
+    target_test_hashes = {
+        "input_sha256": file_sha256(test_input_path),
+        "output_sha256": file_sha256(test_output_path),
+    }
+    progress("[release gate] pretest bundle and selected N verified; opening target held-out pair")
+
+    test_input, test_output = load_split_pair(target_dataset, "test")
+    if test_input.size != nperseg or test_output.size != nperseg:
+        raise ValueError("target held-out length is incompatible with release protocol")
+    if file_sha256(release_config_path) != release_config_hash:
+        raise RuntimeError("release config changed after held-out load")
+
     reports: dict[str, dict[str, Any]] = {}
     predictions: dict[str, np.ndarray] = {}
     for record in release_config["frozen_models"]:
@@ -415,13 +453,16 @@ def run_from_config(
             "runtime_seconds_before_publication": time.perf_counter() - started,
             "explicit_release_acknowledged": True,
             "target_test_accessed": True,
+            "current_process_held_out_access_number": 2,
+            "strict_single_open_execution": False,
+            "prior_release_incident": prior_incident,
             "target_test_hashes_recorded_after_gate": True,
             "selection_source": "frozen pretest target validation only",
         }
         manifest = {
             "schema_version": 1,
             "task": release_config["task"],
-            "status": "held_out_release_completed_once",
+            "status": "held_out_release_completed_after_metric_free_failed_access",
             "config": str(release_config_path.relative_to(PROJECT_ROOT)),
             "config_sha256": release_config_hash,
             "pretest_config": release_config["pretest_config"],
@@ -432,6 +473,12 @@ def run_from_config(
             "target_test_sample_count": int(test_input.size),
             "target_evaluation_protocol": protocol.to_dict(),
             "source_code_sha256": source_code_hashes,
+            "release_access_audit": {
+                **prior_incident,
+                "current_held_out_access_count": 2,
+                "strict_single_open_execution": False,
+                "selection_changed_after_first_access": False,
+            },
             "reports": reports,
             "input_integrity": {
                 "pretest_bundle_verified_before_test_load": True,

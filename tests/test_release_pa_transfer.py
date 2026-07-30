@@ -9,6 +9,7 @@ from experiments.release_pa_transfer_apa200_to_b import (
     _load_pretest_manifest,
     _load_selected_coefficients,
     _verify_pretest_source_code,
+    _verify_prior_release_incident,
     load_release_config,
     run_from_config,
 )
@@ -41,6 +42,9 @@ class TransferReleaseGuardTests(unittest.TestCase):
         )
         source_hashes = _verify_pretest_source_code(manifest)
         self.assertIn("experiments/transfer_pa_apa200_to_b.py", source_hashes)
+        incident = _verify_prior_release_incident()
+        self.assertEqual(incident["prior_held_out_access_count"], 1)
+        self.assertFalse(incident["prior_test_metric_computed"])
         self.assertEqual(set(selected), {"causal_gmp", "lag9_sparse_spline_memory"})
         self.assertEqual(selected["causal_gmp"].shape, (444,))
         self.assertEqual(selected["lag9_sparse_spline_memory"].shape, (9, 12))
