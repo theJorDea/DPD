@@ -436,12 +436,43 @@ did not infer or compute a metric. The corrected retry used the unchanged
 frozen protocol. Consequently it is not described as a pristine single-open
 run; `release_access_count=2` and the incident hash are part of the manifest.
 
+### 3.9 Fixed-point PA arithmetic runner
+
+The fixed-point implementation is deliberately separate from DPD code:
+
+- `baseline/fixed_point_pa.py` defines signed formats, nearest-even shifts,
+  integer square root, checked products, saturation counters and the vectorized
+  causal GMP evaluator;
+- `baseline/fixed_point_sparse_spline_pa.py` adds integer knot addressing,
+  two-point complex interpolation, delayed branches and explicit sparse
+  operation counting;
+- `experiments/evaluate_fixed_point_pa.py` verifies hashes, opens only train
+  and validation, freezes scales before validation and writes a machine-readable
+  report;
+- `experiments/configs/pa_fixed_point_apa200.json` preregisters 16/14/12-bit
+  widths, 48-bit power/address codes, 56-bit accumulators, rounding and
+  saturation policy;
+- `tests/test_fixed_point_pa_contract.py`,
+  `tests/test_fixed_point_gmp_pa.py`,
+  `tests/test_fixed_point_sparse_spline_pa.py` and
+  `tests/test_evaluate_fixed_point_pa.py` cover arithmetic boundaries,
+  streaming/reset equivalence, knot collisions, overflow reporting and
+  train/validation-only split access.
+
+The APA report is
+`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.  It shows
+zero saturation in all evaluated rows; 16-bit GMP/sparse fixed-vs-float
+validation degradation is below −64 dB, while 12-bit GMP degrades to about
+−36.4 dB.  The sparse schedule reports six integer divisions explicitly;
+reciprocal-multiply hardware must account for them.  Host timings are not
+target latency, and no fixed-point DPD cascade is implemented yet.
+
 ## 5. Tests and invariants
 
-Last complete code suite after the held-out release contract:
-**234/234 passed** on the environment in this document. The sparse and transfer
-results are immutable numeric artifacts; no code was changed while publishing
-them.
+Last complete code suite after the fixed-point PA contract:
+**256/256 passed** on the environment in this document. The sparse, transfer
+and fixed-point results are immutable numeric artifacts; no code was changed
+while publishing the numerical report.
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -458,7 +489,8 @@ Test modules cover:
   and shared audit dispatch;
 - release predicates and streaming checks;
 - optional incremental-control gate and bounded lag-9 preregistration contract;
-- existing spline fixed-point arithmetic/saturation.
+- existing memoryless spline fixed-point arithmetic/saturation;
+- fixed-point GMP/sparse PA arithmetic, format freeze and no-test runner.
 
 Run after any code change:
 
@@ -511,6 +543,11 @@ The previous 120-test 0.396 s timing is obsolete.
 | `790f744`–`503c48a` | APA transfer preregistration, guarded release, incident and verification |
 | `27e15a3`–`48be898` | synchronized PA/benchmark/robustness/gap/roadmap reports |
 | `161837e` | exact APA transfer reproduction protocol and hashes |
+| `bd59d05` / `4aa5480` / `a2fa84b` | fixed-point arithmetic contract, GMP reference and vectorized kernel |
+| `3beddb5` | bit-accurate sparse spline-memory PA and tests |
+| `869312c` | sealed train/validation-only fixed-point PA evaluator |
+| `63a3dcf` | immutable APA fixed-point PA result report |
+| `c109eaf` | synchronized roadmap, hardware, PA benchmark and experiment plan |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -532,6 +569,7 @@ experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/
 experiments/results/pa_transfer_apa200_to_b_pretest/
 experiments/results/pa_transfer_apa200_to_b_test_release/
 experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
+experiments/results/pa_fixed_point_apa200/fixed_point_report.json
 ```
 
 Normative documents:
@@ -558,7 +596,9 @@ Normative documents:
 7. Peak RSS was not measured for formal fits.
 8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
    generated yet.
-9. No 16/14/12-bit selected GMP or spline-memory DPD simulator.
+9. APA source GMP and lag-9 sparse PA now have a 16/14/12-bit integer
+   simulator; DPA, target payloads, spline-memory DPD and PA→DPD cascade remain
+   pending.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.
 12. Checked APA short conjugate supports failed the 0.1 dB OOF threshold;
@@ -613,10 +653,9 @@ slow-state evidence exists.
 1. Record provenance for `APA_200MHz_b` (DUT identity, power/backoff, bias,
    temperature, capture time and feedback calibration); until then use the
    label `capture transfer`.
-2. Implement the bit-accurate 16/14/12-bit simulator for frozen GMP and lag-9
-   sparse PA: explicit activation/coefficient scaling, accumulator width,
-   rounding, saturation, state lifetime and arbitrary-chunk equivalence.
-3. Publish FP32→fixed-point degradation and exact MUL/ADD/sqrt/LUT/state/memory
-   counts; do not infer FPGA latency from host batch timing.
+2. Repeat the frozen PA arithmetic matrix on DPA and target-calibrated
+   payloads; keep source/target and physical-capture scopes separate.
+3. Implement the fixed-point spline-memory DPD and evaluate the correct
+   desired-x→DPD→independent-PA cascade only after Gate A→B is reopened.
 4. Obtain controlled physical-PA data. Only if Gate A→B then passes should the
    frozen-evaluator DPD benchmark be reopened.

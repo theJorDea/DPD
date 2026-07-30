@@ -9,7 +9,8 @@
 
 - `error < 10^-5` по неизвестной Huawei metric;
 - DPD лучше OpenDPD apples-to-apples;
-- fixed-point/real-time implementation готова;
+- fixed-point PA arithmetic reference готова, но fixed-point/real-time
+  hardware implementation не доказана;
 - linearization физического PA или базовой станции Huawei доказана.
 
 Лучший локальный forward PA result:
@@ -329,6 +330,30 @@ tuning after access 1. The independent verifier reproduced all four held-out
 metrics and checked source, pre-test, test and incident hashes. This still
 closes neither Gate A→B nor the physical-PA claim.
 
+### 3.10 APA fixed-point PA arithmetic
+
+The train-only fixed-point runner
+`experiments/evaluate_fixed_point_pa.py` evaluates the frozen causal GMP and
+lag-9 sparse PA at signed 16/14/12 bits. It verifies input/model hashes,
+freezes scales before opening validation, reports every saturation class and
+checks bit-identical reset/chunk streaming. No test file is opened or hashed.
+
+| Model / bits | Validation PA NMSE | Fixed-vs-float NMSE | Raw schedule |
+|---|---:|---:|---:|
+| GMP / 16 | −38.6459 dB | −64.20 dB | 954 MUL / 947 ADD |
+| GMP / 14 | −38.4320 dB | −51.62 dB | 954 / 947 |
+| GMP / 12 | −34.4282 dB | −36.41 dB | 954 / 947 |
+| lag-9 sparse / 16 | −37.8604 dB | −77.29 dB | 66 MUL / 88 ADD / 6 DIV |
+| lag-9 sparse / 14 | −37.8523 dB | −65.29 dB | 66 / 88 / 6 |
+| lag-9 sparse / 12 | −37.7464 dB | −53.59 dB | 66 / 88 / 6 |
+
+All evaluated rows had zero saturation and zero knot collisions. The six
+sparse divisions are explicit; reciprocal-multiply hardware must charge them
+as part of its effective multiplier schedule. These results prove arithmetic
+degradation relative to a frozen floating-point PA model on APA
+train/validation, not physical-PA fidelity, DPD cascade quality, RTL timing or
+power. DPA and target-payload fixed-point runs remain pending.
+
 ## 4. Что доказано только на surrogate
 
 Legacy complex spline-memory DPD `signal_delay_012` дал:
@@ -423,7 +448,8 @@ frozen evaluator.
 
 ### 6.4 Hardware
 
-- bit-accurate selected PA and DPD at 16/14/12 bit;
+- bit-accurate selected DPD and PA→DPD cascade at 16/14/12 bit (APA source
+  PA GMP/sparse coverage is complete; DPD coverage is not);
 - exact accumulator/intermediate widths and nonlinear primitive;
 - synthesis/place-and-route target;
 - measured throughput/latency/resources/power;
@@ -437,7 +463,8 @@ frozen evaluator.
 | Huawei `10^-5` met | unsupported | metric unresolved; if normalized power, current GMP fails |
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
-| Real-time FPGA-ready | unsupported | analytical counts only; no synthesis/fixed-point GMP |
+| Fixed-point APA PA arithmetic reference | supported, bounded | APA train/validation GMP+sparse 16/14/12-bit report; no DPD/RTL claim |
+| Real-time FPGA-ready | unsupported | analytical counts plus Python integer reference only; no synthesis/target latency |
 | Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
@@ -466,6 +493,9 @@ conditions**; обратный transfer `APA_200MHz_b -> APA_200MHz` имеет 
   адаптировались coefficients;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
+- APA fixed-point PA arithmetic is now frozen and measured; repeating it on
+  DPA/target payloads is useful, but cannot replace the physical predistorted
+  capture that decides Gate A→B.
 
 Протокол:
 
