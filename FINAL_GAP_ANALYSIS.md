@@ -19,9 +19,13 @@
 | DPA_200MHz | causal GMP | −35.385 dB | 2.8940e−4 | 766 |
 | APA_200MHz | causal GMP | −38.608 dB | 1.3778e−4 | 954 |
 | APA_200MHz | lag-9 sparse, reused validation | −37.861 dB | 1.637e−4 | 72 |
+| APA_200MHz_b | target-calibrated causal GMP, held-out test | −37.895 dB | 1.6236e−4 | 954 |
+| APA_200MHz_b | target-calibrated lag-9 sparse, held-out test | −34.801 dB | 3.3102e−4 | 72 |
 
-Обе точки удовлетворяют analytical `<1000 real MUL/sample`, но если
-`10^-5` — normalized error power, они выше порога в 28.94× и 13.78×.
+Все точки удовлетворяют analytical `<1000 real MUL/sample`, но если `10^-5`
+— normalized error power, даже лучший APA source/target GMP выше порога
+примерно в 13.8–16.2 раза. Capture B test не использовался для model/N
+selection или coefficient fit.
 
 Gate A→B остаётся **closed**: PA evaluator недостаточно отделён по error power
 от DPD residual, нет второго independent evaluator и нет physical-PA cascade.
@@ -270,13 +274,15 @@ config SHA `93807ab6…`, recipe SHA
 Evidence: `research/opendpd_audit.md` и
 `research/egor_pipeline_audit.md`.
 
-### 3.9 Independent APA capture transfer: completed pre-test layer
+### 3.9 Independent APA capture transfer: completed held-out layer
 
 The preregistered source-frozen transfer runner compared the two already
-selected PA families on `APA_200MHz_b` without opening its held-out split.
-Train/validation inputs are byte-identical between captures, while measured
-outputs differ. The result is therefore evidence about capture transfer, not
-known power, bias or thermal drift.
+selected PA families on `APA_200MHz_b`. Train/validation inputs are
+byte-identical between captures, while measured outputs differ. The pre-test
+selected `N=16384` on target validation; a separately frozen release then
+evaluated zero-shot and calibrated coefficients on target held-out test. The
+result is evidence about capture transfer, not known power, bias or thermal
+drift.
 
 | Model / mode | Target validation full NMSE | Common NMSE | Calibration samples/frame | Fit time | MUL / ADD |
 |---|---:|---:|---:|---:|---:|
@@ -294,10 +300,34 @@ published curve. GMP `N=64/128` are explicitly infeasible rank cases.
 
 The target-train-only nuisance diagnostic found integer delay 0 and
 `|complex-LS gain|=1.152146`; strict metrics intentionally did not refit gain.
-The immutable bundle is
+The immutable pre-test bundle is
 `experiments/results/pa_transfer_apa200_to_b_pretest/`, and
 `experiments/verify_pa_transfer_bundle.py` reproduces 20 metric records and
-all sealed hashes. This closes neither Gate A→B nor the physical-PA claim.
+the original seal.
+
+Held-out results:
+
+| Model / mode | Target test full NMSE | Common NMSE | Relative error power |
+|---|---:|---:|---:|
+| causal GMP zero-shot | −23.795441 dB | −23.800907 dB | 4.1731e−3 |
+| lag-9 sparse zero-shot | −23.695838 dB | −23.700933 dB | 4.2699e−3 |
+| causal GMP coefficient-only, N=16384 | **−37.895152 dB** | **−38.003839 dB** | **1.6236e−4** |
+| lag-9 sparse coefficient-only, N=16384 | −34.801474 dB | −35.437986 dB | 3.3102e−4 |
+
+GMP validation→test is stable within `0.0044 dB`. Sparse full-record loses
+`0.5570 dB`, whereas common support loses only `0.0080 dB`; its gap is
+primarily a causal startup/reset-boundary effect. The sparse model is
+`13.25x` cheaper in real MUL and calibrated `4.53x` faster, but is
+`3.094 dB` worse than GMP on primary held-out NMSE.
+
+Release integrity has one disclosed exception: the first process loaded the
+test pair and failed before model inference/metric because its train-frame
+guard assumed a nonexistent final six samples. The unchanged frozen protocol
+completed on a second access. Thus access count is `2` and
+`strict_single_open_execution=false`; no test metric was available for
+tuning after access 1. The independent verifier reproduced all four held-out
+metrics and checked source, pre-test, test and incident hashes. This still
+closes neither Gate A→B nor the physical-PA claim.
 
 ## 4. Что доказано только на surrogate
 
@@ -408,30 +438,32 @@ frozen evaluator.
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
 | Real-time FPGA-ready | unsupported | analytical counts only; no synthesis/fixed-point GMP |
-| Online adaptation demonstrated | unsupported | no controlled operating-point captures/curves |
+| Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
 | Sparse APA long-FIR branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.018/0.020 dB despite positive gains in every fold |
 | Standalone APA SPH replaces GMP under the cheap-quality gate | refuted on train OOF | 37 MUL/sample, but 6.652 dB worse than matched MP and 7.943 dB worse than GMP |
 | Non-factorized sparse spline-memory replaces GMP under the cheap-quality gate | refuted on train OOF | 54 MUL/sample, but 5.024 dB worse than MP and 6.315 dB worse than GMP |
 | Lag-9 sparse PA is a cheap low-complexity Pareto point | supported within APA capture | 72 MUL/sample; 0.738/0.753 dB better than MP, but 0.553/0.898 dB worse than GMP |
-| Lag-9 sparse PA is an independent DPD evaluator | unsupported | same-capture reused validation only; no second evaluator or physical cascade |
-| Source PA coefficients transfer zero-shot to `APA_200MHz_b` | refuted on target validation | GMP −23.795 dB and lag-9 sparse −23.701 dB; target held-out sealed |
-| Fixed-topology coefficient-only calibration recovers B-capture fidelity | supported on target validation only | GMP −37.891 dB and sparse −35.358 dB at N=16384/frame; capture-transfer scope |
+| Lag-9 sparse PA is an independent DPD evaluator | unsupported | B-capture held-out fidelity is only −34.801 dB full and no independent cascade margin is established |
+| Source PA coefficients transfer zero-shot to `APA_200MHz_b` | refuted on target held-out | GMP −23.795 dB and lag-9 sparse −23.696 dB |
+| Fixed-topology coefficient-only calibration recovers B-capture fidelity | supported on target held-out | GMP −37.895 dB and sparse −34.801 dB at N=16384/frame; capture-transfer scope |
 | `APA_200MHz_b` proves power/thermal adaptation | unsupported | “measurement B” axes are unknown; no controlled labels |
+| B-capture release was strict single-open | refuted by audit | two accesses: first failed before inference/metric, second completed unchanged frozen protocol |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
-Первый external-capture pre-test уже выполнен; следующий independent-data
-step — **metadata-gated held-out release and, при наличии сопоставимых
-метаданных, обратный transfer `APA_200MHz_b -> APA_200MHz`**. Причины:
+External-capture held-out release уже выполнен. Следующий independent-data
+step — **получить controlled physical-PA capture с известными operating
+conditions**; обратный transfer `APA_200MHz_b -> APA_200MHz` имеет смысл
+только при наличии сопоставимых metadata. Причины:
 
 - waveform/spec nominally matches `APA_200MHz`;
 - это отдельный capture, поэтому он измеряет generalization, а не ещё один
   random split той же записи;
-- source coefficients уже проверены zero-shot и после limited recalibration;
-- target held-out evidence ещё не открыта и может быть опубликована только
-  после freeze metadata/config/N;
+- source coefficients и limited recalibration уже проверены на held-out;
+- неизвестные axes measurement B не позволяют определить, к чему именно
+  адаптировались coefficients;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
 
@@ -439,22 +471,23 @@ step — **metadata-gated held-out release and, при наличии сопос
 
 1. Зафиксировать, какие axes изменились в measurement B; если ответа нет,
    label строго `capture transfer`.
-2. Сохранить уже frozen source models, transfer config и selected-N rule;
-   target test не использовать для изменения этих решений.
-3. Выполнить target held-out release once после metadata/config freeze;
-   report NMSE/error PSD/AM-AM/AM-PM, support, cost and wall time.
-4. Если metadata подтверждает same DUT, выполнить обратный transfer
+2. Не использовать уже открытый target test для нового выбора topology,
+   regularization или calibration N.
+3. Если metadata подтверждает same DUT, preregister обратный transfer
    `APA_200MHz_b -> APA_200MHz` на ещё не использованном split.
+4. Получить новый controlled capture с power/backoff, bias, temperature,
+   capture time и feedback calibration, frozen до evaluation.
 5. Только после известного operating-point experiment строить adaptation
    curves с physical power/temperature labels.
 6. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
-   не выполнен. Current lag-9 result already fails this gate; no further local
-   delay dictionary expansion is authorized before transfer evidence.
+   не выполнен. Current held-out GMP/sparse results fail this gate; no further
+   local DPD or delay-dictionary tuning is authorized from B test.
 
 Пока provenance/operating-point metadata для measurement B не подтверждены,
 результат следует маркировать `capture transfer`, а не power/thermal
 adaptation. Independent capture validation имеет большую информационную
-ценность, чем повторное OOF tuning на `APA_200MHz`.
+ценность, чем повторное OOF tuning на `APA_200MHz`, но следующий прирост
+ценности требует known physical axes, а не ещё одного post-hoc split.
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
