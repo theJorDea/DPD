@@ -47,6 +47,7 @@ target timing measurement.
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | Frozen spectral-region evaluator + input-only validation replay | DPA/APA `signal_delay_012` replay completed after preregistration | conventional baseband diagnostics only; no measured output opened; no model reselection |
 | DPD-only timing diagnostic | DPA/APA completed on one pinned CPU core with paired/interleaved 1000-MUL scalar reference | exact streaming equivalence and host trace only; customer/target gate not evaluable |
+| Bit-accurate spline-memory DPD arithmetic | DPA/APA signed 16/14/12-bit validation replay and matching spectral diagnostics completed | surrogate-only integer-arithmetic preservation; no precision selection, physical PA, RTL or target timing claim |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
 
@@ -171,7 +172,8 @@ Every frozen PA result must also retain:
 - coefficient/constants/state storage and declared numeric precision;
 - bit-accurate fixed-point degradation and chunk equivalence where a frozen
   arithmetic contract exists; current PA reports cover DPA/APA source models
-  and target-calibrated APA-B payloads. Only DPD fixed-point remains pending.
+  and target-calibrated APA-B payloads. The separate DPD arithmetic replay is
+  completed and documented in §5.2.1 and §6.19.
 
 Current PA error PSD uses a periodic Hann window, `nfft=nperseg`, 50% overlap,
 constant detrend and density scaling, normalized by integrated measured-output
@@ -235,6 +237,36 @@ OpenDPD NMSE, EVM definitions, ACLR L/R/average, PSD, PAPR, peak drive,
 support violations, stability, operations, memory, calibration time and
 fixed-point degradation.
 
+#### 5.2.1 Fixed-point DPD execution already completed
+
+The sealed runner `experiments/evaluate_fixed_point_dpd.py` evaluates only
+
+```text
+desired validation x -> integer spline-memory DPD -> frozen floating PA
+surrogate -> cascade metrics
+```
+
+It accepts only `train_input.csv` and `val_input.csv`, freezes every scale from
+train input, frozen float-DPD train drive and frozen coefficients before
+parsing validation values, and cannot address measured PA outputs or test
+files. Signed 16/14/12-bit input, output and coefficients use explicit
+nearest-even rounding and saturation; power, accumulator and interpolation
+formats are also frozen. The same explicit frame reset and six-sample common
+warm-up are applied to the float and integer paths.
+
+All six dataset/precision rows passed exact arbitrary-chunk equivalence with
+zero input, coefficient, power, interpolation, accumulator or output
+saturation and zero knot-address collisions. The exact integer schedule is
+`20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT accesses, 28 reads, 2 writes`
+and four real state values per complex sample. This operation vector is not a
+target latency measurement.
+
+Validation was historically used to choose the underlying float DPD.
+Consequently, this replay selects no numeric precision:
+`precision_selected_by_runner=false`. Sixteen bits remain a conservative
+implementation reference; 12/14-bit variants are area alternatives that need
+predeclared hardware constraints and independent/physical-PA confirmation.
+
 ### 5.3 Operation convention
 
 ```text
@@ -259,9 +291,9 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result после hardened timing runner:
-**291/291 tests passed in 7.064 s**. Более ранние 286/286, 272/272, 257/257,
-234/234, 222/222, 201/201, 131/131 и 120-test snapshots являются
+Последний full-suite result после fixed-point DPD runner:
+**305/305 tests passed in 9.424 s**. Более ранние 291/291, 286/286, 272/272,
+257/257, 234/234, 222/222, 201/201, 131/131 и 120-test snapshots являются
 историческими и не заменяют текущий count.
 Следующий code change обязан сохранить новый wall time/execution record;
 unit-suite timing не является inference benchmark.
@@ -935,6 +967,72 @@ All chunk outputs equal the independent full-stream output exactly.
 timed NumPy trace, and the scalar Python kernel is not a customer target
 reference.
 
+### 6.19 Bit-accurate DPD validation replay — completed, surrogate-only
+
+The arithmetic configs were committed before execution:
+
+- `experiments/configs/dpd_fixed_point_dpa200_validation.json`;
+- `experiments/configs/dpd_fixed_point_apa200_validation.json`.
+
+Exact producer commands:
+
+```bash
+/usr/bin/python experiments/evaluate_fixed_point_dpd.py \
+  --config experiments/configs/dpd_fixed_point_dpa200_validation.json \
+  --output-dir experiments/results/dpd_fixed_point_dpa200_validation
+
+/usr/bin/python experiments/evaluate_fixed_point_dpd.py \
+  --config experiments/configs/dpd_fixed_point_apa200_validation.json \
+  --output-dir experiments/results/dpd_fixed_point_apa200_validation
+```
+
+The DPA and APA reports record respectively `0.822936` and `1.610591 s`
+before atomic publication. These are Python-runner wall times, not streaming
+latency measurements. Each immutable result bundle contains one float and
+three integer drive/cascade waveform archives plus four frozen spectral
+configs. The spectral commands were:
+
+```bash
+for mode in float 16bit 14bit 12bit; do
+  /usr/bin/python experiments/evaluate_frozen_dpd_spectrum.py \
+    --config \
+    experiments/results/dpd_fixed_point_dpa200_validation/spectral_config_${mode}.json \
+    --output-dir \
+    experiments/results/dpd_fixed_point_dpa200_spectrum_${mode}_validation
+done
+
+for mode in float 16bit 14bit 12bit; do
+  /usr/bin/python experiments/evaluate_frozen_dpd_spectrum.py \
+    --config \
+    experiments/results/dpd_fixed_point_apa200_validation/spectral_config_${mode}.json \
+    --output-dir \
+    experiments/results/dpd_fixed_point_apa200_spectrum_${mode}_validation
+done
+```
+
+No command used `--release-test`. Reported adjacent-region values below are
+absolute configured baseband suppression, not Huawei harmonic attenuation and
+not an RF ACLR certification:
+
+| Dataset / path | Cascade pooled NMSE | Drive vs float | Cascade vs float | Absolute suppression L/R | Peak / PAPR |
+|---|---:|---:|---:|---:|---:|
+| DPA float | −30.533243 dB | — | — | 4.800954 / 7.788702 dB | 1.192611 / 10.469026 dB |
+| DPA 16-bit | −30.532196 dB | −78.924356 dB | −76.391532 dB | 4.797940 / 7.787990 dB | 1.192576 / 10.468764 dB |
+| DPA 14-bit | −30.533573 dB | −67.012813 dB | −64.350318 dB | 4.793157 / 7.776366 dB | 1.192696 / 10.469414 dB |
+| DPA 12-bit | −30.514777 dB | −54.871398 dB | −52.168039 dB | 4.781928 / 7.692124 dB | 1.192214 / 10.465523 dB |
+| APA float | −32.384010 dB | — | — | 16.521116 / 13.905361 dB | 1.061466 / 10.583542 dB |
+| APA 16-bit | −32.385138 dB | −77.823697 dB | −77.351365 dB | 16.511358 / 13.906338 dB | 1.061462 / 10.583317 dB |
+| APA 14-bit | −32.370317 dB | −65.780618 dB | −65.339870 dB | 16.535354 / 13.871014 dB | 1.061713 / 10.585935 dB |
+| APA 12-bit | −32.379006 dB | −53.598447 dB | −53.090777 dB | 16.369068 / 13.982148 dB | 1.060839 / 10.578247 dB |
+
+Worst observed loss relative to the float path was `0.018466 dB` cascade
+NMSE and `0.096578 dB` configured absolute adjacent suppression on DPA;
+the APA maxima were `0.013693 dB` and `0.152048 dB`. Small negative NMSE
+deltas or one-side suppression increases are quantization variation, not
+claimed improvements. Bit-exact rotation was checked only at 90 degrees for
+the evaluated signals and is not a proof of arbitrary-angle phase
+equivariance.
+
 ## 7. Preserved ablation, robustness and hardware matrices
 
 The first-stage DPD search space remains preregistered, but is deferred until
@@ -975,11 +1073,11 @@ Robustness is a separate stage:
 - waveform/PA transfer is labelled explicitly and is not an ordinary test
   split.
 
-The existing `experiments/evaluate_fixed_point.py` is only a first-stage
-spline-DPD surrogate evaluator. It currently covers FP16-like storage and
-signed 16/12-bit paths; it does not cover 14 bit or the new PA families. Its
-archival invocation below also overwrites its exact output and is not in the
-active execution queue:
+The existing `experiments/evaluate_fixed_point.py` remains only an archival
+first-stage spline-DPD surrogate evaluator. It covers FP16-like storage and
+signed 16/12-bit paths, but not the sealed second-stage arithmetic contract.
+Its invocation below overwrites its exact output and is not in the active
+execution queue:
 
 ```bash
 .venv/bin/python -m experiments.evaluate_fixed_point \
@@ -993,12 +1091,14 @@ active execution queue:
   --overwrite
 ```
 
-Second-stage hardware acceptance requires a bit-accurate simulator for the
-selected PA and DPD models at signed 16/14/12-bit coefficients and
-activations, explicit input/output/accumulator/state formats, scale, rounding,
-saturation and interpolation addressing. Full-record and arbitrary streaming
-chunks must agree. Analytical operations and bytes remain separate from
-measured FPGA/DSP latency, throughput, DSP packing and power.
+The active second-stage DPD simulator is
+`experiments/evaluate_fixed_point_dpd.py`; its signed 16/14/12-bit validation
+matrix is complete as recorded in §6.19. This closes the software
+integer-arithmetic implementation-reference task only. Hardware acceptance
+still requires target HLS/RTL or an equivalent reference kernel with measured
+latency, throughput, DSP packing, memory traffic and power, followed by
+physical-PA replay under the customer spectral metric. Analytical operations
+and bytes remain separate from those measured quantities.
 
 ## 8. Acceptance gates
 
@@ -1081,7 +1181,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 291/291 tests passed; 7.064 s observed | completed; not an inference benchmark |
+| Final unit suite | 305/305 tests passed; 9.424 s latest observed | completed; not an inference benchmark |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -1100,6 +1200,8 @@ verification or an explicit `surrogate-only` limitation.
 | Frozen DPA/APA spectral validation replay | 0.6 s combined replay + spectral evaluation wall | completed; input-only, no measured output, surrogate-only |
 | Frozen DPA/APA legacy-test spectral replay | 7.3 s combined replay + spectral evaluation wall | completed descriptive re-evaluation; historical test access, no tuning |
 | Pinned-core DPA/APA DPD timing diagnostics | 7.185 / 7.448 s for 512-sample, 2-warm-up, 9-pair protocols | completed host-Python diagnostic; no PA and no hardware pass |
+| Sealed DPA/APA fixed-point DPD producer | 0.823 / 1.611 s before publication | completed 16/14/12-bit validation replay; no measured output/test access or precision selection |
+| Fixed-point DPD spectral matrix | eight float/16/14/12-bit spectral evaluations | completed configured baseband diagnostics; per-process wall was not archived as a benchmark |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | APA OpenDPD CPU bounded preflight | 0.594/0.649/3.370 s candidate fit timers | 10 train batches + 1 validation batch; runtime only, test sealed |
@@ -1171,6 +1273,12 @@ outputs for predistorted waveforms.
 20c. [x] Harden and run a DPD-only paired timing diagnostic on one pinned
     host CPU core; preserve raw repeats, dependency hashes and exact streaming
     equivalence, while declaring the customer gate not evaluable.
+20d. [x] Implement and test a sealed bit-accurate spline-memory DPD reference
+    with explicit signed 16/14/12-bit formats, train-frozen scales, saturation
+    counters, arbitrary-chunk equivalence and exact operation/memory vectors.
+20e. [x] Run DPA/APA input-only fixed-point validation and the matching frozen
+    spectral matrix; retain all formats descriptively and make no precision,
+    physical-PA, RTL or customer harmonic claim.
 21. [ ] Reproduce a high-fidelity OpenDPD PA evaluator on the same frozen
     splits without applying the deployment-DPD latency cap.
 22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes
