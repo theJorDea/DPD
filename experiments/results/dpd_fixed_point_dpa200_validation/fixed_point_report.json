@@ -1,0 +1,965 @@
+{
+  "artifact_type": "frozen_spline_memory_dpd_fixed_point_validation",
+  "claims_scope": {
+    "dpd_latency_gate_evaluable": false,
+    "eligible_as_untouched_final_evidence": false,
+    "hardware_latency_or_resources": false,
+    "integer_arithmetic_bit_accurate_reference": true,
+    "measured_output_opened": false,
+    "physical_pa_result": false,
+    "precision_selected_by_runner": false,
+    "rf_harmonic_claim": false,
+    "rtl_bit_true": false,
+    "surrogate_only": true,
+    "test_split_accessed": false,
+    "validation_reused_after_historical_float_model_selection": true
+  },
+  "config": {
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/configs/dpd_fixed_point_dpa200_validation.json",
+    "sha256": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c"
+  },
+  "dataset": {
+    "allowed_waveform_files_opened": [
+      "train_input.csv",
+      "val_input.csv"
+    ],
+    "input_file_sha256": {
+      "spec.json": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+      "train_input.csv": "05da7e48c14d1eadb003a43363d6b9f658a164b564b660f5edee21b9e9d4d0f3",
+      "val_input.csv": "aa7b345c57eef8476ca6b5b5eb73fd0dce0f8d72f5e716ed36cfb0b91af8b8a3"
+    },
+    "measured_output_opened": false,
+    "nperseg": 2560,
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/DPA_200MHz",
+    "test_file_hashes_recorded": false,
+    "test_split_accessed": false,
+    "train_frame_lengths": [
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560,
+      2560
+    ],
+    "train_sample_count": 23040,
+    "validation_frame_lengths": [
+      2560,
+      2560,
+      2560
+    ],
+    "validation_sample_count": 7680
+  },
+  "direction": {
+    "deployment_path": "desired validation x -> frozen fixed-point DPD -> frozen float PA surrogate",
+    "inverse_diagnostic_run": false,
+    "measured_output_used_as_dpd_input": false
+  },
+  "execution": {
+    "numpy": "2.5.1",
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]",
+    "runtime_seconds_before_publication": 0.8229362720012432,
+    "started_unix_time": 1785428865.5042322
+  },
+  "float_reference": {
+    "dpd_operation_count": {
+      "comparisons": 5,
+      "lookups": 6,
+      "nonlinear_operations": 1,
+      "notes": [
+        "complex multiply convention 4m2a",
+        "binary interval selection",
+        "1 unique envelope delays; address and weight shared within each group",
+        "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+        "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+      ],
+      "real_additions": 24,
+      "real_divisions": 0,
+      "real_memory_reads": 18,
+      "real_memory_writes": 2,
+      "real_multiplications": 21,
+      "state_real_values": 4,
+      "stored_real_coefficients": 144,
+      "stored_real_constants": 47
+    },
+    "float_dpd_vs_ideal": {
+      "causal_warmup_samples_per_frame": 6,
+      "complex_nmse_opendpd_full_frame_db": -30.66037418215238,
+      "complex_nmse_opendpd_scored_interior_db": -30.72682940726575,
+      "complex_nmse_pooled_db": -30.533243050438088,
+      "discarded_causal_warmup_samples_total": 18,
+      "frame_lengths": [
+        2560,
+        2560,
+        2560
+      ],
+      "mse": 0.001090331058999988,
+      "opendpd_equal_length_frame_compatible": true,
+      "relative_error_power": 0.0008844549053541549,
+      "sample_count": 7662,
+      "time_domain_rms_evm_db": -30.533243050438088,
+      "warmup_policy": "discard_at_every_explicit_frame_start"
+    },
+    "no_dpd_vs_ideal": {
+      "causal_warmup_samples_per_frame": 6,
+      "complex_nmse_opendpd_full_frame_db": -20.365951056049155,
+      "complex_nmse_opendpd_scored_interior_db": -20.372505181284094,
+      "complex_nmse_pooled_db": -20.338461469014742,
+      "discarded_causal_warmup_samples_total": 18,
+      "frame_lengths": [
+        2560,
+        2560,
+        2560
+      ],
+      "mse": 0.01140345732506967,
+      "opendpd_equal_length_frame_compatible": true,
+      "relative_error_power": 0.009250258154073873,
+      "sample_count": 7662,
+      "time_domain_rms_evm_db": -20.338461469014742,
+      "warmup_policy": "discard_at_every_explicit_frame_start"
+    },
+    "predistorted_drive": {
+      "average_power": 0.12767186855543658,
+      "maximum_amplitude": 1.1926112992007214,
+      "papr_db": 10.469026247697148
+    }
+  },
+  "formats": {
+    "12": {
+      "coefficient": {
+        "bits": 12,
+        "fractional_bits": 10,
+        "representable_maximum": 1.9990234375,
+        "representable_minimum": -2.0,
+        "scale": 0.0009765625
+      },
+      "coefficient_memory_bytes": 216,
+      "coefficient_peak_from_frozen_dpd": 1.0834286242720554,
+      "coefficient_plus_constant_memory_bytes": 360,
+      "constant_memory_bytes": 144,
+      "drive_peak_from_float_train_dpd": 1.1960039793884745,
+      "fixed_schedule_operation_count": {
+        "comparisons": 5,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary integer knot interval selection",
+          "integer sqrt is counted as one nonlinear operation",
+          "weight division may map to reciprocal multiply plus shift in RTL",
+          "interpolation uses two active control points per branch"
+        ],
+        "real_additions": 25,
+        "real_divisions": 1,
+        "real_memory_reads": 28,
+        "real_memory_writes": 2,
+        "real_multiplications": 20,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 24
+      },
+      "guard_ratio": 1.001,
+      "input": {
+        "bits": 12,
+        "fractional_bits": 10,
+        "representable_maximum": 1.9990234375,
+        "representable_minimum": -2.0,
+        "scale": 0.0009765625
+      },
+      "input_peak_from_train": 1.0000000000338956,
+      "output": {
+        "bits": 12,
+        "fractional_bits": 10,
+        "representable_maximum": 1.9990234375,
+        "representable_minimum": -2.0,
+        "scale": 0.0009765625
+      },
+      "power": {
+        "bits": 48,
+        "fractional_bits": 10,
+        "representable_maximum": 137438953471.99902,
+        "representable_minimum": -137438953472.0,
+        "scale": 0.0009765625
+      },
+      "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+      "selection_or_tuning": {
+        "precision_candidates_preregistered": [
+          16,
+          14,
+          12
+        ],
+        "precision_selected_by_runner": false,
+        "scales_frozen_before_validation": true,
+        "used_for_selection": false,
+        "validation_used_to_modify_model": false
+      },
+      "state_memory_bytes": 6,
+      "train": {
+        "fixed_drive": {
+          "average_power": 0.12353684931165643,
+          "maximum_amplitude": 1.196485156122215,
+          "papr_db": 10.64018109165177
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -54.73317664892495,
+          "complex_nmse_opendpd_scored_interior_db": -54.73612568080861,
+          "complex_nmse_pooled_db": -54.78821412566927,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 4.10427813039907e-07,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 3.3203096485377233e-06,
+          "sample_count": 23022,
+          "time_domain_rms_evm_db": -54.78821412566927,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 1.8622165365892822,
+          "samples_per_second": 536994.4796170356,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.04290546900301706
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 1239558,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 1024,
+          "maximum_scalar_accumulator_magnitude": 1109,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 23040,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      },
+      "validation": {
+        "fixed_cascade_vs_ideal": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -30.6420771904952,
+          "complex_nmse_opendpd_scored_interior_db": -30.707633296214166,
+          "complex_nmse_pooled_db": -30.514777459574844,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 0.0010949768630439507,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 0.0008882234893471356,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -30.514777459574844,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_drive": {
+          "average_power": 0.12768987243374189,
+          "maximum_amplitude": 1.1922144415574754,
+          "papr_db": 10.465523033680508
+        },
+        "fixed_vs_float_cascade": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -52.11624168879808,
+          "complex_nmse_opendpd_scored_interior_db": -52.122402571382764,
+          "complex_nmse_pooled_db": -52.168038805513525,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 7.414789903773093e-06,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 6.070103824971256e-06,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -52.168038805513525,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -54.817221941579724,
+          "complex_nmse_opendpd_scored_interior_db": -54.818382892925165,
+          "complex_nmse_pooled_db": -54.871397777834105,
+          "discarded_causal_warmup_samples_total": 6,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 4.1614536610030204e-07,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 3.2573184725596315e-06,
+          "sample_count": 7674,
+          "time_domain_rms_evm_db": -54.871397777834105,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "peak_change_vs_float_db": -0.0028908290146018767,
+        "phase_equivariance": {
+          "bit_exact": true,
+          "rotated_input_stats": {
+            "accumulator_saturations": 0,
+            "coefficient_saturations": 0,
+            "input_saturations": 0,
+            "interpolation_saturations": 0,
+            "knot_code_collision_count": 0,
+            "maximum_accumulator_magnitude": 1232929,
+            "maximum_knot_code_shift": 0,
+            "maximum_power_magnitude": 1023,
+            "maximum_scalar_accumulator_magnitude": 1109,
+            "output_saturations": 0,
+            "power_saturations": 0,
+            "sample_count": 7680,
+            "scalar_accumulator_saturations": 0
+          },
+          "rotated_vs_expected": {
+            "causal_warmup_samples_per_frame": 2,
+            "complex_nmse_opendpd_full_frame_db": null,
+            "complex_nmse_opendpd_scored_interior_db": null,
+            "complex_nmse_pooled_db": null,
+            "discarded_causal_warmup_samples_total": 6,
+            "frame_lengths": [
+              2560,
+              2560,
+              2560
+            ],
+            "mse": 0.0,
+            "opendpd_equal_length_frame_compatible": true,
+            "relative_error_power": 0.0,
+            "sample_count": 7674,
+            "time_domain_rms_evm_db": null,
+            "warmup_policy": "discard_at_every_explicit_frame_start"
+          },
+          "rotation_radians": 1.5707963267948966
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 2.3013411445541956,
+          "samples_per_second": 434529.2319508392,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.017674299990176223
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 1232929,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 1023,
+          "maximum_scalar_accumulator_magnitude": 1109,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 7680,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      }
+    },
+    "14": {
+      "coefficient": {
+        "bits": 14,
+        "fractional_bits": 12,
+        "representable_maximum": 1.999755859375,
+        "representable_minimum": -2.0,
+        "scale": 0.000244140625
+      },
+      "coefficient_memory_bytes": 252,
+      "coefficient_peak_from_frozen_dpd": 1.0834286242720554,
+      "coefficient_plus_constant_memory_bytes": 396,
+      "constant_memory_bytes": 144,
+      "drive_peak_from_float_train_dpd": 1.1960039793884745,
+      "fixed_schedule_operation_count": {
+        "comparisons": 5,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary integer knot interval selection",
+          "integer sqrt is counted as one nonlinear operation",
+          "weight division may map to reciprocal multiply plus shift in RTL",
+          "interpolation uses two active control points per branch"
+        ],
+        "real_additions": 25,
+        "real_divisions": 1,
+        "real_memory_reads": 28,
+        "real_memory_writes": 2,
+        "real_multiplications": 20,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 24
+      },
+      "guard_ratio": 1.001,
+      "input": {
+        "bits": 14,
+        "fractional_bits": 12,
+        "representable_maximum": 1.999755859375,
+        "representable_minimum": -2.0,
+        "scale": 0.000244140625
+      },
+      "input_peak_from_train": 1.0000000000338956,
+      "output": {
+        "bits": 14,
+        "fractional_bits": 12,
+        "representable_maximum": 1.999755859375,
+        "representable_minimum": -2.0,
+        "scale": 0.000244140625
+      },
+      "power": {
+        "bits": 48,
+        "fractional_bits": 12,
+        "representable_maximum": 34359738367.999756,
+        "representable_minimum": -34359738368.0,
+        "scale": 0.000244140625
+      },
+      "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+      "selection_or_tuning": {
+        "precision_candidates_preregistered": [
+          16,
+          14,
+          12
+        ],
+        "precision_selected_by_runner": false,
+        "scales_frozen_before_validation": true,
+        "used_for_selection": false,
+        "validation_used_to_modify_model": false
+      },
+      "state_memory_bytes": 7,
+      "train": {
+        "fixed_drive": {
+          "average_power": 0.12352673940670987,
+          "maximum_amplitude": 1.196039639375837,
+          "papr_db": 10.63730168725419
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -66.92131614954366,
+          "complex_nmse_opendpd_scored_interior_db": -66.92343738309177,
+          "complex_nmse_pooled_db": -66.97528097178106,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 2.4804478397371755e-08,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 2.0066512632205803e-07,
+          "sample_count": 23022,
+          "time_domain_rms_evm_db": -66.97528097178106,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 1.8304761283616244,
+          "samples_per_second": 546305.9498596435,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.04217416999745183
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 19834049,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 4096,
+          "maximum_scalar_accumulator_magnitude": 4438,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 23040,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      },
+      "validation": {
+        "fixed_cascade_vs_ideal": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -30.660456958871777,
+          "complex_nmse_opendpd_scored_interior_db": -30.726747180068184,
+          "complex_nmse_pooled_db": -30.53357295752237,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 0.0010902482363316134,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 0.0008843877212501034,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -30.53357295752237,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_drive": {
+          "average_power": 0.12767860159122696,
+          "maximum_amplitude": 1.1926959951948088,
+          "papr_db": 10.469414045937706
+        },
+        "fixed_vs_float_cascade": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -64.29722360845157,
+          "complex_nmse_opendpd_scored_interior_db": -64.30362333640625,
+          "complex_nmse_pooled_db": -64.35031791648959,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 4.4861205412180326e-07,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 3.672554153243481e-07,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -64.35031791648959,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -66.95721820894289,
+          "complex_nmse_opendpd_scored_interior_db": -66.9586531793471,
+          "complex_nmse_pooled_db": -67.0128134495591,
+          "discarded_causal_warmup_samples_total": 6,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 2.5415783117052255e-08,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 1.989384157212737e-07,
+          "sample_count": 7674,
+          "time_domain_rms_evm_db": -67.0128134495591,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "peak_change_vs_float_db": 0.0006168262340603627,
+        "phase_equivariance": {
+          "bit_exact": true,
+          "rotated_input_stats": {
+            "accumulator_saturations": 0,
+            "coefficient_saturations": 0,
+            "input_saturations": 0,
+            "interpolation_saturations": 0,
+            "knot_code_collision_count": 0,
+            "maximum_accumulator_magnitude": 19732887,
+            "maximum_knot_code_shift": 0,
+            "maximum_power_magnitude": 4093,
+            "maximum_scalar_accumulator_magnitude": 4438,
+            "output_saturations": 0,
+            "power_saturations": 0,
+            "sample_count": 7680,
+            "scalar_accumulator_saturations": 0
+          },
+          "rotated_vs_expected": {
+            "causal_warmup_samples_per_frame": 2,
+            "complex_nmse_opendpd_full_frame_db": null,
+            "complex_nmse_opendpd_scored_interior_db": null,
+            "complex_nmse_pooled_db": null,
+            "discarded_causal_warmup_samples_total": 6,
+            "frame_lengths": [
+              2560,
+              2560,
+              2560
+            ],
+            "mse": 0.0,
+            "opendpd_equal_length_frame_compatible": true,
+            "relative_error_power": 0.0,
+            "sample_count": 7674,
+            "time_domain_rms_evm_db": null,
+            "warmup_policy": "discard_at_every_explicit_frame_start"
+          },
+          "rotation_radians": 1.5707963267948966
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 1.730655336965962,
+          "samples_per_second": 577815.8011248589,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.013291432987898588
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 19732887,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 4093,
+          "maximum_scalar_accumulator_magnitude": 4438,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 7680,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      }
+    },
+    "16": {
+      "coefficient": {
+        "bits": 16,
+        "fractional_bits": 14,
+        "representable_maximum": 1.99993896484375,
+        "representable_minimum": -2.0,
+        "scale": 6.103515625e-05
+      },
+      "coefficient_memory_bytes": 288,
+      "coefficient_peak_from_frozen_dpd": 1.0834286242720554,
+      "coefficient_plus_constant_memory_bytes": 432,
+      "constant_memory_bytes": 144,
+      "drive_peak_from_float_train_dpd": 1.1960039793884745,
+      "fixed_schedule_operation_count": {
+        "comparisons": 5,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary integer knot interval selection",
+          "integer sqrt is counted as one nonlinear operation",
+          "weight division may map to reciprocal multiply plus shift in RTL",
+          "interpolation uses two active control points per branch"
+        ],
+        "real_additions": 25,
+        "real_divisions": 1,
+        "real_memory_reads": 28,
+        "real_memory_writes": 2,
+        "real_multiplications": 20,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 24
+      },
+      "guard_ratio": 1.001,
+      "input": {
+        "bits": 16,
+        "fractional_bits": 14,
+        "representable_maximum": 1.99993896484375,
+        "representable_minimum": -2.0,
+        "scale": 6.103515625e-05
+      },
+      "input_peak_from_train": 1.0000000000338956,
+      "output": {
+        "bits": 16,
+        "fractional_bits": 14,
+        "representable_maximum": 1.99993896484375,
+        "representable_minimum": -2.0,
+        "scale": 6.103515625e-05
+      },
+      "power": {
+        "bits": 48,
+        "fractional_bits": 14,
+        "representable_maximum": 8589934591.999939,
+        "representable_minimum": -8589934592.0,
+        "scale": 6.103515625e-05
+      },
+      "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+      "selection_or_tuning": {
+        "precision_candidates_preregistered": [
+          16,
+          14,
+          12
+        ],
+        "precision_selected_by_runner": false,
+        "scales_frozen_before_validation": true,
+        "used_for_selection": false,
+        "validation_used_to_modify_model": false
+      },
+      "state_memory_bytes": 8,
+      "train": {
+        "fixed_drive": {
+          "average_power": 0.1235209843837462,
+          "maximum_amplitude": 1.1959700334179293,
+          "papr_db": 10.636998518966747
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -78.79562738279293,
+          "complex_nmse_opendpd_scored_interior_db": -78.79791722903232,
+          "complex_nmse_pooled_db": -78.84877551467261,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 1.6113157218356754e-09,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 1.3035342557380042e-08,
+          "sample_count": 23022,
+          "time_domain_rms_evm_db": -78.84877551467261,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 1.977438020933025,
+          "samples_per_second": 505704.8511326614,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.045560172002296895
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 317311965,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 16384,
+          "maximum_scalar_accumulator_magnitude": 17751,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 23040,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      },
+      "validation": {
+        "fixed_cascade_vs_ideal": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -30.659225267079805,
+          "complex_nmse_opendpd_scored_interior_db": -30.725708579478805,
+          "complex_nmse_pooled_db": -30.532195703231547,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 0.0010905940356079826,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 0.0008846682267568741,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -30.532195703231547,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_drive": {
+          "average_power": 0.12767192482812487,
+          "maximum_amplitude": 1.192575606272562,
+          "papr_db": 10.468764374975024
+        },
+        "fixed_vs_float_cascade": {
+          "causal_warmup_samples_per_frame": 6,
+          "complex_nmse_opendpd_full_frame_db": -76.3426032197002,
+          "complex_nmse_opendpd_scored_interior_db": -76.34833918709086,
+          "complex_nmse_pooled_db": -76.3915318013016,
+          "discarded_causal_warmup_samples_total": 18,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 2.8038162622027027e-08,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 2.2953389156788798e-08,
+          "sample_count": 7662,
+          "time_domain_rms_evm_db": -76.3915318013016,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "fixed_vs_float_drive": {
+          "causal_warmup_samples_per_frame": 2,
+          "complex_nmse_opendpd_full_frame_db": -78.87057240809527,
+          "complex_nmse_opendpd_scored_interior_db": -78.87309124700154,
+          "complex_nmse_pooled_db": -78.92435551279507,
+          "discarded_causal_warmup_samples_total": 6,
+          "frame_lengths": [
+            2560,
+            2560,
+            2560
+          ],
+          "mse": 1.6366254093260951e-09,
+          "opendpd_equal_length_frame_compatible": true,
+          "relative_error_power": 1.2810451858241872e-08,
+          "sample_count": 7674,
+          "time_domain_rms_evm_db": -78.92435551279507,
+          "warmup_policy": "discard_at_every_explicit_frame_start"
+        },
+        "peak_change_vs_float_db": -0.00025995852498017405,
+        "phase_equivariance": {
+          "bit_exact": true,
+          "rotated_input_stats": {
+            "accumulator_saturations": 0,
+            "coefficient_saturations": 0,
+            "input_saturations": 0,
+            "interpolation_saturations": 0,
+            "knot_code_collision_count": 0,
+            "maximum_accumulator_magnitude": 315726374,
+            "maximum_knot_code_shift": 0,
+            "maximum_power_magnitude": 16376,
+            "maximum_scalar_accumulator_magnitude": 17751,
+            "output_saturations": 0,
+            "power_saturations": 0,
+            "sample_count": 7680,
+            "scalar_accumulator_saturations": 0
+          },
+          "rotated_vs_expected": {
+            "causal_warmup_samples_per_frame": 2,
+            "complex_nmse_opendpd_full_frame_db": null,
+            "complex_nmse_opendpd_scored_interior_db": null,
+            "complex_nmse_pooled_db": null,
+            "discarded_causal_warmup_samples_total": 6,
+            "frame_lengths": [
+              2560,
+              2560,
+              2560
+            ],
+            "mse": 0.0,
+            "opendpd_equal_length_frame_compatible": true,
+            "relative_error_power": 0.0,
+            "sample_count": 7674,
+            "time_domain_rms_evm_db": null,
+            "warmup_policy": "discard_at_every_explicit_frame_start"
+          },
+          "rotation_radians": 1.5707963267948966
+        },
+        "python_integer_reference_timing": {
+          "microseconds_per_sample": 2.165508594013469,
+          "samples_per_second": 461785.28349621507,
+          "scope": "single unpinned Python integer-reference diagnostic; not a hardware or customer latency gate",
+          "seconds": 0.016631106002023444
+        },
+        "stats": {
+          "accumulator_saturations": 0,
+          "coefficient_saturations": 0,
+          "input_saturations": 0,
+          "interpolation_saturations": 0,
+          "knot_code_collision_count": 0,
+          "maximum_accumulator_magnitude": 315726374,
+          "maximum_knot_code_shift": 0,
+          "maximum_power_magnitude": 16376,
+          "maximum_scalar_accumulator_magnitude": 17751,
+          "output_saturations": 0,
+          "power_saturations": 0,
+          "sample_count": 7680,
+          "scalar_accumulator_saturations": 0
+        },
+        "streaming": {
+          "per_frame": [
+            true,
+            true,
+            true
+          ],
+          "state_reset": "zero at every frame; carried inside each frame",
+          "streaming_chunk_equivalence_passed": true
+        }
+      }
+    }
+  },
+  "frozen_decisions": {
+    "current_runner_fit_or_architecture_selection_performed": false,
+    "formats_frozen_before_validation": true,
+    "frozen_float_model_historically_validation_selected": true,
+    "integer_delay_samples": 0,
+    "model_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+    "model_sha256": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "selected_family": "signal_delay_012",
+    "selection_report": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/memory_ablation_report.json",
+    "selection_report_sha256": "aacfedc664fe69cdeadcf2e35866a74425cdfacd7240756a5bcc013fdfc2d259",
+    "surrogate_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/pa_surrogate.npz",
+    "surrogate_sha256": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a",
+    "target_gain": {
+      "imag": -3.5213034658761794e-11,
+      "real": 3.16563831355586
+    },
+    "validation_used_for_scale_selection": false
+  },
+  "protocol": {
+    "accumulator_bits": 56,
+    "activation_bits": [
+      16,
+      14,
+      12
+    ],
+    "cascade_common_warmup_samples_per_frame": 6,
+    "dpd_state_reset": "zero history at every nperseg frame",
+    "interpolation_fraction_bits": 16,
+    "overflow": "saturate_and_count",
+    "pa_surrogate_state_reset": "zero history at every nperseg frame",
+    "power_bits": 48,
+    "rounding": "nearest_even",
+    "scalar_accumulator_bits": 56,
+    "scale_guard_ratio": 1.001
+  },
+  "schema_version": 1
+}

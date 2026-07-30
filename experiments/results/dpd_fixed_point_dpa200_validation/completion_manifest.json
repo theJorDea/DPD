@@ -1,0 +1,49 @@
+{
+  "artifact_type": "frozen_spline_memory_dpd_fixed_point_validation_bundle",
+  "artifacts": {
+    "fixed_point_report.json": "9f3c1f821a680faec0ff9fdd4f8a8c1fb864a0dcaaeedf4b360eb6e115eeb82e",
+    "spectral_config_12bit.json": "4a1d21bb8e3eb495dea6adb1199ab70a09ba7c5ca225cea835ab3c4aa926b4c3",
+    "spectral_config_14bit.json": "04555690c7a8c93fe65e5c8360893304b12ab2971b2200938cd9b4f96180c64a",
+    "spectral_config_16bit.json": "7f174aaf75cdf2677c83fda7256cec6e991fc0bee93c44c2a272dc1d0a22d685",
+    "spectral_config_float.json": "f20aded49058d6f2cffdbe5001f04e0c701b3ea8d02c071be0825553cf0574ba",
+    "waveforms_12bit.npz": "8b58e3707b3da9725638313c6a6df036d0e3e409b0a1a982519a938b4e8c9125",
+    "waveforms_14bit.npz": "b47e88b3e823d562846324ec3f0ac4e178584aeea5a75432d7877ffda9cf467e",
+    "waveforms_16bit.npz": "0c985fa40de33e9ac6596d51f1ab51f775939faad45d68dd835a06566803ecd0",
+    "waveforms_float.npz": "cf7ee33eb563a16ac54595fa253fa8a82a7d2f9b6654a6778ee68efeeccd442b"
+  },
+  "atomic_publication": true,
+  "config_sha256": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c",
+  "fit_performed": false,
+  "input_hashes": {
+    "model": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "selection_report": "aacfedc664fe69cdeadcf2e35866a74425cdfacd7240756a5bcc013fdfc2d259",
+    "spec.json": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+    "surrogate": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a",
+    "train_input.csv": "05da7e48c14d1eadb003a43363d6b9f658a164b564b660f5edee21b9e9d4d0f3",
+    "val_input.csv": "aa7b345c57eef8476ca6b5b5eb73fd0dce0f8d72f5e716ed36cfb0b91af8b8a3"
+  },
+  "measured_output_opened": false,
+  "precision_selected_by_runner": false,
+  "schema_version": 1,
+  "selection_performed": false,
+  "source_sha256": {
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/__init__.py": "83c9543ac2dd93ce9a62d898cda8e33b0a82d6a4fce250c4982e61dcd4bce215",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/fixed_point_pa.py": "7f7be75bcf38d71328afc6354c4c83598bcb7be4f6e9a16c41ade3fc49b80a40",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/fixed_point_sparse_spline_pa.py": "50015777208e3aff9bf4c9b097ae56c78dec4acb39856650ce547a89492c5598",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/fixed_point_spline_memory_dpd.py": "79bae9e20db891e7f8c36e3d659b061a3c0661ea9b42433a03acc37c4eea0009",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/pa_models.py": "16d003361e3bfd95888d1f420b7963b8814c6cc9996d1f4f8f5a1ac74b5ae935",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/spline_hammerstein_pa.py": "3031b76e609aece58d27436270e010de94d389cbdfa9e418529a4bdfcde1da06",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/evaluate_fixed_point_dpd.py": "5dd089cf68785e2e573a56435f33db6ad20e7206ac6aa763d124af4ec2db2395",
+    "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/replay_frozen_spline_memory_dpd.py": "a41ee1ac854bcf9d62863ca90f3240023a547630635a507283df72682bc5d93c"
+  },
+  "test_split_accessed": false,
+  "validation_reused_after_historical_selection": true
+}
