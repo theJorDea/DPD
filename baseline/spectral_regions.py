@@ -49,6 +49,8 @@ def _explicit_segments(
     if not isinstance(nperseg, (int, np.integer)) or int(nperseg) < 2:
         raise ValueError("nperseg must be an integer >= 2")
     nperseg = int(nperseg)
+    if nperseg % 2:
+        raise ValueError("nperseg must be even for the shifted frequency grid")
     array = as_complex(signal, name=name)
     if array.ndim == 1:
         if array.size < nperseg:
@@ -205,6 +207,13 @@ def configured_spectral_region_report(
     dpd_average_spectrum = np.mean(dpd_spectra, axis=0)
     no_main = float(np.sum(no_average_spectrum[main_mask]))
     dpd_main = float(np.sum(dpd_average_spectrum[main_mask]))
+    main_power_change_per_frame = np.asarray(
+        [
+            10.0 * np.log10(float(after) / float(before))
+            for before, after in zip(no_main_per_frame, dpd_main_per_frame)
+        ]
+    )
+    main_power_change_db = float(10.0 * np.log10(dpd_main / no_main))
     rows: dict[str, object] = {}
     for region in region_list:
         mask = mask_for(region)
@@ -232,8 +241,25 @@ def configured_spectral_region_report(
                 for before, after in zip(no_per_frame, dpd_per_frame)
             ]
         )
+        relative_leakage_improvement_per_frame = np.asarray(
+            [
+                _suppression_db(
+                    float(before / main_before),
+                    float(after / main_after),
+                )
+                for before, after, main_before, main_after in zip(
+                    no_per_frame,
+                    dpd_per_frame,
+                    no_main_per_frame,
+                    dpd_main_per_frame,
+                )
+            ]
+        )
         no_power = float(np.sum(no_average_spectrum[mask]))
         dpd_power = float(np.sum(dpd_average_spectrum[mask]))
+        relative_leakage_improvement_db = float(
+            _suppression_db(no_power / no_main, dpd_power / dpd_main)
+        )
         rows[region.name] = {
             "low_hz": region.low_hz,
             "high_hz": region.high_hz,
@@ -242,10 +268,14 @@ def configured_spectral_region_report(
             "no_dpd_dbc": _power_ratio_db(no_power, no_main),
             "dpd_dbc": _power_ratio_db(dpd_power, dpd_main),
             "suppression_db": _suppression_db(no_power, dpd_power),
+            "relative_leakage_improvement_db": relative_leakage_improvement_db,
             "per_frame": {
                 "no_dpd_dbc": no_dbc_per_frame,
                 "dpd_dbc": dpd_dbc_per_frame,
                 "suppression_db": suppression_per_frame,
+                "relative_leakage_improvement_db": (
+                    relative_leakage_improvement_per_frame
+                ),
             },
             "quantiles": {
                 "probabilities": quantile_values.copy(),
@@ -253,6 +283,10 @@ def configured_spectral_region_report(
                 "dpd_dbc": np.quantile(dpd_dbc_per_frame, quantile_values),
                 "suppression_db": np.quantile(
                     suppression_per_frame,
+                    quantile_values,
+                ),
+                "relative_leakage_improvement_db": np.quantile(
+                    relative_leakage_improvement_per_frame,
                     quantile_values,
                 ),
             },
@@ -270,6 +304,10 @@ def configured_spectral_region_report(
             "detrend": "constant",
             "segment_overlap_samples": 0,
             "spectrum_scaling": "spectrum",
+            "integrated_power_units": (
+                "Welch spectrum-bin sum; ratios are comparable only under "
+                "the same fs/window/nperseg definition"
+            ),
             "threshold_applied": False,
         },
         "fs_hz": float(fs),
@@ -281,6 +319,8 @@ def configured_spectral_region_report(
             "high_hz": main_region.high_hz,
             "no_dpd_integrated_power": no_main,
             "dpd_integrated_power": dpd_main,
+            "main_power_change_db": main_power_change_db,
+            "main_power_change_per_frame_db": main_power_change_per_frame,
         },
         "frequencies_hz": frequencies,
         "no_dpd_average_power_spectrum": no_average_spectrum,

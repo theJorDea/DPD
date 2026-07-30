@@ -66,6 +66,16 @@ class SpectralRegionTests(unittest.TestCase):
             10.0 * np.log10(0.02**2 / 2.0),
             places=11,
         )
+        self.assertAlmostEqual(
+            right["relative_leakage_improvement_db"],
+            20.0,
+            places=11,
+        )
+        self.assertAlmostEqual(
+            report["main_region"]["main_power_change_db"],
+            0.0,
+            places=11,
+        )
         np.testing.assert_allclose(
             right["per_frame"]["suppression_db"],
             np.asarray([20.0, 20.0]),
@@ -109,6 +119,15 @@ class SpectralRegionTests(unittest.TestCase):
                 nperseg=128,
                 main_region=main,
                 regions=(SpectralRegion("outside", 60.0, 70.0),),
+            )
+        with self.assertRaisesRegex(ValueError, "even"):
+            configured_spectral_region_report(
+                signal,
+                signal,
+                fs=128.0,
+                nperseg=127,
+                main_region=main,
+                regions=(duplicate,),
             )
 
     def test_signal_shapes_and_quantiles_are_frozen(self) -> None:
