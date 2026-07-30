@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import tempfile
 import unittest
 
 import numpy as np
@@ -9,6 +10,7 @@ from experiments.select_pa_sparse_spline_memory import (
     common_mask,
     evaluate_recipe_oof,
     frame_segments,
+    load_config,
     rank_valid_records,
     retain_topologies,
     run_staged_search,
@@ -43,6 +45,19 @@ class SparseSplineMemorySelectionTests(unittest.TestCase):
         second = SparseRecipe("a", ((0, 0), (2, 0)), 8, 1e-8)
         self.assertEqual(first.sha256, second.sha256)
         self.assertNotEqual(first.name, SparseRecipe("a", ((0, 0),), 8, 1e-8).name)
+
+    def test_existing_implementation_preregistration_status_is_explicit(self) -> None:
+        source = Path(
+            "experiments/configs/pa_sparse_spline_memory_apa200.json"
+        )
+        config = json.loads(source.read_text(encoding="utf-8"))
+        config["status"] = (
+            "preregistered_before_candidate_fit_using_frozen_existing_implementation"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.json"
+            path.write_text(json.dumps(config), encoding="utf-8")
+            self.assertEqual(load_config(path)["status"], config["status"])
 
     def test_oof_fit_does_not_cross_frame_boundaries(self) -> None:
         branches = ((0, 0), (2, 0))

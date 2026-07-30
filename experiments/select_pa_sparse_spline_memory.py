@@ -27,6 +27,12 @@ from baseline.sparse_spline_memory_pa import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = 1
 TASK = "forward_pa_non_factorized_sparse_spline_memory_selection"
+PREREGISTERED_STATUSES = frozenset(
+    {
+        "preregistered_before_model_implementation_and_candidate_fit",
+        "preregistered_before_candidate_fit_using_frozen_existing_implementation",
+    }
+)
 
 
 def file_sha256(path: str | Path) -> str:
@@ -131,9 +137,7 @@ def load_config(path: str | Path) -> dict[str, Any]:
         raise ValueError("sparse PA config schema mismatch")
     if config.get("task") != TASK:
         raise ValueError("unexpected sparse PA task")
-    if config.get("status") != (
-        "preregistered_before_model_implementation_and_candidate_fit"
-    ):
+    if config.get("status") not in PREREGISTERED_STATUSES:
         raise ValueError("sparse PA config is not preregistered")
     if config.get("scope", {}).get("test_split_access_permitted") is not False:
         raise ValueError("sparse PA config must forbid test access")
