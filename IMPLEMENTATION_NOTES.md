@@ -460,12 +460,15 @@ The fixed-point implementation is deliberately separate from DPD code:
   train/validation-only split access.
 
 The APA report is
-`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.  It shows
-zero saturation in all evaluated rows; 16-bit GMP/sparse fixed-vs-float
-validation degradation is below −64 dB, while 12-bit GMP degrades to about
-−36.4 dB.  The sparse schedule reports six integer divisions explicitly;
-reciprocal-multiply hardware must account for them.  Host timings are not
-target latency, and no fixed-point DPD cascade is implemented yet.
+`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`; the DPA GMP
+report is
+`experiments/results/pa_fixed_point_dpa200/fixed_point_report.json`.  Both
+report zero saturation in all evaluated rows.  APA 16-bit GMP/sparse
+fixed-vs-float validation degradation is below −64 dB, APA 12-bit GMP
+degrades to about −36.4 dB, and DPA 12-bit GMP remains about −52.5 dB.  The
+sparse schedule reports six integer divisions explicitly; reciprocal-multiply
+hardware must account for them.  Host timings are not target latency, and no
+fixed-point DPD cascade is implemented yet.
 
 ## 5. Tests and invariants
 
@@ -548,6 +551,7 @@ The previous 120-test 0.396 s timing is obsolete.
 | `869312c` | sealed train/validation-only fixed-point PA evaluator |
 | `63a3dcf` | immutable APA fixed-point PA result report |
 | `c109eaf` | synchronized roadmap, hardware, PA benchmark and experiment plan |
+| `9561ea0` | immutable DPA fixed-point GMP config and result report |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -570,6 +574,7 @@ experiments/results/pa_transfer_apa200_to_b_pretest/
 experiments/results/pa_transfer_apa200_to_b_test_release/
 experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
 experiments/results/pa_fixed_point_apa200/fixed_point_report.json
+experiments/results/pa_fixed_point_dpa200/fixed_point_report.json
 ```
 
 Normative documents:
@@ -596,8 +601,8 @@ Normative documents:
 7. Peak RSS was not measured for formal fits.
 8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
    generated yet.
-9. APA source GMP and lag-9 sparse PA now have a 16/14/12-bit integer
-   simulator; DPA, target payloads, spline-memory DPD and PA→DPD cascade remain
+9. DPA/APA source GMP and APA lag-9 sparse PA now have a 16/14/12-bit integer
+   simulator; target payloads, spline-memory DPD and PA→DPD cascade remain
    pending.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.

@@ -1184,6 +1184,22 @@ Machine-readable evidence:
 `experiments/configs/pa_fixed_point_apa200.json`,
 `experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
 
+### 10.10.1 DPA causal GMP arithmetic audit
+
+The same frozen integer contract was run separately on `DPA_200MHz` with its
+own dataset/model hashes and 2,560-sample frame reset policy.  The APA lag-9
+sparse model was not transferred because it has no DPA-specific fit.
+
+| Bits | Train PA NMSE | Validation PA NMSE | Fixed-vs-float NMSE (validation) | Saturation |
+|---:|---:|---:|---:|---|
+| 16 | −35.4897 dB | −35.3633 dB | −75.83 dB | none |
+| 14 | −35.4832 dB | −35.3490 dB | −64.25 dB | none |
+| 12 | −35.4071 dB | −35.2975 dB | −52.53 dB | none |
+
+The float validation reference is `−35.3659 dB`; the small 16/14/12-bit
+differences are arithmetic degradation, not a new model fit.  The DPA report
+is `experiments/results/pa_fixed_point_dpa200/fixed_point_report.json`.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -1203,8 +1219,8 @@ Machine-readable evidence:
   Первый non-factorized sparse PA также отклонён, а lag-9 sparse family
   проходит cheap-Pareto gate, но всё ещё уступает GMP по fidelity и не может
   служить независимым evaluator.
-- Bit-accurate PA-model evaluation выполнена для APA source train/validation,
-  но ещё не повторена для DPA и target `APA_200MHz_b` payloads.
+- Bit-accurate PA-model evaluation выполнена для DPA/APA source
+  train/validation, но ещё не повторена для target `APA_200MHz_b` payloads.
 - Нет bit-accurate 16/14/12-bit spline-memory DPD или PA→DPD cascade.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.

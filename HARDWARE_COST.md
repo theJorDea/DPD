@@ -234,6 +234,24 @@ an FPGA initiation interval, DSP count or power.  The 12-bit GMP quality loss
 is a negative result that must remain visible; sparse arithmetic is more
 quantization-stable here, but its float PA fidelity is still below GMP.
 
+### 3.6 DPA fixed-point GMP result
+
+The same contract was rerun on the separate DPA source capture with its own
+frozen hashes and 2,560-sample frame protocol.  No APA sparse topology was
+transferred to DPA because it was not DPA-selected.
+
+| Model / bits | Train PA NMSE | Validation PA NMSE | Fixed-vs-float NMSE (val) | Coeff bytes | State bytes |
+|---|---:|---:|---:|---:|---:|
+| DPA GMP / 16 | −35.4897 dB | −35.3633 dB | −75.83 dB | 1,424 | 376 |
+| DPA GMP / 14 | −35.4832 dB | −35.3490 dB | −64.25 dB | 1,246 | 329 |
+| DPA GMP / 12 | −35.4071 dB | −35.2975 dB | −52.53 dB | 1,068 | 282 |
+
+The float validation reference is `−35.3659 dB` for all rows.  All formats
+reported zero input/coefficient/power/accumulator/output saturation and exact
+chunk equivalence.  This is a separate DPA forward-identification result; it
+does not imply that an APA sparse model transfers to DPA or that either model
+is a physical-PA DPD evaluator.
+
 ## 4. Interpreting the cost
 
 ### 4.1 GMP versus MP

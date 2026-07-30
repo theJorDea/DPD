@@ -347,12 +347,14 @@ checks bit-identical reset/chunk streaming. No test file is opened or hashed.
 | lag-9 sparse / 14 | −37.8523 dB | −65.29 dB | 66 / 88 / 6 |
 | lag-9 sparse / 12 | −37.7464 dB | −53.59 dB | 66 / 88 / 6 |
 
-All evaluated rows had zero saturation and zero knot collisions. The six
+All evaluated APA rows had zero saturation and zero knot collisions. The six
 sparse divisions are explicit; reciprocal-multiply hardware must charge them
 as part of its effective multiplier schedule. These results prove arithmetic
 degradation relative to a frozen floating-point PA model on APA
 train/validation, not physical-PA fidelity, DPD cascade quality, RTL timing or
-power. DPA and target-payload fixed-point runs remain pending.
+power. A separate DPA GMP run also completed: validation fixed-vs-float NMSE
+is `−75.83/−64.25/−52.53 dB` at 16/14/12 bits with zero saturation. Target
+payload fixed-point runs remain pending.
 
 ## 4. Что доказано только на surrogate
 
@@ -463,7 +465,7 @@ frozen evaluator.
 | Huawei `10^-5` met | unsupported | metric unresolved; if normalized power, current GMP fails |
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
-| Fixed-point APA PA arithmetic reference | supported, bounded | APA train/validation GMP+sparse 16/14/12-bit report; no DPD/RTL claim |
+| Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA train/validation GMP plus APA sparse 16/14/12-bit reports; no DPD/RTL claim |
 | Real-time FPGA-ready | unsupported | analytical counts plus Python integer reference only; no synthesis/target latency |
 | Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |

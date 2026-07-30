@@ -34,13 +34,13 @@ capture transfer завершён вплоть до held-out release: zero-shot 
 measurement-B metadata, bit-accurate PA audit и controlled physical-PA
 evidence.
 
-Bit-accurate PA arithmetic is now implemented and executed for the frozen
-APA GMP and lag-9 sparse models.  The train-only scale freeze, explicit
+Bit-accurate PA arithmetic is now implemented and executed for frozen DPA/APA
+GMP and APA lag-9 sparse models.  The train-only scale freeze, explicit
 16/14/12-bit formats, integer square-root/interpolation schedule, saturation
 counters and reset/streaming checks are recorded in
-`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.  This
-closes only the PA arithmetic subtask; it does not open Gate A→B or make an
-RTL/physical-PA claim.
+`experiments/results/pa_fixed_point_dpa200/` and
+`experiments/results/pa_fixed_point_apa200/`.  This closes only the PA
+arithmetic subtask; it does not open Gate A→B or make an RTL/physical-PA claim.
 
 ## Правила выполнения
 
@@ -123,11 +123,14 @@ linear/spline residual ablations:
   dataset/model и замораживает scales до validation;
 - fixed-point APA report показывает zero input/coefficient/power/interpolation,
   accumulator и output saturation на всех evaluated frames;
-- fixed-vs-float PA prediction NMSE на validation ниже `−64 dB` для 16-bit
-  GMP/sparse и ниже `−51 dB` для 14-bit GMP/sparse; 12-bit GMP деградирует
-  заметно, тогда как 12-bit sparse сохраняет около `−53.6 dB`;
+- fixed-vs-float PA prediction NMSE на validation ниже `−64 dB` для DPA/APA
+  16-bit GMP и APA sparse; DPA 12-bit GMP сохраняет около `−52.5 dB`, тогда
+  как APA 12-bit GMP деградирует до около `−36.4 dB`;
 - exact arbitrary-chunk equivalence пройдена для каждого формата; fixed
   schedule остаётся Python arithmetic reference, не synthesized hardware.
+- DPA GMP повторён отдельно: validation fixed NMSE `−35.3633/−35.3490/−35.2975`
+  dB for 16/14/12 bit versus float `−35.3659 dB`, with no saturation;
+  APA lag-9 sparse is not transferred to DPA without a DPA-specific fit.
 
 Следовательно, GMP forward-identification result завершён, но release-gate
 PASS нельзя смешивать с Gate A→B. DPD quality, fixed-point, robustness и
@@ -485,12 +488,12 @@ selection/refit.
    verification; access count `2` disclosed, первый доступ metric-free.
 15. [ ] Получить metadata “measurement B”; до этого результат маркировать
    только `capture transfer`, не power/thermal adaptation.
-16. [x] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и lag-9
-   sparse PA, включая accumulator/state widths, saturation и chunk equivalence.
-   Train-only scale freeze, fixed arithmetic contract и результаты запечатаны
-   в `experiments/configs/pa_fixed_point_apa200.json`,
-   `experiments/evaluate_fixed_point_pa.py` и
-   `experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
+16. [x] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и
+   APA-selected lag-9 sparse PA, включая accumulator/state widths, saturation
+   и chunk equivalence.  Train-only scale freeze, fixed arithmetic contract и
+   результаты запечатаны в DPA/APA configs and reports under
+   `experiments/configs/pa_fixed_point_*` and
+   `experiments/results/pa_fixed_point_*`.
 17. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
 18. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.

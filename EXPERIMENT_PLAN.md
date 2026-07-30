@@ -35,7 +35,7 @@ analysis и report — отдельные commits с push после каждо�
 | Non-factorized sparse spline-memory PA | выполнен train-only staged OOF; selected `K=12`, 6 branches rejected | 54 MUL/sample, −32.0300 dB OOF; reused validation only, Gate A→B closed |
 | Residual-guided lag-9 sparse PA | выполнен preregistered train-only staged OOF; selected 9-branch `K=12` family | 72 MUL/sample, −37.7925 dB OOF, cheap-Pareto only; evaluator gate closed |
 | `APA_200MHz -> APA_200MHz_b` capture transfer | pre-test selection + frozen held-out release completed | GMP −37.895 dB, sparse −34.801 dB target-test full NMSE after `N=16384` calibration; capture-transfer only |
-| Bit-accurate PA arithmetic | APA train→freeze→validation completed for frozen GMP and lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
+| Bit-accurate PA arithmetic | DPA/APA train→freeze→validation completed for frozen GMP; APA also has lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
@@ -160,8 +160,8 @@ Every frozen PA result must also retain:
 - real MUL/ADD, sqrt/nonlinear, comparisons, LUTs, reads/writes;
 - coefficient/constants/state storage and declared numeric precision;
 - bit-accurate fixed-point degradation and chunk equivalence where a frozen
-  arithmetic contract exists; current PA report covers APA GMP and lag-9
-  sparse, while DPA/DPD remain pending.
+  arithmetic contract exists; current PA reports cover DPA/APA GMP and APA
+  lag-9 sparse, while target/DPD remain pending.
 
 Current PA error PSD uses a periodic Hann window, `nfft=nperseg`, 50% overlap,
 constant detrend and density scaling, normalized by integrated measured-output
@@ -204,6 +204,12 @@ These are forward PA identification metrics on APA measured train/validation,
 not DPD cascade quality.  The raw sparse schedule counts six integer
 divisions; reciprocal-multiply mapping must be charged separately when
 comparing hardware cost.
+
+The same contract was run separately on DPA GMP using
+`experiments/configs/pa_fixed_point_dpa200.json`; validation fixed NMSE is
+`−35.3633/−35.3490/−35.2975 dB` at 16/14/12 bits versus float `−35.3659 dB`,
+with zero saturation and exact chunk equivalence.  APA sparse topology is not
+silently applied to DPA because it has no DPA-specific fit.
 
 ### 5.2 DPD
 
@@ -995,7 +1001,7 @@ verification or an explicit `surrogate-only` limitation.
 | APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | APA sparse staged search | 33.589 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only |
 | APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
-| APA fixed-point PA matrix | ~3.67 s full train/validation runner wall | completed; 2 frozen PA models × 3 bit widths, no test access |
+| DPA/APA fixed-point PA matrix | ~6.2 s combined runner wall | completed; DPA GMP + APA GMP/sparse × 3 bit widths, no test access |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
@@ -1053,7 +1059,7 @@ outputs for predistorted waveforms.
 19. [ ] Obtain operating-point metadata for measurement B; until then label
     results `capture transfer`, not power/thermal adaptation.
 20. [x] Run bit-accurate 16/14/12-bit PA-model evaluation before any DPD
-    tuning for APA frozen GMP and lag-9 sparse; DPA and target payloads remain
+    tuning for DPA/APA frozen GMP and APA lag-9 sparse; target payloads remain
     pending.
 21. [ ] Obtain operating-point metadata for `APA_200MHz_b` and repeat the
     frozen arithmetic matrix on DPA/target train-validation.
