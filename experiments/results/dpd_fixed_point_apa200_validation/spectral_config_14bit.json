@@ -1,0 +1,67 @@
+{
+  "claim_scope": {
+    "activation_bits": 14,
+    "descriptive_previously_opened_test": false,
+    "fixed_point_dpd": true,
+    "physical_pa_measurement": false,
+    "rf_harmonic_claim": false,
+    "surrogate_only": true,
+    "untouched_final_test": false,
+    "validation_reused_after_historical_selection": true
+  },
+  "fit_performed": false,
+  "fixed_point_parent": {
+    "activation_bits": 14,
+    "config_sha256": "d2d743b421a72b5b5eef4c325c95a5ae017a2761f39091d103367a3b89686d61",
+    "model_sha256": "7e37cff04f931b16f3e124221e910234c649e760d1e1c39bc40356eb09daa46d"
+  },
+  "framing": {
+    "complete_frames_only": true,
+    "crop_policy": "input archive contains exact complete frames",
+    "frame_origin_samples": 0,
+    "state_reset_policy": "DPD and PA reset to zero history at each nperseg frame"
+  },
+  "fs_hz": 983040000.0,
+  "gain_or_alignment_retuned": false,
+  "main_region": {
+    "high_hz": 100000000.0,
+    "low_hz": -100000000.0,
+    "name": "main"
+  },
+  "nperseg": 19662,
+  "quantiles": [
+    0.0,
+    0.5,
+    0.95,
+    1.0
+  ],
+  "regions": [
+    {
+      "high_hz": -100000000.0,
+      "low_hz": -140000000.0,
+      "name": "left_adjacent"
+    },
+    {
+      "high_hz": 140000000.0,
+      "low_hz": 100000000.0,
+      "name": "right_adjacent"
+    }
+  ],
+  "schema_version": 1,
+  "selection_performed": false,
+  "source_sha256": {
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/spectral_regions.py": "557d20938f4e4c950d696764636bf473a6c52c82f2b994222cd2b8c6ff79f973",
+    "experiments/evaluate_frozen_dpd_spectrum.py": "bbf2423232137a5841d4690e9641368df47d98fb60a3e3aeb13bac910fb95956"
+  },
+  "split_role": "validation",
+  "task": "frozen_dpd_spectral_evaluation",
+  "waveform_archive": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/dpd_fixed_point_apa200_validation/waveforms_14bit.npz",
+  "waveform_archive_sha256": "5e6a8677a1af6546dfa1a4be2864771033202660a9fffd6d30cf9b9d1148e4d1",
+  "waveform_keys": {
+    "desired_input": "desired_input",
+    "dpd_output": "dpd_output",
+    "no_dpd_output": "no_dpd_output",
+    "predistorted_drive": "predistorted_drive"
+  }
+}
