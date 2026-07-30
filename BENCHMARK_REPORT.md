@@ -11,8 +11,9 @@ harmonic/spur attenuation; its exact bands/reference/threshold are pending.
 ## 1. Scope
 
 Этот report содержит только реально выполненные local runs и отдельно
-маркирует upstream/legacy evidence. Primary completed task — forward PA
-identification:
+маркирует upstream/legacy evidence. Большинство завершённых local runs
+относятся к вспомогательному forward PA evaluator; конечная цель проекта —
+low-latency DPD, проверенный через независимый frozen evaluator или physical PA:
 
 ```text
 measured x -> frozen PA model -> y_hat -> compare with measured y
@@ -99,8 +100,10 @@ GMP test improvement over MP:
 - DPA: 0.2860 dB;
 - APA: 1.6176 dB.
 
-If `10^-5` is normalized error power, all rows fail the −50 dB target. GMP is
-28.94×/13.78× above the threshold for DPA/APA.
+Relative-error values are retained only as optional numerical diagnostics. If
+`10^-5` is reported as normalized error power, it corresponds mathematically
+to `−50 dB`, but this is not a Huawei acceptance target and does not select the
+PA evaluator or DPD architecture.
 
 ### 5.2 Selected GMP topology
 
@@ -193,7 +196,8 @@ The incremental gate passed in all three OOF folds; minimum gains were
 `108/108`, augmented condition `2427.39`, maximum coefficient `1.15093`,
 216 real coefficient values, 48 state values, exact streaming/reset
 equivalence and a `62.5693 s` pre-publication runtime. Its normalized full-OOF
-error power is about `1.66e-4`, so it does not meet a `10^-5` interpretation.
+error power is about `1.66e-4`; this is a secondary diagnostic, not a Huawei
+pass/fail result.
 
 Two envelope-only topology families with repeated signal delay `(0,d)` were
 rank-deficient because spline partition of unity duplicates the same `x[n]`
@@ -407,7 +411,8 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - A1 fractional alignment failed preregistered improvement gate; A0 retained.
 - DPA GMP gives only 0.286 dB test gain despite larger coefficient/state
   storage.
-- Neither GMP reaches possible −50 dB requirement.
+- Neither GMP reaches the optional −50 dB normalized-error reference; this is
+  not a Huawei requirement and does not decide the spectral DPD task.
 - PA evaluator margin remains below 10 dB; DPD stage remains blocked.
 - Slow-state candidate lacks independent-capture evidence.
 - APA short conjugate residual family failed its 0.1 dB OOF gain threshold;
@@ -429,8 +434,10 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
   recovered GMP to −37.891 dB and sparse to −35.358 dB at 16,384 samples/frame;
   this is not a power/thermal claim because “measurement B” metadata is absent.
 - Held-out target confirmed calibrated GMP at −37.895 dB, but sparse reached
-  only −34.801 dB full-record. Both fail the possible −50 dB requirement, and
-  sparse full-record sensitivity to startup/reset is materially larger.
+  only −34.801 dB full-record. Both remain above the optional −50 dB
+  normalized-error reference; the actual Huawei decision must use the
+  configured spectral/spur protocol, and sparse full-record sensitivity to
+  startup/reset is materially larger.
 - Target fixed-point PA arithmetic has no saturation, but 12-bit GMP loses
   2.718 dB versus float validation; sparse loses only 0.0935 dB while retaining
   lower absolute fidelity. Absence of overflow is therefore not sufficient
@@ -442,8 +449,9 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - Repeated `(0,d)` envelope-only branches were hard-invalid for rank deficiency;
   this identifiability failure is a documented model constraint, not a
   post-fit numerical workaround.
-- Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
-  and no GPU.
+- Bundled OpenDPD checkpoints/GPU are unavailable, but a sealed CPU
+  train/validation runner has completed bounded GRU/TRes-GRU/TRes-DeltaGRU
+  preflight. Full validation-quality training remains pending.
 - Existing Egor circular score does not establish deployment DPD and dense
   reservoir cost exceeds the multiplier gate by orders of magnitude.
 - Peak RSS, physical hardware latency and capture-level confidence intervals
@@ -483,6 +491,6 @@ capture, but it still trails GMP and cannot move the DPD contour. The
 that coefficient-only calibration restores most GMP quality. Sparse remains
 a much cheaper but lower-fidelity point. Physical PA remeasurement and
 controlled power/bias/temperature metadata are still pending. GMP and lag-9
-sparse both fail a possible −50 dB target, and neither supplies an independent
+sparse both remain above the optional −50 dB normalized-error reference, and neither supplies an independent
 DPD evaluator with sufficient margin. Source/target PA fixed-point coverage is
 complete, but it is not the deployment DPD timing result.

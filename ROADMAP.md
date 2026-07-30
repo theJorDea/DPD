@@ -276,8 +276,9 @@ Observed result:
 ## Этап A2. PA baselines
 
 Статус: MP, causal GMP, standalone APA SPH, первый non-factorized sparse PA и
-residual-guided lag-9 sparse PA завершены; локального runnable OpenDPD neural
-checkpoint нет. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
+residual-guided lag-9 sparse PA завершены. Sealed OpenDPD CPU runner,
+hash-bound APA config и bounded three-backbone preflight уже выполнены; full
+quality training/checkpoint ещё не завершён. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
 но SPH и оба sparse PA отклонены как quality evaluators. После clarification
 high-fidelity OpenDPD PA retraining становится приоритетом: его больше нельзя
 откладывать только из-за превышения DPD cost budget.
@@ -298,6 +299,10 @@ high-fidelity OpenDPD PA retraining становится приоритетом:
 3. [ ] Воспроизводимо обучить OpenDPD high-fidelity PA backbone на тех же
    frozen splits; checkpoint/config/hash и runtime сохранить. Ограничение DPD
    latency к нему не применять.
+   - [x] sealed train/validation-only runner и provenance tests;
+   - [x] hash-bound APA CPU config;
+   - [x] bounded GRU/TRes-GRU/TRes-DeltaGRU runtime preflight;
+   - [ ] full validation-quality training и independent ranking.
 4. [x] Spline/CPWL memoryless nonlinearity + short complex FIR (APA SPH;
    отрицательный train-OOF result, не evaluator).
 5. [x] Non-factorized sparse complex spline-memory PA с bounded branch/delay
@@ -545,7 +550,8 @@ selection/refit.
    проверку target-calibrated `APA_200MHz_b` payload без повторного test access;
    после этого не расширять PA quantization без evidence need.
 20. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
-   без DPD latency cap и проверить independent ranking.
+   без DPD latency cap и проверить independent ranking; sealed runner/config
+   и bounded CPU preflight готовы, full quality run pending.
 21. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
 22. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.

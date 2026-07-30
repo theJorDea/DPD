@@ -9,8 +9,8 @@
 
 - customer-defined harmonic/spur attenuation достигнуто: exact metric и порог
   ещё не получены;
-- `error < 10^-5` достигнуто как дополнительная metric: её текущий статус
-  после уточнения неизвестен;
+- `error < 10^-5` не является Huawei requirement; значение сохраняется только
+  как необязательная normalized-error diagnostic;
 - DPD лучше OpenDPD apples-to-apples;
 - fixed-point PA arithmetic reference готова, но fixed-point/real-time
   hardware implementation не доказана;
@@ -27,8 +27,8 @@
 | APA_200MHz_b | target-calibrated lag-9 sparse, held-out test | −34.801 dB | 3.3102e−4 | 72 |
 
 Все точки удовлетворяют historical analytical `<1000 real MUL/sample`, но это
-не Huawei gate для PA model. Если `10^-5` использовать как дополнительную
-normalized-error diagnostic, даже лучший APA source/target GMP выше порога
+не Huawei gate для PA model. Для optional `10^-5` normalized-error reference
+даже лучший APA source/target GMP имеет большее relative error power
 примерно в 13.8–16.2 раза. Capture B test не использовался для model/N
 selection или coefficient fit.
 
@@ -444,7 +444,8 @@ frozen evaluator.
 
 ### 6.1 Requirements
 
-- остаётся ли `E(f) < 10^-5` дополнительной metric и как она определяется;
+- правила публикации NMSE/relative-error diagnostics, не являющихся
+  acceptance gates;
 - exact meaning of harmonic/spur attenuation: true RF harmonics,
   intermodulation or adjacent-channel regrowth; integration bands, reference,
   averaging and threshold;
@@ -486,7 +487,7 @@ frozen evaluator.
 |---|---|---|
 | Forward PA results have recorded operation counts | supported | causal GMP reaches −35.385/−38.608 dB at 766/954 MUL/sample; PA cost is not the DPD gate |
 | Huawei harmonic/spur attenuation met | unsupported | exact RF definition and threshold are missing |
-| Huawei `10^-5` met | unsupported | status unresolved after clarification; if normalized power, current GMP fails |
+| Huawei `10^-5` gate | not applicable under current clarification | −50 dB may be shown only as an optional normalized-error reference |
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
 | Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA source plus target-calibrated APA-B train/validation 16/14/12-bit reports; no DPD/RTL claim |

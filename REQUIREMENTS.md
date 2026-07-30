@@ -273,10 +273,10 @@ research protocol.
 
 ### 3.1 Определение качества
 
-- Что именно есть \(\mathcal E(f)<10^{-5}\): SSE, MSE, normalized MSE,
-  relative error power, maximum error или другая величина?
-- Остаётся ли `10^-5` дополнительным требованием после перехода к спектральной
-  оценке или это только декоративный текст слайда?
+- Формула \(\mathcal E(f)<10^{-5}\) со слайда не используется как acceptance
+  requirement: по уточнению руководителя она декоративна. Relative error
+  power и соответствующий NMSE можно сохранять только как внутренние
+  diagnostics без Huawei pass/fail трактовки.
 - Под «паразитными гармониками» имеются в виду true RF harmonics около
   \(2f_c,3f_c,\ldots\), in-band intermodulation products, adjacent-channel
   spectral regrowth или точки заданной emission mask?

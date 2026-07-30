@@ -32,9 +32,9 @@ evidence, но новая optimization приостановлена: Gate A→B 
 | APA_200MHz_b calibrated GMP (held-out test) | −37.895 dB | 954 / 947 | 444 |
 | APA_200MHz_b calibrated lag-9 sparse (held-out test) | −34.801 dB | 72 / 82 | 216 |
 
-Если `10^-5` использовать как дополнительную normalized-error diagnostic,
-это соответствует −50 dB и не достигнуто. После уточнения это нельзя называть
-primary Huawei acceptance без отдельного подтверждения. Никакого claim “лучше
+Если публиковать relative error как дополнительную normalized-error
+diagnostic, `10^-5` математически соответствует −50 dB и не достигнуто. Это не
+активное требование Huawei и не используется для pass/fail. Никакого claim “лучше
 OpenDPD” или “готово для Huawei base station” нет.
 
 ## 2. Physical and mathematical formulation
@@ -95,7 +95,6 @@ Volterra/MP, neural and CPWL examples. Научный руководитель �
 
 Slides не определяют:
 
-- остаётся ли `10^-5` дополнительной метрикой;
 - exact meaning of harmonic/spur, RF integration bands, reference and
   threshold;
 - target platform и reference timing kernel для equivalent-time DPD gate;
@@ -105,8 +104,8 @@ Slides не определяют:
 - update-time and target hardware.
 
 Поэтому проект публикует MSE, relative error power, pooled NMSE and
-OpenDPD-compatible NMSE separately. Только если `10^-5` — normalized error
-power:
+OpenDPD-compatible NMSE separately как diagnostics. Для normalized error
+power optional reference `10^-5` математически означает:
 
 \[
 10\log_{10}(10^{-5})=-50\ \mathrm{dB}.
@@ -154,7 +153,8 @@ Independent code/notebook audit confirmed:
   `y_test/g -> inverse -> PA surrogate -> y_test`;
 - cell 11 uses desired `x_test`, but lacks a complete correct-direction scalar
   RF benchmark;
-- cached PA/circular NMSE is around −31.67/−32.09 dB, far from −50 dB;
+- cached PA/circular NMSE is around −31.67/−32.09 dB; эти значения являются
+  diagnostics и не доказывают spectral DPD quality;
 - PA reservoirs use (R=800), DPD (R=600), with dense NumPy `W @ state`;
 - DPD pair costs about 728,622 MUL/sample and full learned cascade about
   2,020,044, despite ~10% nonzero initialization;
@@ -180,7 +180,7 @@ incomparable PA groups. Full table: `research/literature_review.md` and
 
 | Work/group | Evidence | Main lesson | Directly comparable here? |
 |---|---|---|---|
-| OpenDPDv2, APA_200MHz | physical 3.5 GHz GaN Doherty, 200 MHz; TRes-DeltaGRU about −39.6 NMSE, −42.1 EVM, −59.9 dBc avg ACPR | strong physical neural reference; 999 params ≠ <1000 real MUL | only after same evaluator/checkpoint/measurement |
+| OpenDPDv2, APA_200MHz | physical 3.5 GHz GaN Doherty, 200 MHz; TRes-DeltaGRU about −39.6 NMSE, −42.1 EVM, −59.9 dBc avg ACPR | strong physical neural reference; 999 params is not an operation/timing claim | only after same evaluator/checkpoint/measurement |
 | TCN-DPD, DPA_200MHz | frozen neural surrogate, multiple seeds | convolution can improve wideband memory modeling; causality/physical test gap remains | same CSV group, different surrogate protocol |
 | SparseDPD, 20 MHz | surrogate RF + FPGA post-implementation simulation | structured sparsity needs zero-skipping datapath | no, different data/PA/BW |
 | Spline-interpolated LUT E1/E2/E3 | physical PA, spline Hammerstein/memory branches | local support + short memory can approach MP quality at tens of MUL | architecture prior only |
@@ -236,7 +236,8 @@ Complete commands and hashes: `EXPERIMENT_PLAN.md`.
 | DPA | −34.962/−35.099 | −35.366/−35.385 | −35.316/−35.422 | 766 MUL, 3,636 FP32 stored bytes |
 | APA | −37.095/−36.990 | −38.665/−38.608 | −38.345/−38.751 | 954 MUL, 4,532 FP32 stored bytes |
 
-GMP improves MP but does not reach −50 dB. Existing spline DPD versus GMP
+GMP improves MP; optional normalized-error diagnostic remains above the
+−50 dB reference, which is not a Huawei gate. Existing spline DPD versus GMP
 fidelity gives only arithmetic—not cascade—margin:
 
 | Dataset | DPD test residual | GMP test error | Margin | Internal target |
@@ -381,7 +382,8 @@ Supported:
 
 Not supported:
 
-- Huawei `10^-5` acceptance;
+- any Huawei `10^-5` acceptance claim (not applicable under the current
+  clarification);
 - physical PA DPD linearization;
 - better-than-OpenDPD claim;
 - fixed-point/timed DPD or FPGA readiness (fixed-point PA arithmetic alone is

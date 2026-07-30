@@ -113,8 +113,11 @@ real_memory_reads, real_memory_writes
 stored_real_coefficients, stored_real_constants, state_real_values
 ```
 
-Current acceptance convention is `4M+2A` per complex multiply and strict
-`real_multiplications < 1000`.
+Operation counting uses `4M+2A` per complex multiply. Historical PA selectors
+used a strict `<1000 real MUL/sample` search bound, but this is not a Huawei
+PA-model gate. Deployment DPD passes only by measured target time
+`T_DPD/sample <= T_reference(1000 real MUL)`, including all operations and
+memory effects.
 
 ### 2.5 Residual analysis
 
@@ -472,8 +475,8 @@ fixed-point DPD cascade is implemented yet.
 
 ## 5. Tests and invariants
 
-Last complete code suite after coefficient-payload provenance binding:
-**257/257 passed in 1.75 s** on the environment in this document. The sparse, transfer
+Last complete code suite after sealed OpenDPD runner hardening:
+**272/272 passed in 5.02 s** on the environment in this document. The sparse, transfer
 and fixed-point results are immutable numeric artifacts; no code was changed
 while publishing the numerical report.
 Test modules cover:
@@ -665,8 +668,8 @@ slow-state evidence exists.
 ## 10. Immediate next implementation order
 
 1. Obtain exact harmonic/spur and 1000-real-MUL timing-reference definitions.
-2. Reproduce/train the high-fidelity OpenDPD PA evaluator on frozen local
-   splits without the deployment DPD cost cap.
+2. Complete full validation-quality training of the preregistered OpenDPD PA
+   evaluator; sealed CPU runner/config and bounded runtime preflight are done.
 3. Record provenance for `APA_200MHz_b` and obtain controlled physical-PA data.
 4. Implement the fixed-point spline-memory DPD and evaluate the correct
    desired-x→DPD→independent-PA cascade only after Gate A→B is reopened.

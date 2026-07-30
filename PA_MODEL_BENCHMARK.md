@@ -57,8 +57,8 @@ evaluator не является выполненным DPD experiment. Bundled O
 - все четыре selected MP/GMP точки укладываются в historical search bound
   `<1000` real multiplications/complex sample; это факт об экспериментах, не
   DPD timing pass;
-- если `10^-5` использовать как дополнительную normalized-error diagnostic,
-  ни одна selected точка не достигает −50 dB; clarified primary quality
+- optional normalized-error diagnostic не достигает reference −50 dB ни в
+  одной selected точке; это не Huawei gate, а clarified primary quality
   относится к пока не полностью определённому затуханию паразитных гармоник;
 - provisional 10 dB evaluator gate для продолжения DPD не выполнен;
 - release-gates GMP прошли, но они разрешали только по одному frozen test и
@@ -94,8 +94,9 @@ evaluator не является выполненным DPD experiment. Bundled O
   относительно validation равна `0.5570 dB`, но common-support degradation
   только `0.0080 dB`, поэтому основная нестабильность локализована на
   24-sample frame boundary.
-- Ни GMP (`1.6236e-4`), ни sparse (`3.3102e-4`) не достигли `1e-5`
-  normalized error power на target test. Gate A→B остаётся закрытым.
+- GMP (`1.6236e-4`) и sparse (`3.3102e-4`) остаются выше optional `1e-5`
+  normalized-error reference на target test. Gate A→B закрыт независимо —
+  из-за evaluator margin и отсутствия independent physical ranking.
 
 ## 1. Определения метрик
 
@@ -122,11 +123,10 @@ phase alignment.
 `baseline/metrics.py:92-103`; включение в PA evaluator:
 `baseline/pa_benchmark.py:280-298`.
 
-Линейный relative error power равен отношению под логарифмом. Если неизвестное
-требование `error < 10^-5` означает именно это отношение, то acceptance
-эквивалентен `pooled complex NMSE < -50 dB`. Слайды не устанавливают такую
-интерпретацию однозначно; варианты SSE/MSE/normalized MSE разделены в
-`REQUIREMENTS.md:72-103`.
+Линейный relative error power равен отношению под логарифмом. Значение
+`10^-5` для него математически соответствует
+`pooled complex NMSE = -50 dB`, но формула слайда декоративна и не задаёт
+Huawei acceptance. Это значение сохраняется только как optional diagnostic.
 
 ### 1.2 OpenDPD-compatible NMSE
 
@@ -287,16 +287,16 @@ sweep. Сумма отдельных fit timers для 46 trials равна 15.3
 Host batch inference timing в JSON — диагностический throughput NumPy, не
 hardware latency (`baseline/pa_benchmark.py:622-630`).
 
-### 3.2 Соответствие возможному порогу `10^-5`
+### 3.2 Optional normalized-error diagnostic
 
 | Dataset | Test relative error power | Во сколько раз выше `10^-5` |
 |---|---:|---:|
 | DPA_200MHz | 3.0910e−4 | 30.91× |
 | APA_200MHz | 1.9996e−4 | 20.00× |
 
-Следовательно, если Huawei имеет в виду normalized error power, текущий MP
-baseline цель не выполняет. Если имеется в виду MSE или SSE, вывод без
-официального scaling/aggregation rule сделать нельзя.
+Эти отношения сохраняются только для численного контекста. Уточнение
+руководителя исключает `10^-5/−50 dB` из Huawei acceptance, поэтому эта
+таблица не даёт pass/fail-решения.
 
 ### 3.3 Выполненный causal GMP benchmark
 
@@ -314,7 +314,7 @@ refit, post-prediction gain/delay fit или retry не было.
 Full-record — primary metric; common score использует frozen warm-up 49 и
 cooldown 0. На test linear relative error power равен `2.893996e-4` для DPA
 и `1.377808e-4` для APA, то есть соответственно 28.94× и 13.78× выше
-возможного порога `10^-5`.
+optional reference `10^-5`.
 
 | Dataset | GMP minus MP improvement on validation | GMP minus MP improvement on test |
 |---|---:|---:|
@@ -739,20 +739,12 @@ GMP становится текущим наиболее точным локал
 dataset, но evaluator margin остаётся лишь 4.8–6.3 dB на validation projection
 и 5.5–5.9 dB на test projection. Поэтому Gate A→B остаётся закрытым.
 
-Следующий model family нельзя выбирать простым расширением GMP grid после
-просмотра test. Максимально информативная последовательность:
-
-1. [x] preregister и выполнить bounded APA widely-linear/IQ audit;
-2. [x] проверить nested proper long-FIR ablation около residual lags 42…49;
-3. [ ] после двух negative linear corrections preregister standalone
-   `spline/CPWL memoryless nonlinearity + short complex FIR` PA;
-4. [ ] только затем проверять sparse complex spline-memory PA,
-   если первая nonlinear family не даст достаточного gain;
-5. сравнивать по train resampling/reused validation при `<1000` MUL, не
-   выдавая уже просмотренные splits за independent confirmation;
-6. state-conditioned branch не запускать без independent long captures;
-7. новый test claim делать на новом capture/operating point, а не повторно
-   использовать уже открытый DPA/APA test как selection feedback.
+Widely-linear, proper long-FIR, standalone SPH, non-factorized sparse spline
+memory и residual-guided lag-9 проверки уже завершены. Локальный delay
+dictionary дальше не расширяется. Следующий PA task — воспроизводимое обучение
+high-fidelity OpenDPD backbone по train/validation с сохранением full operation
+vector; DPD latency gate к auxiliary PA evaluator не применяется. Новый test
+claim возможен только на новом capture/operating point.
 
 ### 10.4 APA widely-linear residual audit
 
@@ -893,8 +885,9 @@ envelope is small (`0.024` radial at lag zero), and the slow-state gate remains
 ineligible because the capture count is zero. Thus increasing `K` or adding a
 state is not justified by this run; the next bounded family should allow
 delay-dependent nonlinear coefficients, e.g. a sparse non-factorized
-spline-memory dictionary, while retaining `<1000` MUL and train-only OOF
-selection.
+spline-memory dictionary with train-only OOF selection and full cost
+reporting. Historical `<1000 MUL` был ограничением этого поиска, но не PA
+acceptance constraint.
 
 Evidence and hashes are immutable in
 `experiments/results/pa_sph_apa200_selection/`; the publication manifest
@@ -1242,8 +1235,8 @@ physical-linearization result.
 
 ## 11. Что пока неизвестно или не выполнено
 
-- Не установлено, остаётся ли Huawei `error < 10^-5` дополнительной метрикой
-  после уточнения spectral acceptance.
+- `error < 10^-5` не является Huawei gate; relative error/NMSE сохраняются
+  только как secondary diagnostics.
 - Известно, что equivalent-time budget относится к DPD, не к PA model; не
   установлены target platform и reference timing kernel для всех DPD
   operations.
@@ -1255,14 +1248,15 @@ physical-linearization result.
 - Нет captures с известными и контролируемыми power levels/operating points
   для adaptation claim; held-out `APA_200MHz_b` release завершён, но
   measurement B остаётся нерасшифрованным capture transfer.
-- Нет runnable bundled OpenDPD neural checkpoint.
-- Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
+- Нет bundled OpenDPD neural checkpoint; sealed local CPU retraining path
+  реализован и прошёл bounded three-backbone preflight, но full
+  validation-quality checkpoint ещё не обучен.
 - Widely-linear, proper long-FIR и standalone SPH отклонены по quality gates.
   Первый non-factorized sparse PA также отклонён, а lag-9 sparse family
   проходит cheap-Pareto gate, но всё ещё уступает GMP по fidelity и не может
   служить независимым evaluator.
-- Bit-accurate PA-model evaluation выполнена для DPA/APA source
-  train/validation, но ещё не повторена для target `APA_200MHz_b` payloads.
+- Bit-accurate PA-model evaluation выполнена для DPA/APA source и
+  target-calibrated `APA_200MHz_b` train/validation payloads.
 - Нет bit-accurate 16/14/12-bit spline-memory DPD или PA→DPD cascade.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
@@ -1272,10 +1266,11 @@ physical-linearization result.
 > Validation-selected causal factorized GMP воспроизводимо моделирует
 > held-out measured DPA/APA captures на −35.385/−38.608 dB full-record pooled
 > NMSE при 766/954 counted real multiplications/sample. Он улучшает локальный
-> MP, особенно на APA, но не достигает возможной −50 dB цели и не обеспечивает
+> MP, особенно на APA; optional normalized-error diagnostic остаётся выше
+> −50 dB reference, который не является Huawei gate. Модель не обеспечивает
 > 10 dB evaluator margin для текущего surrogate-only DPD residual. Release
 > gates, one-shot source tests и target capture-transfer release завершены.
 > Target-calibrated GMP достиг −37.895 dB на B-capture held-out test, но
-> normalized error power 1.62e−4 всё ещё выше возможного требования 1e−5.
+> normalized error power 1.62e−4 публикуется только как secondary diagnostic.
 > Gate A→B остаётся закрытым, поэтому DPD optimization приостановлена до
 > controlled physical-PA и/или более точного independent PA evidence.

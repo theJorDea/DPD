@@ -168,8 +168,8 @@ Every frozen PA result must also retain:
 - real MUL/ADD, sqrt/nonlinear, comparisons, LUTs, reads/writes;
 - coefficient/constants/state storage and declared numeric precision;
 - bit-accurate fixed-point degradation and chunk equivalence where a frozen
-  arithmetic contract exists; current PA reports cover DPA/APA GMP and APA
-  lag-9 sparse, while target/DPD remain pending.
+  arithmetic contract exists; current PA reports cover DPA/APA source models
+  and target-calibrated APA-B payloads. Only DPD fixed-point remains pending.
 
 Current PA error PSD uses a periodic Hann window, `nfft=nperseg`, 50% overlap,
 constant detrend and density scaling, normalized by integrated measured-output
@@ -177,9 +177,9 @@ power. DPA uses `fs=800e6`, `nperseg=2560`; APA uses `fs=983.04e6`,
 `nperseg=19662`. OpenDPD spectral-bin “EVM”, strongest-inband-subchannel ACLR
 and conventional total-main-band ACLR remain separately labelled definitions.
 
-`error < 10^-5` remains unresolved. If it means normalized error power, the
-gate is pooled NMSE below −50 dB. If it means MSE or SSE, scaling and
-aggregation must first be supplied by Huawei.
+`error < 10^-5` is not an active Huawei gate. If relative error power is
+reported as an optional diagnostic, `10^-5` is mathematically equivalent to
+pooled NMSE `−50 dB`; it does not control architecture selection or acceptance.
 
 #### 5.1.1 Fixed-point PA execution already completed
 
@@ -257,8 +257,8 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result после held-out release runner/config
-contract: **234/234 tests passed**. Более ранние 222/222, 201/201, 131/131 и
+Последний recorded full-suite result после sealed OpenDPD runner hardening:
+**272/272 tests passed**. Более ранние 257/257, 234/234, 222/222, 201/201, 131/131 и
 120-test snapshots являются историческими и не заменяют текущий count.
 Следующий code change обязан сохранить новый wall time/execution record;
 unit-suite timing не является inference benchmark.
@@ -802,7 +802,7 @@ It reports PA-only, circular inverse→forward reconstruction and correct
 desired-input surrogate path separately. It is not a primary PA/DPD baseline
 until its split/evaluator contract is made apples-to-apples.
 
-### 6.16 OpenDPD control — bundled evidence only on this host
+### 6.16 OpenDPD control — sealed CPU preflight completed
 
 The intended upstream reproduction is:
 
@@ -814,10 +814,25 @@ python -m venv .venv
 bash benchmark/reproduce_benchmark_report.sh --device 0
 ```
 
-It is **not runnable as the full neural matrix on the current host**: no NVIDIA
-device is detected, and archived neural checkpoint binaries are absent.
-Installing upstream dependencies is also a separate environment task, not
-part of the NumPy PA sweep.
+The archived full CUDA matrix is not directly runnable on this host because no
+NVIDIA device/checkpoint binaries are available. A separate CPU environment is
+locked in `experiments/requirements/opendpd_cpu_py312.lock`; the local runner
+`experiments/train_opendpd_pa.py` preserves upstream model/optimizer/framing
+semantics while physically prohibiting test access.
+
+Preregistered bounded command:
+
+```bash
+/tmp/dpd_opendpd_venv/bin/python experiments/train_opendpd_pa.py \
+  --config experiments/configs/opendpd_pa_cpu_preflight_apa200.json \
+  --max-epochs 1 --max-train-batches 10 --max-val-batches 1 \
+  --output-root experiments/results/opendpd_pa_cpu_preflight_apa200
+```
+
+Fit timers were `0.594 s` GRU-H28, `0.649 s` TRes-GRU-H27 and `3.370 s`
+TRes-DeltaGRU-H27. These are runtime-smoke values, not quality results. All
+reports are train/validation-only and explicitly record 398 upstream-flat
+windows crossing declared APA segment boundaries.
 
 ### 6.17 APA capture transfer and frozen held-out release — completed
 
@@ -962,7 +977,8 @@ A new PA model is retained as a Pareto point only if:
 8. fixed-point degradation is reported before a hardware claim.
 
 If normalized error power is retained as an additional diagnostic, `10^-5`
-would equal pooled NMSE `<-50 dB`; current MP/GMP points do not pass it. The
+would equal pooled NMSE `<-50 dB`; current MP/GMP points remain above this
+optional reference, without a Huawei pass/fail conclusion. The
 clarified primary acceptance direction is harmonic/spur attenuation, whose
 exact RF bands, reference and threshold remain unresolved.
 
@@ -1037,6 +1053,7 @@ verification or an explicit `surrogate-only` limitation.
 | Target-calibrated APA-B fixed-point PA matrix | 3.703 s runner wall | completed; GMP/sparse × 3 bit widths, train/validation only |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
+| APA OpenDPD CPU bounded preflight | 0.594/0.649/3.370 s candidate fit timers | 10 train batches + 1 validation batch; runtime only, test sealed |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
 
 GMP wall times выше измерены для полного formal workflow, но peak RSS не был
