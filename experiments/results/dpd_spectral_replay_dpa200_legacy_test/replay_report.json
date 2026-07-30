@@ -1,0 +1,64 @@
+{
+  "artifact_type": "legacy_frozen_spline_memory_dpd_replay",
+  "claims_scope": {
+    "historical_test_access": true,
+    "physical_pa_result": false,
+    "surrogate_only": true,
+    "test_used_for_selection": false
+  },
+  "dataset": {
+    "dataset_spec_sha256": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+    "measured_output_opened": false,
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/DPA_200MHz",
+    "split": "test",
+    "split_input_sha256": "262e1fe4365992735ef9d6f67c4ff557e8e4d8a4f4885b7bc5c7011d07f1b4c0"
+  },
+  "direction": {
+    "deployment_path": "desired input x -> frozen spline DPD -> frozen PA surrogate",
+    "inverse_diagnostic_run": false,
+    "measured_output_used_as_dpd_input": false
+  },
+  "frozen_decisions": {
+    "integer_delay_samples": 0,
+    "model_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+    "model_sha256": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "nperseg": 2560,
+    "selected_family": "signal_delay_012",
+    "selection_report": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/memory_ablation_report.json",
+    "selection_report_sha256": "aacfedc664fe69cdeadcf2e35866a74425cdfacd7240756a5bcc013fdfc2d259",
+    "state_reset": "zero history at every nperseg frame",
+    "surrogate_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_dpa200/pa_surrogate.npz",
+    "surrogate_sha256": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a",
+    "target_gain": {
+      "imag": -3.5213034658761794e-11,
+      "real": 3.16563831355586
+    }
+  },
+  "metrics": {
+    "predistorted_papr_db": 10.0083518025234,
+    "predistorted_peak_amplitude": 1.1865165287623527,
+    "with_dpd_vs_ideal": {
+      "causal_warmup_samples_per_segment": 4,
+      "complex_nmse_pooled_db": -29.864455050559094,
+      "discarded_causal_warmup_samples_total": 12,
+      "mse": 0.0013953411317062445,
+      "relative_error_power": 0.001031702528573037,
+      "sample_count": 7668,
+      "segment_length": 2560,
+      "time_domain_rms_evm_db": -29.864455050559094,
+      "warmup_policy": "discard_at_every_segment_start"
+    },
+    "without_dpd_vs_ideal": {
+      "causal_warmup_samples_per_segment": 4,
+      "complex_nmse_pooled_db": -20.188628776462675,
+      "discarded_causal_warmup_samples_total": 12,
+      "mse": 0.012949798890703464,
+      "relative_error_power": 0.009574963395305235,
+      "sample_count": 7668,
+      "segment_length": 2560,
+      "time_domain_rms_evm_db": -20.188628776462675,
+      "warmup_policy": "discard_at_every_segment_start"
+    }
+  },
+  "schema_version": 1
+}

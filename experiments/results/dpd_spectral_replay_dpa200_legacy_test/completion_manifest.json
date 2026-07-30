@@ -1,0 +1,22 @@
+{
+  "artifact_type": "legacy_frozen_spline_memory_dpd_replay_bundle",
+  "artifacts": {
+    "replay_report.json": "4e382a9f362cc21f925e5228b0a7b8f48f3ea7c554800191b33c98aac0bb023a",
+    "spectral_config.json": "1f3dd2e0bb1576455fdfd0d088d89ee90ff5a9b89bc213d808038a8ecf78d8c5",
+    "waveforms.npz": "4f2b4980a77d3b6c917f1b4c99e081806d61c1233e686a22ce53253ec4401230"
+  },
+  "atomic_publication": true,
+  "config_sha256": "ce53cc92bd93513248833c3bb5fd1daaf07788547052ccc8063ce7ef74d8081c",
+  "fit_performed": false,
+  "historical_test_access": true,
+  "input_hashes": {
+    "dataset_spec": "8b22413423a46a2cbb98f33452c4e97ecc4a99553b24ecd382686186806a0c07",
+    "model": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "selection_report": "aacfedc664fe69cdeadcf2e35866a74425cdfacd7240756a5bcc013fdfc2d259",
+    "split_input": "262e1fe4365992735ef9d6f67c4ff557e8e4d8a4f4885b7bc5c7011d07f1b4c0",
+    "surrogate": "5f93038b0a985edb0fbd36bce6c0313cd4afab5c98eb6101666996118d89241a"
+  },
+  "measured_output_opened": false,
+  "schema_version": 1,
+  "selection_performed": false
+}

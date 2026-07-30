@@ -1,0 +1,301 @@
+{
+  "artifact_type": "frozen_dpd_spectral_evaluation",
+  "claims_scope": {
+    "descriptive_previously_opened_test": true,
+    "physical_pa_measurement": false,
+    "rf_harmonic_claim": false,
+    "surrogate_only": true
+  },
+  "fit_performed": false,
+  "frame_count": 3,
+  "gain_or_alignment_retuned": false,
+  "input_provenance": {
+    "config_sha256": "1f3dd2e0bb1576455fdfd0d088d89ee90ff5a9b89bc213d808038a8ecf78d8c5",
+    "source_sha256": {
+      "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+      "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/baseline/spectral_regions.py": "557d20938f4e4c950d696764636bf473a6c52c82f2b994222cd2b8c6ff79f973",
+      "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/evaluate_frozen_dpd_spectrum.py": "bbf2423232137a5841d4690e9641368df47d98fb60a3e3aeb13bac910fb95956"
+    },
+    "waveform_archive": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/dpd_spectral_replay_dpa200_legacy_test/waveforms.npz",
+    "waveform_archive_sha256": "4f2b4980a77d3b6c917f1b4c99e081806d61c1233e686a22ce53253ec4401230",
+    "waveform_array_sha256": {
+      "desired_input": "b58902b07b12170d33d523f52607b6ea914cee7b1c4525209463e2e1bc56aeca",
+      "dpd_output": "cb5d6e6ac8265815604085634a8587b7bf4c32e709effc1d3302db6d17c09dac",
+      "no_dpd_output": "6f15be45cb478b0c89f955e13cbdbb93dd59f1b642a08e5a8c7cbdc654a2f4c6",
+      "predistorted_drive": "4d7a50af01ad97bc9886daec303ab972ad9f90cc1ddec2b78f6c7f1cc858004f"
+    },
+    "waveform_roles": [
+      "desired_input",
+      "predistorted_drive",
+      "no_dpd_output",
+      "dpd_output"
+    ]
+  },
+  "main_region": {
+    "dpd_welch_spectrum_bin_sum": {
+      "status": "finite",
+      "value": 2.0487920349206927
+    },
+    "high_hz": 100000000.0,
+    "low_hz": -100000000.0,
+    "main_power_change_db": {
+      "status": "finite",
+      "value": -0.0472559628033936
+    },
+    "name": "main",
+    "no_dpd_welch_spectrum_bin_sum": {
+      "status": "finite",
+      "value": 2.0712068480422348
+    }
+  },
+  "protocol": {
+    "definition": {
+      "detrend": "constant",
+      "domain": "configured_complex_baseband_regions",
+      "integrated_power_units": "Welch spectrum-bin sum; ratios are comparable only under the same fs/window/nperseg definition",
+      "interval_convention": "[low_hz, high_hz)",
+      "rf_harmonic_claim": false,
+      "segment_overlap_samples": 0,
+      "spectrum_scaling": "spectrum",
+      "suppression_sign": "positive means lower absolute region power with DPD",
+      "threshold_applied": false,
+      "window": "periodic_hann"
+    },
+    "framing": {
+      "complete_frames_only": true,
+      "crop_policy": "input archive contains exact complete frames",
+      "frame_origin_samples": 0,
+      "state_reset_policy": "DPD and PA reset to zero history at each nperseg frame"
+    },
+    "fs_hz": 800000000.0,
+    "nperseg": 2560
+  },
+  "regions": {
+    "left_adjacent": {
+      "absolute_suppression_db": {
+        "status": "finite",
+        "value": 6.0063958692221275
+      },
+      "dpd_dbc": {
+        "status": "finite",
+        "value": -46.48476039893569
+      },
+      "dpd_welch_spectrum_bin_sum": {
+        "status": "finite",
+        "value": 4.6027971675275084e-05
+      },
+      "high_hz": -100000000.0,
+      "low_hz": -120000000.0,
+      "no_dpd_dbc": {
+        "status": "finite",
+        "value": -40.525620492516964
+      },
+      "no_dpd_welch_spectrum_bin_sum": {
+        "status": "finite",
+        "value": 0.00018351071362907804
+      },
+      "quantiles": {
+        "absolute_suppression_db": [
+          {
+            "status": "finite",
+            "value": 5.325918135522456
+          },
+          {
+            "status": "finite",
+            "value": 5.676897060503573
+          },
+          {
+            "status": "finite",
+            "value": 6.804261465814755
+          },
+          {
+            "status": "finite",
+            "value": 6.929524177515997
+          }
+        ],
+        "dpd_dbc": [
+          {
+            "status": "finite",
+            "value": -47.563477620850776
+          },
+          {
+            "status": "finite",
+            "value": -46.64729101147576
+          },
+          {
+            "status": "finite",
+            "value": -45.449190372366104
+          },
+          {
+            "status": "finite",
+            "value": -45.316068079131696
+          }
+        ],
+        "no_dpd_dbc": [
+          {
+            "status": "finite",
+            "value": -41.33668267163359
+          },
+          {
+            "status": "finite",
+            "value": -40.63700392082326
+          },
+          {
+            "status": "finite",
+            "value": -39.85747143199382
+          },
+          {
+            "status": "finite",
+            "value": -39.770856711012776
+          }
+        ],
+        "probabilities": [
+          0.0,
+          0.5,
+          0.95,
+          1.0
+        ],
+        "relative_leakage_improvement_db": [
+          {
+            "status": "finite",
+            "value": 5.3106083398421635
+          },
+          {
+            "status": "finite",
+            "value": 5.545211368118919
+          },
+          {
+            "status": "finite",
+            "value": 6.788347466836654
+          },
+          {
+            "status": "finite",
+            "value": 6.926473700027513
+          }
+        ]
+      },
+      "relative_leakage_improvement_db": {
+        "status": "finite",
+        "value": 5.959139906418733
+      }
+    },
+    "right_adjacent": {
+      "absolute_suppression_db": {
+        "status": "finite",
+        "value": 9.145566974639133
+      },
+      "dpd_dbc": {
+        "status": "finite",
+        "value": -48.24752891007837
+      },
+      "dpd_welch_spectrum_bin_sum": {
+        "status": "finite",
+        "value": 3.067220414313746e-05
+      },
+      "high_hz": 120000000.0,
+      "low_hz": 100000000.0,
+      "no_dpd_dbc": {
+        "status": "finite",
+        "value": -39.14921789824263
+      },
+      "no_dpd_welch_spectrum_bin_sum": {
+        "status": "finite",
+        "value": 0.00025194264445653366
+      },
+      "quantiles": {
+        "absolute_suppression_db": [
+          {
+            "status": "finite",
+            "value": 8.554415394776969
+          },
+          {
+            "status": "finite",
+            "value": 9.56692105877922
+          },
+          {
+            "status": "finite",
+            "value": 9.679607244134544
+          },
+          {
+            "status": "finite",
+            "value": 9.692127931396247
+          }
+        ],
+        "dpd_dbc": [
+          {
+            "status": "finite",
+            "value": -48.99774234510999
+          },
+          {
+            "status": "finite",
+            "value": -48.934899118317475
+          },
+          {
+            "status": "finite",
+            "value": -47.47362997155416
+          },
+          {
+            "status": "finite",
+            "value": -47.3112667330249
+          }
+        ],
+        "no_dpd_dbc": [
+          {
+            "status": "finite",
+            "value": -39.4373001060984
+          },
+          {
+            "status": "finite",
+            "value": -39.38328785521855
+          },
+          {
+            "status": "finite",
+            "value": -38.822240419684626
+          },
+          {
+            "status": "finite",
+            "value": -38.75990181573641
+          }
+        ],
+        "probabilities": [
+          0.0,
+          0.5,
+          0.95,
+          1.0
+        ],
+        "relative_leakage_improvement_db": [
+          {
+            "status": "finite",
+            "value": 8.551364917288485
+          },
+          {
+            "status": "finite",
+            "value": 9.551611263098929
+          },
+          {
+            "status": "finite",
+            "value": 9.559559141420324
+          },
+          {
+            "status": "finite",
+            "value": 9.560442239011591
+          }
+        ]
+      },
+      "relative_leakage_improvement_db": {
+        "status": "finite",
+        "value": 9.09831101183574
+      }
+    }
+  },
+  "schema_version": 1,
+  "selection_performed": false,
+  "signal_summary": {
+    "desired_input_peak": 1.0000000003701608,
+    "dpd_output_peak": 3.2766658895861087,
+    "no_dpd_output_peak": 2.575564294523917,
+    "predistorted_drive_papr_db": 10.0083518025234,
+    "predistorted_drive_peak": 1.1865165287623527
+  },
+  "split_role": "legacy_test"
+}

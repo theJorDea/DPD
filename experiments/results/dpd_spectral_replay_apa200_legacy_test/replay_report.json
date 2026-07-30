@@ -1,0 +1,64 @@
+{
+  "artifact_type": "legacy_frozen_spline_memory_dpd_replay",
+  "claims_scope": {
+    "historical_test_access": true,
+    "physical_pa_result": false,
+    "surrogate_only": true,
+    "test_used_for_selection": false
+  },
+  "dataset": {
+    "dataset_spec_sha256": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "measured_output_opened": false,
+    "path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/vendor/OpenDPD/datasets/APA_200MHz",
+    "split": "test",
+    "split_input_sha256": "5027d3d69391ed22ad79c410831bdfed47b25045088dda0756801cf591c947bf"
+  },
+  "direction": {
+    "deployment_path": "desired input x -> frozen spline DPD -> frozen PA surrogate",
+    "inverse_diagnostic_run": false,
+    "measured_output_used_as_dpd_input": false
+  },
+  "frozen_decisions": {
+    "integer_delay_samples": 0,
+    "model_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_apa200/signal_delay_012.npz",
+    "model_sha256": "7e37cff04f931b16f3e124221e910234c649e760d1e1c39bc40356eb09daa46d",
+    "nperseg": 19662,
+    "selected_family": "signal_delay_012",
+    "selection_report": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_apa200/memory_ablation_report.json",
+    "selection_report_sha256": "c936a2ff0aa0fadb449ae8cd2f361e0d5e820bf14224c9fa060e69bd5208594d",
+    "state_reset": "zero history at every nperseg frame",
+    "surrogate_path": "/home/jordea/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/Projects/DPD/experiments/results/spline_memory_apa200/pa_surrogate.npz",
+    "surrogate_sha256": "433ec86cbb7f77fb87e6696dcfc6b8eab6bfeeeeaaf021c13a64de9c569c8a70",
+    "target_gain": {
+      "imag": -0.0035316325449211644,
+      "real": 1.1625658972794473
+    }
+  },
+  "metrics": {
+    "predistorted_papr_db": 9.99275793553567,
+    "predistorted_peak_amplitude": 0.992704747756966,
+    "with_dpd_vs_ideal": {
+      "causal_warmup_samples_per_segment": 4,
+      "complex_nmse_pooled_db": -32.74081179744638,
+      "discarded_causal_warmup_samples_total": 4,
+      "mse": 7.111753352556771e-05,
+      "relative_error_power": 0.0005320088051464885,
+      "sample_count": 19658,
+      "segment_length": 19662,
+      "time_domain_rms_evm_db": -32.74081179744638,
+      "warmup_policy": "discard_at_every_segment_start"
+    },
+    "without_dpd_vs_ideal": {
+      "causal_warmup_samples_per_segment": 4,
+      "complex_nmse_pooled_db": -19.94772681603395,
+      "discarded_causal_warmup_samples_total": 4,
+      "mse": 0.001352960708276755,
+      "relative_error_power": 0.010121090737232753,
+      "sample_count": 19658,
+      "segment_length": 19662,
+      "time_domain_rms_evm_db": -19.94772681603395,
+      "warmup_policy": "discard_at_every_segment_start"
+    }
+  },
+  "schema_version": 1
+}
