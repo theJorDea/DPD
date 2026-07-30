@@ -118,14 +118,31 @@ def benchmark_model(
     warmup: int = 1,
     repeats: int = 3,
     reference_real_muls: int = REFERENCE_REAL_MULS,
+    sample_limit: int | None = None,
 ) -> dict[str, Any]:
-    """Benchmark a frozen DPD and the reference on identical input samples."""
+    """Benchmark a frozen DPD and the reference on identical input samples.
+
+    ``sample_limit`` is an explicit timing-only crop.  It is useful because
+    the scalar Python reference intentionally performs 1000 products per
+    sample and is not a practical way to time a complete waveform.  The
+    prefix is never used for fitting or model selection.
+    """
 
     samples = np.asarray(signal)
     if samples.ndim != 1 or samples.size == 0:
         raise ValueError("signal must be a non-empty one-dimensional vector")
     if not np.iscomplexobj(samples):
         samples = samples.astype(np.complex128)
+    source_sample_count = int(samples.size)
+    if sample_limit is not None:
+        if (
+            not isinstance(sample_limit, (int, np.integer))
+            or int(sample_limit) <= 0
+        ):
+            raise ValueError("sample_limit must be a positive integer or None")
+        if int(sample_limit) > source_sample_count:
+            raise ValueError("sample_limit cannot exceed signal length")
+        samples = samples[: int(sample_limit)]
     if any(
         not isinstance(size, (int, np.integer)) or int(size) <= 0
         for size in chunk_sizes
@@ -204,6 +221,12 @@ def benchmark_model(
         },
         "signal": {
             "sample_count": int(samples.size),
+            "source_sample_count": source_sample_count,
+            "timing_prefix": (
+                "first samples from desired_input"
+                if sample_limit is not None
+                else "complete desired_input"
+            ),
             "input_dtype": str(samples.dtype),
         },
         "reference": reference,
@@ -253,6 +276,15 @@ def _argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--chunk-sizes", default="1,8,64")
     parser.add_argument("--warmup", type=int, default=1)
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument(
+        "--max-samples",
+        type=int,
+        default=None,
+        help=(
+            "time only the first N desired-input samples; the full input "
+            "archive remains bound in provenance"
+        ),
+    )
     return parser
 
 
@@ -276,6 +308,7 @@ def main(argv: list[str] | None = None) -> int:
         chunk_sizes=chunk_sizes,
         warmup=args.warmup,
         repeats=args.repeats,
+        sample_limit=args.max_samples,
     )
     result["provenance"] = {
         "model_path": str(args.model.resolve()),

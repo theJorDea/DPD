@@ -68,6 +68,31 @@ class DpdTimingTests(unittest.TestCase):
                 repeats=1,
             )
 
+    def test_timing_prefix_is_explicit_and_bounded(self) -> None:
+        signal = np.exp(1j * np.linspace(0.0, 2.0, 32))
+        result = benchmark_model(
+            self._model(),
+            signal,
+            chunk_sizes=(4,),
+            warmup=0,
+            repeats=1,
+            sample_limit=8,
+        )
+        self.assertEqual(result["signal"]["sample_count"], 8)
+        self.assertEqual(result["signal"]["source_sample_count"], 32)
+        self.assertEqual(
+            result["signal"]["timing_prefix"],
+            "first samples from desired_input",
+        )
+        with self.assertRaisesRegex(ValueError, "cannot exceed"):
+            benchmark_model(
+                self._model(),
+                signal,
+                sample_limit=33,
+                warmup=0,
+                repeats=1,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
