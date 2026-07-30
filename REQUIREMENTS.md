@@ -1,12 +1,54 @@
 # Требования и границы проекта
 
-Дата фиксации: 2026-07-29.
+Дата фиксации: 2026-07-30.
 
 Этот документ разделяет три разных источника требований: два предоставленных
 пользователем слайда Huawei, фактическое поведение OpenDPD и пока неизвестные
 критерии заказчика. Слайды не содержат номера документа, даты, владельца
 требований или полного технического задания, поэтому их нельзя считать
 исчерпывающей формулировкой задачи Huawei.
+
+## 0. Уточнение научного руководителя от 2026-07-30
+
+Пользователь передал следующие разъяснения научного руководителя:
+
+1. Ограничение, сформулированное как «1000 вещественных умножений», относится
+   **только к исполняемому модулю DPD**, который формирует predistorted samples.
+   Оно не относится к behavioral PA model: в конечной системе за DPD находится
+   реальный усилитель.
+2. Формулы на предоставленных слайдах являются иллюстративными и не должны
+   использоваться как нормативное определение loss, model class или
+   architecture.
+3. Качество предполагается оценивать по затуханию паразитных гармоник.
+4. Число 1000 задаёт не разрешённое число операций одного типа, а
+   **эквивалентный временной бюджет**: все операции DPD вместе не должны
+   исполняться дольше эталонной тысячи вещественных умножений.
+
+Это более сильное рабочее уточнение, чем выводы из изображений слайдов, и далее
+имеет приоритет над ними. Оно передано через пользователя, но не содержит
+официального Huawei document ID/revision или bit-exact acceptance procedure,
+поэтому точная спектральная метрика и способ измерения времени всё ещё должны
+быть подтверждены владельцем требований.
+
+Практические последствия:
+
+- PA surrogate/evaluator выбирается прежде всего по fidelity, независимости и
+  корректности ranking; его стоимость публикуется, но не проверяется против
+  DPD latency gate;
+- hard complexity gate применяется к deployment DPD datapath;
+- `sqrt`, division, activation, LUT/addressing, comparisons и memory traffic
+  нельзя считать бесплатными только потому, что они не являются
+  умножениями;
+- до появления target platform используется полный operation vector, а не
+  только `MUL/sample`;
+- окончательная проверка должна сравнивать измеренное время DPD с эталоном на
+  одном target, с одинаковыми word length, streaming contract и правилами
+  parallelism:
+
+  \[
+  T_\mathrm{DPD/sample}\ \leq\
+  T_\mathrm{reference}(1000\ \text{real multiplications}).
+  \]
 
 ## 1. Что явно следует из предоставленных слайдов
 
@@ -22,10 +64,12 @@ RF-системы, для которой memory effects отдельно наз�
 \mathcal E(f)=\lVert f(X)-Y\rVert_2^2.
 \]
 
-Слайды также связывают identification/inversion с построением нелинейного
-компонента, поведение которого противоположно нелинейности аналоговой схемы.
-Однако они не задают формальный forward/inverse interface, эксплуатационный
-вход predistorter, target gain или test path. Двухконтурная постановка и запрет
+По уточнению научного руководителя эта формула декоративная: она не определяет
+acceptance loss и не является основанием трактовать `10^-5` как NMSE. Слайды
+также связывают identification/inversion с построением нелинейного компонента,
+поведение которого противоположно нелинейности аналоговой схемы. Однако они не
+задают формальный forward/inverse interface, эксплуатационный вход
+predistorter, target gain или test path. Двухконтурная постановка и запрет
 круговой DPD-оценки ниже являются рабочим контрактом из постановки пользователя
 и проверенного OpenDPD pipeline, а не восстановленным требованием слайда.
 
@@ -42,9 +86,10 @@ RF-системы, для которой memory effects отдельно наз�
 
 Нейросети описаны как модели с высокой fitting capability, но большой
 ресурсоёмкостью, неудобной для real-time online coefficient solving. CPWL
-предлагается как локальная альтернатива глобальному polynomial basis. Это
-обосновывает исследование локальных spline/CPWL-базисов, но не доказывает
-заранее их превосходство.
+показан как локальная альтернатива global polynomial basis. По последующему
+уточнению формулы и перечисленные на слайде модели не являются предписанной
+архитектурой. Поэтому spline/CPWL остаётся исследовательским кандидатом только
+по измеренному Pareto trade-off, а не потому, что он изображён на слайде.
 
 ### 1.3 Явно названные физические эффекты
 
@@ -72,10 +117,14 @@ RF-системы, для которой memory effects отдельно наз�
 - последующую verification на real-world service data, подтверждающую
   performance, complexity и real-time computing indicators.
 
-На слайде явно указаны два численных ограничения:
+На слайде визуально указаны два численных ограничения:
 
 - modeling error \(\mathcal E(f)<10^{-5}\) на verification set;
 - менее 1000 real multipliers.
+
+Последующее уточнение меняет их рабочую трактовку: формула error не задаёт
+acceptance metric, качество оценивается по затуханию паразитных гармоник, а
+временной эквивалент 1000 real multiplications относится только к DPD.
 
 ### 1.5 Мотивация на слайде, но не нормативные критерии
 
@@ -90,9 +139,10 @@ Background slide утверждает, что RF nonlinearity ухудшает s
 
 ### 1.6 Что нельзя автоматически заключить из этих формулировок
 
-Формула на слайде использует ненормированную squared \(L_2\)-норму. Поэтому
-\(10^{-5}\) нельзя без уточнения объявить ни MSE, ни normalized error power, ни
-NMSE \(<-50\) dB.
+Декоративную формулу на слайде нельзя использовать для определения метрики.
+Поэтому \(10^{-5}\) нельзя без отдельного подтверждения объявить ни MSE, ни
+normalized error power, ни NMSE \(<-50\) dB и нельзя считать текущим hard
+acceptance gate.
 
 Если заказчик имеет в виду
 
@@ -102,11 +152,13 @@ NMSE \(<-50\) dB.
 
 то это действительно эквивалентно pooled complex NMSE \(<-50\) dB. Если это
 обычный MSE или сумма squared error, порог зависит от масштаба и числа samples.
+Это условная математическая конверсия для дополнительной диагностики, не
+восстановленное требование.
 
-Так же не определено, что означает «1000 multipliers»: число сохранённых
-коэффициентов, физические multiplier units, peak real multiplications/sample,
-средняя temporal activity или число операций за calibration block. В проекте
-до уточнения используется консервативная software convention:
+Объект ограничения теперь известен: online DPD sample datapath. Не определены
+target platform и эталонный timing kernel, то есть как именно сравнивать
+parallel/pipelined implementation, memory stalls и nonlinear primitives с
+тысячей вещественных умножений. В проекте сохраняется operation convention:
 
 ```text
 1 complex multiplication = 4 real multiplications + 2 real additions
@@ -114,7 +166,8 @@ FMA = 1 real multiplication + 1 real addition
 ```
 
 Square root, division, activation, comparison, LUT access и memory traffic
-считаются отдельно.
+считаются отдельно, а финальный pass/fail требует target timing, а не
+подстановки произвольных весов операций.
 
 ## 2. Что явно следует из OpenDPD
 
@@ -222,6 +275,14 @@ research protocol.
 
 - Что именно есть \(\mathcal E(f)<10^{-5}\): SSE, MSE, normalized MSE,
   relative error power, maximum error или другая величина?
+- Остаётся ли `10^-5` дополнительным требованием после перехода к спектральной
+  оценке или это только декоративный текст слайда?
+- Под «паразитными гармониками» имеются в виду true RF harmonics около
+  \(2f_c,3f_c,\ldots\), in-band intermodulation products, adjacent-channel
+  spectral regrowth или точки заданной emission mask?
+- Затухание измеряется в dBc относительно carrier/occupied-channel power или
+  как improvement `no DPD -> DPD`? Каковы exact integration bands, resolution
+  bandwidth, window/FFT/Welch settings и требуемый порог?
 - Ошибка считается до или после gain/delay/phase alignment?
 - Усреднение идёт по samples, frames, captures, carriers или operating points?
 - Каковы обязательные NMSE, EVM и ACLR/ACPR limits и channel masks?
@@ -244,8 +305,11 @@ research protocol.
 
 ### 3.3 Complexity и real-time
 
-- «<1000 real multipliers» означает operations per complex sample или
-  количество одновременно размещённых hardware multiplier blocks?
+- Подтверждено: latency-equivalent budget относится к deployment DPD, не к PA
+  behavioral model.
+- Как определяется эталон времени 1000 real multiplications: serial dependency
+  chain, independent vector, pipelined stream или target-specific reference
+  kernel?
 - Complex multiply считается как 4M+2A или разрешена 3M+5A реализация?
 - Можно ли amortize операции между samples/carriers/antennas?
 - Каковы clock, throughput, maximum latency, batch/chunk size и допустимый
@@ -290,13 +354,20 @@ research protocol.
 
 ## Рабочая интерпретация до получения ответов
 
-На основании пользовательской постановки и проверенного OpenDPD pipeline, а не
-только двух слайдов, проект временно ведётся как двухконтурная задача:
+На основании пользовательской постановки, уточнения научного руководителя и
+проверенного OpenDPD pipeline, а не только двух слайдов, проект ведётся как
+двухконтурная задача:
 
 ```text
-Контур A: x -> low-complexity PA model -> y_hat, compare with measured y
-Контур B: desired x -> low-complexity DPD -> frozen independent PA -> g*x
+Контур A: x -> high-fidelity PA evaluator -> y_hat, compare with measured y
+Контур B: desired x -> low-latency DPD -> frozen independent PA/real PA -> g*x
 ```
+
+Контур A может иметь больше 1000 real MUL/sample: это offline research
+instrument, а не блок передатчика. Его complexity всё равно измеряется для
+воспроизводимости и evaluator deployment, но не является Huawei DPD gate.
+Контур B обязан пройти spectral-quality gate и измеренный
+1000-real-MUL-equivalent latency gate.
 
 Architecture selection использует только train/validation. Test открывается
 после freeze. DPA_200MHz и APA_200MHz являются разными физическими PA и не
