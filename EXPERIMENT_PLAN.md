@@ -45,6 +45,7 @@ target timing measurement.
 | `APA_200MHz -> APA_200MHz_b` capture transfer | pre-test selection + frozen held-out release completed | GMP −37.895 dB, sparse −34.801 dB target-test full NMSE after `N=16384` calibration; capture-transfer only |
 | Bit-accurate PA arithmetic | DPA/APA source plus target-calibrated `APA_200MHz_b` train→freeze→validation completed; APA families include GMP and lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
+| Frozen spectral-region evaluator + input-only validation replay | DPA/APA `signal_delay_012` replay completed after preregistration | conventional baseband diagnostics only; no measured output opened; no model reselection |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
 
@@ -257,8 +258,8 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result после sealed OpenDPD runner hardening:
-**272/272 tests passed**. Более ранние 257/257, 234/234, 222/222, 201/201, 131/131 и
+Последний recorded full-suite result после sealed spectral/replay runner:
+**286/286 tests passed**. Более ранние 272/272, 257/257, 234/234, 222/222, 201/201, 131/131 и
 120-test snapshots являются историческими и не заменяют текущий count.
 Следующий code change обязан сохранить новый wall time/execution record;
 unit-suite timing не является inference benchmark.
@@ -1035,7 +1036,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 257/257 tests passed; 1.75 s discovery wall | completed after coefficient-payload binding |
+| Final unit suite | 286/286 tests passed; 7.30 s discovery wall | completed after sealed spectral/replay runners |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -1051,6 +1052,7 @@ verification or an explicit `surrogate-only` limitation.
 | APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
 | DPA/APA source fixed-point PA matrix | ~6.2 s combined runner wall | completed; DPA GMP + APA GMP/sparse × 3 bit widths, no test access |
 | Target-calibrated APA-B fixed-point PA matrix | 3.703 s runner wall | completed; GMP/sparse × 3 bit widths, train/validation only |
+| Frozen DPA/APA spectral validation replay | 0.6 s combined replay + spectral evaluation wall | completed; input-only, no measured output, surrogate-only |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | APA OpenDPD CPU bounded preflight | 0.594/0.649/3.370 s candidate fit timers | 10 train batches + 1 validation batch; runtime only, test sealed |
@@ -1112,6 +1114,10 @@ outputs for predistorted waveforms.
 20. [x] Run bit-accurate 16/14/12-bit PA-model evaluation for DPA/APA source
     models and hash-bound target-calibrated `APA_200MHz_b` GMP/sparse payloads;
     no target test access.
+20a. [x] Add and execute the sealed spectral-region evaluator plus
+    input-only frozen `signal_delay_012` validation replays for DPA/APA;
+    preserve absolute/relative leakage definitions and no measured-output
+    access.
 21. [ ] Reproduce a high-fidelity OpenDPD PA evaluator on the same frozen
     splits without applying the deployment-DPD latency cap.
 22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes

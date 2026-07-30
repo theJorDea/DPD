@@ -64,6 +64,13 @@ checks are recorded in
 `experiments/results/pa_fixed_point_apa200{,_b}/`. This closes only the PA
 arithmetic subtask; it does not open Gate A→B or make an RTL/physical-PA claim.
 
+The deployment-facing spectral evaluator is now hash-bound and tested.
+Input-only frozen `signal_delay_012` validation replays for DPA and APA are
+complete, with conventional baseband adjacent-band diagnostics, PSD arrays,
+peak/PAPR and provenance manifests. These are descriptive surrogate results:
+they do not define Huawei's still-unknown RF harmonic metric and do not open
+Gate A→B.
+
 ## Правила выполнения
 
 - Каждая строка roadmap реализуется отдельным небольшим commit и сразу
@@ -154,6 +161,8 @@ linear/spline residual ablations:
   как APA 12-bit GMP деградирует до около `−36.4 dB`;
 - exact arbitrary-chunk equivalence пройдена для каждого формата; fixed
   schedule остаётся Python arithmetic reference, не synthesized hardware.
+- sealed spectral-region evaluator and input-only frozen spline validation
+  replays are complete for DPA/APA; no measured split output was opened.
 - DPA GMP повторён отдельно: validation fixed NMSE `−35.3633/−35.3490/−35.2975`
   dB for 16/14/12 bit versus float `−35.3659 dB`, with no saturation;
   APA lag-9 sparse is not transferred to DPA without a DPA-specific fit.

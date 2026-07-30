@@ -129,6 +129,37 @@ Evidence:
 - APA:
   `experiments/results/spline_memory_apa200/memory_ablation_report.json`.
 
+### Frozen validation replay (new, no refit)
+
+После preregistration был выполнен отдельный input-only replay уже выбранного
+`signal_delay_012`. Он читает только `val_input.csv`; measured
+`val_output.csv` не открывается. PA output в этой процедуре остаётся
+суррогатным, поэтому это не physical-PA result и не claim относительно
+OpenDPD.
+
+The spectral bands below are explicitly conventional complex-baseband bands:
+main `[-bw_main/2, bw_main/2)` and one adjacent band of width `bw_sub_ch` on
+each side. They are not a customer-defined RF harmonic metric. `relative
+leakage improvement` is computed after normalizing each signal by its own main
+band power; absolute region-power suppression is retained separately.
+
+| Dataset | Main power change | Left dBc no→DPD | Right dBc no→DPD | Relative leakage improvement L/R | Pooled NMSE no→DPD |
+|---|---:|---:|---:|---:|---:|
+| DPA_200MHz validation | −0.052 dB | −42.206 → −46.956 | −41.149 → −48.886 | +4.749 / +7.737 dB | −20.338 → −30.532 dB |
+| APA_200MHz validation | −0.041 dB | −33.945 → −50.425 | −34.016 → −47.880 | +16.480 / +13.864 dB | −19.969 → −32.380 dB |
+
+Predistorted peak/PAPR were `1.1926/10.469 dB` for DPA and
+`1.0615/10.584 dB` for APA. These values are descriptive validation evidence;
+no spectral winner was selected after looking at them. Immutable replay and
+spectral bundles are stored under:
+
+```text
+experiments/results/dpd_spectral_replay_dpa200_validation/
+experiments/results/dpd_spectral_replay_dpa200_validation_spectral/
+experiments/results/dpd_spectral_replay_apa200_validation/
+experiments/results/dpd_spectral_replay_apa200_validation_spectral/
+```
+
 ### 3.2 Analytical inference cost of the selected legacy spline
 
 | Dataset | Real MUL | Real ADD | Nonlinear | Compare | LUT | Real coeff. | State reals |
