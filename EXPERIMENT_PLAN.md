@@ -34,6 +34,7 @@ analysis и report — отдельные commits с push после каждо�
 | Standalone APA SPH (`spline/CPWL + short FIR`) | выполнен train-only staged OOF; selected `K=32,L=8` rejected | 37 MUL/sample, но −30.4024 dB OOF; не evaluator и не Gate A→B |
 | Non-factorized sparse spline-memory PA | выполнен train-only staged OOF; selected `K=12`, 6 branches rejected | 54 MUL/sample, −32.0300 dB OOF; reused validation only, Gate A→B closed |
 | Residual-guided lag-9 sparse PA | выполнен preregistered train-only staged OOF; selected 9-branch `K=12` family | 72 MUL/sample, −37.7925 dB OOF, cheap-Pareto only; evaluator gate closed |
+| `APA_200MHz -> APA_200MHz_b` capture transfer | pre-test selection + frozen held-out release completed | GMP −37.895 dB, sparse −34.801 dB target-test full NMSE after `N=16384` calibration; capture-transfer only |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
@@ -75,9 +76,11 @@ Primary second-stage datasets используются отдельно:
 Files are the committed split CSVs under
 `vendor/OpenDPD/datasets/<dataset>/`. They are used verbatim as 60/20/20;
 there is no random re-split and no row-wise normalization. `DPA_160MHz` and
-`APA_200MHz_b` are also present, but are out of scope for initial selection.
-They represent other dataset/capture conditions and must not be appended to
-the primary train/test rows as if samples came from one PA session.
+`APA_200MHz_b` are also present. `APA_200MHz_b` is a separate
+capture-transfer target with its own 60/20/20 framing; it must not be appended
+to the primary train/test rows as if samples came from one PA session. Its
+held-out target split is released only through the frozen transfer command in
+§6.17.
 
 Availability of evaluators/checkpoints:
 
@@ -93,6 +96,10 @@ Availability of evaluators/checkpoints:
 - MP/GMP OpenDPD controls can be refit from CSV because they are closed-form;
 - first-stage spline DPD and its old MP surrogate NPZ files exist, but are not
   independent PA evaluators;
+- frozen transfer pre-test and held-out bundles exist in
+  `experiments/results/pa_transfer_apa200_to_b_{pretest,test_release}/`;
+- independent release verification is
+  `experiments/results/pa_transfer_apa200_to_b_test_release_verification.json`;
 - no physical-PA capture produced from a predistorted waveform is available.
 
 ## 4. Split, alignment, state and seed contract
@@ -198,11 +205,11 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result после lag-9 runner/config contract:
-**222/222 tests passed**. Более ранние 201/201, 131/131 и 120-test snapshots являются
-историческими и не заменяют текущий count. Следующий code change обязан сохранить
-новый wall time/execution record; unit-suite timing не является inference
-benchmark.
+Последний recorded full-suite result после held-out release runner/config
+contract: **234/234 tests passed**. Более ранние 222/222, 201/201, 131/131 и
+120-test snapshots являются историческими и не заменяют текущий count.
+Следующий code change обязан сохранить новый wall time/execution record;
+unit-suite timing не является inference benchmark.
 
 ### 6.2 A0/A1 alignment sensitivity — completed, A0 frozen
 
@@ -759,6 +766,65 @@ device is detected, and archived neural checkpoint binaries are absent.
 Installing upstream dependencies is also a separate environment task, not
 part of the NumPy PA sweep.
 
+### 6.17 APA capture transfer and frozen held-out release — completed
+
+Этот protocol отделяет выбор `N` от target test. Сначала source models,
+topology и coefficient-only learning curves фиксируются на source/target
+train+validation. Только затем release command получает explicit
+`--release-test` acknowledgement и открывает target test.
+
+Pre-test command (15.036 s recorded; target test forbidden):
+
+```bash
+.venv/bin/python -m experiments.transfer_pa_apa200_to_b \
+  --config experiments/configs/pa_transfer_apa200_to_b.json
+.venv/bin/python -m experiments.verify_pa_transfer_bundle \
+  --bundle experiments/results/pa_transfer_apa200_to_b_pretest
+```
+
+Pre-test config SHA-256:
+`4ca1c44bb66aa8b06eb00f164f1651d0622cb208d2d902991fd0b5bebec7ca2f`.
+Published manifest SHA-256:
+`570c3f98af77961f23d30eaa71f38f35c80745a523656042a2dfee1d7e8ddd00`.
+Verifier reproduced 20 validation metric records and asserted
+`test_never_opened_or_hashed=true`.
+
+After validation selected `N=16384` for both families, the release config was
+frozen (SHA-256
+`e1808673eae86fff88c8693f680109d91f8c38ada6659d9794374741317a058f`) and the
+following exact command was run:
+
+```bash
+.venv/bin/python -m experiments.release_pa_transfer_apa200_to_b \
+  --config experiments/configs/pa_transfer_apa200_to_b_release.json \
+  --release-test
+.venv/bin/python -m experiments.verify_pa_transfer_release \
+  --bundle experiments/results/pa_transfer_apa200_to_b_test_release \
+  --output experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
+```
+
+The immutable release manifest SHA-256 is
+`067a00e66032ae3b0dfde35437a3116ea45931f65ef5bf833aca3ebafe635d07`;
+verification artifact SHA-256 is
+`399d378c1b6cbe33bde95a308aa4f7268201cc415b1089b61d7241fd1b2bb963`.
+The target test hashes are input
+`5027d3d69391ed22ad79c410831bdfed47b25045088dda0756801cf591c947bf` and
+output
+`9cdc65d4785ed0ef8abf33c5fab26fe1d18712f8b0e5216acaa1526f34f2f477`.
+The final release process took `0.8733 s` before publication.
+
+The access audit must be read together with
+`experiments/results/pa_transfer_apa200_to_b_release_incident_001.json`
+(SHA-256
+`d03217f7ec74f49fbcd3f8619c528d7737b907e281d609b90363339ecacb2a34`).
+The first access failed after loading the pair but before inference or metric
+because a guard assumed three full `19662` train frames; the frozen framing is
+`19662,19662,19656`. Only that guard was fixed. The retry used unchanged
+models, coefficients, `N`, selection and metric protocol. Therefore the
+published audit is `access_count=2`,
+`strict_single_open_execution=false`, `test_used_for_selection=false`, and
+`test_used_for_coefficient_fit=false`. The incident is deliberately retained.
+
 ## 7. Preserved ablation, robustness and hardware matrices
 
 The first-stage DPD search space remains preregistered, but is deferred until
@@ -880,7 +946,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 222/222 tests passed; 1.55 s discovery wall | completed after lag-9 contract |
+| Final unit suite | 234/234 tests passed; 1.55 s discovery wall | completed after held-out release contract |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -889,6 +955,8 @@ verification or an explicit `surrogate-only` limitation.
 | GMP APA 154 fits | 212.762 s wall; selected final fit 5.555 s | completed |
 | Frozen GMP test | 0.066 s DPA / 0.31 s APA process wall, no fit | completed once/dataset |
 | GMP residual | 10.259 s DPA / 24.872 s APA wall | completed pre-test |
+| APA transfer pre-test | 15.036 s wall | completed, test unopened |
+| APA held-out release + verification | 0.873 s producer; verifier deterministic | completed, access count 2 with first metric-free failure |
 | APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | APA sparse staged search | 33.589 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only |
 | APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
@@ -920,7 +988,7 @@ outputs for predistorted waveforms.
    selection.
 6. [x] Generalize residual analysis to GMP; run coefficient-OOF/validation
    diagnostics and release gates before test.
-7. [x] Open each frozen GMP test exactly once in separate commits.
+7. [x] Open each frozen DPA/APA GMP test exactly once in separate commits.
 8. [x] Re-evaluate Gate A→B: closed; projected margin remains below 10 dB and
    no second independent evaluator/physical PA exists.
 9. [x] Synchronize mandatory living docs and deprecate the stale secondary
@@ -943,8 +1011,11 @@ outputs for predistorted waveforms.
 17. [x] Preregister and run a narrow residual-guided lag-9 branch family with
     the same train-only OOF/rank/support/operation contract; cheap-Pareto and
     incremental gates passed, evaluator gate failed.
-18. [ ] Validate the surviving lag-9 sparse family and GMP on a new independent
-    capture/operating point with limited-calibration curves; do not reopen the
-    old APA test.
-19. [ ] Only after Gate A→B passes, evaluate DPD through frozen independent
-    evaluators, then fixed point, robustness/adaptation and finally physical PA.
+18. [x] Validate the surviving lag-9 sparse family and GMP on independent
+    `APA_200MHz_b` capture with limited-calibration curves; target held-out
+    release and access incident are disclosed in §6.17.
+19. [ ] Obtain operating-point metadata for measurement B; until then label
+    results `capture transfer`, not power/thermal adaptation.
+20. [ ] Run bit-accurate 16/14/12-bit PA-model evaluation before any DPD tuning.
+21. [ ] Obtain controlled physical-PA data and only after Gate A→B passes
+    evaluate DPD through frozen independent evaluators, then hardware claims.
