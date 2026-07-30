@@ -1,6 +1,6 @@
 # Roadmap: two-loop PA identification and DPD
 
-Дата обновления: 2026-07-29.
+Дата обновления: 2026-07-30.
 
 Главное изменение относительно первого этапа: дальнейшее улучшение DPD
 приостановлено, пока независимый PA evaluator не станет заметно точнее
@@ -18,8 +18,17 @@ PA measurement, Gate A→B остаётся закрытым.
 matched MP и на 7.943 dB хуже GMP. Поэтому он остаётся дешёвым отрицательным
 control point, а не новым evaluator. Выполненный затем non-factorized sparse
 spline-memory PA дал −32.0300 dB train-OOF при 54 MUL/58 ADD, но остался на
-5.024/6.315 dB хуже MP/GMP (full) и также не стал evaluator. Его residual peak
-смещает следующий hypothesis к lag 9, а не к дополнительным knots.
+5.024/6.315 dB хуже MP/GMP (full) и также не стал evaluator.
+
+Отдельно preregistered lag-9 ablation уже завершён. Добавление branches
+`(8,0),(9,0),(10,0)` к parent topology дало −37.7925/−37.8528 dB
+full/common train OOF и −37.8607 dB reused validation при 72 MUL/82 ADD.
+Это на 0.738/0.753 dB лучше matched MP при примерно в 13.3 раза меньшем MUL
+count, поэтому кандидат впервые проходит internal cheap-Pareto gate. Но GMP
+остаётся точнее на 0.553/0.898 dB full/common, independent capture отсутствует,
+а normalized OOF error power около `1.66e-4`, не `1e-5`. Поэтому кандидат не
+является evaluator, Gate A→B закрыт, а следующий приоритет — independent
+`APA_200MHz_b`/physical-PA evidence, не новый delay sweep.
 
 ## Правила выполнения
 
@@ -37,8 +46,8 @@ spline-memory PA дал −32.0300 dB train-OOF при 54 MUL/58 ADD, но ос�
 
 ## Status snapshot
 
-Текущий snapshot включает frozen GMP results и два завершённых APA
-linear-residual ablations:
+Текущий snapshot включает frozen GMP results и завершённые APA
+linear/spline residual ablations:
 
 - MP forward baseline, frozen test и residual analysis для DPA/APA завершены;
 - causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
@@ -82,6 +91,13 @@ linear-residual ablations:
 - sparse residual воспроизводит causal proper-correlation peak lag 9
   (`0.69064` train OOF, `0.69131` reused validation); envelope/state evidence
   не оправдывает slow-state branch;
+- bounded lag-9 run завершён без test access: selected
+  `parent_plus_signal_lag8_10_current_envelope`, `K=12`, ridge `1e-8`,
+  −37.7925/−37.8528 dB full/common OOF и −37.8607 dB reused validation при
+  72 MUL/82 ADD; incremental и cheap-Pareto gates прошли, evaluator gate нет;
+- lag-9 branch удалил исходный residual peak: новый train-OOF causal proper
+  peak имеет magnitude только 0.0711 на lag 32; это within-capture residual
+  evidence, не transfer claim;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
 
@@ -192,9 +208,10 @@ Observed result:
 
 ## Этап A2. PA baselines
 
-Статус: MP, causal GMP, standalone APA SPH и non-factorized sparse PA
-завершены; локального runnable OpenDPD neural checkpoint нет. SPH и sparse PA
-отклонены как quality evaluators.
+Статус: MP, causal GMP, standalone APA SPH, первый non-factorized sparse PA и
+residual-guided lag-9 sparse PA завершены; локального runnable OpenDPD neural
+checkpoint нет. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
+но SPH и оба sparse PA отклонены как quality evaluators.
 
 Порядок:
 
@@ -216,7 +233,9 @@ Observed result:
 5. [x] Non-factorized sparse complex spline-memory PA с bounded branch/delay
    dictionary, мотивированным residual peak 22–24; APA run завершён, quality
    gate отклонён.
-6. [ ] State-conditioned variant только при residual evidence slow state.
+6. [x] Отдельный bounded lag-9 neighborhood, мотивированный residual первого
+   sparse run; cheap-Pareto gate пройден, evaluator gate отклонён.
+7. [ ] State-conditioned variant только при residual evidence slow state.
 
 Каждый baseline разбивается минимум на отдельные commits: model + tests;
 pre-registered config; numerical result artifact; report update. Нельзя менять
@@ -230,6 +249,7 @@ evaluator одновременно с моделью или объединять
 | DPA_200MHz | causal GMP `both_k4_m1`, `ka7/la24` | −35.366 dB | −35.385 dB | 766 |
 | APA_200MHz | powers 1…5, 30 delays | −37.095 dB | −36.990 dB | 960 |
 | APA_200MHz | causal GMP `both_k2_m2`, `ka7/la30` | −38.665 dB | −38.608 dB | 954 |
+| APA_200MHz | sparse lag-9, 9 branches, `K=12` | −37.861 dB reused | not opened | 72 |
 
 GMP configs `experiments/configs/pa_gmp_dpa200.json` и
 `experiments/configs/pa_gmp_apa200.json` фиксируют bounded causal grid,
@@ -325,10 +345,35 @@ The candidate improves SPH by about `1.628 dB`, but loses to matched MP by
 bundle is `experiments/results/pa_sparse_spline_memory_apa200_selection/` and
 the execution took `33.5888 s` before publication without test access.
 
-The next local experiment must be a separately preregistered lag-9 neighborhood
-(`{8,9,10}` or an explicitly justified subset of signal/envelope pairs), not
-an unbounded delay/K sweep. If that bounded family also misses the GMP gap,
-stop local surrogate expansion and prioritize `APA_200MHz_b`/physical capture.
+### A2.6 Residual-guided lag-9 sparse result
+
+Config `experiments/configs/pa_sparse_spline_memory_lag9_apa200.json` был
+committed до fit и ограничил поиск девятью topology, `K∈{8,12,16}` и четырьмя
+ridge values. Selected model:
+
+```text
+(m,d) = (0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)
+K = 12, ridge = 1e-8
+```
+
+Train OOF full/common NMSE — `−37.792478/−37.852832 dB`; gain над frozen
+parent — `5.762/5.765 dB`, minimum per-fold gain — `5.718/5.731 dB`.
+Full-train refit — `−37.866643 dB`, reused validation — `−37.860728 dB`.
+Exact schedule: `72 MUL`, `82 ADD`, 6 sqrt, 24 comparisons, 18 LUT accesses,
+216 coefficient reals и 48 state reals. Rank `108/108`, augmented condition
+`2427.39`, streaming/reset error `0`.
+
+Candidate is `cheap_pareto_only`: он лучше matched MP на `0.738/0.753 dB`,
+но хуже GMP на `0.553/0.898 dB` full/common OOF. Варианты с несколькими
+branches `(0,d)` были отклонены как rank-deficient: partition-of-unity каждой
+spline повторяет один и тот же linear component `x[n]`. `K=16` selected
+topology также потерял rank минимум в двух folds. Bundle:
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`;
+runtime до publication `62.5693 s`; test не читался и не хэшировался.
+
+Local delay search на `APA_200MHz` остановлен. Следующий experiment —
+zero-shot/limited-calibration comparison на independent
+`APA_200MHz_b` capture после freeze metadata and nuisance-alignment protocol.
 
 ## Ближайшая точная последовательность
 
@@ -360,10 +405,12 @@ stop local surrogate expansion and prioritize `APA_200MHz_b`/physical capture.
    cost, identifiability и streaming contract; APA SPH отклонён по OOF gate.
 11. [x] Preregister, implement and execute bounded non-factorized sparse
    spline-memory PA; selected result fails quality/evaluator gates.
-12. [ ] Preregister and run the residual-guided lag-9 neighborhood with the
-   same train-only OOF protocol; stop if the cheap-Pareto/evaluator gate fails.
+12. [x] Preregister and run the residual-guided lag-9 neighborhood with the
+   same train-only OOF protocol; selected model passes cheap-Pareto and
+   incremental gates but fails evaluator gate.
 13. [ ] Проверить surviving family на reused validation и новом independent
-   capture/operating point; не использовать старый APA test для selection.
+   capture/operating point; reused validation уже записана, теперь требуется
+   `APA_200MHz_b`/physical PA; не использовать старый APA test для selection.
 14. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
