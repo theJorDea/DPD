@@ -28,25 +28,37 @@ topology, только коэффициенты.
   nearest-even rounding, saturation counters и integer sqrt/interpolation;
 - exact reset-per-frame и arbitrary-chunk streaming equivalence;
 - train-only scale freeze с machine-readable report;
+- bit-accurate 16/14/12-bit evaluation selected spline-memory DPD на DPA и
+  APA: desired train input фиксирует formats, validation проходит через
+  fixed DPD и тот же frozen floating PA surrogate;
+- exact reset-per-frame, arbitrary-chunk и 90-degree phase-equivariance checks
+  для fixed DPD, zero saturation/collision на обоих validation splits;
 - pinned-single-core DPD-only Python/NumPy timing diagnostic с попарным
   1000-real-MUL scalar reference, exact streaming equivalence и hash-bound
   provenance. Это instrumentation evidence, не target hardware pass.
 
 Пока **не выполнены**:
 
-- bit-accurate evaluation selected spline-memory DPD;
-- fixed-point PA→DPD cascade;
+- physical-PA replay предыскажённых fixed-point waveforms;
+- target implementation того же integer DPD schedule, включая выбранную
+  reciprocal/division и integer-sqrt microarchitecture;
 - synthesis/place-and-route на FPGA/ASIC;
 - measured latency, throughput, DSP/LUT/BRAM use, power или timing closure.
 
-Следовательно, completed PA fixed-point work доказывает только численную
-реализуемость evaluator arithmetic. Он не обязан укладываться в DPD timing
-budget и не заменяет bit-accurate/timed implementation самого predistorter.
+Следовательно, completed DPD fixed-point work доказывает численную
+устойчивость выбранного predistorter к 16/14/12-bit arithmetic на frozen
+surrogate. Оно ещё не доказывает target latency или physical-PA suppression.
+PA fixed-point work остаётся отдельной проверкой evaluator arithmetic и не
+подпадает под DPD timing budget.
 
 Source of the completed PA arithmetic evidence:
 `experiments/configs/pa_fixed_point_apa200.json`,
 `experiments/evaluate_fixed_point_pa.py` and
 `experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
+DPD arithmetic evidence:
+`experiments/evaluate_fixed_point_dpd.py`,
+`experiments/configs/dpd_fixed_point_{dpa200,apa200}_validation.json` and
+`experiments/results/dpd_fixed_point_{dpa200,apa200}_validation/`.
 
 ## 2. Counting convention
 
@@ -285,6 +297,49 @@ overflow; target sparse degradation is only `0.0935 dB`, but sparse starts
 closes the planned PA-payload quantization cleanup. It is not subject to the
 deployment DPD latency gate.
 
+### 3.8 Spline-memory DPD fixed-point validation
+
+The sealed DPD runner opens only desired `train_input.csv` and
+`val_input.csv`. Input/output/coefficient scales are frozen from desired
+train input, frozen floating-DPD train drive and frozen coefficients before
+validation waveform values are parsed. The PA surrogate remains floating, so
+the experiment isolates DPD quantization instead of mixing DPD and evaluator
+quantization.
+
+| Dataset / format | Fixed-vs-float drive NMSE | Cascade NMSE vs ideal | Absolute adjacent suppression L/R | Peak / PAPR | Coeff / knot / state bytes |
+|---|---:|---:|---:|---:|---:|
+| DPA float | reference | −30.5332 dB | 4.801 / 7.789 dB | 1.1926 / 10.469 dB | — |
+| DPA 16 bit | −78.9244 dB | −30.5322 dB | 4.798 / 7.788 dB | 1.1926 / 10.469 dB | 288 / 144 / 8 |
+| DPA 14 bit | −67.0128 dB | −30.5336 dB | 4.793 / 7.776 dB | 1.1927 / 10.469 dB | 252 / 144 / 7 |
+| DPA 12 bit | −54.8714 dB | −30.5148 dB | 4.782 / 7.692 dB | 1.1922 / 10.466 dB | 216 / 144 / 6 |
+| APA float | reference | −32.3840 dB | 16.521 / 13.905 dB | 1.0615 / 10.584 dB | — |
+| APA 16 bit | −77.8237 dB | −32.3851 dB | 16.511 / 13.906 dB | 1.0615 / 10.583 dB | 96 / 48 / 8 |
+| APA 14 bit | −65.7806 dB | −32.3703 dB | 16.535 / 13.871 dB | 1.0617 / 10.586 dB | 84 / 48 / 7 |
+| APA 12 bit | −53.5984 dB | −32.3790 dB | 16.369 / 13.982 dB | 1.0608 / 10.578 dB | 72 / 48 / 6 |
+
+All six fixed rows have zero input/coefficient/power/interpolation/scalar-
+accumulator/accumulator/output saturation, zero knot collision/shift,
+bit-identical arbitrary-chunk streaming and bit-exact 90-degree rotation for
+the evaluated signals. The 12-bit maximum loss in configured absolute
+adjacent-region suppression relative to float is `0.0966 dB` on DPA and
+`0.1520 dB` on APA. Small apparent improvements on individual APA sides are
+not treated as wins from one reused validation capture.
+
+The exact integer schedule for both models is:
+
+```text
+20 real MUL, 25 real ADD, 1 integer division, 1 integer sqrt,
+8 LUT accesses, 28 real reads, 2 writes and 4 state reals/sample.
+```
+
+DPA uses five binary-address comparisons and 144 real coefficients; APA uses
+three comparisons and 48 real coefficients. Knot codes are stored in the
+48-bit power/address format, which is why their memory is 144 B for DPA and
+48 B for APA at every activation width. This schedule is an integer reference,
+not synthesized DSP/LUT use and not the unknown 1000-MUL-equivalent timing
+pass. Spectral results are configured baseband adjacent regions through a
+frozen surrogate, not physical RF harmonic measurements.
+
 ## 4. Interpreting the cost
 
 ### 4.1 GMP versus MP
@@ -394,6 +449,14 @@ accumulator tree ordering и memory interface должны быть зафикс
 target HLS/RTL. Архивные memoryless-DPD numbers поэтому не смешиваются с
 новым PA report.
 
+`baseline/fixed_point_spline_memory_dpd.py` теперь переиспользует тот же
+audited integer spline-memory kernel с явной DPD direction
+`desired_input_to_predistorted_drive`. Sealed
+`experiments/evaluate_fixed_point_dpd.py` фиксирует formats на train,
+проверяет 16/14/12 bit на validation и сохраняет float/fixed waveform bundles
+для одного spectral evaluator. Это bit-accurate integer arithmetic reference,
+но `rtl_bit_true=false`: соответствие конкретному RTL/HLS ещё не проверено.
+
 ## 6. Required bit-accurate simulator
 
 ### 6.1 Numeric contract
@@ -479,8 +542,9 @@ Required unit/property tests:
 
 Architecture, scaling policy and accumulator rules are frozen from train and
 the preregistered format matrix; validation is descriptive and cannot choose or
-retune a format.  The test split is not part of the current PA arithmetic
-runner and remains sealed.
+retune a format. The DPD matrix 16/14/12 bit is completed on DPA and APA with
+the test split unopened. Validation was already used historically to choose
+the floating DPD, so these precision rows are not an untouched final release.
 
 For each model/format publish:
 
@@ -530,15 +594,18 @@ solving” без update-time requirement Huawei.
 ## 10. Следующая hardware задача
 
 PA arithmetic coverage достигнута на DPA/APA source captures и на frozen
-target-calibrated `APA_200MHz_b` coefficient payloads. Target cleanup выполнен
-на train/validation с hash-bound provenance без target-test access. На этом
-расширение PA quantization без нового evidence need останавливается.
+target-calibrated `APA_200MHz_b` coefficient payloads. Selected spline-memory
+DPD теперь также прошёл sealed 16/14/12-bit train→freeze→validation cascade
+через floating frozen surrogate. Расширять quantization sweeps без нового
+evidence need не требуется.
 
-Следующий deployment-relevant hardware step — selected spline-memory DPD
-fixed-point path и correct desired-x→DPD→frozen-PA cascade. Host timing
-instrumentation уже проверена; после получения target/timing-reference
-definition она должна быть заменена измерением latency и throughput всех
-операций DPD на целевой реализации относительно customer reference kernel.
-Synthesis/throughput следует запускать лишь после выбора конкретного
-word-length/reciprocal/sqrt implementation; до этого analytical counts
-помечаются lower bounds.
+Следующий deployment-relevant hardware step — оставить 16 bit как conservative
+implementation reference, а 12/14 bit считать только area alternatives до
+появления заранее заданных hardware constraints и независимого/physical-PA
+подтверждения. Выбирать precision по этой reused validation нельзя. Затем
+нужно зафиксировать reciprocal/division, integer-sqrt и accumulator
+microarchitecture в HLS/RTL. После получения target/timing-reference
+definition измеряется latency и sustained throughput **всех** DPD operations
+относительно customer reference kernel. Physical-PA replay тех же exported
+fixed waveforms остаётся обязательным до spectral/harmonic claim; analytical
+and Python timings до этого помечаются diagnostics.
