@@ -1,0 +1,16 @@
+{
+  "artifact_hashes_verified": true,
+  "bundle": "experiments/results/pa_transfer_apa200_to_b_test_release",
+  "checked_metric_records": 4,
+  "pretest_bundle_verified": true,
+  "prior_metric_free_incident_verified": true,
+  "release_access_count": 2,
+  "release_manifest_sha256": "067a00e66032ae3b0dfde35437a3116ea45931f65ef5bf833aca3ebafe635d07",
+  "release_producer_sha256": "4be11c6fe7608ec7e65d12a168415b3733ff19d6c3884b2eb98456fdddd10a7c",
+  "release_verifier_sha256": "07fe904b12640d43547950dcd78917d86e7fd42f20cf8d998e9c11eaeac8e34b",
+  "schema_version": 1,
+  "strict_single_open_execution": false,
+  "target_test_hashes_verified": true,
+  "target_test_used_for_coefficient_fit": false,
+  "target_test_used_for_selection": false
+}
