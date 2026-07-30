@@ -4,9 +4,11 @@
 
 ## 1. Статус
 
-Полноценный robustness/adaptation benchmark **ещё не выполнен**. Текущие
-formal PA results относятся отдельно к `DPA_200MHz` и `APA_200MHz`; они не
-доказывают transfer между PA, waveform, bandwidth или operating point.
+Полноценный robustness/adaptation benchmark для известных operating-point
+изменений **ещё не выполнен**. Первый preregistered capture-transfer run
+`APA_200MHz -> APA_200MHz_b` уже выполнен на train/validation; target
+held-out split остаётся запечатанным. Поэтому ниже разделены completed
+capture-transfer evidence и ещё не доказанные power/thermal claims.
 
 Этот документ фиксирует protocol до запуска transfer experiments. Он запрещает
 объединять разные physical captures как случайные строки одного train/test
@@ -27,8 +29,9 @@ train-OOF/reused-validation evidence:
 SPH и первый sparse результат хуже matched MP/GMP. Lag-9 sparse проходит
 cheap-Pareto gate относительно MP, но уступает GMP на `0.553 dB` full OOF и
 по-прежнему не является robustness evidence или независимым evaluator для DPD.
-Zero-shot, operating-point transfer и adaptation claim не делаются. Validation
-была только descriptive reused-validation проверкой; test split не открывался.
+Zero-shot capture transfer теперь измерен отдельным frozen source protocol.
+Operating-point, thermal и physical-PA adaptation claim по-прежнему не делаются:
+metadata для “measurement B” неизвестна, а target held-out split не открывался.
 
 ## 2. Доступные captures и границы metadata
 
@@ -243,25 +246,58 @@ evidence scope
 Canonical outputs должны быть immutable; rerun получает новый versioned output
 directory, а не перезаписывает предыдущий result.
 
-## 9. Следующий эксперимент максимальной ценности
+## 9. Completed APA capture-transfer result
 
-До DPD наиболее информативен PA-model zero-shot + limited-calibration test
-`APA_200MHz -> APA_200MHz_b`, потому что repository объявляет одинаковую
-waveform/spec и явно называет второй capture “measurement B”. Но перед claim
-нужно выяснить, что означает B. Без ответа результат будет честно называться
-capture transfer, а не power/thermal adaptation.
+Preregistered config:
+`experiments/configs/pa_transfer_apa200_to_b.json`. Source/target inputs
+`train` и `val` побитно идентичны, но measured outputs различаются. Это
+same-excitation capture transfer; unknown axes остаются неизвестными.
 
-Перед transfer run нужно freeze source model family. SPH и первый bounded
-non-factorized sparse spline-memory PA сохраняются как negative controls:
-первый sparse проиграл matched MP на 5.024 dB и GMP на 6.315 dB по full OOF.
-Lag-9 sparse — единственный surviving cheap-Pareto point, но он всё ещё
-уступает GMP и не прошёл evaluator gate. Поэтому следующий experiment —
-independent `APA_200MHz_b` capture/physical-PA evaluation, а не дальнейшее
-расширение dictionary на том же capture.
+| Model / mode | N per frame | Target validation full NMSE | Common NMSE | Fit s | MUL / ADD | FP32 model+state |
+|---|---:|---:|---:|---:|---:|---:|
+| GMP zero-shot | 0 | −23.794841 | −23.793859 | 0 | 954 / 947 | 4532 B |
+| Lag-9 sparse zero-shot | 0 | −23.701383 | −23.703027 | 0 | 72 / 82 | 1148 B |
+| GMP coefficient-only | 256 | −30.019598 | −30.029903 | 0.076 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 1024 | −36.884942 | −36.927799 | 0.148 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 4096 | −37.646230 | −37.696794 | 0.772 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 16384 | **−37.890764** | **−37.961563** | 6.860 | 954 / 947 | 4532 B |
+| Lag-9 sparse coefficient-only | 512 | −26.727371 | −26.729178 | 0.034 | 72 / 82 | 1148 B |
+| Lag-9 sparse coefficient-only | 2048 | −31.575753 | −31.593238 | 0.117 | 72 / 82 | 1148 B |
+| Lag-9 sparse coefficient-only | 8192 | −35.076113 | −35.138897 | 0.628 | 72 / 82 | 1148 B |
+| Lag-9 sparse coefficient-only | 16384 | **−35.358475** | **−35.446027** | 1.513 | 72 / 82 | 1148 B |
 
-Для каждой допущенной к transfer модели публикуются zero-shot и
-limited-calibration curves; target test открывается только после
-metadata/config freeze.
+GMP `N=64/128` — rank-infeasible prefix fits; sparse короткие prefixes
+full-rank, но `N=64/128/256` ухудшают zero-shot. Эти отрицательные точки
+сохранены, а не удалены из learning curve.
 
-Для DPA изменение 160↔200 MHz смешивает больше факторов; его следует выполнять
-вторым как stress test с explicit resampling/time-memory policy.
+Target-train-only nuisance diagnostic дал integer delay `0` и LS gain
+`|g|=1.152146`; strict score не получил post-prediction gain fit. Все
+published models прошли streaming/reset equivalence. Independent verifier
+проверяет 20 metric records и sealing boundary:
+`experiments/verify_pa_transfer_bundle.py`.
+
+Что доказано: source coefficients не переносятся zero-shot (около −23.8 dB),
+но coefficient-only calibration восстанавливает GMP до −37.89 dB за 6.86 s
+или sparse до −35.36 dB за 1.51 s. Sparse остаётся примерно на 2.53 dB хуже
+GMP после полной calibration, хотя требует в 13.25 раз меньше real MUL.
+
+Что не доказано: что B означает power/thermal drift; transfer на другой
+waveform; physical-PA generalization; DPD linearization; target held-out
+performance.
+
+## 10. Следующий эксперимент максимальной ценности
+
+1. Получить metadata для “measurement B” (power/backoff, bias, temperature,
+   capture time, DUT and feedback calibration).
+2. После metadata freeze выполнить отдельный one-shot target held-out release
+   для уже frozen zero-shot/selected-N records; target test не использовать
+   для изменения N или topology.
+3. Выполнить обратное направление `APA_200MHz_b -> APA_200MHz` как
+   symmetry check, только если source/target metadata и protocol остаются
+   сопоставимыми.
+4. Затем проверить known operating-point captures и limited recalibration.
+5. DPD contour не открывать до Gate A→B и independent evaluator margin.
+
+Для DPA изменение 160↔200 MHz смешивает waveform, modulation и sample rate;
+его следует выполнять вторым stress test с explicit resampling/time-memory
+policy.

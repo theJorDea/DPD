@@ -270,6 +270,35 @@ config SHA `93807ab6…`, recipe SHA
 Evidence: `research/opendpd_audit.md` и
 `research/egor_pipeline_audit.md`.
 
+### 3.9 Independent APA capture transfer: completed pre-test layer
+
+The preregistered source-frozen transfer runner compared the two already
+selected PA families on `APA_200MHz_b` without opening its held-out split.
+Train/validation inputs are byte-identical between captures, while measured
+outputs differ. The result is therefore evidence about capture transfer, not
+known power, bias or thermal drift.
+
+| Model / mode | Target validation full NMSE | Common NMSE | Calibration samples/frame | Fit time | MUL / ADD |
+|---|---:|---:|---:|---:|---:|
+| causal GMP zero-shot | −23.794841 dB | −23.793859 dB | 0 | 0 s | 954 / 947 |
+| lag-9 sparse zero-shot | −23.701383 dB | −23.703027 dB | 0 | 0 s | 72 / 82 |
+| causal GMP coefficient-only | **−37.890764 dB** | **−37.961563 dB** | 16384 | 6.860 s | 954 / 947 |
+| lag-9 sparse coefficient-only | −35.358475 dB | −35.446027 dB | 16384 | 1.513 s | 72 / 82 |
+
+The source models fit their original APA validation at approximately
+−38.67/−37.86 dB, so the zero-shot B-capture drop is about 15 dB. Fixed
+topology coefficient-only calibration recovers most of the GMP fidelity, while
+the 72-MUL sparse model is about 2.53 dB worse after the same long prefix.
+Short sparse prefixes can be worse than zero-shot; those points remain in the
+published curve. GMP `N=64/128` are explicitly infeasible rank cases.
+
+The target-train-only nuisance diagnostic found integer delay 0 and
+`|complex-LS gain|=1.152146`; strict metrics intentionally did not refit gain.
+The immutable bundle is
+`experiments/results/pa_transfer_apa200_to_b_pretest/`, and
+`experiments/verify_pa_transfer_bundle.py` reproduces 20 metric records and
+all sealed hashes. This closes neither Gate A→B nor the physical-PA claim.
+
 ## 4. Что доказано только на surrogate
 
 Legacy complex spline-memory DPD `signal_delay_012` дал:
@@ -387,17 +416,22 @@ frozen evaluator.
 | Non-factorized sparse spline-memory replaces GMP under the cheap-quality gate | refuted on train OOF | 54 MUL/sample, but 5.024 dB worse than MP and 6.315 dB worse than GMP |
 | Lag-9 sparse PA is a cheap low-complexity Pareto point | supported within APA capture | 72 MUL/sample; 0.738/0.753 dB better than MP, but 0.553/0.898 dB worse than GMP |
 | Lag-9 sparse PA is an independent DPD evaluator | unsupported | same-capture reused validation only; no second evaluator or physical cascade |
+| Source PA coefficients transfer zero-shot to `APA_200MHz_b` | refuted on target validation | GMP −23.795 dB and lag-9 sparse −23.701 dB; target held-out sealed |
+| Fixed-topology coefficient-only calibration recovers B-capture fidelity | supported on target validation only | GMP −37.891 dB and sparse −35.358 dB at N=16384/frame; capture-transfer scope |
+| `APA_200MHz_b` proves power/thermal adaptation | unsupported | “measurement B” axes are unknown; no controlled labels |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
-Лучший independent-data experiment — **external-capture PA validation and
-limited recalibration on `APA_200MHz_b`**, после уточнения metadata “measurement
-B”. Причины:
+Первый external-capture pre-test уже выполнен; следующий independent-data
+step — **metadata-gated held-out release and, при наличии сопоставимых
+метаданных, обратный transfer `APA_200MHz_b -> APA_200MHz`**. Причины:
 
 - waveform/spec nominally matches `APA_200MHz`;
 - это отдельный capture, поэтому он измеряет generalization, а не ещё один
   random split той же записи;
-- он даёт новое test evidence после того, как primary APA test уже открыт;
+- source coefficients уже проверены zero-shot и после limited recalibration;
+- target held-out evidence ещё не открыта и может быть опубликована только
+  после freeze metadata/config/N;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
 
@@ -405,18 +439,15 @@ B”. Причины:
 
 1. Зафиксировать, какие axes изменились в measurement B; если ответа нет,
    label строго `capture transfer`.
-2. До target access preregister source-frozen GMP и frozen lag-9 sparse
-   candidate; оба должны быть evaluated as forward PA models without changing
-   coefficients on target validation/test.
-3. Fit/select architecture только на `APA_200MHz` train OOF/validation.
-4. Zero-shot coefficient-model score на `APA_200MHz_b`; measurement nuisance
-   alignment/gain diagnostics разрешены только по target train с заранее
-   frozen algorithm, без coefficient adaptation и без target validation/test.
-5. Recalibrate coefficients на target train prefixes
-   (N=64,128,256,\ldots\), choose update rule/N only on target validation.
-6. Open target test once after freeze; report NMSE/error PSD/AM-AM/AM-PM,
-   support, cost and wall time.
-7. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
+2. Сохранить уже frozen source models, transfer config и selected-N rule;
+   target test не использовать для изменения этих решений.
+3. Выполнить target held-out release once после metadata/config freeze;
+   report NMSE/error PSD/AM-AM/AM-PM, support, cost and wall time.
+4. Если metadata подтверждает same DUT, выполнить обратный transfer
+   `APA_200MHz_b -> APA_200MHz` на ещё не использованном split.
+5. Только после известного operating-point experiment строить adaptation
+   curves с physical power/temperature labels.
+6. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
    не выполнен. Current lag-9 result already fails this gate; no further local
    delay dictionary expansion is authorized before transfer evidence.
 

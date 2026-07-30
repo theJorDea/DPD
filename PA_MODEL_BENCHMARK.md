@@ -27,6 +27,12 @@ GMP evaluator и не открывал контур B.
 Residual-guided lag-9 neighborhood был затем проверен отдельным
 preregistered run с тем же frozen implementation; он улучшил parent до
 cheap-Pareto уровня, но не заменил GMP evaluator.
+После freeze source family выполнен отдельный train/validation-only capture
+transfer `APA_200MHz -> APA_200MHz_b`. Target held-out split не открывался и
+не хэшировался. Zero-shot fidelity резко падает примерно до −23.8 dB, тогда
+как coefficient-only recalibration на длинном target-train prefix возвращает
+GMP к −37.89 dB; это evidence capture drift, а не доказательство power или
+thermal adaptation.
 Данные в CSV являются измеренными входом и выходом PA, поэтому это
 **forward identification on held-out measured data**. Это не означает, что
 физический PA был повторно измерен после построения модели.
@@ -68,6 +74,11 @@ evaluator не является выполненным DPD experiment. Bundled O
   на `0.738/0.753 dB`, но уступив GMP на `0.553/0.898 dB`;
 - DPD optimization остаётся остановленной: следующий источник информации —
   independent `APA_200MHz_b`/physical-PA capture, не новый local delay sweep.
+- На independent declared capture `APA_200MHz_b` zero-shot source transfer
+  дал `−23.7948 dB` GMP и `−23.7014 dB` lag-9 sparse на validation. После
+  coefficient-only target-train calibration (`N=16384` samples/frame) GMP
+  достиг `−37.8908 dB`, sparse `−35.3585 dB`; held-out target split всё ещё
+  запечатан, поэтому это pre-test transfer evidence.
 
 ## 1. Определения метрик
 
@@ -998,6 +1009,64 @@ within-capture evidence. The immutable bundle is
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`; all six
 payload hashes and input hashes were reverified, and `test_split_accessed=false`.
 
+## 10.9 APA_200MHz → APA_200MHz_b capture transfer — pre-test result
+
+Перед запуском target fit был зафиксирован
+`experiments/configs/pa_transfer_apa200_to_b.json`. Source и target inputs
+`train`/`val` побитно идентичны, а measured outputs имеют разные hashes.
+Поэтому это same-excitation capture transfer; metadata не позволяет назвать
+изменение power, bias или temperature.
+
+Protocol не менял source topology/knots/coefficients для zero-shot режима:
+
+```text
+source frozen PA model -> target input -> y_hat_target
+compare with target measured y
+```
+
+Target coefficient adaptation refit-ит только complex coefficients на
+`[0:N)` prefix каждой из трёх target-train frames. `N` и solver axes были
+зафиксированы заранее; validation загружена только после завершения всех
+prefix fits. Target held-out split не открывался, не хэшировался и не
+использовался для выбора N.
+
+| Model / mode | N per frame | Target val full NMSE | Common NMSE | Fit time, s | MUL / ADD | FP32 model+state |
+|---|---:|---:|---:|---:|---:|---:|
+| GMP zero-shot | 0 | −23.794841 | −23.793859 | 0 | 954 / 947 | 4532 B |
+| lag-9 sparse zero-shot | 0 | −23.701383 | −23.703027 | 0 | 72 / 82 | 1148 B |
+| GMP coefficient-only | 256 | −30.019598 | −30.029903 | 0.076 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 1024 | −36.884942 | −36.927799 | 0.148 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 4096 | −37.646230 | −37.696794 | 0.772 | 954 / 947 | 4532 B |
+| GMP coefficient-only | 16384 | **−37.890764** | **−37.961563** | 6.860 | 954 / 947 | 4532 B |
+| lag-9 sparse coefficient-only | 512 | −26.727371 | −26.729178 | 0.034 | 72 / 82 | 1148 B |
+| lag-9 sparse coefficient-only | 2048 | −31.575753 | −31.593238 | 0.117 | 72 / 82 | 1148 B |
+| lag-9 sparse coefficient-only | 8192 | −35.076113 | −35.138897 | 0.628 | 72 / 82 | 1148 B |
+| lag-9 sparse coefficient-only | 16384 | **−35.358475** | **−35.446027** | 1.513 | 72 / 82 | 1148 B |
+
+GMP `N=64/128` были записаны как infeasible: 3 prefixes не дают
+overdetermined 444-complex-column solve. Sparse `N=64/128/256` технически
+full-rank, но дают хуже zero-shot из-за малого support/conditioning; это
+отрицательный calibration result, а не основание скрывать эти точки.
+
+Nuisance diagnostic, fitted only on target train, нашёл integer delay `0` и
+complex LS gain magnitude `1.152146`. Strict score намеренно не менялся
+post-prediction gain fit; diagnostic не участвовал в выборе model/N. Streaming
+chunk and reset equivalence remained exact for every published model.
+
+Интерпретация ограничена capture transfer. Source model не переносится
+zero-shot на B capture (потеря около 14.9 dB относительно source GMP control),
+но coefficient-only calibration восстанавливает большую часть fidelity с
+`6.86 s` fit для GMP или `1.51 s` для sparse. При этом sparse остаётся на
+`2.53 dB` хуже GMP после полной preregistered calibration, хотя дешевле по
+MUL и памяти. Это не Gate A→B и не DPD evidence.
+
+Machine-readable bundle и независимый verifier:
+
+- `experiments/results/pa_transfer_apa200_to_b_pretest/`;
+- `experiments/verify_pa_transfer_bundle.py`;
+- verifier проверяет 20 metric records, payload/source/data hashes и sealed
+  held-out boundary.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -1008,7 +1077,9 @@ payload hashes and input hashes were reverified, and `test_split_accessed=false`
 - A0/A1 fractional-delay sensitivity выполнена, но independent feedback-path
   calibration/de-embedding всё ещё отсутствует; A0 frozen без correction.
 - Нет independent long captures для thermal/trapping state.
-- Нет captures разных power levels/operating points для adaptation curves.
+- Нет captures с известными и контролируемыми power levels/operating points
+  для adaptation claim; `APA_200MHz_b` остаётся нерасшифрованным capture
+  transfer.
 - Нет runnable bundled OpenDPD neural checkpoint.
 - Нет locally rerun OpenDPD PA backbone в нашем frozen evaluator.
 - Widely-linear, proper long-FIR и standalone SPH отклонены по quality gates.

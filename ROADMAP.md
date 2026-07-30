@@ -25,10 +25,12 @@ spline-memory PA дал −32.0300 dB train-OOF при 54 MUL/58 ADD, но ос�
 full/common train OOF и −37.8607 dB reused validation при 72 MUL/82 ADD.
 Это на 0.738/0.753 dB лучше matched MP при примерно в 13.3 раза меньшем MUL
 count, поэтому кандидат впервые проходит internal cheap-Pareto gate. Но GMP
-остаётся точнее на 0.553/0.898 dB full/common, independent capture отсутствует,
-а normalized OOF error power около `1.66e-4`, не `1e-5`. Поэтому кандидат не
-является evaluator, Gate A→B закрыт, а следующий приоритет — independent
-`APA_200MHz_b`/physical-PA evidence, не новый delay sweep.
+остаётся точнее на 0.553/0.898 dB full/common, а normalized OOF error power
+около `1.66e-4`, не `1e-5`. Последующий preregistered `APA_200MHz_b`
+capture-transfer pre-test уже выполнен: zero-shot score около −23.8 dB,
+coefficient-only recalibration восстанавливает GMP до −37.89 dB. Это не
+power/thermal claim и не evaluator для DPD; Gate A→B закрыт, а следующий
+приоритет — metadata-gated held-out release и physical-PA evidence.
 
 ## Правила выполнения
 
@@ -371,9 +373,29 @@ topology также потерял rank минимум в двух folds. Bundle
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`;
 runtime до publication `62.5693 s`; test не читался и не хэшировался.
 
-Local delay search на `APA_200MHz` остановлен. Следующий experiment —
-zero-shot/limited-calibration comparison на independent
-`APA_200MHz_b` capture после freeze metadata and nuisance-alignment protocol.
+Local delay search на `APA_200MHz` остановлен. Capture-transfer pre-test
+описан в A2.7; дальнейшие изменения source topology до held-out release
+запрещены.
+
+### A2.7 APA capture-transfer pre-test
+
+Preregistered source-frozen transfer на `APA_200MHz_b` выполнен train/validation
+only. Inputs `train`/`val` побитно идентичны source capture; measured outputs
+различаются. Target held-out split не открывался и не хэшировался.
+
+| Model / mode | Target val full NMSE | Common NMSE | N/frame | Fit time | MUL / ADD |
+|---|---:|---:|---:|---:|---:|
+| GMP zero-shot | −23.794841 dB | −23.793859 dB | 0 | 0 s | 954 / 947 |
+| Lag-9 sparse zero-shot | −23.701383 dB | −23.703027 dB | 0 | 0 s | 72 / 82 |
+| GMP coefficient-only | **−37.890764 dB** | **−37.961563 dB** | 16384 | 6.860 s | 954 / 947 |
+| Lag-9 sparse coefficient-only | −35.358475 dB | −35.446027 dB | 16384 | 1.513 s | 72 / 82 |
+
+Вывод: zero-shot source coefficients не обобщаются на B capture, но fixed
+topology coefficient-only recalibration восстанавливает качество. Это
+capture-transfer evidence, не power/thermal adaptation; sparse остаётся на
+2.53 dB хуже GMP после полной calibration. Bundle:
+`experiments/results/pa_transfer_apa200_to_b_pretest/`; независимый verifier
+проверяет 20 metric records и sealed split.
 
 ## Ближайшая точная последовательность
 
@@ -408,10 +430,13 @@ zero-shot/limited-calibration comparison на independent
 12. [x] Preregister and run the residual-guided lag-9 neighborhood with the
    same train-only OOF protocol; selected model passes cheap-Pareto and
    incremental gates but fails evaluator gate.
-13. [ ] Проверить surviving family на reused validation и новом independent
-   capture/operating point; reused validation уже записана, теперь требуется
-   `APA_200MHz_b`/physical PA; не использовать старый APA test для selection.
-14. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+13. [x] Проверить surviving family на независимом `APA_200MHz_b` capture
+   zero-shot и limited coefficient calibration; target held-out split
+   запечатан, поэтому это pre-test transfer evidence.
+14. [ ] Получить metadata “measurement B” и после config/N freeze выполнить
+   one-shot target held-out release; не использовать его для выбора topology,
+   nuisance rule или calibration N.
+15. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 

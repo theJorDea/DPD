@@ -16,7 +16,9 @@ measured x -> frozen PA model -> y_hat -> compare with measured y
 synthesis не выполнялись. APA standalone SPH и первый non-factorized sparse
 forward run были недостаточно точными для замены GMP; bounded lag-9 sparse run
 впервые прошёл cheap-Pareto gate относительно MP, но всё ещё уступил GMP.
-Поэтому report не утверждает better-than-OpenDPD.
+Дополнительно выполнен train/validation-only capture transfer на
+`APA_200MHz_b`; target held-out split не открывался. Поэтому report не
+утверждает better-than-OpenDPD.
 
 ## 2. Environment and provenance
 
@@ -44,6 +46,7 @@ was opened once per dataset after release-gate PASS.
 |---|---:|---:|---:|---|
 | DPA_200MHz | 23,040 / 7,680 / 7,680 | 800 MHz | 2,560 | 10×20 MHz LTE, 64-QAM |
 | APA_200MHz | 58,980 / 19,662 / 19,662 | 983.04 MHz | 19,662 | 5-carrier TM3.1a, 256-QAM |
+| APA_200MHz_b | 58,980 / 19,662 / sealed | 983.04 MHz | 19,662 | same declared family, “measurement B” |
 
 DPA and APA are different PA/captures and are never pooled.
 
@@ -187,6 +190,37 @@ recorded as hard-invalid trials, not silently regularized into the ranking.
 The immutable result is
 `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`.
 
+### 5.6 APA capture transfer and limited coefficient calibration
+
+The preregistered transfer config
+`experiments/configs/pa_transfer_apa200_to_b.json` verified byte-identical
+source/target inputs for train and validation and different measured outputs.
+Only source/target train and validation were loaded. Source topology and
+coefficients were frozen for zero-shot evaluation; target adaptation changed
+coefficients only.
+
+| Model / mode | N per frame | Target validation full NMSE | Common NMSE | Fit s | MUL / ADD | FP32 model+state |
+|---|---:|---:|---:|---:|---:|---:|
+| causal GMP zero-shot | 0 | −23.794841 | −23.793859 | 0 | 954 / 947 | 4532 B |
+| lag-9 sparse zero-shot | 0 | −23.701383 | −23.703027 | 0 | 72 / 82 | 1148 B |
+| causal GMP coefficient-only | 1024 | −36.884942 | −36.927799 | 0.148 | 954 / 947 | 4532 B |
+| causal GMP coefficient-only | 16384 | **−37.890764** | **−37.961563** | 6.860 | 954 / 947 | 4532 B |
+| lag-9 sparse coefficient-only | 1024 | −29.470637 | −29.478619 | 0.060 | 72 / 82 | 1148 B |
+| lag-9 sparse coefficient-only | 16384 | **−35.358475** | **−35.446027** | 1.513 | 72 / 82 | 1148 B |
+
+The full preregistered curves, including infeasible GMP `N=64/128` and
+negative sparse short-prefix points, are in
+`experiments/results/pa_transfer_apa200_to_b_pretest/transfer_manifest.json`.
+The source/target nuisance diagnostic estimated delay 0 and
+`|complex-LS gain|=1.152146` from target train only; it did not alter strict
+scores or select a model. The independent verifier reports 20 reproduced
+metric records and sealed held-out access.
+
+This is capture-transfer evidence, not known operating-point adaptation.
+Zero-shot source coefficients fail on B, while coefficient-only calibration
+recovers much of GMP fidelity. Sparse calibration is about 4.5× faster and
+13.25× cheaper in real MUL than GMP at `N=16384`, but remains 2.53 dB worse.
+
 ## 6. OOF and residual release evidence
 
 | Dataset | GMP train OOF full/common | GMP validation full/common | OOF gain over matched MP full/common | OOF→validation full/common |
@@ -327,7 +361,7 @@ Current status:
 | Selected GMP 16/14/12 bit | not run |
 | Selected spline-memory DPD 16/14/12 bit | not run |
 | GMP→DPD integer cascade | not run |
-| APA_200MHz_b capture transfer/adaptation | not run |
+| APA_200MHz_b capture transfer/adaptation | train/validation pre-test completed; held-out sealed |
 | FPGA/ASIC synthesis and latency/throughput | not run |
 | Physical predistorted PA measurement | not available |
 
@@ -355,6 +389,10 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
   it improved the parent by 5.762/5.765 dB and beat MP by 0.738/0.753 dB,
   but remained 0.553/0.898 dB behind GMP, so its evaluator gate and Gate A→B
   both remained closed.
+- APA capture transfer exposed a large zero-shot gap: GMP −23.795 dB and
+  lag-9 sparse −23.701 dB on target validation. Coefficient-only calibration
+  recovered GMP to −37.891 dB and sparse to −35.358 dB at 16,384 samples/frame;
+  this is not a power/thermal claim because “measurement B” metadata is absent.
 - Repeated `(0,d)` envelope-only branches were hard-invalid for rank deficiency;
   this identifiability failure is a documented model constraint, not a
   post-fit numerical workaround.
@@ -388,9 +426,10 @@ Raw locations:
 
 Causal GMP remains the current forward PA fidelity point under 1000 counted
 real MUL/sample. The lag-9 sparse PA establishes a reproducible 72-MUL
-cheap-Pareto point and removes the discovered residual peak on this capture,
-but it still trails GMP and cannot move the DPD contour. GMP and lag-9 sparse
-both fail a possible −50 dB target, and neither supplies independent
-evaluator evidence. The next justified work is independent
-`APA_200MHz_b`/physical-PA validation with limited-calibration curves, not
-further surrogate-specific DPD optimization.
+cheap-Pareto point and removes the discovered residual peak on the source
+capture, but it still trails GMP and cannot move the DPD contour. The
+`APA_200MHz_b` pre-test shows that zero-shot transfer is poor and that
+coefficient-only calibration restores quality at a cost/quality trade-off;
+held-out target release and physical PA remeasurement are still pending.
+GMP and lag-9 sparse both fail a possible −50 dB target, and neither supplies
+independent DPD evaluator evidence.
