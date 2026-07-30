@@ -27,7 +27,10 @@ topology, только коэффициенты.
 - explicit input/coefficient/power/output formats, 56-bit accumulators,
   nearest-even rounding, saturation counters и integer sqrt/interpolation;
 - exact reset-per-frame и arbitrary-chunk streaming equivalence;
-- train-only scale freeze с machine-readable report.
+- train-only scale freeze с machine-readable report;
+- pinned-single-core DPD-only Python/NumPy timing diagnostic с попарным
+  1000-real-MUL scalar reference, exact streaming equivalence и hash-bound
+  provenance. Это instrumentation evidence, не target hardware pass.
 
 Пока **не выполнены**:
 
@@ -323,6 +326,42 @@ time/interleaving, SIMD and DSP packing меняют mapping. Но один seri
 parallelism и эталонный kernel, после чего проверяется
 `T_DPD/sample <= T_reference(1000 real MUL)`.
 
+### 4.4 DPD-only host-Python timing diagnostic
+
+Для frozen `signal_delay_012` выполнен один и тот же диагностический protocol:
+первые 512 desired-input samples, CPU affinity `[0]`, а thread-control
+environment variables NumPy/BLAS/OpenMP заданы равными 1. Два warm-up pair и
+девять measured pair использованы для каждого chunk. В каждой паре DPD и scalar
+Python reference на 1000 real products/sample запускались рядом, а порядок
+чередовался. PA evaluator в измерение не входил.
+
+Median measured DPD time:
+
+| Dataset | chunk 1 | chunk 8 | chunk 64 | chunk 512 | Paired ratio DPD/reference, chunk 1 / 512 |
+|---|---:|---:|---:|---:|---:|
+| DPA | 177.496 µs/sample | 21.700 µs | 3.076 µs | 0.625 µs | 0.6778 / 0.002345 |
+| APA | 186.089 µs/sample | 22.354 µs | 2.949 µs | 0.534 µs | 0.6633 / 0.002047 |
+
+All eight chunk checks have `streaming_equivalent=true`: state resets once at
+the stream start and is carried across calls. DPA/APA values are now
+consistent for the same three-branch topology, unlike the rejected contended
+exploratory run.
+
+The timed implementation is Python control plus NumPy complex128 reference
+arithmetic. It executes validation, allocation, division and memory work that
+is not the optimized deployment schedule. Conversely, the scalar reference
+also executes Python additions/conversions and is not the unknown customer
+kernel. Therefore the published ratio is **not** a multiplication-equivalent
+latency or Huawei pass/fail. The separate analytical DPD vector remains
+`21 MUL, 24 ADD, 1 nonlinear, 5/3 comparisons, 6 LUT, 18 reads, 2 writes,
+4 state reals`.
+
+Evidence:
+
+- `experiments/results/dpd_timing_dpa200_validation.json`;
+- `experiments/results/dpd_timing_apa200_validation.json`;
+- `experiments/benchmark_dpd_timing.py`.
+
 ## 5. Fixed-point implementations: exact scope and limitation
 
 `baseline/fixed_point.py` реализует deterministic signed-integer reference для
@@ -496,9 +535,10 @@ target-calibrated `APA_200MHz_b` coefficient payloads. Target cleanup выпол
 расширение PA quantization без нового evidence need останавливается.
 
 Следующий deployment-relevant hardware step — selected spline-memory DPD
-fixed-point path и correct desired-x→DPD→frozen-PA cascade. После получения
-target/timing-reference definition измеряются latency и throughput всех
-операций DPD относительно reference 1000-real-MUL kernel.
+fixed-point path и correct desired-x→DPD→frozen-PA cascade. Host timing
+instrumentation уже проверена; после получения target/timing-reference
+definition она должна быть заменена измерением latency и throughput всех
+операций DPD на целевой реализации относительно customer reference kernel.
 Synthesis/throughput следует запускать лишь после выбора конкретного
 word-length/reciprocal/sqrt implementation; до этого analytical counts
 помечаются lower bounds.

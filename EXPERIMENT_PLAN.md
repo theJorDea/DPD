@@ -46,6 +46,7 @@ target timing measurement.
 | Bit-accurate PA arithmetic | DPA/APA source plus target-calibrated `APA_200MHz_b` train→freeze→validation completed; APA families include GMP and lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | Frozen spectral-region evaluator + input-only validation replay | DPA/APA `signal_delay_012` replay completed after preregistration | conventional baseband diagnostics only; no measured output opened; no model reselection |
+| DPD-only timing diagnostic | DPA/APA completed on one pinned CPU core with paired/interleaved 1000-MUL scalar reference | exact streaming equivalence and host trace only; customer/target gate not evaluable |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
 
@@ -258,9 +259,10 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   -m unittest discover -s tests -v
 ```
 
-Последний recorded full-suite result после sealed spectral/replay runner:
-**286/286 tests passed**. Более ранние 272/272, 257/257, 234/234, 222/222, 201/201, 131/131 и
-120-test snapshots являются историческими и не заменяют текущий count.
+Последний recorded full-suite result после hardened timing runner:
+**291/291 tests passed in 7.064 s**. Более ранние 286/286, 272/272, 257/257,
+234/234, 222/222, 201/201, 131/131 и 120-test snapshots являются
+историческими и не заменяют текущий count.
 Следующий code change обязан сохранить новый wall time/execution record;
 unit-suite timing не является inference benchmark.
 
@@ -894,6 +896,45 @@ published audit is `access_count=2`,
 `strict_single_open_execution=false`, `test_used_for_selection=false`, and
 `test_used_for_coefficient_fit=false`. The incident is deliberately retained.
 
+### 6.18 DPD-only paired timing diagnostic — completed, not a hardware gate
+
+The selected `signal_delay_012` DPD was timed without PA inference. Both runs
+used the first 512 validation desired-input samples, CPU affinity `[0]`,
+NumPy/BLAS/OpenMP thread-control environment variables set to 1, two warm-up
+pairs and nine paired/interleaved repeats for chunks `1,8,64,512`. The actual
+outer wrapper was:
+
+```bash
+taskset -c 0 env \
+  OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  /usr/bin/python experiments/benchmark_dpd_timing.py \
+  --model experiments/results/spline_memory_dpa200/signal_delay_012.npz \
+  --input experiments/results/dpd_spectral_replay_dpa200_validation/waveforms.npz \
+  --output experiments/results/dpd_timing_dpa200_validation.json \
+  --chunk-sizes 1,8,64,512 --max-samples 512 \
+  --warmup 2 --repeats 9 \
+  --git-dir /tmp/dpd_remote_audit/.git --require-clean-git \
+  --workload-note \
+  'no known concurrent project workload; OS background activity not sealed'
+```
+
+APA used the identical wrapper with `dpa200` replaced by `apa200` in model,
+input and output paths. The JSON command records the inner Python invocation;
+host metadata separately proves affinity `[0]` and records the three
+thread-control environment variables.
+
+| Dataset | chunk 1 / 8 / 64 / 512 median µs/sample | Artifact SHA-256 | Timed wall |
+|---|---|---|---:|
+| DPA | 177.496 / 21.700 / 3.076 / 0.625 | `bdd2a9d30ef903fbfa70fbfa910e287ca51058eb4842bd00c17f5ad32d11bb19` | 7.185 s |
+| APA | 186.089 / 22.354 / 2.949 / 0.534 | `550f27cd592c143b932d740f6aa90ebc592d0ed4f85a4c6cdaf633ca92283553` | 7.448 s |
+
+Runner SHA-256:
+`354d9c17f4b6734ea0413af987e517cf6b5662fd954d4545af99ad5294aebc61`.
+All chunk outputs equal the independent full-stream output exactly.
+`customer_gate_evaluable=false`: the analytical 21-MUL schedule is not the
+timed NumPy trace, and the scalar Python kernel is not a customer target
+reference.
+
 ## 7. Preserved ablation, robustness and hardware matrices
 
 The first-stage DPD search space remains preregistered, but is deferred until
@@ -1024,6 +1065,10 @@ on the same target, numeric format, resource allocation and timing protocol.
 The analytical operation vector remains mandatory for explanation and
 portability, but real-MUL count alone is not a pass.
 
+The completed paired host-Python diagnostic validates instrumentation and
+streaming semantics only. It is not this acceptance protocol and cannot be
+converted into target throughput, FPGA resources or a Huawei pass.
+
 ### 8.4 “Better than OpenDPD”
 
 The claim requires the same dataset or physical PA, split, gain/alignment,
@@ -1036,7 +1081,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 286/286 tests passed; 7.30 s observed while OpenDPD CPU training was active | completed; not an inference benchmark |
+| Final unit suite | 291/291 tests passed; 7.064 s observed | completed; not an inference benchmark |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -1054,6 +1099,7 @@ verification or an explicit `surrogate-only` limitation.
 | Target-calibrated APA-B fixed-point PA matrix | 3.703 s runner wall | completed; GMP/sparse × 3 bit widths, train/validation only |
 | Frozen DPA/APA spectral validation replay | 0.6 s combined replay + spectral evaluation wall | completed; input-only, no measured output, surrogate-only |
 | Frozen DPA/APA legacy-test spectral replay | 7.3 s combined replay + spectral evaluation wall | completed descriptive re-evaluation; historical test access, no tuning |
+| Pinned-core DPA/APA DPD timing diagnostics | 7.185 / 7.448 s for 512-sample, 2-warm-up, 9-pair protocols | completed host-Python diagnostic; no PA and no hardware pass |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | APA OpenDPD CPU bounded preflight | 0.594/0.649/3.370 s candidate fit timers | 10 train batches + 1 validation batch; runtime only, test sealed |
@@ -1122,6 +1168,9 @@ outputs for predistorted waveforms.
 20b. [x] Re-run the same frozen candidate on legacy test inputs only as a
     descriptive reproducibility check; mark `historical_test_access=true` and
     forbid any post-test selection.
+20c. [x] Harden and run a DPD-only paired timing diagnostic on one pinned
+    host CPU core; preserve raw repeats, dependency hashes and exact streaming
+    equivalence, while declaring the customer gate not evaluable.
 21. [ ] Reproduce a high-fidelity OpenDPD PA evaluator on the same frozen
     splits without applying the deployment-DPD latency cap.
 22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes

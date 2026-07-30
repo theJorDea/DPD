@@ -30,6 +30,9 @@ regions, reference и threshold пока не определены. Поэтом
 - independent `APA_200MHz_b` capture-transfer release is complete: after frozen
   `N=16384` coefficient-only calibration, GMP reaches −37.895 dB held-out
   full NMSE and lag-9 sparse −34.801 dB;
+- DPA/APA frozen spline-memory DPD has a pinned-core, paired DPD-only timing
+  diagnostic with exact chunk equivalence. It is host-Python evidence only,
+  not the unknown Huawei target timing gate;
 - всё ещё нет второго evaluator с достаточным error margin, controlled
   operating-point labels или physical-PA output для predistorted waveform.
 
@@ -189,12 +192,37 @@ software schedule; hardware latency, memory bandwidth и DSP packing не
 измерены. Различие stored coefficients связано с выбранным (K=24) DPA и
 (K=8) APA.
 
-### 3.3 Что legacy evidence доказывает
+### 3.3 DPD-only streaming timing diagnostic
+
+The frozen three-branch model was timed on the first 512 validation desired
+samples with CPU affinity `[0]`, NumPy/BLAS/OpenMP thread-control environment
+variables set to 1, two warm-up pairs and nine paired/interleaved repeats per
+chunk. PA inference was excluded.
+
+| Dataset | chunk 1 | chunk 8 | chunk 64 | chunk 512 |
+|---|---:|---:|---:|---:|
+| DPA | 177.496 µs/sample | 21.700 µs | 3.076 µs | 0.625 µs |
+| APA | 186.089 µs/sample | 22.354 µs | 2.949 µs | 0.534 µs |
+
+Every chunk path is bit-for-bit equal to one continuous floating-point
+record. The scalar Python reference median was about 254–283 µs/sample across
+the paired rows. These ratios are diagnostics of two different Python
+implementations, not a multiplication-equivalent hardware result: the NumPy
+path does not implement the analytical 21-MUL schedule, and the scalar
+reference is not a customer-supplied target kernel.
+
+Artifacts:
+`experiments/results/dpd_timing_{dpa200,apa200}_validation.json`.
+Both force `customer_gate_evaluable=false` and `hardware_pass_claim=false`.
+
+### 3.4 Что legacy evidence доказывает
 
 - complex phase-equivariant spline branches реализуют очень дешёвый DPD;
 - signal delays 0,1,2 существенно улучшают тот legacy surrogate;
-- desired (x\) действительно использован как test input в этом evaluator;
-- имеются numerical NMSE/EVM/ACLR/PAPR/peak-drive artifacts.
+- desired \(x\) действительно использован как test input в этом evaluator;
+- имеются numerical NMSE/EVM/ACLR/PAPR/peak-drive artifacts;
+- continuous streaming state transfer exact for chunks 1, 8, 64 and 512 in
+  the host reference.
 
 Он не доказывает:
 
@@ -202,9 +230,11 @@ software schedule; hardware latency, memory bandwidth и DSP packing не
 - ranking относительно OpenDPD на едином evaluator;
 - устойчивость к evaluator mismatch;
 - fixed-point degradation нового two-loop pipeline;
+- target sample-rate throughput/latency или прохождение 1000-MUL-equivalent
+  customer timing gate;
 - physical-PA spectral mask или Huawei acceptance.
 
-### 3.4 Why SPH is not a DPD result
+### 3.5 Why SPH is not a DPD result
 
 The completed APA SPH run belongs to contour A:
 
@@ -219,7 +249,7 @@ therefore a cheap negative control and residual-analysis evidence, not a frozen
 PA evaluator for contour B. No DPD coefficients were tuned or tested through
 SPH, and no new DPD claim is made.
 
-### 3.5 Why the sparse PA result still does not open contour B
+### 3.6 Why the sparse PA result still does not open contour B
 
 The completed non-factorized sparse spline-memory run also belongs to contour
 A:
@@ -241,7 +271,7 @@ no DPD was fitted through this model. Its strongest remaining causal proper
 residual correlation occurs at lag 9 (`|rho|=0.690641` on train OOF), which
 justifies one bounded preregistered lag-9 ablation but not DPD optimization.
 
-### 3.6 Why the lag-9 sparse PA result is still not a DPD result
+### 3.7 Why the lag-9 sparse PA result is still not a DPD result
 
 The separately preregistered lag-9 run selected
 `(m,d)={(0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)}`,
@@ -349,6 +379,11 @@ Source DPA/APA и target-calibrated APA-B bit-accurate PA arithmetic уже
 без DPD cost cap. Параллельные внешние prerequisites — exact harmonic/spur and
 timing-reference definitions, metadata measurement B и controlled physical-PA
 capture с известными power/backoff, bias и temperature axes.
+
+DPD timing instrumentation теперь готова и frozen-host streaming semantics
+проверены, но hardware gate остаётся закрытым до fixed-point DPD и
+target-specific reference measurement. Это не открывает Gate A→B и не
+разрешает новое DPD tuning через старый surrogate.
 
 Уже открытый B test нельзя использовать для нового выбора topology,
 regularization или calibration N. Если controlled evidence не даёт второго

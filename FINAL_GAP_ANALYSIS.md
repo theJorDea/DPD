@@ -14,6 +14,8 @@
 - DPD лучше OpenDPD apples-to-apples;
 - fixed-point PA arithmetic reference готова, но fixed-point/real-time
   hardware implementation не доказана;
+- DPD-only pinned-core software timing diagnostic готов, но customer target
+  timing gate остаётся неизмеримым;
 - linearization физического PA или базовой станции Huawei доказана.
 
 Лучший локальный forward PA result:
@@ -380,6 +382,31 @@ sparse is more quantization-stable but has lower float fidelity. No target test
 was named, hashed or opened. This closes the planned PA arithmetic cleanup,
 not the DPD latency or physical-PA gap.
 
+### 3.11 DPD-only software timing evidence
+
+The frozen three-branch spline-memory DPD was measured without PA inference on
+one pinned host core. Protocol: first 512 validation desired-input samples,
+NumPy/BLAS/OpenMP thread-control environment variables set to 1, two warm-up
+pairs, nine paired/interleaved DPD/scalar-reference repeats and chunks
+`1,8,64,512`.
+
+| Dataset | chunk 1 | chunk 8 | chunk 64 | chunk 512 | Analytical DPD vector |
+|---|---:|---:|---:|---:|---|
+| DPA | 177.496 µs/sample | 21.700 µs | 3.076 µs | 0.625 µs | 21 MUL, 24 ADD |
+| APA | 186.089 µs/sample | 22.354 µs | 2.949 µs | 0.534 µs | 21 MUL, 24 ADD |
+
+All chunk outputs equal the independent continuous-stream output exactly.
+This proves state-carry semantics in the Python/NumPy implementation and
+provides a reproducible diagnostic trace. It does **not** prove the Huawei
+time budget: the timed NumPy path does not implement the analytical
+deployment schedule, the scalar Python kernel includes substantial
+non-multiplication overhead, and no target implementation/reference kernel is
+known. Both artifacts therefore set `customer_gate_evaluable=false` and
+`hardware_pass_claim=false`.
+
+Evidence:
+`experiments/results/dpd_timing_{dpa200,apa200}_validation.json`.
+
 ## 4. Что доказано только на surrogate
 
 Legacy complex spline-memory DPD `signal_delay_012` дал:
@@ -492,7 +519,7 @@ frozen evaluator.
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
 | Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA source plus target-calibrated APA-B train/validation 16/14/12-bit reports; no DPD/RTL claim |
-| Real-time FPGA-ready | unsupported | analytical counts plus Python integer reference only; no synthesis/target latency |
+| Real-time FPGA-ready | unsupported | analytical counts, Python integer arithmetic and pinned-host timing diagnostic exist; no synthesis/target latency |
 | Online adaptation under known drift demonstrated | unsupported | coefficient-only batch capture recalibration exists, but no controlled operating-point labels or online update loop |
 | Egor reservoir meets cost gate | refuted for dense code | dense (W@state) exceeds gate by orders of magnitude |
 | Short APA conjugate residual branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.027/0.031 dB, so `no_correction` remains selected |
@@ -507,6 +534,7 @@ frozen evaluator.
 | B-capture release was strict single-open | refuted by audit | two accesses: first failed before inference/metric, second completed unchanged frozen protocol |
 | Frozen DPA/APA validation spectral replay | supported as descriptive surrogate evidence | input-only desired path, conventional baseband bands, no measured output opened |
 | Frozen DPA/APA legacy-test spectral replay | reproducible but not independent | historical test was already opened by the old ablation; no tuning or reselection performed |
+| DPD-only 1000-MUL-equivalent timing gate | not established | exact streaming and paired pinned-host diagnostic exist; customer target/reference protocol remains unknown |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
