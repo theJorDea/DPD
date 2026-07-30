@@ -43,7 +43,7 @@ target timing measurement.
 | Non-factorized sparse spline-memory PA | выполнен train-only staged OOF; selected `K=12`, 6 branches rejected | 54 MUL/sample, −32.0300 dB OOF; reused validation only, Gate A→B closed |
 | Residual-guided lag-9 sparse PA | выполнен preregistered train-only staged OOF; selected 9-branch `K=12` family | 72 MUL/sample, −37.7925 dB OOF, cheap-Pareto only; evaluator gate closed |
 | `APA_200MHz -> APA_200MHz_b` capture transfer | pre-test selection + frozen held-out release completed | GMP −37.895 dB, sparse −34.801 dB target-test full NMSE after `N=16384` calibration; capture-transfer only |
-| Bit-accurate PA arithmetic | DPA/APA train→freeze→validation completed for frozen GMP; APA also has lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
+| Bit-accurate PA arithmetic | DPA/APA source plus target-calibrated `APA_200MHz_b` train→freeze→validation completed; APA families include GMP and lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
@@ -1019,7 +1019,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 256/256 tests passed; ~1.53 s discovery wall | completed after fixed-point PA contract |
+| Final unit suite | 257/257 tests passed; 1.75 s discovery wall | completed after coefficient-payload binding |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -1033,7 +1033,8 @@ verification or an explicit `surrogate-only` limitation.
 | APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | APA sparse staged search | 33.589 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only |
 | APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
-| DPA/APA fixed-point PA matrix | ~6.2 s combined runner wall | completed; DPA GMP + APA GMP/sparse × 3 bit widths, no test access |
+| DPA/APA source fixed-point PA matrix | ~6.2 s combined runner wall | completed; DPA GMP + APA GMP/sparse × 3 bit widths, no test access |
+| Target-calibrated APA-B fixed-point PA matrix | 3.703 s runner wall | completed; GMP/sparse × 3 bit widths, train/validation only |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
@@ -1091,10 +1092,10 @@ outputs for predistorted waveforms.
     release and access incident are disclosed in §6.17.
 19. [ ] Obtain operating-point metadata for measurement B; until then label
     results `capture transfer`, not power/thermal adaptation.
-20. [x] Run bit-accurate 16/14/12-bit PA-model evaluation before any DPD
-    tuning for DPA/APA frozen GMP and APA lag-9 sparse; target payloads remain
-    pending.
-21. [ ] Obtain operating-point metadata for `APA_200MHz_b` and repeat the
-    frozen arithmetic matrix on DPA/target train-validation.
+20. [x] Run bit-accurate 16/14/12-bit PA-model evaluation for DPA/APA source
+    models and hash-bound target-calibrated `APA_200MHz_b` GMP/sparse payloads;
+    no target test access.
+21. [ ] Reproduce a high-fidelity OpenDPD PA evaluator on the same frozen
+    splits without applying the deployment-DPD latency cap.
 22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes
     evaluate DPD through frozen independent evaluators, then hardware claims.

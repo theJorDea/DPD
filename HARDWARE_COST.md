@@ -259,6 +259,29 @@ chunk equivalence.  This is a separate DPA forward-identification result; it
 does not imply that an APA sparse model transfers to DPA or that either model
 is a physical-PA DPD evaluator.
 
+### 3.7 Target-calibrated `APA_200MHz_b` PA arithmetic
+
+The frozen `N=16384` coefficient payloads selected in the immutable pre-test
+capture-transfer bundle were evaluated on target train/validation. Provenance
+binds the source topology, coefficient archive, selected model/N and exact
+coefficient array. No target test file was named, hashed or opened.
+
+| Model / bits | Float validation NMSE | Fixed validation NMSE | Fixed-vs-float NMSE | Coeff bytes | State bytes |
+|---|---:|---:|---:|---:|---:|
+| target GMP / 16 | −37.8908 dB | −37.8708 dB | −63.04 dB | 1,776 | 472 |
+| target GMP / 14 | −37.8908 dB | −37.6427 dB | −50.00 dB | 1,554 | 413 |
+| target GMP / 12 | −37.8908 dB | −35.1728 dB | −38.59 dB | 1,332 | 354 |
+| target sparse / 16 | −35.3585 dB | −35.3576 dB | −76.22 dB | 432 | 96 |
+| target sparse / 14 | −35.3585 dB | −35.3515 dB | −64.07 dB | 378 | 84 |
+| target sparse / 12 | −35.3585 dB | −35.2650 dB | −52.15 dB | 324 | 72 |
+
+All saturation/collision counters are zero and chunk equivalence is exact.
+The 12-bit target GMP degradation (`2.718 dB`) is material even without
+overflow; target sparse degradation is only `0.0935 dB`, but sparse starts
+`2.532 dB` behind GMP in floating-point validation fidelity. This result
+closes the planned PA-payload quantization cleanup. It is not subject to the
+deployment DPD latency gate.
+
 ## 4. Interpreting the cost
 
 ### 4.1 GMP versus MP
@@ -467,11 +490,10 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-PA arithmetic coverage достигнута на DPA/APA source captures. Уже начатый
-bounded cleanup — проверить frozen target-calibrated `APA_200MHz_b`
-coefficient payloads на train/validation с hash-bound provenance, не открывая
-target test. Он нужен для evaluator reproducibility, не для DPD cost gate; на
-этом расширение PA quantization без нового evidence need останавливается.
+PA arithmetic coverage достигнута на DPA/APA source captures и на frozen
+target-calibrated `APA_200MHz_b` coefficient payloads. Target cleanup выполнен
+на train/validation с hash-bound provenance без target-test access. На этом
+расширение PA quantization без нового evidence need останавливается.
 
 Следующий deployment-relevant hardware step — selected spline-memory DPD
 fixed-point path и correct desired-x→DPD→frozen-PA cascade. После получения

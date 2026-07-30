@@ -1209,6 +1209,37 @@ The float validation reference is `−35.3659 dB`; the small 16/14/12-bit
 differences are arithmetic degradation, not a new model fit.  The DPA report
 is `experiments/results/pa_fixed_point_dpa200/fixed_point_report.json`.
 
+### 10.10.2 Target-calibrated APA capture-B arithmetic audit
+
+The already selected `N=16384` target-calibrated coefficient payloads were
+then evaluated on `APA_200MHz_b` train/validation only. The runner binds the
+base topology hash, coefficient archive hash, pre-test selection-manifest
+hash, selected model name, calibration length and coefficient-array hash
+before loading waveforms. No target test path or hash is present in the
+config/report.
+
+| Model / bits | Float validation NMSE | Fixed validation NMSE | Fixed-vs-float NMSE | Common fixed NMSE |
+|---|---:|---:|---:|---:|
+| target GMP / 16 | −37.8908 dB | −37.8708 dB | −63.04 dB | −37.9401 dB |
+| target GMP / 14 | −37.8908 dB | −37.6427 dB | −50.00 dB | −37.7086 dB |
+| target GMP / 12 | −37.8908 dB | −35.1728 dB | −38.59 dB | −35.2084 dB |
+| target lag-9 sparse / 16 | −35.3585 dB | −35.3576 dB | −76.22 dB | −35.4452 dB |
+| target lag-9 sparse / 14 | −35.3585 dB | −35.3515 dB | −64.07 dB | −35.4389 dB |
+| target lag-9 sparse / 12 | −35.3585 dB | −35.2650 dB | −52.15 dB | −35.3513 dB |
+
+All six rows have zero saturation/collision counts and exact arbitrary-chunk
+equivalence. Target GMP remains the higher-fidelity model at 14/16 bit, but
+its 12-bit loss is `2.718 dB`; the target sparse model loses only `0.0935 dB`
+at 12 bit while retaining lower absolute float fidelity. The result therefore
+shows a real quality-versus-quantization-robustness trade-off, not sparse
+dominance.
+
+Evidence:
+`experiments/configs/pa_fixed_point_apa200_b.json` and
+`experiments/results/pa_fixed_point_apa200_b/fixed_point_report.json`.
+It remains capture-transfer PA arithmetic, not a power/thermal, DPD latency or
+physical-linearization result.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено, остаётся ли Huawei `error < 10^-5` дополнительной метрикой
