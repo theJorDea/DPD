@@ -2,6 +2,27 @@
 
 Дата обновления: 2026-07-30.
 
+## Коррекция требований от 2026-07-30
+
+По переданному пользователем уточнению научного руководителя:
+
+- эквивалент времени 1000 real multiplications ограничивает только
+  deployment DPD datapath, а не behavioral PA model;
+- все операции DPD вместе должны уложиться во время эталонной тысячи real
+  multiplications; `sqrt/div/LUT/memory` не являются автоматически
+  бесплатными;
+- формулы на слайдах иллюстративны и не задают architecture или loss;
+- итоговое качество оценивается по затуханию паразитных гармоник.
+
+Следовательно, прежний strict `<1000 MUL/sample` в PA searches был
+воспроизводимым внутренним ограничением конкретных экспериментов, но не
+Huawei acceptance gate для PA evaluator. Дальше PA contour оптимизируется
+прежде всего по fidelity и independent ranking, даже если evaluator дороже
+1000 MUL/sample. Hard latency gate относится к DPD. Точное определение
+«паразитных гармоник», integration bands/reference/threshold и эталонного
+timing kernel остаётся внешним блокером; до ответа публикуются полный spectral
+report и полный operation vector без выдуманного scalar cost.
+
 Главное изменение относительно первого этапа: дальнейшее улучшение DPD
 приостановлено, пока независимый PA evaluator не станет заметно точнее
 оцениваемого DPD residual. Legacy memory-polynomial surrogate первого этапа
@@ -30,9 +51,9 @@ count, поэтому кандидат впервые проходит internal 
 capture transfer завершён вплоть до held-out release: zero-shot score около
 −23.8 dB, coefficient-only recalibration дала GMP `−37.895 dB` и sparse
 `−34.801 dB` на target test. Это не power/thermal claim и не evaluator с
-достаточным margin для DPD; Gate A→B закрыт. Следующие приоритеты —
-measurement-B metadata, bit-accurate PA audit и controlled physical-PA
-evidence.
+достаточным margin для DPD; Gate A→B закрыт. Следующие приоритеты — точное
+spectral/timing acceptance definition, high-fidelity evaluator без DPD cost
+cap, measurement-B metadata и controlled physical-PA evidence.
 
 Bit-accurate PA arithmetic is now implemented and executed for frozen DPA/APA
 GMP and APA lag-9 sparse models.  The train-only scale freeze, explicit
@@ -51,6 +72,9 @@ arithmetic subtask; it does not open Gate A→B or make an RTL/physical-PA claim
 - DPA_200MHz и APA_200MHz не объединяются: это разные PA/captures.
 - Surrogate, cross-surrogate и physical-PA результаты маркируются раздельно.
 - Parameter count никогда не подменяет operation, state-memory или latency.
+- DPD latency gate не переносится на PA behavioral model.
+- До target timing измерения для DPD публикуется вектор
+  `MUL/ADD/div/nonlinear/LUT/compare/memory`, а не фиктивная сумма.
 - Model/evaluator code, experiment config, numerical result и report update
   остаются разными small tasks: один небольшой commit на один проверяемый
   результат, затем немедленный push. Formal sweep не объединяется с изменением
@@ -65,8 +89,9 @@ linear/spline residual ablations:
 - causal factorized GMP kernel, exact cost/state counter, ridge/truncated-SVD
   calibration и unit tests завершены;
 - validation-only GMP selector завершён: full-record score является primary,
-  common-interior score сохраняется отдельно, strict `<1000 MUL` применяется
-  до fit;
+  common-interior score сохраняется отдельно; strict `<1000 MUL` был применён
+  до fit как frozen historical search constraint, не как текущий PA
+  acceptance gate;
 - A0/A1 sensitivity выполнена; A0 integer-only/no-fractional-transform frozen
   для DPA и APA до formal GMP selection;
 - formal GMP selection, coefficient-OOF residual audit и separate release
@@ -138,12 +163,15 @@ physical-PA linearization этим результатом не доказаны.
 
 ## Этап 0. Requirements contract
 
-Статус: завершён документально.
+Статус: рабочий contract обновлён; exact external acceptance остаётся открыт.
 
 - [x] Отделить явные требования слайдов от интерпретации.
 - [x] Зафиксировать фактический OpenDPD contract.
 - [x] Составить список неизвестных критериев Huawei.
-- [ ] Получить ответы владельца требований на вопросы из `REQUIREMENTS.md`.
+- [x] Зафиксировать уточнение: 1000-real-MUL-equivalent latency относится
+  только к DPD, формулы слайда ненормативны, primary quality спектральная.
+- [ ] Получить exact harmonic/spur metric, порог, target timing kernel и
+  остальные ответы владельца требований из `REQUIREMENTS.md`.
 
 Артефакт: `REQUIREMENTS.md`.
 
@@ -242,7 +270,9 @@ Observed result:
 Статус: MP, causal GMP, standalone APA SPH, первый non-factorized sparse PA и
 residual-guided lag-9 sparse PA завершены; локального runnable OpenDPD neural
 checkpoint нет. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
-но SPH и оба sparse PA отклонены как quality evaluators.
+но SPH и оба sparse PA отклонены как quality evaluators. После clarification
+high-fidelity OpenDPD PA retraining становится приоритетом: его больше нельзя
+откладывать только из-за превышения DPD cost budget.
 
 Порядок:
 
@@ -257,8 +287,9 @@ checkpoint нет. Lag-9 sparse PA проходит cheap-Pareto gate относ
    - [x] выполнить formal validation sweep;
    - [x] выполнить residual/OOF stability checks;
    - [x] freeze winner и открыть test один раз после release-gate PASS.
-3. [ ] OpenDPD PA backbone/checkpoint, только если checkpoint доступен или
-   воспроизводимо обучен.
+3. [ ] Воспроизводимо обучить OpenDPD high-fidelity PA backbone на тех же
+   frozen splits; checkpoint/config/hash и runtime сохранить. Ограничение DPD
+   latency к нему не применять.
 4. [x] Spline/CPWL memoryless nonlinearity + short complex FIR (APA SPH;
    отрицательный train-OOF result, не evaluator).
 5. [x] Non-factorized sparse complex spline-memory PA с bounded branch/delay
@@ -287,7 +318,9 @@ GMP configs `experiments/configs/pa_gmp_dpa200.json` и
 OpenDPD-compatible initial truncated-SVD `rcond=1e-4`, ridge/SVD refinement
 axes, primary full-record validation score и strict exclusive multiplier
 budget. Они были выполнены ровно по frozen variant A0; selection manifests и
-one-shot test artifacts находятся в `experiments/results/pa_gmp_*`.
+one-shot test artifacts находятся в `experiments/results/pa_gmp_*`. Этот
+budget сохраняется как provenance уже выполненного search; новые
+high-fidelity PA evaluators не обязаны ему соответствовать.
 
 ## Этап A3. Residual analysis
 
@@ -465,8 +498,9 @@ selection/refit.
    exact support/cost limits и reused-validation status до candidate fit; test запрещён.
 5. [x] Реализовать two-stage conjugate residual correction + unit tests: causality,
    frame reset, streaming equivalence, exact operation count и deterministic complex fit.
-6. [x] Выполнить APA leave-one-frame-out internal audit при strict `<1000 MUL`;
-   validation показать только как already-viewed descriptive split, test не читать.
+6. [x] Выполнить APA leave-one-frame-out internal audit при frozen historical
+   strict `<1000 MUL`; validation показать только как already-viewed
+   descriptive split, test не читать.
 7. [x] Применить preregistered decision: audit threshold не прошёл, поэтому
    feedback-path/IQ attribution не заявлять и DPA tuned conjugate support не
    запускать.
@@ -486,17 +520,27 @@ selection/refit.
    zero-shot и limited coefficient calibration на train/validation.
 14. [x] После config/N freeze выполнить target held-out release и независимую
    verification; access count `2` disclosed, первый доступ metric-free.
-15. [ ] Получить metadata “measurement B”; до этого результат маркировать
+15. [x] Зафиксировать уточнение научного руководителя: latency-equivalent
+   budget относится только к DPD; slide formulas ненормативны; primary quality
+   связана с паразитными спектральными компонентами.
+16. [ ] Получить exact definition harmonic/spur attenuation, порог, target
+   platform и эталонный 1000-real-MUL timing kernel.
+17. [ ] Получить metadata “measurement B”; до этого результат маркировать
    только `capture transfer`, не power/thermal adaptation.
-16. [x] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и
+18. [x] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и
    APA-selected lag-9 sparse PA, включая accumulator/state widths, saturation
    и chunk equivalence.  Train-only scale freeze, fixed arithmetic contract и
    результаты запечатаны в DPA/APA configs and reports under
    `experiments/configs/pa_fixed_point_*` and
    `experiments/results/pa_fixed_point_*`.
-17. [ ] Получить controlled physical-PA capture с известными operating axes и
+19. [ ] Завершить уже начатую hash-bound train/validation fixed-point
+   проверку target-calibrated `APA_200MHz_b` payload без повторного test access;
+   после этого не расширять PA quantization без evidence need.
+20. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
+   без DPD latency cap и проверить independent ranking.
+21. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
-18. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+22. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
@@ -554,6 +598,8 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
 
 Выход — Pareto frontier, а не один winner:
 
+- customer-defined harmonic/spur attenuation как primary acceptance metric
+  после фиксации exact RF bands/reference/threshold;
 - pooled/OpenDPD NMSE;
 - EVM variants;
 - ACLR left/right/average;
@@ -563,6 +609,14 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
 - numerical/streaming stability и violations проверенного drive support;
 - real MUL/ADD/nonlinear/LUT/state/coefficient memory;
 - calibration time и inference timing.
+
+ACLR и baseband PSD пока остаются обязательными diagnostics, но не
+переименовываются в «затухание гармоник»: true RF harmonics около
+\(2f_c,3f_c,\ldots\) могут вообще отсутствовать в complex-baseband capture.
+DPD проходит complexity gate только если измеренный streaming datapath на
+заданном target удовлетворяет
+\(T_\mathrm{DPD/sample}\leq T_\mathrm{reference}(1000\ real\ MUL)\).
+Analytical `MUL/sample` остаётся одной колонкой, не окончательным pass/fail.
 
 Артефакт: `DPD_BENCHMARK.md`.
 
@@ -585,11 +639,12 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
 
 ## Этап D. Hardware reference
 
-Статус: PA arithmetic reference выполнен; target hardware evidence ещё не
-получено.
+Статус: PA arithmetic reference выполнен как evaluator-numerics evidence;
+deployment DPD hardware evidence ещё не получено.
 
 - [x] Bit-accurate simulator для frozen causal GMP и lag-9 sparse PA; DPD
   simulator и PA→DPD cascade пока не запускались.
+- PA fixed-point cost не проверяется против 1000-real-MUL-equivalent DPD gate.
 - Formats: signed 16, 14 и 12 bit coefficients/activations.
 - Explicit accumulator/state widths, scaling, rounding and saturation.
 - Отдельно проверять input quantization и coefficient/LUT interpolation error.
@@ -601,8 +656,9 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
   models; отдельный no-future-dependence test подтверждает causality.
 - [x] Измерять arithmetic degradation и exact streaming equivalence на APA
   train/validation; host Python time хранится отдельно.
-- [ ] Измерять latency/throughput на выбранном target; analytical count
-  помечать как lower bound.
+- [ ] Реализовать selected DPD bit-accurate streaming path.
+- [ ] Зафиксировать target/reference timing kernel и измерить DPD
+  latency/throughput; analytical count помечать как lower bound.
 
 Артефакт: `HARDWARE_COST.md`.
 
