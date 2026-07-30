@@ -59,6 +59,11 @@ class FixedPointContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             integer_sqrt_array(np.asarray([1, -1]))
 
+    def test_full_scale_helper_preserves_headroom(self) -> None:
+        fmt = FixedPointFormat.for_full_scale(16, 2.52, label="output")
+        self.assertGreaterEqual(fmt.representable_maximum, 2.52 * 1.001)
+        self.assertEqual(fmt.fractional_bits, 13)
+
 
 if __name__ == "__main__":
     unittest.main()
