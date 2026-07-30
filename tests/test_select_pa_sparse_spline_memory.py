@@ -7,6 +7,7 @@ import numpy as np
 
 from experiments.select_pa_sparse_spline_memory import (
     SparseRecipe,
+    branch_families,
     common_mask,
     evaluate_recipe_oof,
     frame_segments,
@@ -15,6 +16,7 @@ from experiments.select_pa_sparse_spline_memory import (
     retain_topologies,
     run_staged_search,
     validate_search_budget,
+    verify_preregistered_inputs,
 )
 from baseline.sparse_spline_memory_pa import (
     SparseSplineMemoryPA,
@@ -225,6 +227,39 @@ class SparseSplineMemoryStagedSearchTests(unittest.TestCase):
             validate_search_budget(config),
             {"S0": 7, "S1": 12, "S2": 5, "folds": 3},
         )
+
+    def test_lag9_preregistration_is_bounded_and_hash_verified(self) -> None:
+        path = Path(
+            "experiments/configs/pa_sparse_spline_memory_lag9_apa200.json"
+        )
+        config = load_config(path)
+        verified = verify_preregistered_inputs(config, path)
+        families = branch_families(config)
+        parent = families["parent_selected_control"]
+        self.assertEqual(
+            validate_search_budget(config),
+            {"S0": 9, "S1": 9, "S2": 4, "folds": 3},
+        )
+        self.assertFalse(config["scope"]["test_split_access_permitted"])
+        self.assertEqual(len(verified["evidence_hashes"]), 11)
+        self.assertEqual(len(verified["preimplementation_source_hashes"]), 9)
+        self.assertEqual(len(families), 9)
+        self.assertEqual(
+            parent,
+            ((0, 0), (1, 1), (2, 2), (22, 22), (23, 23), (24, 24)),
+        )
+        allowed_delays = {0, 1, 2, 8, 9, 10, 22, 23, 24}
+        for family, branches in families.items():
+            self.assertTrue(
+                all(
+                    signal in allowed_delays and envelope in allowed_delays
+                    for signal, envelope in branches
+                )
+            )
+            if family != "parent_selected_control":
+                self.assertTrue(
+                    any(signal == 9 or envelope == 9 for signal, envelope in branches)
+                )
 
     def test_stages_use_train_oof_and_recipe_cache(self) -> None:
         rng = np.random.default_rng(401)
