@@ -1,6 +1,6 @@
 # Benchmark report
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Scope
 
@@ -13,10 +13,10 @@ measured x -> frozen PA model -> y_hat -> compare with measured y
 ```
 
 Новый DPD-through-GMP cascade, physical PA experiment, 14-bit GMP и hardware
-synthesis не выполнялись. APA standalone SPH и non-factorized sparse
-spline-memory forward runs выполнены train/validation-only, но оба оказались
-недостаточно точными для замены GMP. Поэтому report не утверждает
-better-than-OpenDPD.
+synthesis не выполнялись. APA standalone SPH и первый non-factorized sparse
+forward run были недостаточно точными для замены GMP; bounded lag-9 sparse run
+впервые прошёл cheap-Pareto gate относительно MP, но всё ещё уступил GMP.
+Поэтому report не утверждает better-than-OpenDPD.
 
 ## 2. Environment and provenance
 
@@ -150,12 +150,42 @@ Hard identifiability gates passed (rank `72/72`, condition `78.57`, minimum
 feature support `8`), but the ≤3 dB cheap-Pareto gate versus MP failed by a
 wide margin. The decision is `neither_evaluator_nor_cheap_pareto`.
 
-Residual analysis changed the next hypothesis: the strongest causal proper
-correlation is now lag 9 (`0.69064` train OOF, `0.69131` validation), while
-radial-envelope correlation peaks only around `0.140`. A lag-9 neighborhood
-family should be preregistered before another fit; this is not a license to
-tune on reused validation. Bundle:
+Residual analysis selected the next bounded hypothesis: the strongest causal
+proper correlation was lag 9 (`0.69064` train OOF, `0.69131` validation), while
+radial-envelope correlation peaked only around `0.140`. The lag-9 family was
+preregistered before its fit; validation remained descriptive and was not a
+selection input. Parent bundle:
 `experiments/results/pa_sparse_spline_memory_apa200_selection/`.
+
+### 5.5 APA residual-guided lag-9 sparse candidate
+
+The follow-up config
+`experiments/configs/pa_sparse_spline_memory_lag9_apa200.json` was committed
+before fitting. It froze nine topology families around the observed lag-9
+residual, `K={8,12,16}`, four ridge values and a maximum of 66 OOF fit calls.
+The selected recipe is
+`parent_plus_signal_lag8_10_current_envelope` with branches
+`(8,0),(9,0),(10,0)` added to the six-branch parent, `K=12`, ridge `1e-8`.
+
+| Candidate / split | Full NMSE | Common NMSE | Gain vs parent | Loss vs MP | Loss vs GMP | MUL / ADD | Decision |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Lag-9 sparse, train OOF | −37.792478 dB | −37.852832 dB | **+5.762467 / +5.764583 dB** | **−0.738150 / −0.752881 dB** | +0.552932 / +0.897694 dB | **72 / 82** | cheap-Pareto only |
+| Lag-9 sparse, full-train refit | −37.866643 dB | −37.927296 dB | — | — | — | 72 / 82 | frozen model |
+| Lag-9 sparse, reused validation | −37.860728 dB | −37.898605 dB | — | — | — | 72 / 82 | descriptive |
+
+The incremental gate passed in all three OOF folds; minimum gains were
+`+5.717845 dB` full and `+5.731338 dB` common. The selected model has rank
+`108/108`, augmented condition `2427.39`, maximum coefficient `1.15093`,
+216 real coefficient values, 48 state values, exact streaming/reset
+equivalence and a `62.5693 s` pre-publication runtime. Its normalized full-OOF
+error power is about `1.66e-4`, so it does not meet a `10^-5` interpretation.
+
+Two envelope-only topology families with repeated signal delay `(0,d)` were
+rank-deficient because spline partition of unity duplicates the same `x[n]`
+linear component; a `K=16` candidate also failed rank in OOF folds. These are
+recorded as hard-invalid trials, not silently regularized into the ranking.
+The immutable result is
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`.
 
 ## 6. OOF and residual release evidence
 
@@ -227,6 +257,7 @@ power.
 | GMP APA | 954 | 947 | 1 | 1,362/8 | 888 | 236 | 4,532 B |
 | APA SPH `K=32,L=8` | **37** | **36** | 1 sqrt | 36/2 | **78 + 63 constants** | **14** | **620 B** |
 | APA sparse non-factorized `K=12` | **54** | **58** | 6 sqrt | 36/2 | **144 + 23 constants** | **48** | **860 B** |
+| APA lag-9 sparse non-factorized `K=12` | **72** | **82** | 6 sqrt | 54/2 | **216 + 23 constants** | **48** | **1,148 B** |
 
 GMP is the quality winner but does not dominate memory traffic/storage. These
 are analytical factorized schedules, not FPGA resource measurements.
@@ -242,6 +273,7 @@ are analytical factorized schedules, not FPGA resource measurements.
 | Proper long-FIR residual audit | — | 25.473 s | selected `no_correction`; OOF fit 23.395 s |
 | APA SPH four-stage selection | — | 620.531 s | train OOF search + atomic publication |
 | APA sparse staged selection | — | 33.589 s | train OOF search + frozen refit + reused validation |
+| APA lag-9 sparse staged selection | — | **62.569 s** | train OOF search + frozen refit + reused validation |
 | Frozen-test process | 0.066 s | 0.31 s | no fit; process wall measurement differs by method |
 | Test predictor single batch | 8.673 ms | 30.286 ms | NumPy batch diagnostic |
 | Test batch throughput | 0.885 Msample/s | 0.649 Msample/s | host software, not real-time target |
@@ -319,6 +351,13 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
 - APA non-factorized sparse spline-memory met the arithmetic budget at 54
   MUL/sample, improved SPH by 1.628 dB, but remained 5.024 dB worse than MP
   and 6.315 dB worse than GMP; its evaluator gate also failed.
+- APA lag-9 sparse met the incremental and cheap-Pareto gates at 72 MUL/sample:
+  it improved the parent by 5.762/5.765 dB and beat MP by 0.738/0.753 dB,
+  but remained 0.553/0.898 dB behind GMP, so its evaluator gate and Gate A→B
+  both remained closed.
+- Repeated `(0,d)` envelope-only branches were hard-invalid for rank deficiency;
+  this identifiability failure is a documented model constraint, not a
+  post-fit numerical workaround.
 - Local OpenDPD neural reproduction is blocked by missing checkpoint binaries
   and no GPU.
 - Existing Egor circular score does not establish deployment DPD and dense
@@ -342,14 +381,16 @@ Raw locations:
 - `experiments/results/pa_long_fir_residual_apa200/`;
 - `experiments/results/pa_sph_apa200_selection/`;
 - `experiments/results/pa_sparse_spline_memory_apa200_selection/`;
+- `experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
 
 ## 14. Benchmark conclusion
 
-Causal GMP remains the current forward PA quality point under 1000 counted
-real MUL/sample. Sparse non-factorized PA establishes a reproducible 54-MUL
-point and improves the factorized SPH baseline, but still fails the quality
-gate and cannot move the DPD contour. GMP also fails the possible −50 dB target
-and does not sufficiently isolate DPD residual from evaluator error. The next
-justified work is a preregistered lag-9-guided branch ablation or independent
-capture validation, not further surrogate-specific DPD optimization.
+Causal GMP remains the current forward PA fidelity point under 1000 counted
+real MUL/sample. The lag-9 sparse PA establishes a reproducible 72-MUL
+cheap-Pareto point and removes the discovered residual peak on this capture,
+but it still trails GMP and cannot move the DPD contour. GMP and lag-9 sparse
+both fail a possible −50 dB target, and neither supplies independent
+evaluator evidence. The next justified work is independent
+`APA_200MHz_b`/physical-PA validation with limited-calibration curves, not
+further surrogate-specific DPD optimization.
