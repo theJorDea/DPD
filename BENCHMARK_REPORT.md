@@ -2,6 +2,12 @@
 
 Дата среза: 2026-07-30.
 
+Requirement correction: the 1000-real-MUL-equivalent time budget applies only
+to deployment DPD, not to PA models in this report. The completed strict
+`<1000 MUL` PA searches remain valid historical experiments, but their cost is
+not a Huawei PA-model acceptance gate. Final DPD quality is expected to use
+harmonic/spur attenuation; its exact bands/reference/threshold are pending.
+
 ## 1. Scope
 
 Этот report содержит только реально выполненные local runs и отдельно
@@ -12,8 +18,10 @@ identification:
 measured x -> frozen PA model -> y_hat -> compare with measured y
 ```
 
-Новый DPD-through-GMP cascade, physical PA experiment, 14-bit GMP и hardware
-synthesis не выполнялись. APA standalone SPH и первый non-factorized sparse
+Новый DPD-through-GMP cascade, physical PA experiment и timed DPD hardware
+implementation не выполнялись. DPA/APA GMP и APA sparse PA arithmetic уже
+проверены при 16/14/12 bit, но это evaluator-numerics evidence, не DPD timing.
+APA standalone SPH и первый non-factorized sparse
 forward run были недостаточно точными для замены GMP; bounded lag-9 sparse run
 впервые прошёл cheap-Pareto gate относительно MP, но всё ещё уступил GMP.
 Дополнительно выполнен preregistered capture transfer на `APA_200MHz_b`,
@@ -35,7 +43,7 @@ better-than-OpenDPD или результат на физическом PA по�
 | Primary protocol | A0, integer delay 0, no fractional transform |
 | Common GMP support | warm-up 49, cooldown 0 samples/frame |
 | Complex multiply | 4 real MUL + 2 real ADD |
-| Operation gate | strict `<1000` real MUL/complex sample |
+| Historical PA search bound | strict `<1000` real MUL/complex sample; not the DPD timing gate |
 
 Exact commands/configs/hashes: `EXPERIMENT_PLAN.md` and result execution
 records. Selection and residual stages read train/validation only. Source GMP
@@ -460,8 +468,9 @@ Raw locations:
 
 ## 14. Benchmark conclusion
 
-Causal GMP remains the current forward PA fidelity point under 1000 counted
-real MUL/sample. The lag-9 sparse PA establishes a reproducible 72-MUL
+Causal GMP remains the current forward PA fidelity point among the completed
+historically `<1000 MUL/sample` searches. The lag-9 sparse PA establishes a
+reproducible 72-MUL
 cheap-Pareto point and removes the discovered residual peak on the source
 capture, but it still trails GMP and cannot move the DPD contour. The
 `APA_200MHz_b` held-out release confirms that zero-shot transfer is poor and

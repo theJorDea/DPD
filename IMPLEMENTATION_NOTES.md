@@ -590,7 +590,9 @@ Normative documents:
 
 ## 8. Known issues
 
-1. Exact Huawei metric and physical multiplier meaning are unknown.
+1. Scientific-supervisor clarification freezes DPD-only equivalent-time scope,
+   but exact harmonic/spur bands/threshold and 1000-real-MUL target timing
+   kernel remain unknown.
 2. Feedback frequency response, DC and IQ imbalance are not independently
    calibrated; A0/A1 is only delay sensitivity.
 3. DPA has 9 train frames; APA only 3. Frames are not independent captures.
@@ -603,7 +605,7 @@ Normative documents:
    generated yet.
 9. DPA/APA source GMP and APA lag-9 sparse PA now have a 16/14/12-bit integer
    simulator; target payloads, spline-memory DPD and PA→DPD cascade remain
-   pending.
+   pending. PA cost is not checked against the deployment DPD timing gate.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.
 12. Checked APA short conjugate supports failed the 0.1 dB OOF threshold;

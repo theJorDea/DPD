@@ -7,7 +7,10 @@
 Проект успешно исправил методологию и улучшил forward PA evaluator, но пока
 **не имеет оснований** заявлять:
 
-- `error < 10^-5` по неизвестной Huawei metric;
+- customer-defined harmonic/spur attenuation достигнуто: exact metric и порог
+  ещё не получены;
+- `error < 10^-5` достигнуто как дополнительная metric: её текущий статус
+  после уточнения неизвестен;
 - DPD лучше OpenDPD apples-to-apples;
 - fixed-point PA arithmetic reference готова, но fixed-point/real-time
   hardware implementation не доказана;
@@ -23,8 +26,9 @@
 | APA_200MHz_b | target-calibrated causal GMP, held-out test | −37.895 dB | 1.6236e−4 | 954 |
 | APA_200MHz_b | target-calibrated lag-9 sparse, held-out test | −34.801 dB | 3.3102e−4 | 72 |
 
-Все точки удовлетворяют analytical `<1000 real MUL/sample`, но если `10^-5`
-— normalized error power, даже лучший APA source/target GMP выше порога
+Все точки удовлетворяют historical analytical `<1000 real MUL/sample`, но это
+не Huawei gate для PA model. Если `10^-5` использовать как дополнительную
+normalized-error diagnostic, даже лучший APA source/target GMP выше порога
 примерно в 13.8–16.2 раза. Capture B test не использовался для model/N
 selection или coefficient fit.
 
@@ -52,12 +56,14 @@ Slides явно показывают:
   multipliers;
 - staged verification на public data, затем real-world service data.
 
-Один slide **не задаёт полный acceptance contract**. Он не определяет
-normalization, aggregation, exact model direction, RF setup, spectral masks,
-fixed-point format или физический смысл “multiplier”. Поэтому рабочее
-разделение на PA identification и independently evaluated DPD является
-инженерным contract проекта, согласующимся со слайдами и OpenDPD, но не
-выдаётся за дословную закрытую спецификацию Huawei.
+Научный руководитель уточнил, что формулы слайда ненормативны, 1000-real-MUL
+equivalent-time budget относится только к DPD, а quality оценивается по
+затуханию паразитных гармоник. Это рабочее уточнение имеет приоритет над
+архитектурными выводами из изображений. При этом exact harmonic/spur bands,
+reference, threshold, target platform и timing kernel всё ещё неизвестны.
+Поэтому рабочее разделение на PA identification и independently evaluated DPD
+является инженерным contract проекта, но не выдаётся за полную Huawei
+specification.
 
 Полный requirements audit: `REQUIREMENTS.md`.
 
@@ -421,12 +427,12 @@ frozen evaluator.
 
 ### 6.1 Requirements
 
-- exact definition of `E(f) < 10^-5`: SSE, MSE, normalized/relative error,
-  per-frame or pooled, steady-state or full record;
-- относится ли error к PA forward model, inverse/postdistorter, DPD cascade
-  или всем компонентам;
-- `<1000 multipliers`: operations/sample, physical DSP blocks, clock-amortized
-  units или coefficient-update cost;
+- остаётся ли `E(f) < 10^-5` дополнительной metric и как она определяется;
+- exact meaning of harmonic/spur attenuation: true RF harmonics,
+  intermodulation or adjacent-channel regrowth; integration bands, reference,
+  averaging and threshold;
+- target platform, word length, resource allocation and reference kernel for
+  the known DPD-only 1000-real-MUL-equivalent time gate;
 - maximum calibration/update latency and allowed compute platform;
 - accepted coefficient/state/accumulator formats and saturation rules.
 
@@ -461,8 +467,9 @@ frozen evaluator.
 
 | Claim | Current status | Allowed wording |
 |---|---|---|
-| Low-complexity forward PA model under 1000 counted MUL | supported | causal GMP reaches −35.385/−38.608 dB on held-out measured captures at 766/954 MUL/sample |
-| Huawei `10^-5` met | unsupported | metric unresolved; if normalized power, current GMP fails |
+| Forward PA results have recorded operation counts | supported | causal GMP reaches −35.385/−38.608 dB at 766/954 MUL/sample; PA cost is not the DPD gate |
+| Huawei harmonic/spur attenuation met | unsupported | exact RF definition and threshold are missing |
+| Huawei `10^-5` met | unsupported | status unresolved after clarification; if normalized power, current GMP fails |
 | DPD linearizes physical PA | unsupported | legacy DPD is surrogate-only |
 | Better than OpenDPD | unsupported | no complete apples-to-apples run |
 | Fixed-point DPA/APA PA arithmetic reference | supported, bounded | DPA/APA train/validation GMP plus APA sparse 16/14/12-bit reports; no DPD/RTL claim |
@@ -482,10 +489,13 @@ frozen evaluator.
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
-External-capture held-out release уже выполнен. Следующий independent-data
-step — **получить controlled physical-PA capture с известными operating
-conditions**; обратный transfer `APA_200MHz_b -> APA_200MHz` имеет смысл
-только при наличии сопоставимых metadata. Причины:
+External-capture held-out release уже выполнен. Следующий локальный
+high-information step — воспроизводимо обучить **high-fidelity OpenDPD PA
+evaluator без DPD cost cap** и проверить independent DPD ranking protocol.
+Следующий decisive independent-data step — **получить controlled physical-PA
+capture с известными operating conditions**; обратный transfer
+`APA_200MHz_b -> APA_200MHz` имеет смысл только при наличии сопоставимых
+metadata. Причины:
 
 - waveform/spec nominally matches `APA_200MHz`;
 - это отдельный capture, поэтому он измеряет generalization, а не ещё один
@@ -495,9 +505,9 @@ conditions**; обратный transfer `APA_200MHz_b -> APA_200MHz` имеет 
   адаптировались coefficients;
 - coefficient-only GMP/spline fits позволяют построить calibration quality
   versus samples/time без GPU.
-- APA fixed-point PA arithmetic is now frozen and measured; repeating it on
-  DPA/target payloads is useful, but cannot replace the physical predistorted
-  capture that decides Gate A→B.
+- DPA/APA fixed-point PA arithmetic is now frozen and measured; already-started
+  target-payload cleanup is useful for reproducibility, but cannot replace a
+  more faithful evaluator or physical predistorted capture.
 
 Протокол:
 
@@ -507,11 +517,13 @@ conditions**; обратный transfer `APA_200MHz_b -> APA_200MHz` имеет 
    regularization или calibration N.
 3. Если metadata подтверждает same DUT, preregister обратный transfer
    `APA_200MHz_b -> APA_200MHz` на ещё не использованном split.
-4. Получить новый controlled capture с power/backoff, bias, temperature,
+4. Reproduce/train the OpenDPD PA backbone on frozen local splits without the
+   DPD latency cap; keep checkpoints/configs/hashes and do not tune on test.
+5. Получить новый controlled capture с power/backoff, bias, temperature,
    capture time и feedback calibration, frozen до evaluation.
-5. Только после известного operating-point experiment строить adaptation
+6. Только после известного operating-point experiment строить adaptation
    curves с physical power/temperature labels.
-6. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
+7. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
    не выполнен. Current held-out GMP/sparse results fail this gate; no further
    local DPD or delay-dictionary tuning is authorized from B test.
 
@@ -523,5 +535,6 @@ adaptation. Independent capture validation имеет большую инфор�
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
-DUT и измерить NMSE/EVM/ACLR/peak/stability. Без него claim для базовой станции
-Huawei остаётся недоказанным независимо от surrogate score.
+DUT и измерить customer-defined harmonic/spur attenuation вместе с
+NMSE/EVM/ACLR/peak/stability. Без него claim для базовой станции Huawei
+остаётся недоказанным независимо от surrogate score.

@@ -2,6 +2,12 @@
 
 Дата среза: 2026-07-30.
 
+Уточнение научного руководителя от 2026-07-30 имеет приоритет над выводами из
+слайдов: equivalent time of 1000 real multiplications ограничивает только DPD,
+формулы слайда ненормативны, а primary quality связана с затуханием
+паразитных гармоник. Exact RF bands/reference/threshold и timing reference
+пока не зафиксированы.
+
 ## 1. Outcome
 
 Проект переформулирован из одной surrogate-DPD optimization задачи в два
@@ -26,9 +32,10 @@ evidence, но новая optimization приостановлена: Gate A→B 
 | APA_200MHz_b calibrated GMP (held-out test) | −37.895 dB | 954 / 947 | 444 |
 | APA_200MHz_b calibrated lag-9 sparse (held-out test) | −34.801 dB | 72 / 82 | 216 |
 
-Если Huawei `10^-5` означает normalized error power, target равен −50 dB и
-не достигнут. Никакого claim “лучше OpenDPD” или “готово для Huawei base
-station” нет.
+Если `10^-5` использовать как дополнительную normalized-error diagnostic,
+это соответствует −50 dB и не достигнуто. После уточнения это нельзя называть
+primary Huawei acceptance без отдельного подтверждения. Никакого claim “лучше
+OpenDPD” или “готово для Huawei base station” нет.
 
 ## 2. Physical and mathematical formulation
 
@@ -44,13 +51,22 @@ x[n]=I[n]+jQ[n].
 z[n]=D(x[n]),\qquad y[n]=P(z[n]),\qquad y[n]\approx g x[n].
 \]
 
-Deployment metric:
+Обязательная diagnostic metric для сравнения с OpenDPD:
 
 \[
 \operatorname{NMSE}_{pool}=10\log_{10}
 \frac{\sum_n|P(D(x[n]))-g x[n]|^2}
      {\sum_n|g x[n]|^2}.
 \]
+
+Clarified primary acceptance ожидается в спектральной форме, например
+
+\[
+A_\mathrm{spur}(B)=10\log_{10}\frac{P_\mathrm{reference}}{P(B)},
+\]
+
+но область \(B\), reference power, averaging и требуемый threshold пока не
+заданы. Поэтому этот шаблон не используется для выдумывания Huawei result.
 
 ILA fit допустим как postdistorter calibration:
 
@@ -70,16 +86,19 @@ y_{test}/g\to D_{post}\to \hat P\to y_{test}
 
 ## 3. Requirements audit
 
-Предоставленные slides явно требуют strong expression, low complexity,
-real-time-friendly coefficients, verification error below `10^-5` и fewer than
-1000 real multipliers. Они также называют Volterra/MP, neural and CPWL models
-и memory sources: signal bandwidth, thermal and trapping effects.
+Предоставленные slides визуально содержат strong expression, low complexity,
+real-time-friendly coefficients, `10^-5`, 1000 real multipliers, а также
+Volterra/MP, neural and CPWL examples. Научный руководитель отдельно уточнил,
+что формулы показаны для иллюстрации и не задают model/loss; limit относится
+только к DPD и является equivalent-time budget всех операций; качество
+оценивается по затуханию паразитных гармоник.
 
 Slides не определяют:
 
-- error normalization/aggregation;
-- относится ли error к forward PA, inverse или cascade;
-- operations/sample versus physical DSP blocks;
+- остаётся ли `10^-5` дополнительной метрикой;
+- exact meaning of harmonic/spur, RF integration bands, reference and
+  threshold;
+- target platform и reference timing kernel для equivalent-time DPD gate;
 - carrier/output power/backoff/bias/temperature;
 - feedback-path correction and spectral masks;
 - fixed-point words/accumulator/rounding;
@@ -298,18 +317,25 @@ Detailed shortlist: `research/proposed_methods.md`.
 
 Current operation accounting separates MUL, ADD, nonlinear, comparisons,
 lookups, reads/writes, coefficients and state. At native Fs, APA GMP represents
-937.82 GMUL/s aggregate analytical work, so `<1000/sample` alone does not prove
-real time.
+937.82 GMUL/s aggregate analytical work. This PA number is not subject to the
+DPD gate; it illustrates why a scalar count alone does not prove real time.
+For DPD the final criterion is measured total streaming time relative to the
+1000-real-MUL reference on one target.
 
-Existing integer reference covers only first-stage memoryless spline 16/12-bit
-software arithmetic and declares `bit_true_rtl=false`. Selected GMP and
-lag-9 sparse PA fixed-point evaluation is still pending. Required order:
+Selected causal GMP PA on DPA/APA and lag-9 sparse PA on APA now have
+train-frozen, bit-accurate 16/14/12-bit software reports with explicit
+accumulators, saturation and exact chunk/reset equivalence. This is PA
+evaluator-numerics evidence; the 1000-real-MUL-equivalent DPD gate does not
+apply to it. Selected spline-memory DPD, cascade and timed target
+implementation remain pending. Required order:
 
-1. selected causal GMP integer datapath at 16 bit;
-2. 14/12 bit ablation with frozen scale/accumulator;
-3. spline-memory DPD;
-4. cascade;
-5. FPGA/ASIC synthesis and measured throughput/latency/resources/power.
+1. finish the already-started hash-bound target-calibrated PA payload audit
+   without target-test access;
+2. implement selected spline-memory DPD at 16/14/12 bit;
+3. run correct-direction DPD→frozen-PA cascade;
+4. freeze target/reference timing protocol;
+5. measure FPGA/ASIC/DSP throughput/latency/resources/power and compare all
+   DPD operations with the 1000-real-MUL reference.
 
 Detailed contract: `HARDWARE_COST.md`.
 
@@ -356,13 +382,17 @@ Not supported:
 - Huawei `10^-5` acceptance;
 - physical PA DPD linearization;
 - better-than-OpenDPD claim;
-- fixed-point GMP/DPD or FPGA readiness;
+- fixed-point/timed DPD or FPGA readiness (fixed-point PA arithmetic alone is
+  supported but is not a deployment-DPD result);
 - generalization/adaptation under controlled drift or known physical axes;
 - thermal/state model evidence.
 
-The next high-information experiment is a bit-accurate selected-PA audit,
-followed by controlled operating-point metadata/capture. The decisive final
-experiment remains calibrated physical PA remeasurement of
+The next local high-information experiment is reproducible high-fidelity
+OpenDPD PA training without the DPD cost cap, after closing the already-started
+target-payload arithmetic task. External prerequisites are the exact
+harmonic/spur and timing definitions plus controlled operating-point
+metadata/capture. The decisive final experiment remains calibrated physical PA
+remeasurement of
 no-DPD, OpenDPD and the selected low-cost candidate on the same waveform,
 operating point and spectral evaluator. Until then all DPD conclusions must
 retain their surrogate/forward-model evidence label.

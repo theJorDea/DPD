@@ -2,6 +2,13 @@
 
 Дата среза: 2026-07-30.
 
+По уточнению научного руководителя 1000-real-MUL-equivalent budget относится
+только к deployment DPD, не к forward PA model. Поэтому этот документ
+сохраняет operation counts и результаты прежних budget-constrained searches
+как воспроизводимый Pareto audit, но больше не трактует `<1000 MUL` как Huawei
+acceptance gate для PA evaluator. Более дорогая PA model допустима, если она
+даёт существенно более надёжный independent DPD ranking.
+
 ## Статус и границы доказательства
 
 Этот документ относится к контуру A:
@@ -47,10 +54,12 @@ evaluator не является выполненным DPD experiment. Bundled O
 
 - budget-constrained GMP достиг на frozen test −35.3850 dB на DPA и
   −38.6081 dB на APA; это лучше локального MP на 0.2860 и 1.6176 dB;
-- все четыре selected MP/GMP точки укладываются в строгое ограничение `<1000` real
-  multiplications/complex sample по принятой software convention;
-- если `10^-5` означает normalized error power, ни одна selected точка не достигает цели
-  −50 dB;
+- все четыре selected MP/GMP точки укладываются в historical search bound
+  `<1000` real multiplications/complex sample; это факт об экспериментах, не
+  DPD timing pass;
+- если `10^-5` использовать как дополнительную normalized-error diagnostic,
+  ни одна selected точка не достигает −50 dB; clarified primary quality
+  относится к пока не полностью определённому затуханию паразитных гармоник;
 - provisional 10 dB evaluator gate для продолжения DPD не выполнен;
 - release-gates GMP прошли, но они разрешали только по одному frozen test и
   не являются Gate A→B;
@@ -1202,9 +1211,11 @@ is `experiments/results/pa_fixed_point_dpa200/fixed_point_report.json`.
 
 ## 11. Что пока неизвестно или не выполнено
 
-- Не установлено официальное определение Huawei `error < 10^-5`.
-- Не установлено, означает ли `<1000 multipliers` operations/sample,
-  физических DSP blocks или amortized update cost.
+- Не установлено, остаётся ли Huawei `error < 10^-5` дополнительной метрикой
+  после уточнения spectral acceptance.
+- Известно, что equivalent-time budget относится к DPD, не к PA model; не
+  установлены target platform и reference timing kernel для всех DPD
+  operations.
 - Нет официальных DUT, carrier/power/backoff, waveform masks, feedback-path
   calibration и verification splits Huawei.
 - A0/A1 fractional-delay sensitivity выполнена, но independent feedback-path
