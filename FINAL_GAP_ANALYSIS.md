@@ -1,6 +1,6 @@
 # Final gap analysis: current evidence versus project goal
 
-Дата среза: 2026-07-29.
+Дата среза: 2026-07-30.
 
 ## 1. Executive decision
 
@@ -18,6 +18,7 @@
 |---|---|---:|---:|---:|
 | DPA_200MHz | causal GMP | −35.385 dB | 2.8940e−4 | 766 |
 | APA_200MHz | causal GMP | −38.608 dB | 1.3778e−4 | 954 |
+| APA_200MHz | lag-9 sparse, reused validation | −37.861 dB | 1.637e−4 | 72 |
 
 Обе точки удовлетворяют analytical `<1000 real MUL/sample`, но если
 `10^-5` — normalized error power, они выше порога в 28.94× и 13.78×.
@@ -25,11 +26,12 @@
 Gate A→B остаётся **closed**: PA evaluator недостаточно отделён по error power
 от DPD residual, нет второго independent evaluator и нет physical-PA cascade.
 
-Последний train-only candidate не меняет это решение: non-factorized sparse
-spline-memory PA улучшил предыдущий SPH, но его OOF fidelity всё ещё на
-`6.315/6.662 dB` хуже matched GMP (full/common). Поэтому это реальный
-low-cost negative result, а не основание продолжать DPD tuning через новый
-evaluator.
+Последний train-only lag-9 candidate улучшил parent на `5.762/5.765 dB` и
+превзошёл matched MP на `0.738/0.753 dB` при `72 MUL/sample`. Это первый
+локальный sparse PA point, проходящий internal cheap-Pareto gate. Однако он
+всё ещё на `0.553/0.898 dB` хуже matched GMP (full/common), проверен только
+внутри APA capture и поэтому не является независимым evaluator или основанием
+для продолжения DPD tuning.
 
 ## 2. Что следует из предоставленных Huawei slides
 
@@ -199,16 +201,57 @@ The run is still diagnostically valuable. Its residual has a strong causal
 proper correlation at lag 9 (`0.69064` train OOF, `0.69131` reused validation),
 while the earlier lag-22–24-only topology was not sufficient. Envelope
 correlation is secondary (largest radial value about `0.140` at lag 2), and a
-slow-state branch is not eligible without independent captures. The next
-bounded local hypothesis is a lag-9 neighborhood branch family, preregistered
-before any new fit; it is not a claim that lag correlation alone will close the
+slow-state branch is not eligible without independent captures. This evidence
+motivated the separately preregistered lag-9 neighborhood reported in
+Section 3.7; it was not a claim that lag correlation alone would close the
 6.3 dB evaluator gap.
 
 Evidence: `experiments/results/pa_sparse_spline_memory_apa200_selection/` and
 commit `5b804f3`. The immutable manifest records `test_split_accessed=false`,
 runtime `33.5888 s`, and all artifact/input hashes.
 
-### 3.7 Code/repository audit conclusions
+### 3.7 Residual-guided lag-9 sparse PA: positive local result, closed evaluator gate
+
+The follow-up config
+`experiments/configs/pa_sparse_spline_memory_lag9_apa200.json` was committed
+before fitting and froze nine topology families, `K={8,12,16}`, four ridge
+values and 66 maximum OOF fit calls. It used the previously selected sparse
+model as an immutable incremental control:
+
+```text
+(m,d) = (0,0),(1,1),(2,2),(22,22),(23,23),(24,24),(8,0),(9,0),(10,0)
+K = 12, ridge = 1e-8
+```
+
+| Model / split | Full NMSE | Common NMSE | Gain over parent | Cost |
+|---|---:|---:|---:|---:|
+| Parent sparse train OOF | −32.030011 dB | −32.088250 dB | — | 54 MUL / 58 ADD |
+| Lag-9 sparse train OOF | **−37.792478 dB** | **−37.852832 dB** | **+5.762467 / +5.764583 dB** | **72 MUL / 82 ADD** |
+| Lag-9 sparse full-train refit | −37.866643 dB | −37.927296 dB | — | 72 MUL / 82 ADD |
+| Lag-9 sparse reused validation | −37.860728 dB | −37.898605 dB | — | 72 MUL / 82 ADD |
+
+The minimum fold gain was `+5.717845/+5.731338 dB`, so the preregistered
+incremental gate passed. The candidate also passes the internal cheap-Pareto
+threshold against MP (`0.738150/0.752881 dB` improvement), but remains
+`0.552932/0.897694 dB` worse than GMP. Decision:
+`cheap_pareto_only`; `evaluator_candidate_gate_passed=false`;
+`gate_a_to_b_opened=false`.
+
+The selected design is full rank (`108/108`), has augmented condition
+`2427.39`, exact streaming/reset equivalence, 216 stored real coefficients and
+48 state reals. Two repeated-signal-delay envelope-only families were
+hard-invalid due partition-of-unity rank deficiency; the `K=16` selected
+variant also failed rank in OOF folds. The residual lag-9 peak collapsed to a
+maximum causal proper correlation of `0.07106` at lag 32 on train OOF. These
+are strong within-capture diagnostics, not independent-capture evidence.
+
+Immutable evidence:
+`experiments/results/pa_sparse_spline_memory_lag9_apa200_selection/`,
+config SHA `93807ab6…`, recipe SHA
+`5a2cb735d6637c5a9bd1f449268a2b9c98eeba3e6d9e65245c52fa273cc8a6c6`, runtime
+`62.5693 s`, test access false.
+
+### 3.8 Code/repository audit conclusions
 
 - OpenDPD neural DLA использует правильное deployment direction:
   desired `x -> DPD -> frozen PA`, target `g*x`; circular `y_test` input там не
@@ -342,6 +385,8 @@ frozen evaluator.
 | Sparse APA long-FIR branch improves GMP materially | refuted for checked supports | best internal-resampling gain is 0.018/0.020 dB despite positive gains in every fold |
 | Standalone APA SPH replaces GMP under the cheap-quality gate | refuted on train OOF | 37 MUL/sample, but 6.652 dB worse than matched MP and 7.943 dB worse than GMP |
 | Non-factorized sparse spline-memory replaces GMP under the cheap-quality gate | refuted on train OOF | 54 MUL/sample, but 5.024 dB worse than MP and 6.315 dB worse than GMP |
+| Lag-9 sparse PA is a cheap low-complexity Pareto point | supported within APA capture | 72 MUL/sample; 0.738/0.753 dB better than MP, but 0.553/0.898 dB worse than GMP |
+| Lag-9 sparse PA is an independent DPD evaluator | unsupported | same-capture reused validation only; no second evaluator or physical cascade |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 
@@ -360,9 +405,9 @@ B”. Причины:
 
 1. Зафиксировать, какие axes изменились в measurement B; если ответа нет,
    label строго `capture transfer`.
-2. До target access preregister source-frozen GMP и один residual-motivated
-   low-complexity candidate: sparse complex spline-memory PA или spline/CPWL +
-   short complex FIR.
+2. До target access preregister source-frozen GMP и frozen lag-9 sparse
+   candidate; оба должны быть evaluated as forward PA models without changing
+   coefficients on target validation/test.
 3. Fit/select architecture только на `APA_200MHz` train OOF/validation.
 4. Zero-shot coefficient-model score на `APA_200MHz_b`; measurement nuisance
    alignment/gain diagnostics разрешены только по target train с заранее
@@ -372,17 +417,13 @@ B”. Причины:
 6. Open target test once after freeze; report NMSE/error PSD/AM-AM/AM-PM,
    support, cost and wall time.
 7. Не переходить к DPD, если evaluator margin/independent-ranking gate всё ещё
-   не выполнен.
+   не выполнен. Current lag-9 result already fails this gate; no further local
+   delay dictionary expansion is authorized before transfer evidence.
 
 Пока provenance/operating-point metadata для measurement B не подтверждены,
-следующий полностью локальный model experiment — заранее ограниченная
-**lag-9-guided non-factorized sparse spline-memory PA** family. Уже выполненный
-run показал, что topology только с lag 22–24 недостаточна; новый dictionary
-должен включать, например, `{8,9,10}` (и явно объявить, какие signal/envelope
-delay pairs разрешены), сохраняя strict `<1000 MUL`, support/rank/condition
-gates и train-only OOF. Validation остаётся descriptive, старый APA test
-запрещён для selection. Это проверит конкретный residual hypothesis, но не
-заменит independent capture и physical-PA cascade.
+результат следует маркировать `capture transfer`, а не power/thermal
+adaptation. Independent capture validation имеет большую информационную
+ценность, чем повторное OOF tuning на `APA_200MHz`.
 
 Самый ценный **decisive** experiment остаётся physical PA remeasurement:
 одинаковый desired waveform подать no-DPD/OpenDPD/new-DPD на один calibrated
