@@ -66,6 +66,122 @@ class FixedPointRunnerTests(unittest.TestCase):
         self.assertEqual(aggregate["knot_code_collision_count"], 2)
         self.assertEqual(aggregate["maximum_accumulator_magnitude"], 10)
 
+    def test_frozen_coefficient_override_is_hash_bound(self) -> None:
+        with tempfile.TemporaryDirectory(
+            dir=runner.PROJECT_ROOT,
+            prefix="fixed_point_override_test_",
+        ) as temporary:
+            root = Path(temporary)
+            base = GeneralizedMemoryPolynomialPA(
+                GMPConfig(ka=1, la=1),
+                np.asarray([1.0 + 0j]),
+            )
+            model_path = root / "base.npz"
+            base.save(model_path)
+            coefficients = np.asarray([0.75 - 0.1j])
+            archive_path = root / "coefficients.npz"
+            np.savez(
+                archive_path,
+                schema_version=np.asarray(1, dtype=np.int64),
+                selected=coefficients,
+            )
+            manifest_path = root / "manifest.json"
+            manifest = {
+                "schema_version": 1,
+                "status": "pretest_train_validation_only",
+                "input_integrity": {
+                    "test_never_opened_or_hashed": True,
+                    "target_held_out_hash_recorded": False,
+                },
+                "artifacts": {
+                    archive_path.name: {
+                        "path": archive_path.name,
+                        "sha256": _sha256(archive_path),
+                    }
+                },
+                "source_artifact_hashes": {
+                    "toy_gmp/model_path": _sha256(model_path),
+                },
+                "target_transfer": {
+                    "toy_gmp": {
+                        "selected_calibration": {
+                            "fit": {
+                                "coefficient_hash": runner._array_sha256(
+                                    coefficients
+                                )
+                            },
+                            "sample_count_per_frame": 4,
+                            "status": "feasible",
+                            "target_validation_loaded": True,
+                            "validation_loaded_after_all_prefix_fits": True,
+                        }
+                    }
+                },
+            }
+            manifest_path.write_text(
+                json.dumps(manifest),
+                encoding="utf-8",
+            )
+            record = {
+                "type": "causal_gmp",
+                "path": str(model_path.relative_to(runner.PROJECT_ROOT)),
+                "sha256": _sha256(model_path),
+                "coefficient_override": {
+                    "archive_path": str(
+                        archive_path.relative_to(runner.PROJECT_ROOT)
+                    ),
+                    "archive_sha256": _sha256(archive_path),
+                    "selection_manifest_path": str(
+                        manifest_path.relative_to(runner.PROJECT_ROOT)
+                    ),
+                    "selection_manifest_sha256": _sha256(manifest_path),
+                    "key": "selected",
+                    "array_sha256": runner._array_sha256(coefficients),
+                    "calibration_samples_per_frame": 4,
+                    "selection_model_name": "toy_gmp",
+                    "required_manifest_status": "pretest_train_validation_only",
+                },
+            }
+            loaded = runner._load_frozen_models(
+                {"frozen_models": {"gmp": record}}
+            )
+            np.testing.assert_array_equal(
+                loaded["gmp"]["model"].coefficients,
+                coefficients,
+            )
+            self.assertEqual(
+                loaded["gmp"]["coefficient_override"][
+                    "calibration_samples_per_frame"
+                ],
+                4,
+            )
+            bad = json.loads(json.dumps(record))
+            bad["coefficient_override"]["array_sha256"] = "0" * 64
+            with self.assertRaisesRegex(RuntimeError, "payload hash mismatch"):
+                runner._load_frozen_models(
+                    {"frozen_models": {"gmp": bad}}
+                )
+
+            bad_manifest = json.loads(json.dumps(manifest))
+            bad_manifest["target_transfer"]["toy_gmp"][
+                "selected_calibration"
+            ]["fit"]["coefficient_hash"] = "0" * 64
+            manifest_path.write_text(
+                json.dumps(bad_manifest),
+                encoding="utf-8",
+            )
+            bad_selection = json.loads(json.dumps(record))
+            bad_selection["coefficient_override"][
+                "selection_manifest_sha256"
+            ] = _sha256(manifest_path)
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "selected coefficient hash mismatch",
+            ):
+                runner._load_frozen_models(
+                    {"frozen_models": {"gmp": bad_selection}}
+                )
+
     def test_integration_opens_only_train_and_validation(self) -> None:
         rng = np.random.default_rng(123)
         train = (

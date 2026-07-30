@@ -66,6 +66,19 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _array_sha256(values: np.ndarray) -> str:
+    """Hash array dtype, shape and contiguous payload like transfer bundles."""
+
+    import hashlib
+
+    array = np.ascontiguousarray(values)
+    digest = hashlib.sha256()
+    digest.update(str(array.dtype).encode("ascii"))
+    digest.update(np.asarray(array.shape, dtype=np.int64).tobytes())
+    digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
 def _project_path(value: str, *, label: str) -> Path:
     path = (PROJECT_ROOT / value).resolve()
     try:
@@ -122,6 +135,88 @@ def _verify_hash(path: Path, expected: str, *, label: str) -> None:
         )
 
 
+def _validate_override_selection_manifest(
+    manifest_path: Path,
+    *,
+    archive_path: Path,
+    archive_sha256: str,
+    base_model_sha256: str,
+    selection_model_name: str,
+    required_manifest_status: str,
+    calibration_samples_per_frame: int,
+    coefficient_sha256: str,
+) -> dict[str, Any]:
+    value = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict) or int(value.get("schema_version", -1)) != 1:
+        raise ValueError("coefficient selection manifest schema mismatch")
+    if value.get("status") != required_manifest_status:
+        raise RuntimeError("coefficient selection manifest status mismatch")
+
+    integrity = value.get("input_integrity")
+    if not isinstance(integrity, dict):
+        raise ValueError("coefficient selection manifest lacks input_integrity")
+    if integrity.get("test_never_opened_or_hashed") is not True:
+        raise RuntimeError("coefficient selection manifest is not pre-test")
+    if integrity.get("target_held_out_hash_recorded") is not False:
+        raise RuntimeError("coefficient selection manifest records held-out data")
+
+    artifacts = value.get("artifacts")
+    if not isinstance(artifacts, dict):
+        raise ValueError("coefficient selection manifest lacks artifacts")
+    archive_record = artifacts.get(archive_path.name)
+    if not isinstance(archive_record, dict):
+        raise ValueError("coefficient selection manifest lacks coefficient archive")
+    if archive_record.get("path") != archive_path.name:
+        raise RuntimeError("coefficient archive path disagrees with selection manifest")
+    if archive_record.get("sha256") != archive_sha256:
+        raise RuntimeError("coefficient archive is not bound by selection manifest")
+
+    source_hashes = value.get("source_artifact_hashes")
+    if not isinstance(source_hashes, dict):
+        raise ValueError(
+            "coefficient selection manifest lacks source_artifact_hashes"
+        )
+    source_key = f"{selection_model_name}/model_path"
+    if source_hashes.get(source_key) != base_model_sha256:
+        raise RuntimeError("base model topology is not bound by selection manifest")
+
+    transfers = value.get("target_transfer")
+    if not isinstance(transfers, dict):
+        raise ValueError("coefficient selection manifest lacks target_transfer")
+    transfer = transfers.get(selection_model_name)
+    if not isinstance(transfer, dict):
+        raise ValueError(
+            "coefficient selection manifest lacks selected model record"
+        )
+    selected = transfer.get("selected_calibration")
+    if not isinstance(selected, dict):
+        raise ValueError(
+            "coefficient selection manifest lacks selected calibration"
+        )
+    if selected.get("status") != "feasible":
+        raise RuntimeError("selected coefficient calibration is not feasible")
+    if selected.get("target_validation_loaded") is not True:
+        raise RuntimeError("selected coefficient calibration lacks validation")
+    if selected.get("validation_loaded_after_all_prefix_fits") is not True:
+        raise RuntimeError(
+            "coefficient selection did not freeze prefix fits before validation"
+        )
+    selected_samples = int(selected.get("sample_count_per_frame", -1))
+    if selected_samples != calibration_samples_per_frame:
+        raise RuntimeError("selected coefficient calibration sample count mismatch")
+    fit = selected.get("fit")
+    if not isinstance(fit, dict):
+        raise ValueError("selected coefficient calibration lacks fit record")
+    if fit.get("coefficient_hash") != coefficient_sha256:
+        raise RuntimeError("selected coefficient hash mismatch")
+    return {
+        "manifest_status": str(value["status"]),
+        "selection_model_name": selection_model_name,
+        "selection_status": str(selected["status"]),
+        "validation_loaded_after_all_prefix_fits": True,
+    }
+
+
 def _load_frozen_models(config: dict[str, Any]) -> dict[str, Any]:
     raw_models = config["frozen_models"]
     if not isinstance(raw_models, dict) or not raw_models:
@@ -139,10 +234,93 @@ def _load_frozen_models(config: dict[str, Any]) -> dict[str, Any]:
             model = SparseSplineMemoryPA.load(path)
         else:
             raise ValueError(f"unsupported frozen model type: {model_type}")
+        override = record.get("coefficient_override")
+        override_provenance: dict[str, Any] | None = None
+        if override is not None:
+            if not isinstance(override, dict):
+                raise ValueError(
+                    f"frozen_models.{name}.coefficient_override must be an object"
+                )
+            archive_path = _project_path(
+                str(override["archive_path"]),
+                label=f"coefficient archive {name}",
+            )
+            _verify_hash(
+                archive_path,
+                str(override["archive_sha256"]),
+                label=f"coefficient archive {name}",
+            )
+            manifest_path = _project_path(
+                str(override["selection_manifest_path"]),
+                label=f"coefficient selection manifest {name}",
+            )
+            _verify_hash(
+                manifest_path,
+                str(override["selection_manifest_sha256"]),
+                label=f"coefficient selection manifest {name}",
+            )
+            key = str(override["key"])
+            with np.load(archive_path, allow_pickle=False) as archive:
+                if int(archive["schema_version"]) != 1:
+                    raise ValueError("coefficient archive schema mismatch")
+                if key not in archive.files:
+                    raise ValueError(
+                        f"coefficient archive lacks frozen key: {key}"
+                    )
+                coefficients = np.asarray(
+                    archive[key],
+                    dtype=np.complex128,
+                ).copy()
+            expected_array_hash = str(override["array_sha256"])
+            actual_array_hash = _array_sha256(coefficients)
+            if actual_array_hash != expected_array_hash:
+                raise RuntimeError(
+                    f"coefficient payload hash mismatch for {name}"
+                )
+            calibration_samples_per_frame = int(
+                override["calibration_samples_per_frame"]
+            )
+            manifest_selection = _validate_override_selection_manifest(
+                manifest_path,
+                archive_path=archive_path,
+                archive_sha256=str(override["archive_sha256"]),
+                base_model_sha256=str(record["sha256"]),
+                selection_model_name=str(override["selection_model_name"]),
+                required_manifest_status=str(
+                    override["required_manifest_status"]
+                ),
+                calibration_samples_per_frame=calibration_samples_per_frame,
+                coefficient_sha256=actual_array_hash,
+            )
+            if isinstance(model, GeneralizedMemoryPolynomialPA):
+                model = GeneralizedMemoryPolynomialPA(
+                    model.config,
+                    coefficients,
+                )
+            else:
+                model = SparseSplineMemoryPA(
+                    knots=model.knots,
+                    branches=model.branches,
+                    coefficients=coefficients,
+                    knot_strategy=model.knot_strategy,
+                )
+            override_provenance = {
+                "archive_path": str(archive_path),
+                "archive_sha256": str(override["archive_sha256"]),
+                "selection_manifest_path": str(manifest_path),
+                "selection_manifest_sha256": str(
+                    override["selection_manifest_sha256"]
+                ),
+                "key": key,
+                "array_sha256": actual_array_hash,
+                "calibration_samples_per_frame": calibration_samples_per_frame,
+                **manifest_selection,
+            }
         loaded[str(name)] = {
             "record": record,
             "path": path,
             "model": model,
+            "coefficient_override": override_provenance,
         }
     return loaded
 
@@ -447,6 +625,7 @@ def run_from_config(
         "claims_scope": {
             "physical_pa_result": False,
             "dpd_linearization_result": False,
+            "dpd_latency_gate_applicable": False,
             "rtl_bit_true": False,
             "hardware_latency_or_resources": False,
             "python_runtime_only": True,
@@ -486,6 +665,7 @@ def run_from_config(
             "type": record["record"]["type"],
             "path": str(record["path"]),
             "sha256": str(record["record"]["sha256"]),
+            "coefficient_override": record["coefficient_override"],
             "float_reference_operation_count": _model_operation_count(model),
             "float_train_peak": _model_peak(
                 model,
