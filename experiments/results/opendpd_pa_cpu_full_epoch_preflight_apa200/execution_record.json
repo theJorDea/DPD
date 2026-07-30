@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task": "opendpd_pa_train_validation_only",
+  "status": "runtime_preflight_not_quality",
+  "command": [
+    "/tmp/dpd_opendpd_venv/bin/python",
+    "experiments/train_opendpd_pa.py",
+    "--config",
+    "experiments/configs/opendpd_pa_cpu_preflight_apa200.json",
+    "--candidate",
+    "tres_gru_h27",
+    "--max-epochs",
+    "1",
+    "--output-root",
+    "experiments/results/opendpd_pa_cpu_full_epoch_preflight_apa200"
+  ],
+  "dataset": "APA_200MHz",
+  "test_split_accessed": false,
+  "test_file_hashes_recorded": false,
+  "candidate": "tres_gru_h27",
+  "full_train_batches": 919,
+  "train_examples": 58781,
+  "fit_seconds": 60.12575685599586,
+  "reported_validation_nmse_db": -30.67783546447754,
+  "quality_result": false,
+  "linear_300_epoch_projection_hours": 5.010479737999655,
+  "interpretation": "Full-loader runtime estimate only; checkpoint is not the final 300-epoch OpenDPD PA result.",
+  "dpd_latency_gate_applicable": false
+}
