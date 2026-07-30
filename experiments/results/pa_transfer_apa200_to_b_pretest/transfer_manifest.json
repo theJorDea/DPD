@@ -1,0 +1,2547 @@
+{
+  "artifacts": {
+    "calibration_coefficients.npz": {
+      "path": "calibration_coefficients.npz",
+      "sha256": "542d143ce676e0a90e7802341339e0dba23ccbf59a02336aae10370c21a59cd9"
+    },
+    "execution_record.json": {
+      "path": "execution_record.json",
+      "sha256": "8904bdcbc9b9614ade6d3e98040809a98465faae98ff72f58fb0adf26da5db02"
+    },
+    "predictions.npz": {
+      "path": "predictions.npz",
+      "sha256": "bc7eba4806a18e4e30753c224330e7a04544ce904a436bd7715dc87cf3e5c746"
+    }
+  },
+  "config": "experiments/configs/pa_transfer_apa200_to_b.json",
+  "config_sha256": "4ca1c44bb66aa8b06eb00f164f1651d0622cb208d2d902991fd0b5bebec7ca2f",
+  "dataset_hashes": {
+    "source/spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "source/train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "source/train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+    "source/val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "source/val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2",
+    "target/spec.json": "9b8565493235122071503153b0c113ecd329fed6f4c67eb3b38a30845a660919",
+    "target/train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "target/train_output.csv": "22a4be8a899ab04ae5b845d0a6839a569c76ee0c8499d722b15aea3b486c13fc",
+    "target/val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "target/val_output.csv": "eada577549804d366285a7df46bd28c6153e34f512e285cd8477b77682056615"
+  },
+  "dpd_gate": "closed",
+  "input_integrity": {
+    "all_hashes_verified_before_waveform_load": true,
+    "all_inputs_reverified_before_publication": true,
+    "source_target_inputs_bit_identical": true,
+    "target_held_out_hash_recorded": false,
+    "test_never_opened_or_hashed": true
+  },
+  "publication": {
+    "atomic_directory_rename": true,
+    "immutable_bundle": true,
+    "manifest_written_last_inside_temporary_bundle": true
+  },
+  "schema_version": 1,
+  "selection_policy": "smallest feasible N within 0.25 dB full-record NMSE of best feasible N; require finite output and zero support violations; tie-break common-interior NMSE then fit wall-clock",
+  "source_artifact_hashes": {
+    "causal_gmp/config_path": "0e8dc916eab1fa4d8588fca48e18b44f3aa1d167600b0c786476458f46aa8293",
+    "causal_gmp/manifest_path": "ef48c9afdfc24ab6066e51f14e3b5abe6b306aa4332313bbd8e5fc83620018dd",
+    "causal_gmp/model_path": "cac7982dc2ff0df0ede56817b207807b87c3bf32fd9115bd2b4098eae3941add",
+    "lag9_sparse_spline_memory/config_path": "93807ab6f3906b3898d805430e3ffe419b85a90ee72c28bfb7c1b2f486f32770",
+    "lag9_sparse_spline_memory/manifest_path": "b6188ba8e5cb29e99b1db745b6a9b7280631361fc6c99f39df0af1e7e6ad36ff",
+    "lag9_sparse_spline_memory/model_path": "2e5eb3405c8633d5d766e1b78b84c633d0ede77c4c97c1a415fd27410f1b7475"
+  },
+  "source_code_sha256": {
+    "baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/sparse_spline_memory_pa.py": "2ff2fd9f0ef26267bd66b7e938536c0f4d62a8f930ab4df89948ef3fc4120753",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "baseline/train_spline.py": "7261fcce095d7788f44348b943f9b71b2b4db7f41fd22e58c2c6e62f74510704",
+    "experiments/transfer_pa_apa200_to_b.py": "0b8c4f7ea43d43924516b48db086d639e8beb502741a3d156daa2b9f623f7c82"
+  },
+  "source_control": {
+    "causal_gmp": {
+      "coefficient_hash": "6bcbdf70876edc105d9adffe17b173490c32a95c4bc0aed10a3a630909b0abad",
+      "metrics": {
+        "common_interior_nmse_db": -38.73462830496056,
+        "common_interior_time_domain_rms_evm_db": -38.73462830496056,
+        "common_sample_count": 19613,
+        "finite_output": true,
+        "full_record_nmse_db": -38.6652576615637,
+        "inference_samples_per_second": 667770.8557435866,
+        "inference_wall_clock_seconds": 0.02944423200096935,
+        "memory": {
+          "coefficient_bytes_fp32": 3552,
+          "coefficient_bytes_fp64": 7104,
+          "constant_bytes_fp32": 36,
+          "constant_bytes_fp64": 72,
+          "state_bytes_fp32": 944,
+          "state_bytes_fp64": 1888,
+          "state_real_values": 236,
+          "stored_real_coefficients": 888,
+          "stored_real_constants": 9,
+          "total_model_and_state_bytes_fp32": 4532
+        },
+        "opendpd_compatible_nmse_db": -38.6652576615637,
+        "operation_count": {
+          "comparisons": 0,
+          "lookups": 0,
+          "nonlinear_operations": 1,
+          "notes": [
+            "complex multiply convention 4m2a",
+            "factorized y=sum_q x[n-q]*h_q kernel",
+            "leading policy causal_leading; lookahead=0 samples",
+            "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+          ],
+          "real_additions": 947,
+          "real_divisions": 0,
+          "real_memory_reads": 1362,
+          "real_memory_writes": 8,
+          "real_multiplications": 954,
+          "state_real_values": 236,
+          "stored_real_coefficients": 888,
+          "stored_real_constants": 9
+        },
+        "per_frame_nmse_db": [
+          -38.6652576615637
+        ],
+        "relative_error_power": 0.00013597974857823303,
+        "sample_count": 19662,
+        "streaming": {
+          "segmented_reset_equivalence_passed": true,
+          "segmented_reset_max_abs_error": 0.0,
+          "streaming_chunk_equivalence_passed": true,
+          "streaming_chunk_max_abs_error": 0.0
+        },
+        "support": {
+          "fraction_above_support": 0.0,
+          "maximum_input_amplitude": 0.9744293190811968,
+          "support_maximum": 1.0000000000000002,
+          "support_violation_count": 0
+        },
+        "time_domain_rms_evm_db": -38.6652576615637
+      },
+      "model_role": "frozen_source_validation_control"
+    },
+    "lag9_sparse_spline_memory": {
+      "coefficient_hash": "d3351fa7cac58494801d1b696948dd9718b3b6f34c1cf631950943fbb1c3f364",
+      "metrics": {
+        "common_interior_nmse_db": -37.89976716544509,
+        "common_interior_time_domain_rms_evm_db": -37.89976716544509,
+        "common_sample_count": 19638,
+        "finite_output": true,
+        "full_record_nmse_db": -37.860728312080326,
+        "inference_samples_per_second": 2822103.2895258768,
+        "inference_wall_clock_seconds": 0.0069671439996454865,
+        "memory": {
+          "coefficient_bytes_fp32": 864,
+          "coefficient_bytes_fp64": 1728,
+          "constant_bytes_fp32": 92,
+          "constant_bytes_fp64": 184,
+          "state_bytes_fp32": 192,
+          "state_bytes_fp64": 384,
+          "state_real_values": 48,
+          "stored_real_coefficients": 216,
+          "stored_real_constants": 23,
+          "total_model_and_state_bytes_fp32": 1148
+        },
+        "opendpd_compatible_nmse_db": -37.860728312080326,
+        "operation_count": {
+          "comparisons": 24,
+          "lookups": 18,
+          "nonlinear_operations": 6,
+          "notes": [
+            "complex multiply convention 4m2a",
+            "binary interval selection",
+            "6 unique envelope delays; address and weight shared within each group",
+            "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+            "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+          ],
+          "real_additions": 82,
+          "real_divisions": 0,
+          "real_memory_reads": 54,
+          "real_memory_writes": 2,
+          "real_multiplications": 72,
+          "state_real_values": 48,
+          "stored_real_coefficients": 216,
+          "stored_real_constants": 23
+        },
+        "per_frame_nmse_db": [
+          -37.860728312080326
+        ],
+        "relative_error_power": 0.0001636542050223967,
+        "sample_count": 19662,
+        "streaming": {
+          "segmented_reset_equivalence_passed": true,
+          "segmented_reset_max_abs_error": 0.0,
+          "streaming_chunk_equivalence_passed": true,
+          "streaming_chunk_max_abs_error": 0.0
+        },
+        "support": {
+          "fraction_above_support": 0.0,
+          "maximum_input_amplitude": 0.9744293190811968,
+          "support_maximum": 1.0000000000000002,
+          "support_violation_count": 0
+        },
+        "time_domain_rms_evm_db": -37.860728312080326
+      },
+      "model_role": "frozen_source_validation_control"
+    }
+  },
+  "status": "pretest_train_validation_only",
+  "target_train_nuisance_diagnostic": {
+    "complex_ls_gain_abs": 1.1521461909789403,
+    "complex_ls_gain_imag": -0.0014123971466200795,
+    "complex_ls_gain_phase_rad": -0.0012258839298652348,
+    "complex_ls_gain_real": 1.1521453252613496,
+    "estimated_integer_delay_samples": 0,
+    "fit_scope": "target_train_only",
+    "frozen_before_target_validation": true,
+    "used_for_strict_selection": false
+  },
+  "target_transfer": {
+    "causal_gmp": {
+      "coefficient_only_curves": [
+        {
+          "fit": {
+            "coefficient_hash": "6bcbdf70876edc105d9adffe17b173490c32a95c4bc0aed10a3a630909b0abad",
+            "fit_wall_clock_seconds": 0.0
+          },
+          "mode": "none",
+          "sample_count_per_frame": 0,
+          "status": "feasible",
+          "validation": {
+            "common_interior_nmse_db": -23.79385885171476,
+            "common_interior_time_domain_rms_evm_db": -23.79385885171476,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -23.794840863124858,
+            "inference_samples_per_second": 693497.8352252134,
+            "inference_wall_clock_seconds": 0.028351927001494914,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -23.794840863124858,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -23.794840863124858
+            ],
+            "relative_error_power": 0.004173648915280998,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.0,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 1.0000000000000002,
+              "support_violation_count": 0
+            },
+            "time_domain_rms_evm_db": -23.794840863124858
+          }
+        },
+        {
+          "reason": "GMP least-squares system must be overdetermined",
+          "sample_count_per_frame": 64,
+          "status": "infeasible",
+          "target_validation_loaded": true
+        },
+        {
+          "reason": "GMP least-squares system must be overdetermined",
+          "sample_count_per_frame": 128,
+          "status": "infeasible",
+          "target_validation_loaded": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "ea248e7d75d7b185224faa949283a193862e8b3dd21162fd0b91f0f04bf6fab0",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 56.660044670602154,
+              "column_rms_maximum": 0.31814224448321776,
+              "column_rms_minimum": 0.014257404881956042,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 768,
+              "scaled_augmented_condition_number": 27028.149984975265,
+              "segment_count": 3,
+              "segment_length": 256,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 8.54705148931689,
+              "singular_value_minimum": 0.00031622776601684276,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -40.959539840439504,
+              "training_nmse_db_interior": -40.772007940301755,
+              "training_scored_samples_interior": 675
+            },
+            "fit_wall_clock_seconds": 0.07607313500193413,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 256,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -30.029903044073613,
+            "common_interior_time_domain_rms_evm_db": -30.029903044073613,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -30.01959849624236,
+            "inference_samples_per_second": 1149064.3652223514,
+            "inference_wall_clock_seconds": 0.017111312990891747,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -30.019598496242356,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -30.01959849624236
+            ],
+            "relative_error_power": 0.0009954974464946168,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00045773573390296,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.823644378984191,
+              "support_violation_count": 9
+            },
+            "time_domain_rms_evm_db": -30.01959849624236
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "ffe37452da5c631f5c99158398ce224d35261abfdafae63bab9ad8f5971ddabe",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 42.7624626802644,
+              "column_rms_maximum": 0.3096696601468783,
+              "column_rms_minimum": 0.010855458715338053,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 1536,
+              "scaled_augmented_condition_number": 25451.422316506327,
+              "segment_count": 3,
+              "segment_length": 512,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 8.048446421100062,
+              "singular_value_minimum": 0.00031622776601684466,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -39.01744328488657,
+              "training_nmse_db_interior": -38.97745285559955,
+              "training_scored_samples_interior": 1443
+            },
+            "fit_wall_clock_seconds": 0.10278696499881335,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 512,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -33.65304558696218,
+            "common_interior_time_domain_rms_evm_db": -33.65304558696218,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -33.627694090174415,
+            "inference_samples_per_second": 1159759.1534936414,
+            "inference_wall_clock_seconds": 0.016953519996604882,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -33.627694090174415,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -33.627694090174415
+            ],
+            "relative_error_power": 0.00043374111442872243,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00045773573390296,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.823644378984191,
+              "support_violation_count": 9
+            },
+            "time_domain_rms_evm_db": -33.627694090174415
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "e80f34febca18ca3a733a4f910f468afacec5aa7e9b38928068bb9b3f992cae7",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 30.086798454903832,
+              "column_rms_maximum": 0.32015213151183564,
+              "column_rms_minimum": 0.017442875920625264,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 3072,
+              "scaled_augmented_condition_number": 26344.978762666615,
+              "segment_count": 3,
+              "segment_length": 1024,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 8.33101377987926,
+              "singular_value_minimum": 0.0003162277660168439,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -38.384516387220266,
+              "training_nmse_db_interior": -38.44978023790988,
+              "training_scored_samples_interior": 2979
+            },
+            "fit_wall_clock_seconds": 0.14770605800731573,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 1024,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -36.92779934455402,
+            "common_interior_time_domain_rms_evm_db": -36.92779934455402,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -36.884941509859374,
+            "inference_samples_per_second": 1129397.7848137862,
+            "inference_wall_clock_seconds": 0.01740927799255587,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -36.884941509859374,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -36.884941509859374
+            ],
+            "relative_error_power": 0.0002048829643107309,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00015257857796765334,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.882410357420191,
+              "support_violation_count": 3
+            },
+            "time_domain_rms_evm_db": -36.884941509859374
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "1d5ecb734ef69c4e2e11f9209a435a578aab014bccc404d0bcbb2c82a5dd0d56",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 22.48995844188716,
+              "column_rms_maximum": 0.319789975599364,
+              "column_rms_minimum": 0.017435619376966843,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 6144,
+              "scaled_augmented_condition_number": 25569.881456779684,
+              "segment_count": 3,
+              "segment_length": 2048,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 8.08590649039291,
+              "singular_value_minimum": 0.0003162277660168419,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -38.140245792558076,
+              "training_nmse_db_interior": -38.21791284290799,
+              "training_scored_samples_interior": 6051
+            },
+            "fit_wall_clock_seconds": 0.2677751010050997,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 2048,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -37.452649482856536,
+            "common_interior_time_domain_rms_evm_db": -37.452649482856536,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -37.40920598251459,
+            "inference_samples_per_second": 1038317.7374782283,
+            "inference_wall_clock_seconds": 0.018936399996164255,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -37.40920598251459,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -37.40920598251459
+            ],
+            "relative_error_power": 0.00018158476225442724,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00015257857796765334,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.882410357420191,
+              "support_violation_count": 3
+            },
+            "time_domain_rms_evm_db": -37.40920598251459
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "20d9b1d096ec8d1a6699665e4ebb6ebae90d84e6040e4fb3088c7042c1f1cc1f",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 23.803057852220142,
+              "column_rms_maximum": 0.31687544442699506,
+              "column_rms_minimum": 0.018588977738086394,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 12288,
+              "scaled_augmented_condition_number": 25231.436192121135,
+              "segment_count": 3,
+              "segment_length": 4096,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 7.978880700431017,
+              "singular_value_minimum": 0.00031622776601684423,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -38.01068200097312,
+              "training_nmse_db_interior": -38.07271608415472,
+              "training_scored_samples_interior": 12195
+            },
+            "fit_wall_clock_seconds": 0.7722696920100134,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 4096,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -37.69679419532598,
+            "common_interior_time_domain_rms_evm_db": -37.69679419532598,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -37.64622981413189,
+            "inference_samples_per_second": 964885.8966449898,
+            "inference_wall_clock_seconds": 0.020377539010951295,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -37.64622981413189,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -37.64622981413189
+            ],
+            "relative_error_power": 0.00017194003808010053,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00010171905197843556,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.9147670391586864,
+              "support_violation_count": 2
+            },
+            "time_domain_rms_evm_db": -37.64622981413189
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "5eb22b069f545251d2191cfc3d27496abd732fcdc740e6ec96bb7c0213942ed8",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 19.573606095965616,
+              "column_rms_maximum": 0.3162624899342883,
+              "column_rms_minimum": 0.019074233525132114,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 24576,
+              "scaled_augmented_condition_number": 25231.102769260055,
+              "segment_count": 3,
+              "segment_length": 8192,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 7.978775262864438,
+              "singular_value_minimum": 0.00031622776601684103,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -37.977389163463506,
+              "training_nmse_db_interior": -38.025991457176,
+              "training_scored_samples_interior": 24483
+            },
+            "fit_wall_clock_seconds": 2.8381569310004124,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 8192,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -37.87287770286585,
+            "common_interior_time_domain_rms_evm_db": -37.87287770286585,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -37.80874830989991,
+            "inference_samples_per_second": 940808.0890889316,
+            "inference_wall_clock_seconds": 0.020899055001791567,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -37.80874830989991,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -37.80874830989991
+            ],
+            "relative_error_power": 0.00016562472455092337,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00010171905197843556,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.9542203015385244,
+              "support_violation_count": 2
+            },
+            "time_domain_rms_evm_db": -37.80874830989991
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "03849924b17005fa72fd939004ba561e1e42bc92f588f12824ce211dae3b59e7",
+            "fit_diagnostics": {
+              "causal_warmup_samples": 31,
+              "coefficient_l2_norm": 19.56666068550532,
+              "column_rms_maximum": 0.3164506624363013,
+              "column_rms_minimum": 0.01910680484674919,
+              "feature_count": 444,
+              "future_cooldown_samples": 0,
+              "retained_singular_value_minimum": null,
+              "ridge": 1e-07,
+              "sample_count": 49152,
+              "scaled_augmented_condition_number": 24904.294447733304,
+              "segment_count": 3,
+              "segment_length": 16384,
+              "singular_value_cutoff": null,
+              "singular_value_maximum": 7.875429397432529,
+              "singular_value_minimum": 0.00031622776601684943,
+              "solver": "numpy_column_scaled_complex_lstsq",
+              "solver_mode": "ridge_lstsq",
+              "solver_rank": 444,
+              "svd_rcond": null,
+              "training_nmse_db_full": -38.00088160122925,
+              "training_nmse_db_interior": -38.0386960942119,
+              "training_scored_samples_interior": 49059
+            },
+            "fit_wall_clock_seconds": 6.859546940002474,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            }
+          },
+          "sample_count_per_frame": 16384,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -37.96156276581625,
+            "common_interior_time_domain_rms_evm_db": -37.961562765816254,
+            "common_sample_count": 19613,
+            "finite_output": true,
+            "full_record_nmse_db": -37.89076446208484,
+            "inference_samples_per_second": 936585.5557301103,
+            "inference_wall_clock_seconds": 0.020993276993976906,
+            "memory": {
+              "coefficient_bytes_fp32": 3552,
+              "coefficient_bytes_fp64": 7104,
+              "constant_bytes_fp32": 36,
+              "constant_bytes_fp64": 72,
+              "state_bytes_fp32": 944,
+              "state_bytes_fp64": 1888,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9,
+              "total_model_and_state_bytes_fp32": 4532
+            },
+            "opendpd_compatible_nmse_db": -37.89076446208484,
+            "operation_count": {
+              "comparisons": 0,
+              "lookups": 0,
+              "nonlinear_operations": 1,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "factorized y=sum_q x[n-q]*h_q kernel",
+                "leading policy causal_leading; lookahead=0 samples",
+                "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+              ],
+              "real_additions": 947,
+              "real_divisions": 0,
+              "real_memory_reads": 1362,
+              "real_memory_writes": 8,
+              "real_multiplications": 954,
+              "state_real_values": 236,
+              "stored_real_coefficients": 888,
+              "stored_real_constants": 9
+            },
+            "per_frame_nmse_db": [
+              -37.89076446208484
+            ],
+            "relative_error_power": 0.00016252626455006018,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.0,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 1.0000000000000002,
+              "support_violation_count": 0
+            },
+            "time_domain_rms_evm_db": -37.89076446208484
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        }
+      ],
+      "selected_calibration": {
+        "fit": {
+          "coefficient_hash": "03849924b17005fa72fd939004ba561e1e42bc92f588f12824ce211dae3b59e7",
+          "fit_diagnostics": {
+            "causal_warmup_samples": 31,
+            "coefficient_l2_norm": 19.56666068550532,
+            "column_rms_maximum": 0.3164506624363013,
+            "column_rms_minimum": 0.01910680484674919,
+            "feature_count": 444,
+            "future_cooldown_samples": 0,
+            "retained_singular_value_minimum": null,
+            "ridge": 1e-07,
+            "sample_count": 49152,
+            "scaled_augmented_condition_number": 24904.294447733304,
+            "segment_count": 3,
+            "segment_length": 16384,
+            "singular_value_cutoff": null,
+            "singular_value_maximum": 7.875429397432529,
+            "singular_value_minimum": 0.00031622776601684943,
+            "solver": "numpy_column_scaled_complex_lstsq",
+            "solver_mode": "ridge_lstsq",
+            "solver_rank": 444,
+            "svd_rcond": null,
+            "training_nmse_db_full": -38.00088160122925,
+            "training_nmse_db_interior": -38.0386960942119,
+            "training_scored_samples_interior": 49059
+          },
+          "fit_wall_clock_seconds": 6.859546940002474,
+          "operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          }
+        },
+        "sample_count_per_frame": 16384,
+        "status": "feasible",
+        "target_validation_loaded": true,
+        "validation": {
+          "common_interior_nmse_db": -37.96156276581625,
+          "common_interior_time_domain_rms_evm_db": -37.961562765816254,
+          "common_sample_count": 19613,
+          "finite_output": true,
+          "full_record_nmse_db": -37.89076446208484,
+          "inference_samples_per_second": 936585.5557301103,
+          "inference_wall_clock_seconds": 0.020993276993976906,
+          "memory": {
+            "coefficient_bytes_fp32": 3552,
+            "coefficient_bytes_fp64": 7104,
+            "constant_bytes_fp32": 36,
+            "constant_bytes_fp64": 72,
+            "state_bytes_fp32": 944,
+            "state_bytes_fp64": 1888,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9,
+            "total_model_and_state_bytes_fp32": 4532
+          },
+          "opendpd_compatible_nmse_db": -37.89076446208484,
+          "operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          },
+          "per_frame_nmse_db": [
+            -37.89076446208484
+          ],
+          "relative_error_power": 0.00016252626455006018,
+          "sample_count": 19662,
+          "streaming": {
+            "segmented_reset_equivalence_passed": true,
+            "segmented_reset_max_abs_error": 0.0,
+            "streaming_chunk_equivalence_passed": true,
+            "streaming_chunk_max_abs_error": 0.0
+          },
+          "support": {
+            "fraction_above_support": 0.0,
+            "maximum_input_amplitude": 0.9744293190811968,
+            "support_maximum": 1.0000000000000002,
+            "support_violation_count": 0
+          },
+          "time_domain_rms_evm_db": -37.89076446208484
+        },
+        "validation_loaded_after_all_prefix_fits": true
+      },
+      "zero_shot": {
+        "nuisance_diagnostic": {
+          "common_interior_nmse_db": -23.79385885171476,
+          "common_interior_time_domain_rms_evm_db": -23.79385885171476,
+          "common_sample_count": 19613,
+          "delay_applied_to_each_frame": 0,
+          "finite_output": true,
+          "full_record_nmse_db": -23.794840863124858,
+          "normalization": "divide prediction and measured output by target-train complex LS gain",
+          "opendpd_compatible_nmse_db": -23.794840863124858,
+          "per_frame_nmse_db": [
+            -23.794840863124858
+          ],
+          "relative_error_power": 0.004173648915280999,
+          "sample_count": 19662,
+          "selection_eligible": false,
+          "time_domain_rms_evm_db": -23.794840863124858
+        },
+        "selection_eligible": true,
+        "validation": {
+          "common_interior_nmse_db": -23.79385885171476,
+          "common_interior_time_domain_rms_evm_db": -23.79385885171476,
+          "common_sample_count": 19613,
+          "finite_output": true,
+          "full_record_nmse_db": -23.794840863124858,
+          "inference_samples_per_second": 693497.8352252134,
+          "inference_wall_clock_seconds": 0.028351927001494914,
+          "memory": {
+            "coefficient_bytes_fp32": 3552,
+            "coefficient_bytes_fp64": 7104,
+            "constant_bytes_fp32": 36,
+            "constant_bytes_fp64": 72,
+            "state_bytes_fp32": 944,
+            "state_bytes_fp64": 1888,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9,
+            "total_model_and_state_bytes_fp32": 4532
+          },
+          "opendpd_compatible_nmse_db": -23.794840863124858,
+          "operation_count": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 947,
+            "real_divisions": 0,
+            "real_memory_reads": 1362,
+            "real_memory_writes": 8,
+            "real_multiplications": 954,
+            "state_real_values": 236,
+            "stored_real_coefficients": 888,
+            "stored_real_constants": 9
+          },
+          "per_frame_nmse_db": [
+            -23.794840863124858
+          ],
+          "relative_error_power": 0.004173648915280998,
+          "sample_count": 19662,
+          "streaming": {
+            "segmented_reset_equivalence_passed": true,
+            "segmented_reset_max_abs_error": 0.0,
+            "streaming_chunk_equivalence_passed": true,
+            "streaming_chunk_max_abs_error": 0.0
+          },
+          "support": {
+            "fraction_above_support": 0.0,
+            "maximum_input_amplitude": 0.9744293190811968,
+            "support_maximum": 1.0000000000000002,
+            "support_violation_count": 0
+          },
+          "time_domain_rms_evm_db": -23.794840863124858
+        }
+      }
+    },
+    "lag9_sparse_spline_memory": {
+      "coefficient_only_curves": [
+        {
+          "fit": {
+            "coefficient_hash": "d3351fa7cac58494801d1b696948dd9718b3b6f34c1cf631950943fbb1c3f364",
+            "fit_wall_clock_seconds": 0.0
+          },
+          "mode": "none",
+          "sample_count_per_frame": 0,
+          "status": "feasible",
+          "validation": {
+            "common_interior_nmse_db": -23.70302732317194,
+            "common_interior_time_domain_rms_evm_db": -23.70302732317194,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -23.701382758650233,
+            "inference_samples_per_second": 3617152.1632101103,
+            "inference_wall_clock_seconds": 0.005435768005554564,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -23.701382758650233,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -23.701382758650233
+            ],
+            "relative_error_power": 0.004264437209383014,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.0,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 1.0000000000000002,
+              "support_violation_count": 0
+            },
+            "time_domain_rms_evm_db": -23.701382758650233
+          }
+        },
+        {
+          "fit": {
+            "coefficient_hash": "f40f818a711f2ae4bbd3da70db9a85f2552b2de6edc0f41c82bbebca93a0276d",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2968.139008527707,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 78,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.2372663267855528,
+              "maximum_calibration_radius": 0.6802747133277565,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 192,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.359991540394999e-05,
+              "training_mse_full": 8.057139168630852e-05,
+              "training_nmse_db_after_warmup": -35.33957974140618,
+              "training_nmse_db_full": -32.79636212643534,
+              "training_relative_error_power_after_warmup": 0.0002924435356255156,
+              "training_relative_error_power_full": 0.0005252472500937633
+            },
+            "fit_wall_clock_seconds": 0.023258412009454332,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 64,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -16.468622525271577,
+            "common_interior_time_domain_rms_evm_db": -16.468622525271577,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -16.471717588081752,
+            "inference_samples_per_second": 3707881.1210948024,
+            "inference_wall_clock_seconds": 0.005302759003825486,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -16.471717588081752,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -16.471717588081752
+            ],
+            "relative_error_power": 0.022533478610006184,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.008442681314210151,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.6802747133277565,
+              "support_violation_count": 166
+            },
+            "time_domain_rms_evm_db": -16.471717588081752
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "84ed077fb3b1f925b67f7f3d8cc6cd3ad968b9ba12032d623aa84908ef02e872",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2692.7393601852596,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 79,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.2068574291616883,
+              "maximum_calibration_radius": 0.6802747133277565,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 384,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 6.686382998299156e-05,
+              "training_mse_full": 9.724825254029026e-05,
+              "training_nmse_db_after_warmup": -33.29435194709348,
+              "training_nmse_db_full": -31.76786999209272,
+              "training_relative_error_power_after_warmup": 0.00046834383228403794,
+              "training_relative_error_power_full": 0.000665599521074826
+            },
+            "fit_wall_clock_seconds": 0.016583360004005954,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 128,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -16.721204251612367,
+            "common_interior_time_domain_rms_evm_db": -16.721204251612367,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -16.72447861469173,
+            "inference_samples_per_second": 3809233.0188049837,
+            "inference_wall_clock_seconds": 0.00516166900342796,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -16.72447861469173,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -16.72447861469173
+            ],
+            "relative_error_power": 0.021259455568977962,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.008442681314210151,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.6802747133277565,
+              "support_violation_count": 166
+            },
+            "time_domain_rms_evm_db": -16.72447861469173
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "7e3d0a37e3503d2bdbeea1770873ec0b54bbc9d6ccd6ae6d16e3b259459dbd3b",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2593.606469671894,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 89,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.5999942918379613,
+              "maximum_calibration_radius": 0.823644378984191,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 768,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 5.845467533280888e-05,
+              "training_mse_full": 8.475828843216313e-05,
+              "training_nmse_db_after_warmup": -33.58950377442642,
+              "training_nmse_db_full": -32.05736418621777,
+              "training_relative_error_power_after_warmup": 0.00043757209936048116,
+              "training_relative_error_power_full": 0.0006226780853927078
+            },
+            "fit_wall_clock_seconds": 0.021905657995375805,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 256,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -12.107875302051108,
+            "common_interior_time_domain_rms_evm_db": -12.107875302051108,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -12.111544284786728,
+            "inference_samples_per_second": 4081656.3776674103,
+            "inference_wall_clock_seconds": 0.00481716200010851,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -12.111544284786728,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -12.111544284786728
+            ],
+            "relative_error_power": 0.06149581641052097,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00045773573390296,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.823644378984191,
+              "support_violation_count": 9
+            },
+            "time_domain_rms_evm_db": -12.111544284786728
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "1ccb304ba84e6d87d1616c5a93cf1d692deb192afc2292a55bfaf36ef1e3a94b",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2538.434097219412,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 91,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.2993173061479577,
+              "maximum_calibration_radius": 0.823644378984191,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 1536,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.7874674949909096e-05,
+              "training_mse_full": 7.017691632963011e-05,
+              "training_nmse_db_after_warmup": -34.274085374368624,
+              "training_nmse_db_full": -32.66453114909757,
+              "training_relative_error_power_after_warmup": 0.0003737588308289036,
+              "training_relative_error_power_full": 0.0005414356964523527
+            },
+            "fit_wall_clock_seconds": 0.03366524199373089,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 512,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -26.729178229192208,
+            "common_interior_time_domain_rms_evm_db": -26.729178229192208,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -26.72737144476043,
+            "inference_samples_per_second": 3738646.1650311626,
+            "inference_wall_clock_seconds": 0.005259122990537435,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -26.72737144476043,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -26.72737144476043
+            ],
+            "relative_error_power": 0.0021245299387656477,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00045773573390296,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.823644378984191,
+              "support_violation_count": 9
+            },
+            "time_domain_rms_evm_db": -26.72737144476043
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "73ac3d720d02bd962223eec3559e81360a4bd197c6db9f4b0d7ff91a2ff24cd0",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2543.4663395584957,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 98,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.2588266076034555,
+              "maximum_calibration_radius": 0.882410357420191,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 3072,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.891543764074261e-05,
+              "training_mse_full": 6.448761643906906e-05,
+              "training_nmse_db_after_warmup": -34.493404614257145,
+              "training_nmse_db_full": -33.310019781973324,
+              "training_relative_error_power_after_warmup": 0.00035535263370452036,
+              "training_relative_error_power_full": 0.00046665725470073044
+            },
+            "fit_wall_clock_seconds": 0.059553236002102494,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 1024,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -29.47861867239585,
+            "common_interior_time_domain_rms_evm_db": -29.47861867239585,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -29.470636812746804,
+            "inference_samples_per_second": 3760834.4884723914,
+            "inference_wall_clock_seconds": 0.0052280950039858,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -29.470636812746807,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -29.470636812746804
+            ],
+            "relative_error_power": 0.0011296302630875443,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00015257857796765334,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.882410357420191,
+              "support_violation_count": 3
+            },
+            "time_domain_rms_evm_db": -29.470636812746804
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "ade39e9ae9360a441f35e1b54aaf172418b001e9968509e8286a948cd687fdb4",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2535.0966461101384,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": null,
+              "data_design_rank": 98,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.3151146787948502,
+              "maximum_calibration_radius": 0.882410357420191,
+              "minimum_nonzero_feature_samples": 0,
+              "ridge": 1e-08,
+              "sample_count": 6144,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.516366223683277e-05,
+              "training_mse_full": 5.533280463742955e-05,
+              "training_nmse_db_after_warmup": -34.825614039024636,
+              "training_nmse_db_full": -33.95234266476126,
+              "training_relative_error_power_after_warmup": 0.00032918390748397765,
+              "training_relative_error_power_full": 0.0004024998598878244
+            },
+            "fit_wall_clock_seconds": 0.11679228598950431,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 2048,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -31.593237875229434,
+            "common_interior_time_domain_rms_evm_db": -31.593237875229434,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -31.57575223395183,
+            "inference_samples_per_second": 4377444.255614956,
+            "inference_wall_clock_seconds": 0.004491661995416507,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -31.57575223395183,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -31.57575223395183
+            ],
+            "relative_error_power": 0.0006957044425022523,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00015257857796765334,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.882410357420191,
+              "support_violation_count": 3
+            },
+            "time_domain_rms_evm_db": -31.57575223395183
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "f79d4765528e1ee6212daba65632183fa4b79b457da344af906bbe46d5fa195e",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2501.028002106109,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": 1.9913664007566266e+19,
+              "data_design_rank": 105,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.3152231875674385,
+              "maximum_calibration_radius": 0.9147670391586864,
+              "minimum_nonzero_feature_samples": 1,
+              "ridge": 1e-08,
+              "sample_count": 12288,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.294284566166706e-05,
+              "training_mse_full": 4.935794929591988e-05,
+              "training_nmse_db_after_warmup": -34.96723382039897,
+              "training_nmse_db_full": -34.367439818417964,
+              "training_relative_error_power_after_warmup": 0.0003186226299037545,
+              "training_relative_error_power_full": 0.00036581037459418146
+            },
+            "fit_wall_clock_seconds": 0.27697330599767156,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 4096,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -33.61494991436933,
+            "common_interior_time_domain_rms_evm_db": -33.61494991436933,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -33.58055888639641,
+            "inference_samples_per_second": 4479673.665588918,
+            "inference_wall_clock_seconds": 0.004389159003039822,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -33.58055888639641,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -33.58055888639641
+            ],
+            "relative_error_power": 0.00043847426761474986,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00010171905197843556,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.9147670391586864,
+              "support_violation_count": 2
+            },
+            "time_domain_rms_evm_db": -33.58055888639641
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "c5dfc836eb4b6bf890c3474b9488397e4affbf87b5edb56d9607738b95106048",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2505.704965021101,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": 5.231370833561282e+18,
+              "data_design_rank": 106,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.2569058747383843,
+              "maximum_calibration_radius": 0.9542203015385244,
+              "minimum_nonzero_feature_samples": 2,
+              "ridge": 1e-08,
+              "sample_count": 24576,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 4.078064140675585e-05,
+              "training_mse_full": 4.514253223616109e-05,
+              "training_nmse_db_after_warmup": -35.18111176475179,
+              "training_nmse_db_full": -34.7422648747917,
+              "training_relative_error_power_after_warmup": 0.00030331146277959184,
+              "training_relative_error_power_full": 0.00033556257047715377
+            },
+            "fit_wall_clock_seconds": 0.6280157440050971,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 8192,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -35.13889748593163,
+            "common_interior_time_domain_rms_evm_db": -35.13889748593163,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -35.076113105871904,
+            "inference_samples_per_second": 4310451.59642298,
+            "inference_wall_clock_seconds": 0.0045614710106747225,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -35.07611310587191,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -35.076113105871904
+            ],
+            "relative_error_power": 0.0003107339383063572,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.00010171905197843556,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 0.9542203015385244,
+              "support_violation_count": 2
+            },
+            "time_domain_rms_evm_db": -35.076113105871904
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        },
+        {
+          "fit": {
+            "coefficient_hash": "8c2b8c976893020fed2bd9a099e13be17323dc8be2114a021e401bcc9e2defa9",
+            "fit_diagnostics": {
+              "augmented_design_condition_number": 2434.7285501782094,
+              "augmented_solver_rank": 108,
+              "branch_count": 9,
+              "causal_warmup_samples": 24,
+              "data_design_condition_number": 11141.784913690248,
+              "data_design_rank": 108,
+              "feature_count": 108,
+              "knot_count": 12,
+              "maximum_absolute_coefficient": 1.3019217469389808,
+              "maximum_calibration_radius": 1.0000000000000002,
+              "minimum_nonzero_feature_samples": 6,
+              "ridge": 1e-08,
+              "sample_count": 49152,
+              "segment_count": 3,
+              "solver": "augmented_complex_lstsq",
+              "training_mse_after_warmup": 3.9586337301129624e-05,
+              "training_mse_full": 4.257240329824251e-05,
+              "training_nmse_db_after_warmup": -35.317311069955835,
+              "training_nmse_db_full": -35.00270622687578,
+              "training_relative_error_power_after_warmup": 0.0002939469058058794,
+              "training_relative_error_power_full": 0.0003160307758322598
+            },
+            "fit_wall_clock_seconds": 1.51276463198883,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            }
+          },
+          "sample_count_per_frame": 16384,
+          "status": "feasible",
+          "target_validation_loaded": true,
+          "validation": {
+            "common_interior_nmse_db": -35.44602739050846,
+            "common_interior_time_domain_rms_evm_db": -35.44602739050846,
+            "common_sample_count": 19638,
+            "finite_output": true,
+            "full_record_nmse_db": -35.358475357405005,
+            "inference_samples_per_second": 4369693.5816187635,
+            "inference_wall_clock_seconds": 0.0044996290089329705,
+            "memory": {
+              "coefficient_bytes_fp32": 864,
+              "coefficient_bytes_fp64": 1728,
+              "constant_bytes_fp32": 92,
+              "constant_bytes_fp64": 184,
+              "state_bytes_fp32": 192,
+              "state_bytes_fp64": 384,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23,
+              "total_model_and_state_bytes_fp32": 1148
+            },
+            "opendpd_compatible_nmse_db": -35.358475357405005,
+            "operation_count": {
+              "comparisons": 24,
+              "lookups": 18,
+              "nonlinear_operations": 6,
+              "notes": [
+                "complex multiply convention 4m2a",
+                "binary interval selection",
+                "6 unique envelope delays; address and weight shared within each group",
+                "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+                "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+              ],
+              "real_additions": 82,
+              "real_divisions": 0,
+              "real_memory_reads": 54,
+              "real_memory_writes": 2,
+              "real_multiplications": 72,
+              "state_real_values": 48,
+              "stored_real_coefficients": 216,
+              "stored_real_constants": 23
+            },
+            "per_frame_nmse_db": [
+              -35.358475357405005
+            ],
+            "relative_error_power": 0.00029117391394249697,
+            "sample_count": 19662,
+            "streaming": {
+              "segmented_reset_equivalence_passed": true,
+              "segmented_reset_max_abs_error": 0.0,
+              "streaming_chunk_equivalence_passed": true,
+              "streaming_chunk_max_abs_error": 0.0
+            },
+            "support": {
+              "fraction_above_support": 0.0,
+              "maximum_input_amplitude": 0.9744293190811968,
+              "support_maximum": 1.0000000000000002,
+              "support_violation_count": 0
+            },
+            "time_domain_rms_evm_db": -35.358475357405005
+          },
+          "validation_loaded_after_all_prefix_fits": true
+        }
+      ],
+      "selected_calibration": {
+        "fit": {
+          "coefficient_hash": "8c2b8c976893020fed2bd9a099e13be17323dc8be2114a021e401bcc9e2defa9",
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 2434.7285501782094,
+            "augmented_solver_rank": 108,
+            "branch_count": 9,
+            "causal_warmup_samples": 24,
+            "data_design_condition_number": 11141.784913690248,
+            "data_design_rank": 108,
+            "feature_count": 108,
+            "knot_count": 12,
+            "maximum_absolute_coefficient": 1.3019217469389808,
+            "maximum_calibration_radius": 1.0000000000000002,
+            "minimum_nonzero_feature_samples": 6,
+            "ridge": 1e-08,
+            "sample_count": 49152,
+            "segment_count": 3,
+            "solver": "augmented_complex_lstsq",
+            "training_mse_after_warmup": 3.9586337301129624e-05,
+            "training_mse_full": 4.257240329824251e-05,
+            "training_nmse_db_after_warmup": -35.317311069955835,
+            "training_nmse_db_full": -35.00270622687578,
+            "training_relative_error_power_after_warmup": 0.0002939469058058794,
+            "training_relative_error_power_full": 0.0003160307758322598
+          },
+          "fit_wall_clock_seconds": 1.51276463198883,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 18,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 82,
+            "real_divisions": 0,
+            "real_memory_reads": 54,
+            "real_memory_writes": 2,
+            "real_multiplications": 72,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 23
+          }
+        },
+        "sample_count_per_frame": 16384,
+        "status": "feasible",
+        "target_validation_loaded": true,
+        "validation": {
+          "common_interior_nmse_db": -35.44602739050846,
+          "common_interior_time_domain_rms_evm_db": -35.44602739050846,
+          "common_sample_count": 19638,
+          "finite_output": true,
+          "full_record_nmse_db": -35.358475357405005,
+          "inference_samples_per_second": 4369693.5816187635,
+          "inference_wall_clock_seconds": 0.0044996290089329705,
+          "memory": {
+            "coefficient_bytes_fp32": 864,
+            "coefficient_bytes_fp64": 1728,
+            "constant_bytes_fp32": 92,
+            "constant_bytes_fp64": 184,
+            "state_bytes_fp32": 192,
+            "state_bytes_fp64": 384,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 23,
+            "total_model_and_state_bytes_fp32": 1148
+          },
+          "opendpd_compatible_nmse_db": -35.358475357405005,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 18,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 82,
+            "real_divisions": 0,
+            "real_memory_reads": 54,
+            "real_memory_writes": 2,
+            "real_multiplications": 72,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 23
+          },
+          "per_frame_nmse_db": [
+            -35.358475357405005
+          ],
+          "relative_error_power": 0.00029117391394249697,
+          "sample_count": 19662,
+          "streaming": {
+            "segmented_reset_equivalence_passed": true,
+            "segmented_reset_max_abs_error": 0.0,
+            "streaming_chunk_equivalence_passed": true,
+            "streaming_chunk_max_abs_error": 0.0
+          },
+          "support": {
+            "fraction_above_support": 0.0,
+            "maximum_input_amplitude": 0.9744293190811968,
+            "support_maximum": 1.0000000000000002,
+            "support_violation_count": 0
+          },
+          "time_domain_rms_evm_db": -35.358475357405005
+        },
+        "validation_loaded_after_all_prefix_fits": true
+      },
+      "zero_shot": {
+        "nuisance_diagnostic": {
+          "common_interior_nmse_db": -23.70302732317194,
+          "common_interior_time_domain_rms_evm_db": -23.70302732317194,
+          "common_sample_count": 19638,
+          "delay_applied_to_each_frame": 0,
+          "finite_output": true,
+          "full_record_nmse_db": -23.701382758650233,
+          "normalization": "divide prediction and measured output by target-train complex LS gain",
+          "opendpd_compatible_nmse_db": -23.701382758650233,
+          "per_frame_nmse_db": [
+            -23.701382758650233
+          ],
+          "relative_error_power": 0.004264437209383015,
+          "sample_count": 19662,
+          "selection_eligible": false,
+          "time_domain_rms_evm_db": -23.701382758650226
+        },
+        "selection_eligible": true,
+        "validation": {
+          "common_interior_nmse_db": -23.70302732317194,
+          "common_interior_time_domain_rms_evm_db": -23.70302732317194,
+          "common_sample_count": 19638,
+          "finite_output": true,
+          "full_record_nmse_db": -23.701382758650233,
+          "inference_samples_per_second": 3617152.1632101103,
+          "inference_wall_clock_seconds": 0.005435768005554564,
+          "memory": {
+            "coefficient_bytes_fp32": 864,
+            "coefficient_bytes_fp64": 1728,
+            "constant_bytes_fp32": 92,
+            "constant_bytes_fp64": 184,
+            "state_bytes_fp32": 192,
+            "state_bytes_fp64": 384,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 23,
+            "total_model_and_state_bytes_fp32": 1148
+          },
+          "opendpd_compatible_nmse_db": -23.701382758650233,
+          "operation_count": {
+            "comparisons": 24,
+            "lookups": 18,
+            "nonlinear_operations": 6,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "binary interval selection",
+              "6 unique envelope delays; address and weight shared within each group",
+              "9 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+              "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+            ],
+            "real_additions": 82,
+            "real_divisions": 0,
+            "real_memory_reads": 54,
+            "real_memory_writes": 2,
+            "real_multiplications": 72,
+            "state_real_values": 48,
+            "stored_real_coefficients": 216,
+            "stored_real_constants": 23
+          },
+          "per_frame_nmse_db": [
+            -23.701382758650233
+          ],
+          "relative_error_power": 0.004264437209383014,
+          "sample_count": 19662,
+          "streaming": {
+            "segmented_reset_equivalence_passed": true,
+            "segmented_reset_max_abs_error": 0.0,
+            "streaming_chunk_equivalence_passed": true,
+            "streaming_chunk_max_abs_error": 0.0
+          },
+          "support": {
+            "fraction_above_support": 0.0,
+            "maximum_input_amplitude": 0.9744293190811968,
+            "support_maximum": 1.0000000000000002,
+            "support_violation_count": 0
+          },
+          "time_domain_rms_evm_db": -23.701382758650233
+        }
+      }
+    }
+  },
+  "task": "forward_pa_capture_transfer_and_limited_coefficient_calibration"
+}
