@@ -1036,7 +1036,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 286/286 tests passed; 7.30 s discovery wall | completed after sealed spectral/replay runners |
+| Final unit suite | 286/286 tests passed; 7.30 s observed while OpenDPD CPU training was active | completed; not an inference benchmark |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -1053,6 +1053,7 @@ verification or an explicit `surrogate-only` limitation.
 | DPA/APA source fixed-point PA matrix | ~6.2 s combined runner wall | completed; DPA GMP + APA GMP/sparse × 3 bit widths, no test access |
 | Target-calibrated APA-B fixed-point PA matrix | 3.703 s runner wall | completed; GMP/sparse × 3 bit widths, train/validation only |
 | Frozen DPA/APA spectral validation replay | 0.6 s combined replay + spectral evaluation wall | completed; input-only, no measured output, surrogate-only |
+| Frozen DPA/APA legacy-test spectral replay | 7.3 s combined replay + spectral evaluation wall | completed descriptive re-evaluation; historical test access, no tuning |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | APA OpenDPD CPU bounded preflight | 0.594/0.649/3.370 s candidate fit timers | 10 train batches + 1 validation batch; runtime only, test sealed |
@@ -1118,6 +1119,9 @@ outputs for predistorted waveforms.
     input-only frozen `signal_delay_012` validation replays for DPA/APA;
     preserve absolute/relative leakage definitions and no measured-output
     access.
+20b. [x] Re-run the same frozen candidate on legacy test inputs only as a
+    descriptive reproducibility check; mark `historical_test_access=true` and
+    forbid any post-test selection.
 21. [ ] Reproduce a high-fidelity OpenDPD PA evaluator on the same frozen
     splits without applying the deployment-DPD latency cap.
 22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes

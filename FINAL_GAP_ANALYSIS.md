@@ -505,6 +505,8 @@ frozen evaluator.
 | Fixed-topology coefficient-only calibration recovers B-capture fidelity | supported on target held-out | GMP −37.895 dB and sparse −34.801 dB at N=16384/frame; capture-transfer scope |
 | `APA_200MHz_b` proves power/thermal adaptation | unsupported | “measurement B” axes are unknown; no controlled labels |
 | B-capture release was strict single-open | refuted by audit | two accesses: first failed before inference/metric, second completed unchanged frozen protocol |
+| Frozen DPA/APA validation spectral replay | supported as descriptive surrogate evidence | input-only desired path, conventional baseband bands, no measured output opened |
+| Frozen DPA/APA legacy-test spectral replay | reproducible but not independent | historical test was already opened by the old ablation; no tuning or reselection performed |
 
 ## 8. Следующий эксперимент максимальной информационной ценности
 

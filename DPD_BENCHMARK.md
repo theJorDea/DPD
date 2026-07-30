@@ -160,6 +160,22 @@ experiments/results/dpd_spectral_replay_apa200_validation/
 experiments/results/dpd_spectral_replay_apa200_validation_spectral/
 ```
 
+### Descriptive legacy test replay (historically opened split)
+
+The same frozen coefficients and surrogate were replayed on the already-opened
+legacy test inputs. This is a reproducibility check, not a sealed independent
+release: the original ablation had already read and hashed the test split, so
+these bundles carry `historical_test_access=true`.
+
+| Dataset | Main power change | Left dBc no→DPD | Right dBc no→DPD | Relative leakage improvement L/R | Pooled NMSE no→DPD |
+|---|---:|---:|---:|---:|---:|
+| DPA_200MHz legacy test | −0.047 dB | −40.526 → −46.485 | −39.149 → −48.248 | +5.959 / +9.098 dB | −20.189 → −29.864 dB |
+| APA_200MHz legacy test | −0.060 dB | −34.219 → −51.262 | −34.221 → −48.547 | +17.043 / +14.326 dB | −19.948 → −32.741 dB |
+
+No candidate, knot count, gain, delay or spectral band was changed after
+seeing these values. The result remains `surrogate_only` and cannot establish
+physical-PA harmonic attenuation.
+
 ### 3.2 Analytical inference cost of the selected legacy spline
 
 | Dataset | Real MUL | Real ADD | Nonlinear | Compare | LUT | Real coeff. | State reals |
