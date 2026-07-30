@@ -1135,6 +1135,55 @@ Release audit не является идеальным single-open execution. П
 - verifier reproduced 4 metric records, test/data/source/pretest hashes,
   incident linkage and the two-access audit.
 
+## 10.10 APA fixed-point PA arithmetic audit
+
+После floating-point PA selection был отдельно зафиксирован
+train→freeze→validation protocol для bit-accurate arithmetic.  Runner
+`experiments/evaluate_fixed_point_pa.py` открывает только train и val, проверяет
+hashes dataset и frozen model, замораживает input/output/coefficient scales
+до validation и не выбирает формат по validation.  Test не открывался и не
+хэшировался.
+
+The integer contract is explicit:
+
+- signed 16/14/12-bit input and output codes;
+- coefficient format derived only from the frozen model coefficient peak;
+- 48-bit power/address format with the input fractional scale;
+- 56-bit scalar and output accumulators;
+- nearest-even rounding and saturate-and-count overflow;
+- integer square-root magnitude, two-point local spline interpolation and
+  deterministic monotone repair/reporting of quantized-knot collisions;
+- reset at each declared frame plus bit-identical arbitrary-chunk streaming.
+
+APA result (measured forward output, not DPD cascade):
+
+| Model / bits | Train NMSE | Validation NMSE | Fixed-vs-float NMSE (validation) | Schedule |
+|---|---:|---:|---:|---:|
+| causal GMP / 16 | −38.7838 dB | −38.6459 dB | −64.20 dB | 954 MUL / 947 ADD |
+| causal GMP / 14 | −38.5712 dB | −38.4320 dB | −51.62 dB | 954 / 947 |
+| causal GMP / 12 | −34.3376 dB | −34.4282 dB | −36.41 dB | 954 / 947 |
+| lag-9 sparse / 16 | −37.8661 dB | −37.8604 dB | −77.29 dB | 66 MUL / 88 ADD / 6 DIV |
+| lag-9 sparse / 14 | −37.8585 dB | −37.8523 dB | −65.29 dB | 66 / 88 / 6 |
+| lag-9 sparse / 12 | −37.7570 dB | −37.7464 dB | −53.59 dB | 66 / 88 / 6 |
+
+The raw sparse fixed schedule has six integer divisions for interpolation.  If
+the target maps each division to a reciprocal multiplication, its effective
+MUL budget is approximately `72`, so the lower raw `66` value is not a hidden
+complexity advantage.  All rows reported zero input/coefficient/power/
+interpolation/accumulator/output saturation and zero knot collisions.  Host
+timings are recorded in the machine-readable report but are not hardware
+latency claims.
+
+The 12-bit GMP degradation is a genuine negative result; it cannot be removed
+by retuning on validation or test.  Sparse arithmetic is more quantization
+stable in this capture, but the sparse float PA remains less accurate than
+GMP.  This audit therefore closes the PA arithmetic subtask only; it does not
+open Gate A→B, prove a fixed-point DPD cascade, or replace FPGA synthesis.
+
+Machine-readable evidence:
+`experiments/configs/pa_fixed_point_apa200.json`,
+`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
+
 ## 11. Что пока неизвестно или не выполнено
 
 - Не установлено официальное определение Huawei `error < 10^-5`.
@@ -1154,7 +1203,9 @@ Release audit не является идеальным single-open execution. П
   Первый non-factorized sparse PA также отклонён, а lag-9 sparse family
   проходит cheap-Pareto gate, но всё ещё уступает GMP по fidelity и не может
   служить независимым evaluator.
-- Нет bit-accurate 16/14/12-bit PA-model evaluation.
+- Bit-accurate PA-model evaluation выполнена для APA source train/validation,
+  но ещё не повторена для DPA и target `APA_200MHz_b` payloads.
+- Нет bit-accurate 16/14/12-bit spline-memory DPD или PA→DPD cascade.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
 

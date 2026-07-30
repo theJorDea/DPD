@@ -14,10 +14,17 @@ floating-point. Lag-9 sparse PA также прошёл exact streaming/reset ch
 zero-shot и coefficient-only transfer режимах; transfer не меняет inference
 topology, только коэффициенты.
 
+Теперь выполнены:
+
+- bit-accurate 16/14/12-bit PA evaluation для frozen causal GMP и lag-9 sparse
+  PA на APA train/validation;
+- explicit input/coefficient/power/output formats, 56-bit accumulators,
+  nearest-even rounding, saturation counters и integer sqrt/interpolation;
+- exact reset-per-frame и arbitrary-chunk streaming equivalence;
+- train-only scale freeze с machine-readable report.
+
 Пока **не выполнены**:
 
-- bit-accurate 16/14/12-bit evaluation selected PA GMP;
-- bit-accurate 16/14/12-bit evaluation selected lag-9 sparse PA;
 - bit-accurate evaluation selected spline-memory DPD;
 - fixed-point PA→DPD cascade;
 - synthesis/place-and-route на FPGA/ASIC;
@@ -26,6 +33,11 @@ topology, только коэффициенты.
 Следовательно, `<1000 real multiplications/sample` сейчас является analytical
 software-schedule constraint, а не количеством физических multipliers в
 конкретном Huawei device.
+
+Source of the completed PA arithmetic evidence:
+`experiments/configs/pa_fixed_point_apa200.json`,
+`experiments/evaluate_fixed_point_pa.py` and
+`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
 
 ## 2. Counting convention
 
@@ -191,6 +203,37 @@ host-Python diagnostics, not FPGA/DSP latency. The release used two accesses
 because the first failed before inference/metric; the second used unchanged
 frozen choices. Incident and access count are part of the published bundle.
 
+### 3.5 APA fixed-point PA arithmetic result
+
+The sealed train→freeze→validation runner evaluates the same two frozen PA
+models at signed 16, 14 and 12 bits.  Input/output full scales are derived
+from train peaks (including the frozen model's train prediction peak for the
+output guard); coefficient scales are derived from the frozen coefficient
+peak.  Validation is descriptive only and cannot alter a format.
+
+| Model / bits | Train PA NMSE | Validation PA NMSE | Fixed-vs-float NMSE (val) | MUL / ADD / DIV | Coeff bytes | State bytes |
+|---|---:|---:|---:|---:|---:|---:|
+| GMP / 16 | −38.7838 dB | −38.6459 dB | −64.20 dB | 954 / 947 / 0 | 1,776 | 472 |
+| GMP / 14 | −38.5712 dB | −38.4320 dB | −51.62 dB | 954 / 947 / 0 | 1,554 | 413 |
+| GMP / 12 | −34.3376 dB | −34.4282 dB | −36.41 dB | 954 / 947 / 0 | 1,332 | 354 |
+| lag-9 sparse / 16 | −37.8661 dB | −37.8604 dB | −77.29 dB | 66 / 88 / 6 | 432 | 96 |
+| lag-9 sparse / 14 | −37.8585 dB | −37.8523 dB | −65.29 dB | 66 / 88 / 6 | 378 | 84 |
+| lag-9 sparse / 12 | −37.7570 dB | −37.7464 dB | −53.59 dB | 66 / 88 / 6 | 324 | 72 |
+
+The sparse fixed schedule reports `66 MUL + 6 integer divisions`; if a target
+implements each division as a reciprocal multiplication, the equivalent
+multiplier budget is approximately `72 MUL`, matching the floating-point
+operation convention's 72-MUL envelope/branch count.  The division is therefore
+not hidden by the lower raw-MUL number.  All six rows reported zero input,
+coefficient, power, interpolation, accumulator and output saturation, zero
+knot collisions, and bit-identical chunk/reset checks.
+
+The report's host timings (`~0.21 s` train GMP, `~0.05 s` train sparse for the
+58,980-sample capture) are NumPy reference timings only.  They do not estimate
+an FPGA initiation interval, DSP count or power.  The 12-bit GMP quality loss
+is a negative result that must remain visible; sparse arithmetic is more
+quantization-stable here, but its float PA fidelity is still below GMP.
+
 ## 4. Interpreting the cost
 
 ### 4.1 GMP versus MP
@@ -230,7 +273,7 @@ time/interleaving, SIMD and DSP packing меняют mapping. Но один seri
 обеспечит target sample rate. Нужны target clock, allowed latency, parallelism
 и physical DSP-block definition Huawei.
 
-## 5. Existing fixed-point code: exact limitation
+## 5. Fixed-point implementations: exact scope and limitation
 
 `baseline/fixed_point.py` реализует deterministic signed-integer reference для
 memoryless complex spline:
@@ -253,8 +296,14 @@ signed 16-bit and signed 12-bit paths, но:
 - artifact explicitly declares `bit_true_rtl=false` и
   `hardware_latency_or_resources=false`.
 
-Поэтому архивные small degradation numbers нельзя переносить на новый PA/DPD
-pipeline или выдавать за hardware result.
+Новый `baseline/fixed_point_pa.py` и
+`baseline/fixed_point_sparse_spline_pa.py` покрывают selected causal GMP и
+lag-9 sparse PA, а `experiments/evaluate_fixed_point_pa.py` sealed train/val
+runner публикует их degradation.  Они всё ещё не являются RTL bit-true
+доказательством: integer-sqrt implementation, division/reciprocal schedule,
+accumulator tree ordering и memory interface должны быть зафиксированы в
+target HLS/RTL. Архивные memoryless-DPD numbers поэтому не смешиваются с
+новым PA report.
 
 ## 6. Required bit-accurate simulator
 
@@ -339,9 +388,10 @@ Required unit/property tests:
 
 ## 8. Fixed-point evaluation matrix
 
-Architecture, scaling policy and accumulator rules выбираются по train;
-validation выбирает allowed format; test используется один раз only after
-freeze.
+Architecture, scaling policy and accumulator rules are frozen from train and
+the preregistered format matrix; validation is descriptive and cannot choose or
+retune a format.  The test split is not part of the current PA arithmetic
+runner and remains sealed.
 
 For each model/format publish:
 
@@ -357,7 +407,8 @@ For each model/format publish:
 - bit-identical full/chunk result;
 - host reference runtime, separately from target hardware measurements.
 
-Provisional internal engineering gate, not Huawei requirement:
+Provisional internal engineering gate, not Huawei requirement (not yet applied
+to a physical PA):
 
 ```text
 NMSE degradation <= 0.25 dB
@@ -389,11 +440,14 @@ solving” без update-time requirement Huawei.
 
 ## 10. Следующая hardware задача
 
-Сначала расширить integer reference на selected causal GMP и lag-9 sparse PA,
-доказать bit-identical streaming at 16 bit, а затем добавить 14/12 bit.
-Calibration coefficients из `APA_200MHz_b` не меняют datapath counter, поэтому
-fixed-point degradation нужно измерять отдельно для source-fitted и
-target-calibrated coefficient payloads.
-Только после раздельной PA quantization перейти к spline-memory DPD/cascade.
-Такой порядок изолирует degradation PA evaluator от degradation DPD и не
-смешивает две новые реализации в одном experiment.
+PA arithmetic coverage достигнута на APA source capture; следующий bounded
+step — повторить тот же frozen format matrix на source DPA и на target
+`APA_200MHz_b` train/validation после фиксации measurement metadata.  Эти
+коэффициентные payloads не меняют datapath counter, но могут менять
+quantization headroom, поэтому degradation должен быть опубликован отдельно.
+
+Только после этого, и отдельно от PA quantization, можно реализовать
+spline-memory DPD fixed-point path и correct desired-x→DPD→frozen-PA cascade.
+Synthesis/throughput следует запускать лишь после выбора конкретного
+word-length/reciprocal/sqrt implementation; до этого analytical counts
+помечаются lower bounds.

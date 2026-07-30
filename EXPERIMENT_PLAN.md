@@ -35,6 +35,7 @@ analysis и report — отдельные commits с push после каждо�
 | Non-factorized sparse spline-memory PA | выполнен train-only staged OOF; selected `K=12`, 6 branches rejected | 54 MUL/sample, −32.0300 dB OOF; reused validation only, Gate A→B closed |
 | Residual-guided lag-9 sparse PA | выполнен preregistered train-only staged OOF; selected 9-branch `K=12` family | 72 MUL/sample, −37.7925 dB OOF, cheap-Pareto only; evaluator gate closed |
 | `APA_200MHz -> APA_200MHz_b` capture transfer | pre-test selection + frozen held-out release completed | GMP −37.895 dB, sparse −34.801 dB target-test full NMSE after `N=16384` calibration; capture-transfer only |
+| Bit-accurate PA arithmetic | APA train→freeze→validation completed for frozen GMP and lag-9 sparse | 16/14/12-bit degradation, saturation and streaming evidence; no test/RTL/DPD cascade |
 | Existing spline-memory DPD | выполнен через старый MP surrogate | surrogate-only; не новый cross-evaluator result |
 | OpenDPD neural PA/DPD | bundled numeric evidence доступен; checkpoint binaries отсутствуют | не локальный rerun |
 | Physical PA verification | недоступна | никаких over-the-air/bench claims |
@@ -158,7 +159,9 @@ Every frozen PA result must also retain:
 - fit time and host batch inference timing;
 - real MUL/ADD, sqrt/nonlinear, comparisons, LUTs, reads/writes;
 - coefficient/constants/state storage and declared numeric precision;
-- later: bit-accurate fixed-point degradation and chunk equivalence.
+- bit-accurate fixed-point degradation and chunk equivalence where a frozen
+  arithmetic contract exists; current PA report covers APA GMP and lag-9
+  sparse, while DPA/DPD remain pending.
 
 Current PA error PSD uses a periodic Hann window, `nfft=nperseg`, 50% overlap,
 constant detrend and density scaling, normalized by integrated measured-output
@@ -169,6 +172,38 @@ and conventional total-main-band ACLR remain separately labelled definitions.
 `error < 10^-5` remains unresolved. If it means normalized error power, the
 gate is pooled NMSE below −50 dB. If it means MSE or SSE, scaling and
 aggregation must first be supplied by Huawei.
+
+#### 5.1.1 Fixed-point PA execution already completed
+
+The preregistered APA arithmetic matrix is declared in
+`experiments/configs/pa_fixed_point_apa200.json` and executed by
+`experiments/evaluate_fixed_point_pa.py`.  The runner:
+
+1. verifies train/validation file and frozen-model hashes;
+2. loads train only and freezes all scales from train peaks and frozen
+   coefficients;
+3. loads validation only after the freeze;
+4. evaluates signed 16/14/12-bit GMP and lag-9 sparse PA with explicit
+   accumulator/state widths and saturation counters;
+5. checks reset-per-frame and arbitrary-chunk bit equivalence;
+6. writes no test payload and cannot select a format from validation.
+
+The committed APA report shows the following validation degradation relative to
+the corresponding FP32 PA prediction:
+
+| Model / bits | PA NMSE | Fixed-vs-float NMSE | Saturation |
+|---|---:|---:|---|
+| GMP / 16 | −38.6459 dB | −64.20 dB | none |
+| GMP / 14 | −38.4320 dB | −51.62 dB | none |
+| GMP / 12 | −34.4282 dB | −36.41 dB | none |
+| lag-9 sparse / 16 | −37.8604 dB | −77.29 dB | none |
+| lag-9 sparse / 14 | −37.8523 dB | −65.29 dB | none |
+| lag-9 sparse / 12 | −37.7464 dB | −53.59 dB | none |
+
+These are forward PA identification metrics on APA measured train/validation,
+not DPD cascade quality.  The raw sparse schedule counts six integer
+divisions; reciprocal-multiply mapping must be charged separately when
+comparing hardware cost.
 
 ### 5.2 DPD
 
@@ -946,7 +981,7 @@ verification or an explicit `surrogate-only` limitation.
 
 | Task | Current evidence / planning estimate on i5-12450H | Status |
 |---|---|---|
-| Final unit suite | 234/234 tests passed; 1.55 s discovery wall | completed after held-out release contract |
+| Final unit suite | 256/256 tests passed; ~1.53 s discovery wall | completed after fixed-point PA contract |
 | MP DPA 46-trial selection | 15.39 s sum of fit timers; selected fit 0.918 s; total wall not archived | completed |
 | MP APA 46-trial selection | 43.23 s sum of fit timers; selected fit 1.988 s; total wall not archived | completed |
 | MP residual OOF fitting | 3.94 s DPA / 2.96 s APA fit-only; analysis wall not archived | completed |
@@ -960,6 +995,7 @@ verification or an explicit `surrogate-only` limitation.
 | APA SPH four-stage search | 620.531 s before atomic publication | completed; train/validation only, Gate A→B closed |
 | APA sparse staged search | 33.589 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only |
 | APA lag-9 sparse staged search | 62.569 s before atomic publication | completed; 14 unique recipes/42 OOF fits, train/validation only, cheap-Pareto only |
+| APA fixed-point PA matrix | ~3.67 s full train/validation runner wall | completed; 2 frozen PA models × 3 bit widths, no test access |
 | Old 280-candidate spline DPD fits | 21.23 s DPA / 55.25 s APA sum of stored fit timers; total wall not archived | completed, surrogate-only |
 | Egor audit wrapper | 15.87 s total measured | completed diagnostic |
 | Bundled full OpenDPD matrix | 16,369 s reported on RTX PRO 6000; not extrapolated to this CPU | not locally run |
@@ -1016,6 +1052,10 @@ outputs for predistorted waveforms.
     release and access incident are disclosed in §6.17.
 19. [ ] Obtain operating-point metadata for measurement B; until then label
     results `capture transfer`, not power/thermal adaptation.
-20. [ ] Run bit-accurate 16/14/12-bit PA-model evaluation before any DPD tuning.
-21. [ ] Obtain controlled physical-PA data and only after Gate A→B passes
+20. [x] Run bit-accurate 16/14/12-bit PA-model evaluation before any DPD
+    tuning for APA frozen GMP and lag-9 sparse; DPA and target payloads remain
+    pending.
+21. [ ] Obtain operating-point metadata for `APA_200MHz_b` and repeat the
+    frozen arithmetic matrix on DPA/target train-validation.
+22. [ ] Obtain controlled physical-PA data and only after Gate A→B passes
     evaluate DPD through frozen independent evaluators, then hardware claims.

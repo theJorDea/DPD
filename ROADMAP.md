@@ -34,6 +34,14 @@ capture transfer завершён вплоть до held-out release: zero-shot 
 measurement-B metadata, bit-accurate PA audit и controlled physical-PA
 evidence.
 
+Bit-accurate PA arithmetic is now implemented and executed for the frozen
+APA GMP and lag-9 sparse models.  The train-only scale freeze, explicit
+16/14/12-bit formats, integer square-root/interpolation schedule, saturation
+counters and reset/streaming checks are recorded in
+`experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.  This
+closes only the PA arithmetic subtask; it does not open Gate A→B or make an
+RTL/physical-PA claim.
+
 ## Правила выполнения
 
 - Каждая строка roadmap реализуется отдельным небольшим commit и сразу
@@ -111,6 +119,15 @@ linear/spline residual ablations:
   selection или fit;
 - versioned frame-safe fractional-alignment transform остаётся sensitivity
   tool, а не доказанным measurement-path de-embedding.
+- fixed-point PA runner открывает только train и validation, проверяет hashes
+  dataset/model и замораживает scales до validation;
+- fixed-point APA report показывает zero input/coefficient/power/interpolation,
+  accumulator и output saturation на всех evaluated frames;
+- fixed-vs-float PA prediction NMSE на validation ниже `−64 dB` для 16-bit
+  GMP/sparse и ниже `−51 dB` для 14-bit GMP/sparse; 12-bit GMP деградирует
+  заметно, тогда как 12-bit sparse сохраняет около `−53.6 dB`;
+- exact arbitrary-chunk equivalence пройдена для каждого формата; fixed
+  schedule остаётся Python arithmetic reference, не synthesized hardware.
 
 Следовательно, GMP forward-identification result завершён, но release-gate
 PASS нельзя смешивать с Gate A→B. DPD quality, fixed-point, robustness и
@@ -468,8 +485,12 @@ selection/refit.
    verification; access count `2` disclosed, первый доступ metric-free.
 15. [ ] Получить metadata “measurement B”; до этого результат маркировать
    только `capture transfer`, не power/thermal adaptation.
-16. [ ] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и lag-9
+16. [x] Реализовать bit-accurate 16/14/12-bit evaluation frozen GMP и lag-9
    sparse PA, включая accumulator/state widths, saturation и chunk equivalence.
+   Train-only scale freeze, fixed arithmetic contract и результаты запечатаны
+   в `experiments/configs/pa_fixed_point_apa200.json`,
+   `experiments/evaluate_fixed_point_pa.py` и
+   `experiments/results/pa_fixed_point_apa200/fixed_point_report.json`.
 17. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
 18. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
@@ -561,8 +582,11 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
 
 ## Этап D. Hardware reference
 
-- Bit-accurate simulator для лучших validation-selected PA и DPD models, а не
-  numerical “fixed-point-like” approximation.
+Статус: PA arithmetic reference выполнен; target hardware evidence ещё не
+получено.
+
+- [x] Bit-accurate simulator для frozen causal GMP и lag-9 sparse PA; DPD
+  simulator и PA→DPD cascade пока не запускались.
 - Formats: signed 16, 14 и 12 bit coefficients/activations.
 - Explicit accumulator/state widths, scaling, rounding and saturation.
 - Отдельно проверять input quantization и coefficient/LUT interpolation error.
@@ -572,8 +596,10 @@ inverse/postdistorter diagnostic и не является DPD cascade result.
   and state memory.
 - Full-record versus arbitrary streaming chunks must be equivalent for causal
   models; отдельный no-future-dependence test подтверждает causality.
-- Измерять latency/throughput на выбранном target; analytical count помечать
-  как lower bound.
+- [x] Измерять arithmetic degradation и exact streaming equivalence на APA
+  train/validation; host Python time хранится отдельно.
+- [ ] Измерять latency/throughput на выбранном target; analytical count
+  помечать как lower bound.
 
 Артефакт: `HARDWARE_COST.md`.
 
