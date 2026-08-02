@@ -19,6 +19,7 @@ import json
 import math
 import os
 from pathlib import Path
+import platform
 import tempfile
 from typing import Any, Iterable
 
@@ -767,6 +768,15 @@ def generate_assets(
         "schema_version": 1,
         "artifact_type": "readme_presentation_assets",
         "generator": "experiments/generate_presentation_assets.py",
+        "generator_sha256": sha256_file(
+            root / "experiments" / "generate_presentation_assets.py"
+        ),
+        "renderer_environment": {
+            "python": platform.python_version(),
+            "numpy": np.__version__,
+            "matplotlib": __import__("matplotlib").__version__,
+            "pillow": __import__("PIL").__version__,
+        },
         "claims_scope": {
             "surrogate_only": True,
             "validation_reused_after_historical_selection": True,

@@ -61,6 +61,11 @@ class PresentationRenderingTests(unittest.TestCase):
             self.assertFalse(manifest["claims_scope"]["rf_harmonic_claim"])
             self.assertFalse(manifest["rendering_contract"]["training_epochs_claimed"])
             self.assertTrue(manifest["rendering_contract"]["animation_uses_only_saved_states"])
+            self.assertEqual(
+                manifest["generator_sha256"],
+                sha256_file(ROOT / manifest["generator"]),
+            )
+            self.assertEqual(manifest["renderer_environment"]["numpy"], np.__version__)
             stored = json.loads((output / "presentation_manifest.json").read_text())
             for name, digest in stored["outputs"].items():
                 self.assertEqual(sha256_file(output / name), digest)

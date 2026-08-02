@@ -8,6 +8,7 @@
     "validation_reused_after_historical_selection": true
   },
   "generator": "experiments/generate_presentation_assets.py",
+  "generator_sha256": "1ff60d33bcf22d7c4b586f5dbebe02668efa1933898ee24e2f3ef16a009025d1",
   "inputs": {
     "experiments/configs/dpd_fixed_point_apa200_validation.json": "d2d743b421a72b5b5eef4c325c95a5ae017a2761f39091d103367a3b89686d61",
     "experiments/configs/dpd_fixed_point_dpa200_validation.json": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c",
@@ -38,6 +39,12 @@
     "fixed_point_stability.png": "a7dcdca9cb5001a31f173bf6b80ccb2ec16cb896d619028e7315c94faec20460",
     "overview_apa200.png": "013c1f7c58fdcba0c352e38fb713d5d14b7692c91d718f701ae88174b78da71c",
     "overview_dpa200.png": "afb793db1c3a5c87d1981304a15c08b40468e89462ac7dbfe2ea9c9fe37cd2bf"
+  },
+  "renderer_environment": {
+    "matplotlib": "3.10.9",
+    "numpy": "2.5.1",
+    "pillow": "12.3.0",
+    "python": "3.14.6"
   },
   "rendering_contract": {
     "amam_ampm": "deterministic scatter plus per-amplitude-bin median and 10/90 percentiles",
