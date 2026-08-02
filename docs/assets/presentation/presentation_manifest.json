@@ -1,0 +1,49 @@
+{
+  "artifact_type": "readme_presentation_assets",
+  "claims_scope": {
+    "physical_pa_measurement": false,
+    "rf_harmonic_claim": false,
+    "surrogate_only": true,
+    "target_timing_claim": false,
+    "validation_reused_after_historical_selection": true
+  },
+  "generator": "experiments/generate_presentation_assets.py",
+  "inputs": {
+    "experiments/configs/dpd_fixed_point_apa200_validation.json": "d2d743b421a72b5b5eef4c325c95a5ae017a2761f39091d103367a3b89686d61",
+    "experiments/configs/dpd_fixed_point_dpa200_validation.json": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_12bit_validation/completion_manifest.json": "ac60f3775d0583196784f56befc00bf8ed76cded9b68ff04c75b3a9df44f5066",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_12bit_validation/spectra.npz": "a69c9db8519718691a943baf91cc883f35916526f0bdbfae934d63b8f9efc375",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_12bit_validation/summary.json": "b4b644f7cd3d3640c2fd0e2fce051e369905070816bd4152bba18407170f2433",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_float_validation/completion_manifest.json": "90c12fd70955a733fb167a300cf7f25cfe9e6e3a3beef13b1e1498b18e8c1112",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_float_validation/spectra.npz": "ab878f8ae3f8f4d6d640e13949b1e7e75365a918cbda7db1485c040ae29f7c7e",
+    "experiments/results/dpd_fixed_point_apa200_spectrum_float_validation/summary.json": "5684b2b0d712279dbe02a9d814b99a0cb8b4f8b9241730e08952a646162f83a9",
+    "experiments/results/dpd_fixed_point_apa200_validation/completion_manifest.json": "2a38e3377cb1a2b98419ef57e8ebb61a918c083dcd2699cc6091403e4ec3a08e",
+    "experiments/results/dpd_fixed_point_apa200_validation/fixed_point_report.json": "539d706023dfec874d32d501402c8525da9362892ac02e7b3d589ea53d20fa6b",
+    "experiments/results/dpd_fixed_point_apa200_validation/waveforms_12bit.npz": "f17cdbaa249619c80545e01c81cfcbe81a3aabd35c94364271dc3cf2cf62f75a",
+    "experiments/results/dpd_fixed_point_apa200_validation/waveforms_float.npz": "43533094392e85f30134a188b50546457101fc9e22e40e7dbd1ca62ea1b6de43",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_12bit_validation/completion_manifest.json": "2f5f5c850c9878231c0d8462cf7a5c24e625209be2ae03dac109344152ca9e77",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_12bit_validation/spectra.npz": "a8cfc49e996cdf4fffd673f7033b2b568670be4dfea2746b28b484ae6f26d58a",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_12bit_validation/summary.json": "906809d300a380acc2875af226b35e480b039fba3d27b61ac12531f1ec101461",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_float_validation/completion_manifest.json": "e7f03f11d23a4e606e5fea24bf1642ba2b401bbb5fb79aaeb840bbbb30aab082",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_float_validation/spectra.npz": "bf3fd5ce2ef5e80e6853829231c4dfc1db7fae0d5c3f11f83fbd6615d3f2100e",
+    "experiments/results/dpd_fixed_point_dpa200_spectrum_float_validation/summary.json": "a2efec90e4a390f23d70e932816a3308781f307ce0c9aaf1ce7376d8f8030174",
+    "experiments/results/dpd_fixed_point_dpa200_validation/completion_manifest.json": "4556d02b521a2d66eb4b0364f34f603b049864fd9b782cf414e37b3a9491c775",
+    "experiments/results/dpd_fixed_point_dpa200_validation/fixed_point_report.json": "9f3c1f821a680faec0ff9fdd4f8a8c1fb864a0dcaaeedf4b360eb6e115eeb82e",
+    "experiments/results/dpd_fixed_point_dpa200_validation/waveforms_12bit.npz": "8b58e3707b3da9725638313c6a6df036d0e3e409b0a1a982519a938b4e8c9125",
+    "experiments/results/dpd_fixed_point_dpa200_validation/waveforms_float.npz": "cf7ee33eb563a16ac54595fa253fa8a82a7d2f9b6654a6778ee68efeeccd442b"
+  },
+  "outputs": {
+    "complexity_proxy.png": "27a672592d7defefcb7900b496382f5c0c46900d4e72a3a19daf82fe64a13545",
+    "fixed_point_stability.png": "a7dcdca9cb5001a31f173bf6b80ccb2ec16cb896d619028e7315c94faec20460",
+    "overview_apa200.png": "1e638ef30cee03f6b5de5ba4188ae29d7e4898f70fe336e4d0ecd46734243874",
+    "overview_dpa200.png": "0956ff9f461b41a49c0c95964063f74ea0717a0a0a1169fd1a49641c51a7f879"
+  },
+  "rendering_contract": {
+    "amam_ampm": "deterministic scatter plus per-amplitude-bin median and 10/90 percentiles",
+    "ampm_minimum_normalized_amplitude": 0.04,
+    "common_psd_reference": "maximum no-DPD spectrum power per dataset",
+    "constellation_omitted": "no sealed validation-only demodulation contract",
+    "training_epochs_claimed": false
+  },
+  "schema_version": 1
+}
