@@ -1,0 +1,3 @@
+Backbone Initialized...
+[tres_gru_h27] epoch=2/2 train_loss=7.84191e-05 val_nmse=-31.215885 dB
+published experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/interrupted/tres_gru_h27/tres_gru_h27.pt (best validation NMSE -31.215885 dB)

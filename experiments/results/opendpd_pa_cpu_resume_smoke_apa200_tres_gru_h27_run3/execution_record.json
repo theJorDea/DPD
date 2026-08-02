@@ -1,0 +1,284 @@
+{
+  "artifact_type": "opendpd_pa_resume_smoke_execution",
+  "commands": {
+    "control": [
+      "/tmp/dpd_opendpd_venv/bin/python",
+      "experiments/train_opendpd_pa.py",
+      "--config",
+      "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json",
+      "--candidate",
+      "tres_gru_h27",
+      "--max-epochs",
+      "2",
+      "--output-root",
+      "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/control"
+    ],
+    "interrupted": [
+      "/tmp/dpd_opendpd_venv/bin/python",
+      "experiments/train_opendpd_pa.py",
+      "--config",
+      "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json",
+      "--candidate",
+      "tres_gru_h27",
+      "--max-epochs",
+      "2",
+      "--output-root",
+      "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/interrupted"
+    ],
+    "resume": [
+      "/tmp/dpd_opendpd_venv/bin/python",
+      "experiments/train_opendpd_pa.py",
+      "--config",
+      "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json",
+      "--candidate",
+      "tres_gru_h27",
+      "--max-epochs",
+      "2",
+      "--output-root",
+      "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/interrupted",
+      "--resume"
+    ]
+  },
+  "processes": {
+    "control": {
+      "finished_unix_time_ns": 1785709927493667113,
+      "log": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/logs/control.log",
+      "log_sha256": "d191e5e3a37d6e288e6a5974eeecd481aca1df440f4209af2d664674450518c5",
+      "pid": 16,
+      "returncode": 0,
+      "started_unix_time_ns": 1785709201826105863,
+      "wall_seconds": 725.6675917360117
+    },
+    "interrupted": {
+      "killed_unix_time_ns": 1785710233761848292,
+      "log": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/logs/interrupted.log",
+      "log_sha256": "e8d8c33db4a5e0d0b5f0b19dc8cc2936cc171b545759a2f9362c9f307ca7c9d6",
+      "pid": 47,
+      "returncode": -9,
+      "signal_name": "SIGKILL",
+      "signal_number": 9,
+      "started_unix_time_ns": 1785709927502917833,
+      "wall_seconds_until_kill": 306.2589302039996
+    },
+    "resume": {
+      "finished_unix_time_ns": 1785710520444693116,
+      "log": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/logs/resume.log",
+      "log_sha256": "8b0246ad98882bc18d347533a1ee5a3d8b45fc2efdcc5d4f4b831fb5c8daf7f5",
+      "pid": 76,
+      "returncode": 0,
+      "started_unix_time_ns": 1785710233762996316,
+      "wall_seconds": 286.6816981669981
+    }
+  },
+  "provenance": {
+    "bound_files_sha256": {
+      "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json": "51521471889927dff3fe659ed4b84f0fae0426c15268a0281aa3be75bb56157c",
+      "experiments/run_opendpd_pa_resume_smoke.py": "725aa6d4067e4b859fdb9576bf06695a3e56ae541b9d69a451e75af9d653414c",
+      "experiments/train_opendpd_pa.py": "e9121bf3a4a5aeb3505d617048aacc6086b6c654df73b127e813d36ba248f33a",
+      "experiments/verify_opendpd_pa_resume_smoke.py": "9acbaa45a793584b0ad66d25add3820cd465264ca4f082d16d59c981de6a617c"
+    },
+    "config": {
+      "path": "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json",
+      "sha256": "51521471889927dff3fe659ed4b84f0fae0426c15268a0281aa3be75bb56157c"
+    },
+    "dataset": {
+      "directory": "vendor/OpenDPD/datasets/APA_200MHz",
+      "files_sha256": {
+        "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+        "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+        "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+        "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+        "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+      },
+      "test_file_hashes_recorded": false
+    },
+    "environment_lock": {
+      "extra_installed_distributions_permitted": true,
+      "installed_locked_distributions": {
+        "contourpy": {
+          "declared_name": "contourpy",
+          "expected_version": "1.3.3",
+          "installed_version": "1.3.3"
+        },
+        "cycler": {
+          "declared_name": "cycler",
+          "expected_version": "0.12.1",
+          "installed_version": "0.12.1"
+        },
+        "filelock": {
+          "declared_name": "filelock",
+          "expected_version": "3.32.2",
+          "installed_version": "3.32.2"
+        },
+        "fonttools": {
+          "declared_name": "fonttools",
+          "expected_version": "4.63.0",
+          "installed_version": "4.63.0"
+        },
+        "fsspec": {
+          "declared_name": "fsspec",
+          "expected_version": "2026.7.0",
+          "installed_version": "2026.7.0"
+        },
+        "jinja2": {
+          "declared_name": "jinja2",
+          "expected_version": "3.1.6",
+          "installed_version": "3.1.6"
+        },
+        "kiwisolver": {
+          "declared_name": "kiwisolver",
+          "expected_version": "1.5.0",
+          "installed_version": "1.5.0"
+        },
+        "markdown-it-py": {
+          "declared_name": "markdown-it-py",
+          "expected_version": "4.2.0",
+          "installed_version": "4.2.0"
+        },
+        "markupsafe": {
+          "declared_name": "markupsafe",
+          "expected_version": "3.0.3",
+          "installed_version": "3.0.3"
+        },
+        "matplotlib": {
+          "declared_name": "matplotlib",
+          "expected_version": "3.11.1",
+          "installed_version": "3.11.1"
+        },
+        "mdurl": {
+          "declared_name": "mdurl",
+          "expected_version": "0.1.2",
+          "installed_version": "0.1.2"
+        },
+        "mpmath": {
+          "declared_name": "mpmath",
+          "expected_version": "1.3.0",
+          "installed_version": "1.3.0"
+        },
+        "networkx": {
+          "declared_name": "networkx",
+          "expected_version": "3.6.1",
+          "installed_version": "3.6.1"
+        },
+        "numpy": {
+          "declared_name": "numpy",
+          "expected_version": "2.5.1",
+          "installed_version": "2.5.1"
+        },
+        "packaging": {
+          "declared_name": "packaging",
+          "expected_version": "26.2",
+          "installed_version": "26.2"
+        },
+        "pandas": {
+          "declared_name": "pandas",
+          "expected_version": "3.0.5",
+          "installed_version": "3.0.5"
+        },
+        "pillow": {
+          "declared_name": "pillow",
+          "expected_version": "12.3.0",
+          "installed_version": "12.3.0"
+        },
+        "pygments": {
+          "declared_name": "pygments",
+          "expected_version": "2.20.0",
+          "installed_version": "2.20.0"
+        },
+        "pyparsing": {
+          "declared_name": "pyparsing",
+          "expected_version": "3.3.2",
+          "installed_version": "3.3.2"
+        },
+        "python-dateutil": {
+          "declared_name": "python-dateutil",
+          "expected_version": "2.9.0.post0",
+          "installed_version": "2.9.0.post0"
+        },
+        "rich": {
+          "declared_name": "rich",
+          "expected_version": "15.0.0",
+          "installed_version": "15.0.0"
+        },
+        "scipy": {
+          "declared_name": "scipy",
+          "expected_version": "1.18.0",
+          "installed_version": "1.18.0"
+        },
+        "setuptools": {
+          "declared_name": "setuptools",
+          "expected_version": "83.0.0",
+          "installed_version": "83.0.0"
+        },
+        "six": {
+          "declared_name": "six",
+          "expected_version": "1.17.0",
+          "installed_version": "1.17.0"
+        },
+        "sympy": {
+          "declared_name": "sympy",
+          "expected_version": "1.14.0",
+          "installed_version": "1.14.0"
+        },
+        "torch": {
+          "declared_name": "torch",
+          "expected_version": "2.13.0+cpu",
+          "installed_version": "2.13.0+cpu"
+        },
+        "tqdm": {
+          "declared_name": "tqdm",
+          "expected_version": "4.70.0",
+          "installed_version": "4.70.0"
+        },
+        "typing-extensions": {
+          "declared_name": "typing-extensions",
+          "expected_version": "4.16.0",
+          "installed_version": "4.16.0"
+        }
+      },
+      "installed_locked_inventory_sha256": "830a23b8d1190a30be1e362beaa4f301805f8d56527d9464ef862674eb06e445",
+      "locked_distribution_count": 28,
+      "path": "experiments/requirements/opendpd_cpu_py312.lock",
+      "sha256": "8572f8c6376b3835a74c9cc2ccf3e29390fda3ddd1a0d4d4429458b0fb5e03c4",
+      "verified_before_source_and_waveform_access": true,
+      "verify_installed_versions": true
+    },
+    "python_executable": "/tmp/dpd_opendpd_venv/bin/python",
+    "source": {
+      "files": {
+        "experiments/train_opendpd_pa.py": "e9121bf3a4a5aeb3505d617048aacc6086b6c654df73b127e813d36ba248f33a",
+        "vendor/OpenDPD/backbones/__init__.py": "c36ccba9afef9c5c2aad3776939a9746379c435054afd8673fc6096ad3e6d12c",
+        "vendor/OpenDPD/backbones/rvtdcnn.py": "d98b2a3e2161e4e74ebc37dc65f5cdd0a247644e363393d57fc4bc245e001923",
+        "vendor/OpenDPD/backbones/tres_gru.py": "0c03c302a7e98751f654f0e56da86498b9fc01723717c01e83dd98571be1d1e6",
+        "vendor/OpenDPD/models.py": "e1a7887a5e8621620088046e8aac4429247f039cddfedcb603b01fee57a979f7",
+        "vendor/OpenDPD/modules/data_collector.py": "7f3b55f38f80820c10d399d161b8cd233bfaf8837dc43613dd1410d6ed649a4a"
+      },
+      "vendored_commit": "7426bbf8a47624b59bd7f045a86641b403023f3c",
+      "vendored_worktree_clean": true,
+      "verified_before_waveform_access": true
+    }
+  },
+  "quality_result": false,
+  "recipe": {
+    "candidate": {
+      "backbone": "tres_gru",
+      "hidden_size": 27,
+      "name": "tres_gru_h27"
+    },
+    "effective_epochs": 2,
+    "full_train_loader": true,
+    "full_validation_loader": true,
+    "post_checkpoint_delay_seconds": 1.0,
+    "timeout_seconds_per_process": 900.0
+  },
+  "schema_version": 1,
+  "scope": {
+    "dpd_evaluated": false,
+    "physical_pa_accessed": false,
+    "quality_claim": false,
+    "test_file_hashes_recorded": false,
+    "test_path_resolved": false,
+    "test_split_accessed": false
+  },
+  "status": "commands_completed_pending_equivalence_verification"
+}

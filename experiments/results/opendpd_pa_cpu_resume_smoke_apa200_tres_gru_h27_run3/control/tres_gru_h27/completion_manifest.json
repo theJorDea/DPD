@@ -1,0 +1,37 @@
+{
+  "artifact_type": "opendpd_pa_training_completion_manifest",
+  "artifacts": {
+    "final_journal": {
+      "path": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/control/tres_gru_h27/resume/journal/epoch_000002.json",
+      "sha256": "6182c938813fc0f489212f873fc75c14590a3f90b677061b0ded792b71d34ad7"
+    },
+    "final_resume_state": {
+      "path": "resume/states/state_epoch_000002_89bad67d6c695b5f.pt",
+      "sha256": "89bad67d6c695b5fc4e497717e90620cdaa07cb1dd3944cae00a525fa23baeb9"
+    },
+    "run_manifest": {
+      "path": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/control/tres_gru_h27/run_manifest.json",
+      "sha256": "53e0b7e10fe3b72fbbe54b5b52ed632d5fee89678821bc21abbaf11e13a285a7"
+    },
+    "selected_checkpoint": {
+      "path": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/control/tres_gru_h27/tres_gru_h27.pt",
+      "sha256": "f935acb1c6cb1adf5e3705cdeccee55f253e023714f651b4040e0570f54b09df"
+    },
+    "training_report": {
+      "path": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/control/tres_gru_h27/training_report.json",
+      "sha256": "42ec9d2c0ac82e2851d625ba8ce2b7895cd5cc7e4dd8798787d6d3ffcb5c5def"
+    }
+  },
+  "published_last": true,
+  "quality_result": false,
+  "resume_contract_sha256": "5192a1a78668d11cc3d57577b484015590ec7fea5dc8b554c575d92bd45be4ab",
+  "schema_version": 1,
+  "scope": {
+    "selection_split": "validation",
+    "test_file_hashes_recorded": false,
+    "test_path_resolved": false,
+    "test_split_accessed": false
+  },
+  "status": "runtime_preflight_not_quality",
+  "task": "opendpd_pa_train_validation_only"
+}

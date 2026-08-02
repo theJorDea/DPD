@@ -1,0 +1,70 @@
+{
+  "actual_process_signal": {
+    "name": "SIGKILL",
+    "number": 9,
+    "returncode": -9
+  },
+  "artifact_type": "opendpd_pa_resume_smoke_verification",
+  "bundle_completion_present_and_verified": false,
+  "candidate": {
+    "backbone": "tres_gru",
+    "hidden_size": 27,
+    "name": "tres_gru_h27"
+  },
+  "dpd_evaluated": false,
+  "effective_epochs": 2,
+  "exact_comparisons": {
+    "best_model_state": true,
+    "current_model_state": true,
+    "history": true,
+    "normalized_contract": true,
+    "optimizer_state": true,
+    "rng_and_shuffle_state": true,
+    "scheduler_state": true,
+    "validation_selected_checkpoint": true
+  },
+  "execution_record_sha256": "d8f09d230d1ef0da6ffc99002f90c40d076587baad12cb8dc6c7e7eac6da3b6e",
+  "execution_record_status": "commands_completed_pending_equivalence_verification",
+  "expected_differences_excluded": [
+    "resume_contract_sha256",
+    "productive_fit_seconds"
+  ],
+  "full_train_loader_used": true,
+  "full_validation_loader_used": true,
+  "interruption_record_sha256": "304c4b5c82abd4635f69ade7d9c0e4753c14757dc79a91abec966c2e687de130",
+  "interruption_record_status": "abrupt_process_interruption_observed",
+  "logical_sha256": {
+    "control_comparable_final_training_state": "8cd2b9106daf22a8946d0a7a0547691592d55d64dbe8299d0605893b73d4c36b",
+    "control_validation_selected_checkpoint": "bb9665506d8f760b92af37f88781cd1f4149b4ffbb7167721afaa5680ae5c9d7",
+    "journaled_epoch_states": {
+      "0": {
+        "control": "cd517c40a771aea103bf2f867ef26c0ae72e5ba22487a2f2e80a624fa71a5753",
+        "resumed": "cd517c40a771aea103bf2f867ef26c0ae72e5ba22487a2f2e80a624fa71a5753"
+      },
+      "1": {
+        "control": "b03ba4711ec7119a631e4dcbc18838f7ac105e4617142b042e42463fa7250f41",
+        "resumed": "b03ba4711ec7119a631e4dcbc18838f7ac105e4617142b042e42463fa7250f41"
+      },
+      "2": {
+        "control": "8cd2b9106daf22a8946d0a7a0547691592d55d64dbe8299d0605893b73d4c36b",
+        "resumed": "8cd2b9106daf22a8946d0a7a0547691592d55d64dbe8299d0605893b73d4c36b"
+      }
+    },
+    "resumed_comparable_final_training_state": "8cd2b9106daf22a8946d0a7a0547691592d55d64dbe8299d0605893b73d4c36b",
+    "resumed_validation_selected_checkpoint": "bb9665506d8f760b92af37f88781cd1f4149b4ffbb7167721afaa5680ae5c9d7"
+  },
+  "passed": true,
+  "physical_pa_accessed": false,
+  "quality_result": false,
+  "resume": {
+    "distinct_process_sessions": 2,
+    "killed_before_next_epoch_publication": true,
+    "resumed_from_completed_epochs": 1
+  },
+  "schema_version": 1,
+  "scope_note": "Two-epoch CPU full-loader runtime/restart evidence only; not a 300-epoch convergence, CUDA, DPD-quality, physical-PA or Huawei claim.",
+  "status": "passed_runtime_resume_equivalence",
+  "test_file_hashes_recorded": false,
+  "test_path_resolved": false,
+  "test_split_accessed": false
+}

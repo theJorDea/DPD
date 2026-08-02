@@ -1,0 +1,272 @@
+{
+  "artifact_type": "opendpd_pa_resumable_run_manifest",
+  "resume_contract": {
+    "candidate": {
+      "backbone": "tres_gru",
+      "hidden_size": 27,
+      "name": "tres_gru_h27"
+    },
+    "candidate_sha256": "4f9ed7d6e6ab378ed505eab908c75847e1a4ec61ba9bd390a145e736bb4c5062",
+    "config": {
+      "canonical_sha256": "cc54c6f8d0db0c86699f673c5be09be306090676220925bdcf449802b4258ce9",
+      "path": "experiments/configs/opendpd_pa_tres_gru_h27_apa200_seed0.json",
+      "sha256": "51521471889927dff3fe659ed4b84f0fae0426c15268a0281aa3be75bb56157c"
+    },
+    "dataset": {
+      "directory": "vendor/OpenDPD/datasets/APA_200MHz",
+      "files_sha256": {
+        "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+        "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+        "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+        "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+        "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+      },
+      "test_file_hashes_recorded": false
+    },
+    "environment_lock": {
+      "extra_installed_distributions_permitted": true,
+      "installed_locked_distributions": {
+        "contourpy": {
+          "declared_name": "contourpy",
+          "expected_version": "1.3.3",
+          "installed_version": "1.3.3"
+        },
+        "cycler": {
+          "declared_name": "cycler",
+          "expected_version": "0.12.1",
+          "installed_version": "0.12.1"
+        },
+        "filelock": {
+          "declared_name": "filelock",
+          "expected_version": "3.32.2",
+          "installed_version": "3.32.2"
+        },
+        "fonttools": {
+          "declared_name": "fonttools",
+          "expected_version": "4.63.0",
+          "installed_version": "4.63.0"
+        },
+        "fsspec": {
+          "declared_name": "fsspec",
+          "expected_version": "2026.7.0",
+          "installed_version": "2026.7.0"
+        },
+        "jinja2": {
+          "declared_name": "jinja2",
+          "expected_version": "3.1.6",
+          "installed_version": "3.1.6"
+        },
+        "kiwisolver": {
+          "declared_name": "kiwisolver",
+          "expected_version": "1.5.0",
+          "installed_version": "1.5.0"
+        },
+        "markdown-it-py": {
+          "declared_name": "markdown-it-py",
+          "expected_version": "4.2.0",
+          "installed_version": "4.2.0"
+        },
+        "markupsafe": {
+          "declared_name": "markupsafe",
+          "expected_version": "3.0.3",
+          "installed_version": "3.0.3"
+        },
+        "matplotlib": {
+          "declared_name": "matplotlib",
+          "expected_version": "3.11.1",
+          "installed_version": "3.11.1"
+        },
+        "mdurl": {
+          "declared_name": "mdurl",
+          "expected_version": "0.1.2",
+          "installed_version": "0.1.2"
+        },
+        "mpmath": {
+          "declared_name": "mpmath",
+          "expected_version": "1.3.0",
+          "installed_version": "1.3.0"
+        },
+        "networkx": {
+          "declared_name": "networkx",
+          "expected_version": "3.6.1",
+          "installed_version": "3.6.1"
+        },
+        "numpy": {
+          "declared_name": "numpy",
+          "expected_version": "2.5.1",
+          "installed_version": "2.5.1"
+        },
+        "packaging": {
+          "declared_name": "packaging",
+          "expected_version": "26.2",
+          "installed_version": "26.2"
+        },
+        "pandas": {
+          "declared_name": "pandas",
+          "expected_version": "3.0.5",
+          "installed_version": "3.0.5"
+        },
+        "pillow": {
+          "declared_name": "pillow",
+          "expected_version": "12.3.0",
+          "installed_version": "12.3.0"
+        },
+        "pygments": {
+          "declared_name": "pygments",
+          "expected_version": "2.20.0",
+          "installed_version": "2.20.0"
+        },
+        "pyparsing": {
+          "declared_name": "pyparsing",
+          "expected_version": "3.3.2",
+          "installed_version": "3.3.2"
+        },
+        "python-dateutil": {
+          "declared_name": "python-dateutil",
+          "expected_version": "2.9.0.post0",
+          "installed_version": "2.9.0.post0"
+        },
+        "rich": {
+          "declared_name": "rich",
+          "expected_version": "15.0.0",
+          "installed_version": "15.0.0"
+        },
+        "scipy": {
+          "declared_name": "scipy",
+          "expected_version": "1.18.0",
+          "installed_version": "1.18.0"
+        },
+        "setuptools": {
+          "declared_name": "setuptools",
+          "expected_version": "83.0.0",
+          "installed_version": "83.0.0"
+        },
+        "six": {
+          "declared_name": "six",
+          "expected_version": "1.17.0",
+          "installed_version": "1.17.0"
+        },
+        "sympy": {
+          "declared_name": "sympy",
+          "expected_version": "1.14.0",
+          "installed_version": "1.14.0"
+        },
+        "torch": {
+          "declared_name": "torch",
+          "expected_version": "2.13.0+cpu",
+          "installed_version": "2.13.0+cpu"
+        },
+        "tqdm": {
+          "declared_name": "tqdm",
+          "expected_version": "4.70.0",
+          "installed_version": "4.70.0"
+        },
+        "typing-extensions": {
+          "declared_name": "typing-extensions",
+          "expected_version": "4.16.0",
+          "installed_version": "4.16.0"
+        }
+      },
+      "installed_locked_inventory_sha256": "830a23b8d1190a30be1e362beaa4f301805f8d56527d9464ef862674eb06e445",
+      "locked_distribution_count": 28,
+      "path": "experiments/requirements/opendpd_cpu_py312.lock",
+      "sha256": "8572f8c6376b3835a74c9cc2ccf3e29390fda3ddd1a0d4d4429458b0fb5e03c4",
+      "verified_before_source_and_waveform_access": true,
+      "verify_installed_versions": true
+    },
+    "output_directory": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/interrupted/tres_gru_h27",
+    "recipe": {
+      "effective_epochs": 2,
+      "framing": {
+        "frame_length": 200,
+        "frame_stride": 1,
+        "nperseg": 19662,
+        "train_mode": "upstream_flat_windows",
+        "train_segment_lengths": [
+          19662,
+          19662,
+          19656
+        ],
+        "validation_mode": "upstream_segments"
+      },
+      "max_epochs_argument": 2,
+      "max_train_batches": null,
+      "max_validation_batches": null,
+      "requested_epochs": 300,
+      "training": {
+        "batch_size": 64,
+        "batch_size_eval": 64,
+        "decay_factor": 0.5,
+        "deterministic": true,
+        "device": "cpu",
+        "grad_clip_val": 200,
+        "loss": "mse",
+        "lr": 0.005,
+        "lr_end": 5e-05,
+        "n_epochs": 300,
+        "optimizer": "adamw",
+        "patience": 5,
+        "seed": 0,
+        "torch_num_threads": 8,
+        "weight_decay": 0.01
+      }
+    },
+    "runtime_signature": {
+      "cpu_model": "12th Gen Intel(R) Core(TM) i5-12450H",
+      "cuda": null,
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": true,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "deterministic_algorithms_enabled": true,
+      "device": "cpu",
+      "float32_matmul_precision": "highest",
+      "machine": "x86_64",
+      "numpy": "2.5.1",
+      "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+      "processor": "",
+      "python": "3.12.13 (main, Jul 18 2026, 17:02:19) [Clang 22.1.3 ]",
+      "thread_environment": {
+        "CUBLAS_WORKSPACE_CONFIG": null,
+        "CUDA_LAUNCH_BLOCKING": null,
+        "MKL_NUM_THREADS": null,
+        "NVIDIA_TF32_OVERRIDE": null,
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "OPENDPD_DISABLE_TRITON_DELTAGRU": null
+      },
+      "torch": "2.13.0+cpu",
+      "torch_build_config_sha256": "5f31e143bbf0b6328fd858350d03ae70da7fa5fae71ac9415dd0a96680624668",
+      "torch_interop_threads": 8,
+      "torch_threads": 8
+    },
+    "schema_version": 1,
+    "scope": {
+      "selection_split": "validation",
+      "test_file_hashes_recorded": false,
+      "test_path_resolved": false,
+      "test_split_accessed": false
+    },
+    "source": {
+      "files": {
+        "experiments/train_opendpd_pa.py": "e9121bf3a4a5aeb3505d617048aacc6086b6c654df73b127e813d36ba248f33a",
+        "vendor/OpenDPD/backbones/__init__.py": "c36ccba9afef9c5c2aad3776939a9746379c435054afd8673fc6096ad3e6d12c",
+        "vendor/OpenDPD/backbones/rvtdcnn.py": "d98b2a3e2161e4e74ebc37dc65f5cdd0a247644e363393d57fc4bc245e001923",
+        "vendor/OpenDPD/backbones/tres_gru.py": "0c03c302a7e98751f654f0e56da86498b9fc01723717c01e83dd98571be1d1e6",
+        "vendor/OpenDPD/models.py": "e1a7887a5e8621620088046e8aac4429247f039cddfedcb603b01fee57a979f7",
+        "vendor/OpenDPD/modules/data_collector.py": "7f3b55f38f80820c10d399d161b8cd233bfaf8837dc43613dd1410d6ed649a4a"
+      },
+      "vendored_commit": "7426bbf8a47624b59bd7f045a86641b403023f3c",
+      "vendored_worktree_clean": true,
+      "verified_before_waveform_access": true
+    },
+    "task": "opendpd_pa_train_validation_only"
+  },
+  "resume_contract_sha256": "fa441718dc686b0a457939bfd552b55b72bab1e226b34bb46a1624d71d100c36",
+  "schema_version": 1,
+  "status": "in_progress_until_completion_manifest",
+  "task": "opendpd_pa_train_validation_only",
+  "test_file_hashes_recorded": false,
+  "test_path_resolved": false,
+  "test_split_accessed": false
+}

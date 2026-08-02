@@ -1,0 +1,54 @@
+{
+  "artifact_type": "opendpd_pa_real_process_interruption",
+  "candidate": "tres_gru_h27",
+  "effective_epochs": 2,
+  "interrupt_after_completed_epochs": 1,
+  "killed_process": {
+    "killed_unix_time_ns": 1785710233761848292,
+    "log": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/logs/interrupted.log",
+    "log_sha256": "e8d8c33db4a5e0d0b5f0b19dc8cc2936cc171b545759a2f9362c9f307ca7c9d6",
+    "pid": 47,
+    "returncode": -9,
+    "signal_name": "SIGKILL",
+    "signal_number": 9,
+    "started_unix_time_ns": 1785709927502917833,
+    "wall_seconds_until_kill": 306.2589302039996
+  },
+  "observed_after_kill": {
+    "completion_manifest_absent": true,
+    "next_epoch_journal_absent": true,
+    "next_epoch_state_absent": true,
+    "training_report_absent": true
+  },
+  "observed_before_kill": {
+    "completion_manifest_absent": true,
+    "journal": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/interrupted/tres_gru_h27/resume/journal/epoch_000001.json",
+    "journal_session_id": "47-1785709936737126966",
+    "journal_sha256": "00b39ab6aef9c1c0f203aea4d04c9de688385a123897de4efa48bf62f044d957",
+    "next_epoch_journal_absent": true,
+    "next_epoch_state_absent": true,
+    "post_checkpoint_alive_seconds": 1.0125379520177376,
+    "process_alive": true,
+    "training_report_absent": true
+  },
+  "quality_result": false,
+  "resume_process": {
+    "finished_unix_time_ns": 1785710520444693116,
+    "log": "experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/logs/resume.log",
+    "log_sha256": "8b0246ad98882bc18d347533a1ee5a3d8b45fc2efdcc5d4f4b831fb5c8daf7f5",
+    "pid": 76,
+    "returncode": 0,
+    "started_unix_time_ns": 1785710233762996316,
+    "wall_seconds": 286.6816981669981
+  },
+  "schema_version": 1,
+  "scope": {
+    "dpd_evaluated": false,
+    "physical_pa_accessed": false,
+    "quality_claim": false,
+    "test_file_hashes_recorded": false,
+    "test_path_resolved": false,
+    "test_split_accessed": false
+  },
+  "status": "abrupt_process_interruption_observed"
+}
