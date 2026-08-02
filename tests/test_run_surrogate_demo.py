@@ -69,6 +69,82 @@ class SurrogateDemoTests(unittest.TestCase):
                 field="outside",
             )
 
+    def test_no_follow_reader_rejects_file_and_directory_symlinks(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "target.json"
+            target.write_text("{}\n", encoding="utf-8")
+            file_link = root / "file-link.json"
+            file_link.symlink_to(target)
+            with mock.patch.object(runner, "PROJECT_ROOT", root):
+                with self.assertRaisesRegex(ValueError, "non-symlink"):
+                    runner._read_repo_regular_file(
+                        "file-link.json",
+                        field="attack file",
+                    )
+
+            real_directory = root / "real"
+            real_directory.mkdir()
+            (real_directory / "config.json").write_text("{}\n", encoding="utf-8")
+            directory_link = root / "directory-link"
+            directory_link.symlink_to(real_directory, target_is_directory=True)
+            with mock.patch.object(runner, "PROJECT_ROOT", root):
+                with self.assertRaisesRegex(ValueError, "non-symlink"):
+                    runner._read_repo_regular_file(
+                        "directory-link/config.json",
+                        field="attack directory",
+                    )
+
+            with self.assertRaisesRegex(ValueError, "non-symlink"):
+                runner._read_regular_path(file_link, field="config symlink")
+
+    def test_child_manifest_contract_checks_exact_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            expected = runner._expected_child_manifest_paths()
+            for relative in expected:
+                path = output / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("{}\n", encoding="utf-8")
+            self.assertEqual(
+                set(runner._child_manifest_hashes(output)),
+                expected,
+            )
+
+            missing = sorted(expected)[0]
+            (output / missing).unlink()
+            unexpected = output / "datasets/unexpected/x/completion_manifest.json"
+            unexpected.parent.mkdir(parents=True)
+            unexpected.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "manifest set changed"):
+                runner._child_manifest_hashes(output)
+
+    def test_output_identity_guard_rejects_replaced_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            output = parent / "demo"
+            identity = runner._create_owned_output_root(output)
+            moved = parent / "original-owned-directory"
+            output.rename(moved)
+            output.mkdir()
+            (output / "foreign.txt").write_text("keep\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "identity changed"):
+                runner._assert_owned_output_root(output, identity)
+            self.assertEqual(
+                (output / "foreign.txt").read_text(encoding="utf-8"),
+                "keep\n",
+            )
+            self.assertTrue(moved.is_dir())
+
+    def test_output_identity_guard_accepts_exact_owned_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "demo"
+            identity = runner._create_owned_output_root(output)
+            (output / "owned.txt").write_text("owned\n", encoding="utf-8")
+            runner._assert_owned_output_root(output, identity)
+            self.assertTrue(output.exists())
+
     def test_fixed_integrity_rejects_saturation_and_streaming_failure(self) -> None:
         base = {
             split: {
@@ -126,7 +202,7 @@ class SurrogateDemoTests(unittest.TestCase):
                 selected_precision, field="selected_precision"
             )
 
-    def test_failed_run_removes_owned_incomplete_root(self) -> None:
+    def test_failed_run_preserves_incomplete_root_without_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "demo"
             with mock.patch.object(
@@ -136,7 +212,8 @@ class SurrogateDemoTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(RuntimeError, "injected failure"):
                     runner.run(CONFIG, output)
-            self.assertFalse(output.exists())
+            self.assertTrue(output.is_dir())
+            self.assertFalse((output / "completion_manifest.json").exists())
 
     @unittest.skipUnless(
         (
@@ -209,6 +286,10 @@ class SurrogateDemoTests(unittest.TestCase):
             self.assertEqual(
                 len(manifest["child_completion_manifests_sha256"]), 12
             )
+            for dataset in ("dpa_200mhz", "apa_200mhz"):
+                for name in ("float_replay.json", "fixed_point.json"):
+                    sealed = output / "sealed_inputs" / dataset / name
+                    self.assertTrue(sealed.is_file())
             self.assertLessEqual(
                 summary.stat().st_mtime_ns,
                 completion.stat().st_mtime_ns,

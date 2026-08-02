@@ -15,6 +15,7 @@ is published last; its absence marks an incomplete run.
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 import math
@@ -22,7 +23,7 @@ import os
 from pathlib import Path
 import platform
 import secrets
-import shutil
+import stat
 import sys
 import time
 from typing import Any
@@ -49,6 +50,14 @@ DEFAULT_CONFIG = PROJECT_ROOT / "experiments/configs/surrogate_demo.json"
 RUNNER_SOURCE = "experiments/run_surrogate_demo.py"
 EXPECTED_DATASETS = ("DPA_200MHz", "APA_200MHz")
 EXPECTED_FORMATS = ("16", "14", "12")
+CHILD_STAGES = (
+    "float_replay",
+    "float_spectrum",
+    "fixed_point",
+    "fixed_spectrum_16bit",
+    "fixed_spectrum_14bit",
+    "fixed_spectrum_12bit",
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -59,20 +68,108 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _repo_file(value: object, *, field: str) -> Path:
+def _repo_relative_path(value: object, *, field: str) -> Path:
     if not isinstance(value, str) or not value:
         raise ValueError(f"{field} must be a non-empty repository-relative path")
+    if "\\" in value:
+        raise ValueError(f"{field} must use POSIX repository path separators")
     raw = Path(value)
-    if raw.is_absolute():
-        raise ValueError(f"{field} must be repository-relative")
-    path = (PROJECT_ROOT / raw).resolve()
+    if (
+        raw.is_absolute()
+        or raw in {Path("."), Path("..")}
+        or ".." in raw.parts
+        or any(component in {"", "."} for component in raw.parts)
+    ):
+        raise ValueError(f"{field} must stay beneath the repository")
+    return raw
+
+
+def _read_regular_file_beneath(
+    root: Path,
+    relative_path: Path,
+    *,
+    field: str,
+) -> bytes:
+    """Read one regular file without following any path-component symlink."""
+
+    if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise RuntimeError(
+            "sealed surrogate reproduction requires O_NOFOLLOW and O_DIRECTORY"
+        )
+    directory_flags = (
+        os.O_RDONLY
+        | os.O_DIRECTORY
+        | os.O_NOFOLLOW
+        | getattr(os, "O_CLOEXEC", 0)
+    )
+    file_flags = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
+    directory_descriptors: list[int] = []
+    file_descriptor: int | None = None
     try:
-        path.relative_to(PROJECT_ROOT)
-    except ValueError as error:
-        raise ValueError(f"{field} escapes the repository") from error
-    if not path.is_file() or path.is_symlink():
-        raise FileNotFoundError(f"{field} must be a regular file: {path}")
-    return path
+        directory_descriptors.append(os.open(root, directory_flags))
+        for component in relative_path.parts[:-1]:
+            directory_descriptors.append(
+                os.open(
+                    component,
+                    directory_flags,
+                    dir_fd=directory_descriptors[-1],
+                )
+            )
+        file_descriptor = os.open(
+            relative_path.parts[-1],
+            file_flags,
+            dir_fd=directory_descriptors[-1],
+        )
+        metadata = os.fstat(file_descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError(f"{field} must be one regular file")
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(file_descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        return b"".join(chunks)
+    except OSError as error:
+        if error.errno in {errno.ELOOP, errno.ENOTDIR}:
+            raise ValueError(
+                f"every {field} path component must be a real non-symlink "
+                "directory or file"
+            ) from error
+        raise
+    finally:
+        if file_descriptor is not None:
+            os.close(file_descriptor)
+        for descriptor in reversed(directory_descriptors):
+            os.close(descriptor)
+
+
+def _read_repo_regular_file(value: object, *, field: str) -> tuple[Path, bytes]:
+    relative_path = _repo_relative_path(value, field=field)
+    payload = _read_regular_file_beneath(
+        PROJECT_ROOT,
+        relative_path,
+        field=field,
+    )
+    return PROJECT_ROOT / relative_path, payload
+
+
+def _absolute_without_symlink_resolution(value: str | Path) -> Path:
+    return Path(os.path.abspath(os.fspath(value)))
+
+
+def _read_regular_path(value: str | Path, *, field: str) -> tuple[Path, bytes]:
+    """Read an arbitrary absolute/relative path through component handles."""
+
+    absolute = _absolute_without_symlink_resolution(value)
+    if absolute.anchor != os.path.sep or len(absolute.parts) < 2:
+        raise ValueError(f"{field} must name one regular file")
+    relative = Path(*absolute.parts[1:])
+    return absolute, _read_regular_file_beneath(
+        Path(os.path.sep),
+        relative,
+        field=field,
+    )
 
 
 def _hash(value: object, *, field: str) -> str:
@@ -123,6 +220,59 @@ def _write_json_atomic(path: Path, value: dict[str, Any]) -> None:
     finally:
         if temporary.exists():
             temporary.unlink()
+
+
+def _write_bytes_exclusive(path: Path, payload: bytes) -> None:
+    """Publish one owned immutable input copy without following a symlink."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    descriptor = os.open(path, flags, 0o600)
+    try:
+        offset = 0
+        while offset < len(payload):
+            offset += os.write(descriptor, payload[offset:])
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _create_owned_output_root(path: Path) -> tuple[int, int]:
+    """Create the one output directory and return its immutable identity."""
+
+    if os.path.lexists(path):
+        raise FileExistsError(f"refusing to overwrite demo output: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    os.mkdir(path)
+    metadata = os.lstat(path)
+    if not stat.S_ISDIR(metadata.st_mode):
+        raise RuntimeError("created surrogate demo output is not a directory")
+    return int(metadata.st_dev), int(metadata.st_ino)
+
+
+def _assert_owned_output_root(
+    path: Path,
+    expected_identity: tuple[int, int],
+) -> None:
+    """Fail if the output directory name no longer denotes our inode."""
+
+    try:
+        metadata = os.lstat(path)
+    except FileNotFoundError as error:
+        raise RuntimeError("surrogate demo output directory disappeared") from error
+    actual_identity = (int(metadata.st_dev), int(metadata.st_ino))
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or stat.S_ISLNK(metadata.st_mode)
+        or actual_identity != expected_identity
+    ):
+        raise RuntimeError("surrogate demo output directory identity changed")
 
 
 def _validate_operation(value: object, *, field: str) -> dict[str, Any]:
@@ -210,7 +360,7 @@ def validate_config(config: dict[str, Any]) -> None:
     if not isinstance(files, dict) or not files:
         raise ValueError("files_sha256 must be a non-empty object")
     for raw_path, expected in files.items():
-        _repo_file(raw_path, field="files_sha256 path")
+        _repo_relative_path(raw_path, field="files_sha256 path")
         _hash(expected, field=f"files_sha256[{raw_path}]")
     if RUNNER_SOURCE not in files:
         raise ValueError("files_sha256 must bind the demo runner")
@@ -228,15 +378,15 @@ def validate_config(config: dict[str, Any]) -> None:
             "reference",
         }:
             raise ValueError(f"{field} has unknown or missing keys")
-        replay_path = _repo_file(
+        replay_path = _repo_relative_path(
             dataset["float_replay_config"], field=f"{field}.float_replay_config"
         )
-        fixed_path = _repo_file(
+        fixed_path = _repo_relative_path(
             dataset["fixed_point_config"], field=f"{field}.fixed_point_config"
         )
-        if str(replay_path.relative_to(PROJECT_ROOT)) not in files:
+        if replay_path.as_posix() not in files:
             raise ValueError(f"{field} float config is not hash-bound")
-        if str(fixed_path.relative_to(PROJECT_ROOT)) not in files:
+        if fixed_path.as_posix() not in files:
             raise ValueError(f"{field} fixed config is not hash-bound")
         _validate_operation(
             dataset["float_operation_contract"],
@@ -263,18 +413,27 @@ def validate_config(config: dict[str, Any]) -> None:
             _validate_metric_map(metrics, field=f"{field}.reference.fixed.{bits}")
 
 
-def _verify_frozen_files(config: dict[str, Any]) -> dict[str, str]:
+def _load_verified_frozen_files(
+    config: dict[str, Any],
+) -> tuple[dict[str, str], dict[str, bytes]]:
     verified: dict[str, str] = {}
+    payloads: dict[str, bytes] = {}
     for raw_path, expected_value in config["files_sha256"].items():
-        path = _repo_file(raw_path, field="frozen file")
+        _, payload = _read_repo_regular_file(raw_path, field="frozen file")
         expected = _hash(expected_value, field=f"files_sha256[{raw_path}]")
-        actual = sha256_file(path)
+        actual = hashlib.sha256(payload).hexdigest()
         if actual != expected:
             raise ValueError(
                 f"frozen file SHA-256 mismatch for {raw_path}: "
                 f"expected {expected}, found {actual}"
             )
         verified[raw_path] = actual
+        payloads[raw_path] = payload
+    return verified, payloads
+
+
+def _verify_frozen_files(config: dict[str, Any]) -> dict[str, str]:
+    verified, _ = _load_verified_frozen_files(config)
     return verified
 
 
@@ -495,25 +654,45 @@ def _assert_claim_boundaries(
         raise ValueError(f"{field} fixed-point direction is invalid")
 
 
+def _expected_child_manifest_paths() -> set[str]:
+    return {
+        (
+            Path("datasets")
+            / dataset.lower()
+            / stage
+            / "completion_manifest.json"
+        ).as_posix()
+        for dataset in EXPECTED_DATASETS
+        for stage in CHILD_STAGES
+    }
+
+
 def _child_manifest_hashes(output: Path) -> dict[str, str]:
-    paths = sorted(output.glob("datasets/*/*/completion_manifest.json"))
-    if len(paths) != 12:
+    paths = sorted(output.rglob("completion_manifest.json"))
+    relative_paths = {
+        path.relative_to(output).as_posix()
+        for path in paths
+    }
+    expected_paths = _expected_child_manifest_paths()
+    if relative_paths != expected_paths:
+        missing = sorted(expected_paths - relative_paths)
+        unexpected = sorted(relative_paths - expected_paths)
         raise RuntimeError(
-            "surrogate demo must produce exactly 12 child manifests; "
-            f"found {len(paths)}"
+            "surrogate demo child manifest set changed: "
+            f"missing={missing}, unexpected={unexpected}"
         )
     return {
-        str(path.relative_to(output)): sha256_file(path)
+        path.relative_to(output).as_posix(): sha256_file(path)
         for path in paths
     }
 
 
 def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
     started = time.perf_counter()
-    config_file = Path(config_path).resolve()
-    if not config_file.is_file() or config_file.is_symlink():
-        raise FileNotFoundError("surrogate demo config must be a regular file")
-    config_bytes = config_file.read_bytes()
+    config_file, config_bytes = _read_regular_path(
+        config_path,
+        field="surrogate demo config",
+    )
     config = json.loads(config_bytes.decode("utf-8"))
     if not isinstance(config, dict):
         raise ValueError("surrogate demo config must contain one JSON object")
@@ -524,13 +703,10 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
             f"expected {config['environment']['numpy_version']}, "
             f"found {np.__version__}"
         )
-    verified_files = _verify_frozen_files(config)
+    verified_files, frozen_payloads = _load_verified_frozen_files(config)
 
-    output = Path(output_root).resolve()
-    if output.exists() or output.is_symlink():
-        raise FileExistsError(f"refusing to overwrite demo output: {output}")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.mkdir()
+    output = _absolute_without_symlink_resolution(output_root)
+    output_identity = _create_owned_output_root(output)
     completed = False
     try:
         tolerances = {
@@ -544,14 +720,20 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
             spectrum_output = dataset_output / "float_spectrum"
             fixed_output = dataset_output / "fixed_point"
 
-            replay_config = _repo_file(
+            replay_relative = _repo_relative_path(
                 dataset_config["float_replay_config"],
                 field=f"{dataset_name} float replay config",
             )
-            fixed_config = _repo_file(
+            fixed_relative = _repo_relative_path(
                 dataset_config["fixed_point_config"],
                 field=f"{dataset_name} fixed-point config",
             )
+            replay_payload = frozen_payloads[replay_relative.as_posix()]
+            fixed_payload = frozen_payloads[fixed_relative.as_posix()]
+            replay_config = output / "sealed_inputs" / slug / "float_replay.json"
+            fixed_config = output / "sealed_inputs" / slug / "fixed_point.json"
+            _write_bytes_exclusive(replay_config, replay_payload)
+            _write_bytes_exclusive(fixed_config, fixed_payload)
             replay_report = replay_float(replay_config, replay_output)
             spectral_report = evaluate_spectrum(
                 replay_output / "spectral_config.json",
@@ -642,10 +824,15 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
                 },
             }
 
-        if sha256_file(config_file) != hashlib.sha256(config_bytes).hexdigest():
+        _, final_config_bytes = _read_regular_path(
+            config_file,
+            field="surrogate demo config",
+        )
+        if final_config_bytes != config_bytes:
             raise RuntimeError("surrogate demo config changed during execution")
         if _verify_frozen_files(config) != verified_files:
             raise RuntimeError("frozen demo files changed during execution")
+        _assert_owned_output_root(output, output_identity)
         summary = {
             "schema_version": SCHEMA_VERSION,
             "artifact_type": "frozen_spline_memory_surrogate_demo",
@@ -680,16 +867,25 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
         _write_json_atomic(summary_path, summary)
 
         child_manifests = _child_manifest_hashes(output)
-        if sha256_file(config_file) != hashlib.sha256(config_bytes).hexdigest():
+        _, final_config_bytes = _read_regular_path(
+            config_file,
+            field="surrogate demo config",
+        )
+        if final_config_bytes != config_bytes:
             raise RuntimeError("surrogate demo config changed before completion")
         if _verify_frozen_files(config) != verified_files:
             raise RuntimeError("frozen demo files changed before completion")
+        _assert_owned_output_root(output, output_identity)
         manifest = {
             "schema_version": SCHEMA_VERSION,
             "artifact_type": "frozen_spline_memory_surrogate_demo_bundle",
             "all_checks_passed": True,
             "atomic_summary_publication": True,
             "completion_manifest_published_last": True,
+            "incomplete_output_cleanup_policy": (
+                "preserve partial root for forensics; absence of this manifest "
+                "means incomplete"
+            ),
             "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
             "frozen_files_sha256": verified_files,
             "child_completion_manifests_sha256": child_manifests,
@@ -708,6 +904,7 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
             "validation_reused_after_historical_model_selection": True,
         }
         _write_json_atomic(output / "completion_manifest.json", manifest)
+        _assert_owned_output_root(output, output_identity)
         completed = True
         return summary | {
             "artifacts": {
@@ -716,8 +913,11 @@ def run(config_path: str | Path, output_root: str | Path) -> dict[str, Any]:
             }
         }
     finally:
-        if not completed and output.exists() and not output.is_symlink():
-            shutil.rmtree(output)
+        # Never recursively delete by pathname after a failure.  A concurrent
+        # rename/replacement could otherwise redirect cleanup to an unrelated
+        # directory.  The missing completion manifest is the failure marker.
+        if not completed:
+            pass
 
 
 def _argument_parser() -> argparse.ArgumentParser:
