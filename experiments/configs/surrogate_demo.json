@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "task": "frozen_spline_memory_surrogate_demo",
+  "claims_scope": {
+    "surrogate_only": true,
+    "physical_pa_result": false,
+    "rf_harmonic_claim": false,
+    "test_split_accessed": false,
+    "model_selection_performed": false,
+    "validation_reused_after_historical_model_selection": true
+  },
+  "environment": {
+    "numpy_version": "2.5.1"
+  },
+  "tolerances": {
+    "amplitude_absolute": 1e-10,
+    "db_absolute": 1e-8
+  },
+  "files_sha256": {
+    "experiments/run_surrogate_demo.py": "7335dc82bf21969ee833643ca14924ea05a67dd98112139cec4f4352a967f55e",
+    "experiments/configs/dpd_spectral_replay_dpa200_validation.json": "22f091cb81b6e5bf859fe7dd4cf372090f3a5b6fcab3ab0dda8011bd6999a98e",
+    "experiments/configs/dpd_spectral_replay_apa200_validation.json": "ea4c0e79185ac8f0ba498d198d9cd693c8b5d17c351df1de8e256a0594d7bc47",
+    "experiments/configs/dpd_fixed_point_dpa200_validation.json": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c",
+    "experiments/configs/dpd_fixed_point_apa200_validation.json": "d2d743b421a72b5b5eef4c325c95a5ae017a2761f39091d103367a3b89686d61",
+    "requirements-baseline.txt": "184541ec176b87e352b8ff8f784926422e8f5604fd35a2e8e11a4126949310ce"
+  },
+  "datasets": {
+    "DPA_200MHz": {
+      "float_replay_config": "experiments/configs/dpd_spectral_replay_dpa200_validation.json",
+      "fixed_point_config": "experiments/configs/dpd_fixed_point_dpa200_validation.json",
+      "float_operation_contract": {
+        "comparisons": 5,
+        "lookups": 6,
+        "nonlinear_operations": 1,
+        "real_additions": 24,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 21,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47
+      },
+      "fixed_operation_contract": {
+        "comparisons": 5,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "real_additions": 25,
+        "real_divisions": 1,
+        "real_memory_reads": 28,
+        "real_memory_writes": 2,
+        "real_multiplications": 20,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 24
+      },
+      "reference": {
+        "float": {
+          "no_dpd_nmse_db": -20.338113790990697,
+          "dpd_nmse_db": -30.532363015581513,
+          "predistorted_peak": 1.1926112992007214,
+          "predistorted_papr_db": 10.469026247697148,
+          "main_power_change_db": -0.05153151863759833,
+          "left_relative_improvement_db": 4.749422258828153,
+          "right_relative_improvement_db": 7.737170560365426,
+          "left_absolute_suppression_db": 4.800953777465751,
+          "right_absolute_suppression_db": 7.788702079003025
+        },
+        "fixed": {
+          "16": {
+            "cascade_nmse_db": -30.532195703231547,
+            "drive_vs_float_nmse_db": -78.92435551279507,
+            "predistorted_peak": 1.192575606272562,
+            "predistorted_papr_db": 10.468764374975024,
+            "left_absolute_suppression_db": 4.797939761326266,
+            "right_absolute_suppression_db": 7.787989567483715
+          },
+          "14": {
+            "cascade_nmse_db": -30.533572957522374,
+            "drive_vs_float_nmse_db": -67.0128134495591,
+            "predistorted_peak": 1.1926959951948088,
+            "predistorted_papr_db": 10.469414045937706,
+            "left_absolute_suppression_db": 4.793156574468981,
+            "right_absolute_suppression_db": 7.776365831258243
+          },
+          "12": {
+            "cascade_nmse_db": -30.514777459574844,
+            "drive_vs_float_nmse_db": -54.871397777834105,
+            "predistorted_peak": 1.1922144415574754,
+            "predistorted_papr_db": 10.465523033680508,
+            "left_absolute_suppression_db": 4.781928144030616,
+            "right_absolute_suppression_db": 7.692124447477915
+          }
+        }
+      }
+    },
+    "APA_200MHz": {
+      "float_replay_config": "experiments/configs/dpd_spectral_replay_apa200_validation.json",
+      "fixed_point_config": "experiments/configs/dpd_fixed_point_apa200_validation.json",
+      "float_operation_contract": {
+        "comparisons": 3,
+        "lookups": 6,
+        "nonlinear_operations": 1,
+        "real_additions": 24,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 21,
+        "state_real_values": 4,
+        "stored_real_coefficients": 48,
+        "stored_real_constants": 15
+      },
+      "fixed_operation_contract": {
+        "comparisons": 3,
+        "lookups": 8,
+        "nonlinear_operations": 1,
+        "real_additions": 25,
+        "real_divisions": 1,
+        "real_memory_reads": 28,
+        "real_memory_writes": 2,
+        "real_multiplications": 20,
+        "state_real_values": 4,
+        "stored_real_coefficients": 48,
+        "stored_real_constants": 8
+      },
+      "reference": {
+        "float": {
+          "no_dpd_nmse_db": -19.96876569632601,
+          "dpd_nmse_db": -32.38001725735417,
+          "predistorted_peak": 1.0614663878569741,
+          "predistorted_papr_db": 10.583542311876112,
+          "main_power_change_db": -0.04144936649591538,
+          "left_relative_improvement_db": 16.479666913805893,
+          "right_relative_improvement_db": 13.863911227431963,
+          "left_absolute_suppression_db": 16.521116280301808,
+          "right_absolute_suppression_db": 13.905360593927876
+        },
+        "fixed": {
+          "16": {
+            "cascade_nmse_db": -32.38513845952082,
+            "drive_vs_float_nmse_db": -77.82369699326672,
+            "predistorted_peak": 1.0614622110714647,
+            "predistorted_papr_db": 10.583316579062434,
+            "left_absolute_suppression_db": 16.51135789911089,
+            "right_absolute_suppression_db": 13.906338190559971
+          },
+          "14": {
+            "cascade_nmse_db": -32.37031722362258,
+            "drive_vs_float_nmse_db": -65.78061817838918,
+            "predistorted_peak": 1.061713123657499,
+            "predistorted_papr_db": 10.585935045745602,
+            "left_absolute_suppression_db": 16.535354283405386,
+            "right_absolute_suppression_db": 13.871014452129565
+          },
+          "12": {
+            "cascade_nmse_db": -32.37900602954216,
+            "drive_vs_float_nmse_db": -53.598447023553305,
+            "predistorted_peak": 1.0608386346205596,
+            "predistorted_papr_db": 10.578247223231967,
+            "left_absolute_suppression_db": 16.36906835130376,
+            "right_absolute_suppression_db": 13.982148269313267
+          }
+        }
+      }
+    }
+  }
+}
