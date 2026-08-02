@@ -39,13 +39,16 @@ D(xe^{j\phi})=D(x)e^{j\phi}.
 ## Быстрый запуск
 
 ```bash
-git clone --recurse-submodules git@github.com:theJorDea/DPD.git
+git clone --recurse-submodules https://github.com/theJorDea/DPD.git
 cd DPD
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-baseline.txt
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m experiments.run_surrogate_demo \
   --output-root experiments/results/surrogate_demo_local_01
 ```
+
+Если SSH-key уже настроен, URL можно заменить на
+`git@github.com:theJorDea/DPD.git`.
 
 `--output-root` должен указывать на новый, ещё не существующий каталог.
 Это защищает прежние evidence bundles от незаметной перезаписи. Запуск
