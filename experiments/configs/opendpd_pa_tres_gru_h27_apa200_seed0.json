@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task": "opendpd_pa_train_validation_only",
+  "status": "preregistered_train_validation_only",
+  "dataset_dir": "../../vendor/OpenDPD/datasets/APA_200MHz",
+  "dataset_files": [
+    "spec.json",
+    "train_input.csv",
+    "train_output.csv",
+    "val_input.csv",
+    "val_output.csv"
+  ],
+  "dataset_files_sha256": {
+    "spec.json": "edaf447bc2d59c2cf10df4ad5bececf057bd8822a45864ec8959ddea1a0ebf9a",
+    "train_input.csv": "2ca703c9e7eb39839db1fb01f91081a86e18535e53751c587cc71d2d71e9c625",
+    "train_output.csv": "e760adf3908ed1be1e610c46f056e88bad6107a81cc8b01d91306727316b5930",
+    "val_input.csv": "39bb15c9bd92549d1653498c140caff5cb2f20edffd433eafa46b4a81c491981",
+    "val_output.csv": "02f67574444c7a8ba321cde1ea919c07fef1c99fb9d25678befc019c6b6645e2"
+  },
+  "scope": {
+    "pa_behavioral_model": true,
+    "test_split_access_permitted": false,
+    "physical_pa_accessed": false,
+    "dpd_latency_gate_applicable": false,
+    "selection_split": "validation",
+    "test_files_must_not_be_opened_or_hashed": true
+  },
+  "framing": {
+    "train_mode": "upstream_flat_windows",
+    "validation_mode": "upstream_segments",
+    "frame_length": 200,
+    "frame_stride": 1,
+    "nperseg": 19662,
+    "train_segment_lengths": [
+      19662,
+      19662,
+      19656
+    ]
+  },
+  "training": {
+    "seed": 0,
+    "device": "cpu",
+    "deterministic": true,
+    "torch_num_threads": 8,
+    "n_epochs": 300,
+    "batch_size": 64,
+    "batch_size_eval": 64,
+    "lr": 0.005,
+    "lr_end": 0.00005,
+    "decay_factor": 0.5,
+    "patience": 5,
+    "grad_clip_val": 200,
+    "optimizer": "adamw",
+    "weight_decay": 0.01,
+    "loss": "mse"
+  },
+  "candidates": [
+    {
+      "name": "tres_gru_h27",
+      "backbone": "tres_gru",
+      "hidden_size": 27
+    }
+  ],
+  "selection_metric": "validation_opendpd_nmse_db",
+  "environment_lock": {
+    "path": "experiments/requirements/opendpd_cpu_py312.lock",
+    "sha256": "8572f8c6376b3835a74c9cc2ccf3e29390fda3ddd1a0d4d4429458b0fb5e03c4",
+    "verify_installed_versions": true
+  },
+  "source": {
+    "opendpd_commit": "7426bbf8a47624b59bd7f045a86641b403023f3c",
+    "files_sha256": {
+      "experiments/train_opendpd_pa.py": "e9121bf3a4a5aeb3505d617048aacc6086b6c654df73b127e813d36ba248f33a",
+      "vendor/OpenDPD/backbones/__init__.py": "c36ccba9afef9c5c2aad3776939a9746379c435054afd8673fc6096ad3e6d12c",
+      "vendor/OpenDPD/backbones/rvtdcnn.py": "d98b2a3e2161e4e74ebc37dc65f5cdd0a247644e363393d57fc4bc245e001923",
+      "vendor/OpenDPD/backbones/tres_gru.py": "0c03c302a7e98751f654f0e56da86498b9fc01723717c01e83dd98571be1d1e6",
+      "vendor/OpenDPD/models.py": "e1a7887a5e8621620088046e8aac4429247f039cddfedcb603b01fee57a979f7",
+      "vendor/OpenDPD/modules/data_collector.py": "7f3b55f38f80820c10d399d161b8cd233bfaf8837dc43613dd1410d6ed649a4a"
+    }
+  }
+}
