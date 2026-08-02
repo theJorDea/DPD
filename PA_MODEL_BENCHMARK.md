@@ -1,6 +1,6 @@
 # Benchmark low-complexity PA models
 
-Дата среза: 2026-07-30.
+Дата среза: 2026-08-03.
 
 По уточнению научного руководителя 1000-real-MUL-equivalent budget относится
 только к deployment DPD, не к forward PA model. Поэтому этот документ
@@ -1258,7 +1258,10 @@ physical-linearization result.
   служить независимым evaluator.
 - Bit-accurate PA-model evaluation выполнена для DPA/APA source и
   target-calibrated `APA_200MHz_b` train/validation payloads.
-- Нет bit-accurate 16/14/12-bit spline-memory DPD или PA→DPD cascade.
+- Bit-accurate 16/14/12-bit selected spline-memory DPD и
+  `desired x -> fixed DPD -> frozen legacy PA surrogate` validation cascade
+  завершены. Нет independent-evaluator/physical-PA fixed-point cascade,
+  target RTL и measured timing.
 - Нет measured latency/throughput на FPGA/ASIC/DSP target.
 - Нет physical-PA remeasurement с predistorted waveform.
 
