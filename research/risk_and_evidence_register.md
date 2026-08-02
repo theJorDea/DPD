@@ -1,6 +1,6 @@
 # Реестр доказательств, рисков и незакрытых утверждений
 
-Дата: 2026-07-30
+Дата: 2026-08-03
 Статус: живой реестр. `Доказано` означает только указанный класс evidence.
 
 ## 1. Шкала evidence
@@ -26,17 +26,19 @@
 | DPD test использует desired \(x\), а не measured \(y_\mathrm{test}\) | `CODE` | tests и spline evaluator | доказано локально | physical cascade | capture `x -> DPD -> PA -> y` |
 | Train/validation/test разделены | `CODE` | DPA/APA manifests | доказано для текущего pipeline | независимость будущих physical captures | заранее sealed capture manifest |
 | Frozen artifacts защищены hashes | `CODE` | result/model manifests | доказано | внешний storage/chain of custody | signed acquisition manifest |
-| Spline-memory DPD phase-equivariant | `CODE` + математика | complex form | доказано с точностью арифметики | fixed-point equivariance under saturation | randomized bit-true rotation test |
+| Spline-memory DPD phase-equivariant | `CODE` + математика | complex form + float/fixed tests | доказано; fixed 90° rotation bit-exact без saturation | arbitrary-angle behavior under saturation | randomized saturating bit-true rotation test |
 | Spline-memory causal и streaming-compatible | `CODE` | chunk/reset tests | доказано для software core | target pipeline latency | RTL/DSP streaming test |
 | Float analytical cost = 21 MUL + 24 ADD + sqrt для selected 3-branch DPD | `HW-ANALYTIC` | current operation counter | доказано по принятой convention | elapsed target time, memory stalls | reference-kernel target benchmark |
 | Fixed-point core bit-accurate относительно собственной integer semantics | `CODE` | sealed runner/tests | доказано локально | RF degradation на physical PA | replay + physical 16/14/12-bit |
+| One-command DPA/APA surrogate demo воспроизводит float и 16/14/12 bit | `CODE` + `LOCAL-SUR` | reused validation, frozen legacy PA surrogate | доказано в узком scope | independent/physical quality | new shadow capture + physical paired replay |
 | Frozen validation DPD улучшает baseband adjacent leakage через current surrogate | `LOCAL-SUR` | DPA/APA frozen evaluator | доказано только на surrogate | физическое spectral suppression | physical paired captures |
 | Current DPD лучше OpenDPD | нет | разные evaluators/results | **не доказано** | всё apples-to-apples | same PA/capture/evaluator/physical run |
 | Current DPD соответствует Huawei | нет | точная metric/timing неизвестны | **не доказано** | bands/reference/threshold/hardware | written acceptance spec + target measurement |
 | PA evaluator достаточно точен для дальнейшей тонкой DPD optimization | `LOCAL-SUR` | evaluator-vs-DPD error margin | **опровергнуто текущим gate** | независимое ranking | high-fidelity evaluator/physical PA |
-| Gate A→B открыт | internal 10 dB margin | DPA/APA | **нет** | evaluator margin | retrain independent neural PA or physical test |
+| Gate A→B открыт | internal 10 dB margin | DPA/APA | **нет; gate closed** | evaluator margin | retrain independent neural PA or physical test |
 | Host timing укладывается в target | `HW-HOST` | pinned CPU diagnostics | **не доказано** | target clock/kernel/end-to-end | target implementation |
-| 12/14/16 bit достаточно | `CODE` частично | integer core/runner | не завершено как RF claim | sealed metric table + physical | fixed-point sweep и physical replay |
+| 16/14/12-bit numerical preservation через legacy surrogate | `CODE` + `LOCAL-SUR` | six sealed DPA/APA rows | завершено; zero saturation/collision, configured chunked-streaming equivalence | physical-RF/target sufficiency | physical replay + target timing |
+| 16/14/12 bit достаточно для customer PA | нет | surrogate only | **не доказано** | physical spectrum and target timing | fixed-point physical sweep |
 
 ## 3. Ограничения PA evaluator
 
@@ -187,7 +189,8 @@ reference, numerical deltas, confidence level и required capture count.
 
 ### Gate R0 — observer-only
 
-Разрешён сейчас. Не меняет frozen DPD.
+Разрешён сейчас. Не меняет frozen DPD. Текущая reused
+validation допустима только как `observer_discovery`.
 
 Успех:
 
@@ -198,7 +201,9 @@ reference, numerical deltas, confidence level и required capture count.
 
 ### Gate R1 — advisor
 
-Разрешён после R0 и при независимом evaluator.
+После R0 разрешён только в read-only proposal mode и при
+независимом evaluator. Текущую validation нельзя назвать
+`advisor_shadow`: для shadow acceptance нужен новый sealed capture.
 
 Успех:
 
@@ -268,3 +273,7 @@ reference, numerical deltas, confidence level и required capture count.
 Положительный результат обосновывает ровно одну branch proposal. Отрицательный
 результат предотвращает ненужное усложнение и указывает, что следующий ресурс
 следует потратить на observation/evaluator fidelity, а не на новую сеть.
+
+Даже при положительном discovery advisor не применяет ветвь в этом
+самом этапе. Сначала нужны новый sealed `advisor_shadow` capture,
+independent evaluator и spectral/peak safety gates.

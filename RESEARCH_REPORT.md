@@ -1,6 +1,6 @@
 # Research report: low-complexity PA identification and DPD
 
-Дата среза: 2026-07-30.
+Дата среза: 2026-08-03.
 
 Уточнение научного руководителя от 2026-07-30 имеет приоритет над выводами из
 слайдов: equivalent time of 1000 real multiplications ограничивает только DPD,
@@ -20,7 +20,8 @@ B. desired x -> DPD -> independently frozen PA/physical PA -> compare with g*x
 
 Контур A воспроизводимо выполнен для MP и causal factorized GMP на
 `DPA_200MHz`/`APA_200MHz`. Контур B имеет legacy surrogate-only spline
-evidence, но новая optimization приостановлена: Gate A→B закрыт.
+evidence и теперь однокомандную hash-bound validation-only
+demonstration. Новая optimization приостановлена: Gate A→B закрыт.
 
 Лучший текущий forward result:
 
@@ -273,6 +274,32 @@ uses 21 real MUL, 24 ADD and one nonlinear magnitude operation/sample. It
 achieved −29.864 dB DPA and −32.741 dB APA only through the old MP surrogate.
 This is a valuable cost baseline, not physical/cross-evaluator proof.
 
+### 8.1.1 Reproducible validation-only surrogate demo
+
+Метод, аудит, float/fixed code и reproducible demonstration собраны
+в одну команду:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m experiments.run_surrogate_demo \
+  --output-root /tmp/dpd_surrogate_demo_fresh
+```
+
+Каталог output должен ещё не существовать. Runner проверяет hashes,
+правильный `desired validation x -> frozen DPD -> frozen legacy PA
+surrogate -> output; compare with frozen g*x` тракт, exact child manifests и ожидаемые
+числа. Measured output/test не используются как DPD input;
+fit, tuning и precision selection не выполняются.
+
+| Dataset | no-DPD NMSE | Float DPD NMSE | Adjacent improvement L/R | 16/14/12-bit NMSE |
+|---|---:|---:|---:|---:|
+| DPA_200MHz | −20.3381 dB | −30.5324 dB | +4.7494 / +7.7372 dB | −30.5322 / −30.5336 / −30.5148 dB |
+| APA_200MHz | −19.9688 dB | −32.3800 dB | +16.4797 / +13.8639 dB | −32.3851 / −32.3703 / −32.3790 dB |
+
+Adjacent values — это улучшение в замороженных configured
+complex-baseband regions, а не RF harmonic/ACLR certification. Validation уже
+использовалась для исторического выбора float model, поэтому
+это reproducibility evidence, а не independent model-quality evidence.
+
 ### 8.2 Candidate 0 formulation
 
 Memoryless phase-equivariant spline:
@@ -329,14 +356,23 @@ bit-accurate 16/14/12-bit software reports with explicit accumulators,
 saturation and exact chunk/reset equivalence. This is PA evaluator-numerics
 evidence; the 1000-real-MUL-equivalent DPD gate does not apply to it. Target
 GMP loses `2.718 dB` at 12 bit without overflow, whereas target sparse loses
-`0.0935 dB` but starts from lower float fidelity. Selected spline-memory DPD,
-cascade and timed target implementation remain pending. Required order:
+`0.0935 dB` but starts from lower float fidelity. Selected spline-memory DPD
+now has sealed 16/14/12-bit correct-direction validation cascades. All six
+format/dataset rows have zero saturation and knot collision, exact configured
+chunked-streaming equivalence and bit-exact tested 90-degree phase rotation.
+The float schedule is `21 MUL, 24 ADD, 0 DIV, 1 magnitude, 6 LUT, 18 reads,
+2 writes, 4 state reals/sample`; the fixed schedule is `20 MUL, 25 ADD,
+1 DIV, 1 integer sqrt, 8 LUT, 28 reads, 2 writes, 4 state reals/sample`.
+DPA/APA store 144/48 real coefficient values. Their comparison counts are
+5/3; stored real constants are 47/15 for float and 24/8 for fixed.
 
-1. implement selected spline-memory DPD at 16/14/12 bit;
-2. run correct-direction DPD→frozen-PA cascade;
-3. freeze target/reference timing protocol;
-4. measure FPGA/ASIC/DSP throughput/latency/resources/power and compare all
-   DPD operations with the 1000-real-MUL reference.
+Numerical preservation at 16/14/12 bit through this surrogate is complete;
+timed target and physical-PA sufficiency remain pending. Required order:
+
+1. freeze target/reference timing protocol;
+2. measure FPGA/ASIC/DSP throughput/latency/resources/power and compare all
+   DPD operations with the 1000-real-MUL reference;
+3. replay exported fixed-point drives through the controlled physical PA.
 
 Detailed contract: `HARDWARE_COST.md`.
 
@@ -375,6 +411,9 @@ Supported:
   within the APA capture, with exact floating-point streaming/reset behavior;
 - DPA/APA source and target-calibrated APA-B PA payloads have hash-bound
   16/14/12-bit arithmetic, saturation and exact chunk/reset evidence;
+- the one-command DPA/APA validation-only demo reproduces float and all six
+  fixed rows, correct DPD direction, operation vectors, streaming and
+  phase-rotation checks through the frozen legacy surrogate;
 - correct pipeline guards, OOF/release/test provenance and streaming software
   equivalence;
 - legacy spline establishes an extremely cheap surrogate-only DPD point;
@@ -386,14 +425,18 @@ Not supported:
   clarification);
 - physical PA DPD linearization;
 - better-than-OpenDPD claim;
-- fixed-point/timed DPD or FPGA readiness (fixed-point PA arithmetic alone is
-  supported but is not a deployment-DPD result);
+- target-timed DPD, FPGA readiness or physical fixed-point sufficiency
+  (software bit-accurate DPD arithmetic is supported, target timing is not);
 - generalization/adaptation under controlled drift or known physical axes;
 - thermal/state model evidence.
 
-The next local high-information experiment is reproducible high-fidelity
-OpenDPD PA training without the DPD cost cap. The target-payload arithmetic
-task is closed. External prerequisites are the exact
+The next safe local stage is read-only observer/advisor discovery without
+changing the frozen DPD. Reused validation can serve only as
+`observer_discovery`; an honest `advisor_shadow` requires a new sealed capture.
+In parallel, reproducible high-fidelity OpenDPD PA training without the DPD
+cost cap remains pending: its full validation-quality run and real
+interrupt/resume smoke are not completed by the surrogate demo. The
+target-payload arithmetic task is closed. External prerequisites are the exact
 harmonic/spur and timing definitions plus controlled operating-point
 metadata/capture. The decisive final experiment remains calibrated physical PA
 remeasurement of

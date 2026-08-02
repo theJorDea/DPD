@@ -1,8 +1,8 @@
 # План экспериментов для следующего поколения DPD
 
-Дата: 2026-07-30
-Статус: план; новые model runs в рамках данного research-коммита не
-выполнялись.
+Дата: 2026-08-03
+Статус: Stage 0 validation-only surrogate-demo выполнен; Gate A→B
+закрыт, new-model optimization не разрешена.
 
 ## 1. Принцип последовательности
 
@@ -59,6 +59,29 @@ artifacts до добавления новых diagnostics.
 
 ### Существующие проверки
 
+Основная one-command demonstration (нужен свежий несуществующий
+output directory):
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m experiments.run_surrogate_demo \
+  --output-root /tmp/dpd_surrogate_demo_fresh
+```
+
+Она выполняет DPA/APA float replay, 16/14/12-bit replay и spectral
+evaluation по тракту `desired validation x -> frozen DPD -> frozen
+legacy PA surrogate -> output; compare with frozen g*x`. Measured output не становится
+DPD input; test, fit, model/precision selection не используются.
+
+Воспроизведённый snapshot:
+
+| Dataset | no-DPD → float DPD NMSE | Adjacent-region improvement L/R | Fixed 16/14/12 NMSE |
+|---|---:|---:|---:|
+| DPA | −20.3381 → −30.5324 dB | +4.7494 / +7.7372 dB | −30.5322 / −30.5336 / −30.5148 dB |
+| APA | −19.9688 → −32.3800 dB | +16.4797 / +13.8639 dB | −32.3851 / −32.3703 / −32.3790 dB |
+
+Это configured complex-baseband adjacent-region diagnostic через reused
+validation и legacy surrogate, а не RF harmonic/customer result.
+
 ```bash
 python -m unittest discover -s tests -v
 ```
@@ -79,10 +102,14 @@ verification/overwrite policy. На preflight достаточно hash verifica
 
 ### Gate S0
 
-- чистый git status до run;
-- совпали commit/data/model/config hashes;
-- tests проходят;
-- frozen outputs не изменены.
+- [x] one-command demo проверил config/source/data/model hashes;
+- [x] float и шесть fixed child bundles завершены с exact manifests;
+- [x] frozen source outputs не изменяются;
+- [x] correct direction, operation contracts, zero saturation/collision,
+  configured chunked-streaming equivalence и bit-exact 90-degree rotation
+  проверены;
+- [ ] real OpenDPD interrupt/resume smoke и full quality training — это
+  отдельные pending задачи, а не часть surrogate-demo gate.
 
 ## 4. Stage 1 — observer-only residual analysis
 
@@ -482,6 +509,18 @@ python experiments/evaluate_fixed_point_dpd.py \
 Эти commands проверяют текущий core; новый candidate требует новых output
 directories/config hashes и не может перезаписывать sealed artifacts.
 
+Текущий selected spline-memory DPD завершил все шесть
+DPA/APA строк для signed 16/14/12 bit. Cascade NMSE указан в
+таблице Stage 0. Saturation/knot collision равны нулю, arbitrary
+chunks точно совпадают, а 90-degree phase rotation бит-точна. Float
+operation vector: `21 MUL, 24 ADD, 0 DIV, 1 magnitude, 6 LUT, 18 reads,
+2 writes, 4 state reals/sample`; fixed: `20 MUL, 25 ADD, 1 DIV,
+1 integer sqrt, 8 LUT, 28 reads, 2 writes, 4 state reals/sample`.
+DPA/APA comparison counts are 5/3, stored coefficient values 144/48,
+float constants 47/15 and fixed constants 24/8.
+Это закрывает software numerical-preservation experiment, но не target
+timing и не physical-RF sufficiency.
+
 ### Gate S7
 
 - no overflow outside declared saturation behavior;
@@ -641,11 +680,16 @@ physical_evidence
 
 ## 15. Ближайшие три задачи
 
-1. Реализовать только read-only observer diagnostic и его statistical unit
-   tests; frozen model не изменять.
-2. Подготовить high-fidelity OpenDPD PA evaluator training с отдельным
-   checkpoint selection и GPU environment.
-3. Согласовать с Huawei physical spectral bands и target timing kernel.
+1. Реализовать read-only observer/advisor diagnostic и statistical unit
+   tests; frozen DPD не изменять и не применять branch proposal.
+2. Получить новый sealed capture для `advisor_shadow`; многократно
+   изученную validation не переименовывать в independent holdout.
+3. Завершить high-fidelity OpenDPD PA evaluator: сначала real
+   interrupt/resume smoke, затем full validation-quality training и independent
+   ranking. Оба шага пока pending.
+
+Параллельный external blocker: согласовать с Huawei physical
+spectral bands и target timing kernel.
 
 Самый информативный ближайший эксперимент — Stage 1. Он дешёв, не загрязняет
 test и отвечает, существует ли вообще воспроизводимая пропущенная структура,

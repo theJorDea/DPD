@@ -1,6 +1,6 @@
 # Roadmap: two-loop PA identification and DPD
 
-Дата обновления: 2026-07-30.
+Дата обновления: 2026-08-03.
 
 ## Коррекция требований от 2026-07-30
 
@@ -80,6 +80,55 @@ configured absolute adjacent-region suppression was `0.0966/0.1520 dB`.
 This closes the local DPD quantization subtask only. Validation was already
 used to choose the float DPD, the PA remains the old surrogate, and no
 physical-PA, RTL or customer-timing claim follows.
+
+## Milestone: method + audit + code + reproducible surrogate demo
+
+Статус: **выполнен как validation-only surrogate-demo**.
+
+Единая hash-bound команда воспроизводит DPA и APA float replay,
+все шесть 16/14/12-bit replays и их spectral reports:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m experiments.run_surrogate_demo \
+  --output-root /tmp/dpd_surrogate_demo_fresh
+```
+
+`--output-root` должен указывать на ещё не существующий каталог. Для
+каждой строки соблюдается правильный тракт:
+
+```text
+desired validation x -> frozen spline-memory DPD -> frozen legacy PA surrogate
+                     -> compare with frozen g * desired validation x
+```
+
+Measured PA output не подаётся на вход DPD; test не открывается,
+новое обучение/выбор precision не выполняется. Validation уже
+исторически использовалась при выборе float DPD, поэтому это
+demonstration, а не новый holdout result.
+
+| Dataset | no-DPD → float-DPD cascade NMSE | Configured adjacent-region improvement L/R | 16/14/12-bit cascade NMSE |
+|---|---:|---:|---:|
+| DPA_200MHz | −20.3381 → −30.5324 dB | +4.7494 / +7.7372 dB | −30.5322 / −30.5336 / −30.5148 dB |
+| APA_200MHz | −19.9688 → −32.3800 dB | +16.4797 / +13.8639 dB | −32.3851 / −32.3703 / −32.3790 dB |
+
+Это configured complex-baseband adjacent-region diagnostics, а не сертификация
+RF harmonics/ACLR. Float operation vector: `21 MUL, 24 ADD, 0 DIV,
+1 magnitude, 6 LUT, 18 reads, 2 writes, 4 state reals/sample`; fixed vector:
+`20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT, 28 reads, 2 writes,
+4 state reals/sample`. DPA/APA хранят соответственно 144/48 real
+coefficient values; comparison counts равны 5/3, float constants
+47/15, fixed constants 24/8. Все шесть fixed rows имеют zero
+saturation/knot collision, exact configured chunked-streaming equivalence и bit-exact
+tested 90-degree phase rotation.
+
+Этот milestone не открывает Gate A→B: decision остаётся
+**closed**. Следующий разрешённый этап — read-only
+observer/advisor, который может только предложить не более одной
+ветви, но не менять frozen DPD. Текущая reused validation может
+служить `observer_discovery`, но для честного `advisor_shadow` нужен
+новый sealed capture. Full validation-quality OpenDPD PA training и
+реальный interrupt/resume smoke ещё **pending**; ни один из них не
+помечается completed этим demo.
 
 ## Правила выполнения
 
@@ -584,12 +633,19 @@ selection/refit.
    desired-x→fixed-DPD→frozen-float-surrogate validation и одинаковую
    spectral evaluation; test/measured output не открывать, precision не
    выбирать по reused validation.
-22. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
+22. [x] Собрать однокомандный reproducible validation-only surrogate-demo
+   для DPA/APA float + 16/14/12-bit, проверяющий correct direction,
+   hashes, exact child manifests, operation vectors, saturation, streaming и
+   phase rotation; маркировать historical validation reuse.
+23. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
    без DPD latency cap и проверить independent ranking; sealed runner/config
-   и bounded CPU preflight готовы, full quality run pending.
-23. [ ] Получить controlled physical-PA capture с известными operating axes и
+   и bounded CPU preflight готовы; real interrupt/resume smoke и full quality
+   run pending.
+24. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
-24. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
+25. [ ] Выполнить read-only observer/advisor discovery без изменения frozen
+   DPD; до advisor shadow получить новый sealed capture.
+26. [ ] Только после Gate A→B PASS preregister cross-evaluator DPD benchmark.
 
 ## Gate A→B
 
