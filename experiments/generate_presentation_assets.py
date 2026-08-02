@@ -613,19 +613,30 @@ def render_complexity_proxy(output_path: Path) -> None:
         "Egor\nEnhancedESN-FAN",
     )
     values = np.asarray((21.0, 944.0, 1058.0, 728_622.0))
+    display_values = ("21", "944", "≈1,058+", "≈728,622")
     colors = (COLOR_FIXED, COLOR_FLOAT, COLOR_BAND, "#DD8452")
     figure, ax = plt.subplots(figsize=(10.8, 5.5), constrained_layout=True)
     positions = np.arange(values.size)
     bars = ax.barh(positions, values, color=colors, alpha=0.9)
     ax.set_xscale("log")
     ax.axvline(1000.0, color=COLOR_NO_DPD, linestyle="--", linewidth=1.5)
-    ax.text(1000.0, 3.55, "1000-MUL reference", color=COLOR_NO_DPD, ha="center", va="bottom", fontsize=9)
+    ax.text(
+        1000.0,
+        0.98,
+        "1000-MUL count reference only\nNOT a pass/fail boundary",
+        transform=ax.get_xaxis_transform(),
+        color=COLOR_NO_DPD,
+        ha="center",
+        va="top",
+        fontsize=9,
+        fontweight="bold",
+    )
     ax.set_yticks(positions, labels)
     ax.invert_yaxis()
     ax.set_xlabel("Analytical real multiplications / complex sample (log scale)")
     ax.set_title("Inference arithmetic proxy — not a target timing measurement", loc="left")
-    for bar, value in zip(bars, values, strict=True):
-        ax.text(value * 1.08, bar.get_y() + bar.get_height() / 2, f"{int(value):,}", va="center", fontsize=10)
+    for bar, value, display in zip(bars, values, display_values, strict=True):
+        ax.text(value * 1.08, bar.get_y() + bar.get_height() / 2, display, va="center", fontsize=10)
     ax.text(
         0.0,
         -0.19,
