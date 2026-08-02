@@ -434,9 +434,12 @@ The next safe local stage is read-only observer/advisor discovery without
 changing the frozen DPD. Reused validation can serve only as
 `observer_discovery`; an honest `advisor_shadow` requires a new sealed capture.
 In parallel, reproducible high-fidelity OpenDPD PA training without the DPD
-cost cap remains pending: its full validation-quality run and real
-interrupt/resume smoke are not completed by the surrogate demo. The
-target-payload arithmetic task is closed. External prerequisites are the exact
+cost cap remains pending: its full validation-quality run is not completed by
+the surrogate demo. A later two-epoch CPU smoke used a real `SIGKILL` and
+verified exact control/resume equivalence for model, optimizer, scheduler,
+history and RNG state; this is runtime-resume evidence, not a quality
+checkpoint. The target-payload arithmetic task is closed. External
+prerequisites are the exact
 harmonic/spur and timing definitions plus controlled operating-point
 metadata/capture. The decisive final experiment remains calibrated physical PA
 remeasurement of
