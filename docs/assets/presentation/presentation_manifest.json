@@ -34,13 +34,16 @@
   },
   "outputs": {
     "complexity_proxy.png": "27a672592d7defefcb7900b496382f5c0c46900d4e72a3a19daf82fe64a13545",
+    "dpd_overview.gif": "62beef2ccd9a36606844d479fffb955855ec7c152aca33a760c1d1ed2c2fd85b",
     "fixed_point_stability.png": "a7dcdca9cb5001a31f173bf6b80ccb2ec16cb896d619028e7315c94faec20460",
-    "overview_apa200.png": "1e638ef30cee03f6b5de5ba4188ae29d7e4898f70fe336e4d0ecd46734243874",
-    "overview_dpa200.png": "0956ff9f461b41a49c0c95964063f74ea0717a0a0a1169fd1a49641c51a7f879"
+    "overview_apa200.png": "013c1f7c58fdcba0c352e38fb713d5d14b7692c91d718f701ae88174b78da71c",
+    "overview_dpa200.png": "afb793db1c3a5c87d1981304a15c08b40468e89462ac7dbfe2ea9c9fe37cd2bf"
   },
   "rendering_contract": {
     "amam_ampm": "deterministic scatter plus per-amplitude-bin median and 10/90 percentiles",
     "ampm_minimum_normalized_amplitude": 0.04,
+    "animation_storyboard": "DPA no-DPD -> DPA float -> DPA 12-bit -> APA no-DPD -> APA float -> APA 12-bit",
+    "animation_uses_only_saved_states": true,
     "common_psd_reference": "maximum no-DPD spectrum power per dataset",
     "constellation_omitted": "no sealed validation-only demodulation contract",
     "training_epochs_claimed": false

@@ -11,8 +11,10 @@ import numpy as np
 from experiments.generate_presentation_assets import (
     EXPECTED_OUTPUTS,
     ROOT,
+    STATIC_OUTPUTS,
     binned_summary,
     deterministic_indices,
+    generate_assets,
     generate_static_assets,
     scored_mask,
     sha256_file,
@@ -52,21 +54,31 @@ class PresentationRenderingTests(unittest.TestCase):
     def test_fresh_generation_is_sealed_and_surrogate_labelled(self) -> None:
         with tempfile.TemporaryDirectory(prefix="dpd_presentation_test_") as temporary:
             output = Path(temporary) / "assets"
-            manifest = generate_static_assets(ROOT, output)
+            manifest = generate_assets(ROOT, output)
             self.assertEqual(set(output.iterdir()), {output / name for name in EXPECTED_OUTPUTS})
             self.assertTrue(manifest["claims_scope"]["surrogate_only"])
             self.assertFalse(manifest["claims_scope"]["physical_pa_measurement"])
             self.assertFalse(manifest["claims_scope"]["rf_harmonic_claim"])
             self.assertFalse(manifest["rendering_contract"]["training_epochs_claimed"])
+            self.assertTrue(manifest["rendering_contract"]["animation_uses_only_saved_states"])
             stored = json.loads((output / "presentation_manifest.json").read_text())
             for name, digest in stored["outputs"].items():
                 self.assertEqual(sha256_file(output / name), digest)
                 self.assertGreater((output / name).stat().st_size, 10_000)
+            from PIL import Image
+
+            with Image.open(output / "dpd_overview.gif") as animation:
+                self.assertEqual(animation.n_frames, 6)
+                self.assertGreaterEqual(animation.width, 1000)
 
     def test_nonempty_output_requires_force(self) -> None:
         with tempfile.TemporaryDirectory(prefix="dpd_presentation_guard_") as temporary:
             output = Path(temporary) / "assets"
             generate_static_assets(ROOT, output)
+            self.assertEqual(
+                set(output.iterdir()),
+                {output / name for name in STATIC_OUTPUTS | {"presentation_manifest.json"}},
+            )
             with self.assertRaises(FileExistsError):
                 generate_static_assets(ROOT, output)
 

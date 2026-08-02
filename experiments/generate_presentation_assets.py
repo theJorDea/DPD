@@ -26,11 +26,14 @@ import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_OUTPUTS = {
+STATIC_OUTPUTS = {
     "overview_dpa200.png",
     "overview_apa200.png",
     "complexity_proxy.png",
     "fixed_point_stability.png",
+}
+ANIMATION_OUTPUTS = {"dpd_overview.gif"}
+EXPECTED_OUTPUTS = STATIC_OUTPUTS | ANIMATION_OUTPUTS | {
     "presentation_manifest.json",
 }
 
@@ -381,27 +384,64 @@ def _plot_characteristic(
     ax.plot(centers, median, color=color, linewidth=2.1, label=label)
 
 
-def _spectrum_db(case: CaseData, key: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    spectra = case.float_spectrum
+def _spectrum_db(case: CaseData, stage: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    if stage not in {"no_dpd", "float", "fixed12"}:
+        raise ValueError(f"unsupported presentation stage: {stage}")
+    spectra = case.fixed12_spectrum if stage == "fixed12" else case.float_spectrum
     frequency = spectra["frequencies_hz"] / 1e6
     no_power = spectra["no_dpd_average_power_spectrum"]
-    dpd_power = spectra[key]
+    compared_power = (
+        no_power if stage == "no_dpd" else spectra["dpd_average_power_spectrum"]
+    )
     reference = max(float(np.max(no_power)), np.finfo(np.float64).tiny)
     floor = np.finfo(np.float64).tiny
     no_db = 10.0 * np.log10(np.maximum(no_power, floor) / reference)
-    dpd_db = 10.0 * np.log10(np.maximum(dpd_power, floor) / reference)
+    compared_db = 10.0 * np.log10(np.maximum(compared_power, floor) / reference)
     order = np.argsort(frequency)
-    return frequency[order], no_db[order], dpd_db[order]
+    return frequency[order], no_db[order], compared_db[order]
 
 
-def render_overview(case: CaseData, output_path: Path) -> None:
+def render_overview(
+    case: CaseData,
+    output_path: Path,
+    *,
+    stage: str = "float",
+    dpi: int = 150,
+) -> None:
+    if stage not in {"no_dpd", "float", "fixed12"}:
+        raise ValueError(f"unsupported presentation stage: {stage}")
     _, plt = _style_matplotlib()
     no_series = _series(case, case.float_waveforms["no_dpd_output"])
-    dpd_series = _series(case, case.float_waveforms["dpd_output"])
+    if stage == "fixed12":
+        compared_output = case.fixed12_waveforms["dpd_output"]
+        compared_color = COLOR_FIXED
+        compared_label = "12-bit DPD + PA"
+        stage_title = "12-bit fixed-point spline DPD"
+        summary = case.fixed12_spectral_summary
+        compared_nmse = case.fixed_report["formats"]["12"]["validation"][
+            "fixed_cascade_vs_ideal"
+        ]["complex_nmse_pooled_db"]
+    elif stage == "float":
+        compared_output = case.float_waveforms["dpd_output"]
+        compared_color = COLOR_FLOAT
+        compared_label = "Float spline DPD + PA"
+        stage_title = "floating-point spline DPD"
+        summary = case.float_spectral_summary
+        compared_nmse = case.fixed_report["float_reference"]["float_dpd_vs_ideal"][
+            "complex_nmse_pooled_db"
+        ]
+    else:
+        compared_output = None
+        compared_color = COLOR_NO_DPD
+        compared_label = "PA only (no DPD)"
+        stage_title = "PA only — no DPD"
+        summary = case.float_spectral_summary
+        compared_nmse = None
+    compared_series = None if compared_output is None else _series(case, compared_output)
 
     figure, axes = plt.subplots(2, 2, figsize=(13.2, 9.0), constrained_layout=True)
     figure.suptitle(
-        f"Spline-memory DPD overview — {case.label}\n"
+        f"Spline-memory DPD overview — {case.label} — {stage_title}\n"
         "frozen validation · legacy PA surrogate · not a physical-PA result",
         fontsize=16,
         fontweight="bold",
@@ -416,19 +456,28 @@ def render_overview(case: CaseData, output_path: Path) -> None:
         color=COLOR_NO_DPD,
         label="PA only (no DPD)",
     )
-    _plot_characteristic(
-        ax,
-        dpd_series["amplitude"],
-        dpd_series["output_amplitude"],
-        color=COLOR_FLOAT,
-        label="Spline DPD + PA",
-    )
+    if compared_series is not None:
+        _plot_characteristic(
+            ax,
+            compared_series["amplitude"],
+            compared_series["output_amplitude"],
+            color=compared_color,
+            label=compared_label,
+        )
     ax.set(xlabel="Normalized desired amplitude", ylabel="Normalized output amplitude")
     ax.set_xlim(0, 1.01)
     upper = max(
         1.05,
         float(np.quantile(no_series["output_amplitude"], 0.998)) * 1.05,
-        float(np.quantile(dpd_series["output_amplitude"], 0.998)) * 1.05,
+        float(
+            np.quantile(
+                no_series["output_amplitude"]
+                if compared_series is None
+                else compared_series["output_amplitude"],
+                0.998,
+            )
+        )
+        * 1.05,
     )
     ax.set_ylim(0, min(upper, 1.45))
     ax.set_title("AM/AM characteristic", loc="left")
@@ -436,10 +485,10 @@ def render_overview(case: CaseData, output_path: Path) -> None:
 
     ax = axes[0, 1]
     ax.axhline(0.0, linestyle="--", color=COLOR_TARGET, linewidth=1.3, label="Ideal")
-    for series, color, label in (
-        (no_series, COLOR_NO_DPD, "PA only (no DPD)"),
-        (dpd_series, COLOR_FLOAT, "Spline DPD + PA"),
-    ):
+    phase_series = [(no_series, COLOR_NO_DPD, "PA only (no DPD)")]
+    if compared_series is not None:
+        phase_series.append((compared_series, compared_color, compared_label))
+    for series, color, label in phase_series:
         valid = series["phase_valid"]
         _plot_characteristic(
             ax,
@@ -449,10 +498,7 @@ def render_overview(case: CaseData, output_path: Path) -> None:
             label=label,
         )
     phase_values = np.concatenate(
-        (
-            no_series["phase"][no_series["phase_valid"]],
-            dpd_series["phase"][dpd_series["phase_valid"]],
-        )
+        tuple(series["phase"][series["phase_valid"]] for series, _, _ in phase_series)
     )
     phase_limit = max(10.0, float(np.quantile(np.abs(phase_values), 0.985)) * 1.1)
     ax.set_ylim(-min(phase_limit, 90.0), min(phase_limit, 90.0))
@@ -462,12 +508,16 @@ def render_overview(case: CaseData, output_path: Path) -> None:
     ax.legend(loc="upper right", fontsize=9)
 
     ax = axes[1, 0]
-    frequency, no_db, dpd_db = _spectrum_db(
-        case, "dpd_average_power_spectrum"
-    )
+    frequency, no_db, compared_db = _spectrum_db(case, stage)
     ax.plot(frequency, no_db, color=COLOR_NO_DPD, linewidth=1.0, label="PA only")
-    ax.plot(frequency, dpd_db, color=COLOR_FLOAT, linewidth=1.1, label="DPD + PA")
-    summary = case.float_spectral_summary
+    if stage != "no_dpd":
+        ax.plot(
+            frequency,
+            compared_db,
+            color=compared_color,
+            linewidth=1.1,
+            label=compared_label,
+        )
     main = summary["main_region"]
     ax.axvspan(main["low_hz"] / 1e6, main["high_hz"] / 1e6, color="#DDDDDD", alpha=0.18)
     for region in (summary["regions"]["left_adjacent"], summary["regions"]["right_adjacent"]):
@@ -479,11 +529,14 @@ def render_overview(case: CaseData, output_path: Path) -> None:
         )
     left = summary["regions"]["left_adjacent"]
     right = summary["regions"]["right_adjacent"]
-    text = (
-        "Configured adjacent improvement\n"
-        f"left  {_metric_value(left['relative_leakage_improvement_db']):+.2f} dB\n"
-        f"right {_metric_value(right['relative_leakage_improvement_db']):+.2f} dB"
-    )
+    if stage == "no_dpd":
+        text = "Configured adjacent regions\nno-DPD reference"
+    else:
+        text = (
+            "Configured adjacent improvement\n"
+            f"left  {_metric_value(left['relative_leakage_improvement_db']):+.2f} dB\n"
+            f"right {_metric_value(right['relative_leakage_improvement_db']):+.2f} dB"
+        )
     ax.text(
         0.98,
         0.96,
@@ -494,7 +547,8 @@ def render_overview(case: CaseData, output_path: Path) -> None:
         fontsize=9,
         bbox={"facecolor": "white", "alpha": 0.88, "edgecolor": "#BBBBBB"},
     )
-    lower = max(-120.0, float(np.nanpercentile(np.concatenate((no_db, dpd_db)), 0.5)))
+    all_spectra = no_db if stage == "no_dpd" else np.concatenate((no_db, compared_db))
+    lower = max(-120.0, float(np.nanpercentile(all_spectra, 0.5)))
     ax.set_ylim(lower, 3.0)
     ax.set(xlabel="Complex-baseband frequency (MHz)", ylabel="PSD (dB, common reference)")
     ax.set_title("Power spectral density", loc="left")
@@ -507,17 +561,28 @@ def render_overview(case: CaseData, output_path: Path) -> None:
     window = scored[: min(180, scored.size)]
     target = case.float_waveforms["desired_input"][window]
     no_output = case.float_waveforms["no_dpd_output"][window] / case.gain
-    dpd_output = case.float_waveforms["dpd_output"][window] / case.gain
+    selected_output = None if compared_output is None else compared_output[window] / case.gain
     samples = np.arange(window.size)
     ax.plot(samples, np.abs(target), color=COLOR_TARGET, linewidth=1.4, label="Desired |x|")
     ax.plot(samples, np.abs(no_output), color=COLOR_NO_DPD, linewidth=1.0, alpha=0.85, label="PA only / g")
-    ax.plot(samples, np.abs(dpd_output), color=COLOR_FLOAT, linewidth=1.1, label="DPD + PA / g")
+    if selected_output is not None:
+        ax.plot(
+            samples,
+            np.abs(selected_output),
+            color=compared_color,
+            linewidth=1.1,
+            label=f"{compared_label} / g",
+        )
     no_nmse = case.fixed_report["float_reference"]["no_dpd_vs_ideal"]["complex_nmse_pooled_db"]
-    dpd_nmse = case.fixed_report["float_reference"]["float_dpd_vs_ideal"]["complex_nmse_pooled_db"]
+    metric_text = (
+        f"No-DPD pooled NMSE\n{no_nmse:.2f} dB"
+        if compared_nmse is None
+        else f"Pooled NMSE\n{no_nmse:.2f} → {compared_nmse:.2f} dB"
+    )
     ax.text(
         0.98,
         0.96,
-        f"Pooled NMSE\n{no_nmse:.2f} → {dpd_nmse:.2f} dB",
+        metric_text,
         transform=ax.transAxes,
         ha="right",
         va="top",
@@ -531,7 +596,7 @@ def render_overview(case: CaseData, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(
         output_path,
-        dpi=150,
+        dpi=dpi,
         bbox_inches="tight",
         metadata={"Software": "theJorDea/DPD presentation generator"},
     )
@@ -605,9 +670,64 @@ def render_fixed_point_stability(cases: tuple[CaseData, ...], output_path: Path)
     plt.close(figure)
 
 
-def _prepare_output(output_dir: Path, force: bool) -> None:
+def render_overview_animation(cases: tuple[CaseData, ...], output_path: Path) -> None:
+    try:
+        from PIL import Image
+    except ImportError as exc:  # pragma: no cover - exercised by CLI environment
+        raise RuntimeError(
+            "GIF rendering needs requirements-presentation.txt"
+        ) from exc
+
+    stages = (
+        (cases[0], "no_dpd", 1400),
+        (cases[0], "float", 1900),
+        (cases[0], "fixed12", 2100),
+        (cases[1], "no_dpd", 1400),
+        (cases[1], "float", 1900),
+        (cases[1], "fixed12", 2600),
+    )
+    frames: list[Any] = []
+    durations: list[int] = []
+    with tempfile.TemporaryDirectory(prefix="dpd_presentation_frames_") as temporary:
+        frame_dir = Path(temporary)
+        for index, (case, stage, duration) in enumerate(stages):
+            frame_path = frame_dir / f"frame_{index:02d}.png"
+            render_overview(case, frame_path, stage=stage, dpi=100)
+            with Image.open(frame_path) as source:
+                frame = source.convert("RGB")
+                if frame.width > 1320:
+                    height = int(round(frame.height * 1320 / frame.width))
+                    frame = frame.resize((1320, height), Image.Resampling.LANCZOS)
+                quantized = frame.quantize(
+                    colors=128,
+                    method=Image.Quantize.MEDIANCUT,
+                    dither=Image.Dither.NONE,
+                )
+                frames.append(quantized.copy())
+            durations.append(duration)
+    if len(frames) != 6:
+        raise RuntimeError(f"expected six presentation frames, got {len(frames)}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    frames[0].save(
+        output_path,
+        format="GIF",
+        save_all=True,
+        append_images=frames[1:],
+        duration=durations,
+        loop=0,
+        optimize=True,
+        disposal=2,
+        comment=b"validation-only surrogate presentation; no physical-PA claim",
+    )
+
+
+def _prepare_output(
+    output_dir: Path,
+    force: bool,
+    allowed_outputs: set[str],
+) -> None:
     if output_dir.exists():
-        unknown = {entry.name for entry in output_dir.iterdir()} - EXPECTED_OUTPUTS
+        unknown = {entry.name for entry in output_dir.iterdir()} - allowed_outputs
         if unknown:
             raise FileExistsError(
                 f"refusing to touch output directory with unknown entries: {sorted(unknown)}"
@@ -618,18 +738,30 @@ def _prepare_output(output_dir: Path, force: bool) -> None:
         output_dir.mkdir(parents=True)
 
 
-def generate_static_assets(root: Path, output_dir: Path, *, force: bool = False) -> dict[str, Any]:
+def generate_assets(
+    root: Path,
+    output_dir: Path,
+    *,
+    force: bool = False,
+    include_animation: bool = True,
+) -> dict[str, Any]:
     root = root.resolve()
     output_dir = output_dir.resolve()
-    _prepare_output(output_dir, force)
+    generated_outputs = set(STATIC_OUTPUTS)
+    if include_animation:
+        generated_outputs.update(ANIMATION_OUTPUTS)
+    allowed_outputs = generated_outputs | {"presentation_manifest.json"}
+    _prepare_output(output_dir, force, allowed_outputs)
     cases = tuple(load_case(paths) for paths in _case_paths(root))
 
     render_overview(cases[0], output_dir / "overview_dpa200.png")
     render_overview(cases[1], output_dir / "overview_apa200.png")
     render_complexity_proxy(output_dir / "complexity_proxy.png")
     render_fixed_point_stability(cases, output_dir / "fixed_point_stability.png")
+    if include_animation:
+        render_overview_animation(cases, output_dir / "dpd_overview.gif")
 
-    generated = sorted(EXPECTED_OUTPUTS - {"presentation_manifest.json"})
+    generated = sorted(generated_outputs)
     inputs = sorted({path.resolve() for case in cases for path in case.input_paths})
     manifest = {
         "schema_version": 1,
@@ -648,6 +780,13 @@ def generate_static_assets(root: Path, output_dir: Path, *, force: bool = False)
             "ampm_minimum_normalized_amplitude": 0.04,
             "constellation_omitted": "no sealed validation-only demodulation contract",
             "training_epochs_claimed": False,
+            "animation_storyboard": (
+                "DPA no-DPD -> DPA float -> DPA 12-bit -> "
+                "APA no-DPD -> APA float -> APA 12-bit"
+                if include_animation
+                else None
+            ),
+            "animation_uses_only_saved_states": include_animation,
         },
         "inputs": {str(path.relative_to(root)): sha256_file(path) for path in inputs},
         "outputs": {name: sha256_file(output_dir / name) for name in generated},
@@ -658,6 +797,22 @@ def generate_static_assets(root: Path, output_dir: Path, *, force: bool = False)
         encoding="utf-8",
     )
     return manifest
+
+
+def generate_static_assets(
+    root: Path,
+    output_dir: Path,
+    *,
+    force: bool = False,
+) -> dict[str, Any]:
+    """Backward-compatible static-only entry point used by focused tests."""
+
+    return generate_assets(
+        root,
+        output_dir,
+        force=force,
+        include_animation=False,
+    )
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -678,8 +833,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_arg_parser().parse_args(argv)
-    manifest = generate_static_assets(args.root, args.output_dir, force=args.force)
-    print(f"PASS: generated {len(manifest['outputs'])} static presentation assets")
+    manifest = generate_assets(args.root, args.output_dir, force=args.force)
+    print(f"PASS: generated {len(manifest['outputs'])} presentation assets")
     print("scope: validation-only surrogate evidence; no physical-PA/Huawei claim")
     return 0
 
