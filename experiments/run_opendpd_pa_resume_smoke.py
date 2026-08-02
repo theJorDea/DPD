@@ -127,6 +127,12 @@ def _child_environment() -> dict[str, str]:
     return environment
 
 
+def _python_executable_without_symlink_resolution() -> str:
+    """Keep the venv launcher path; resolving it can escape the environment."""
+
+    return os.path.abspath(sys.executable)
+
+
 def _bound_orchestration_files(config: Path) -> dict[str, str]:
     files = {
         _display_path(config): config,
@@ -159,7 +165,7 @@ def _trainer_command(
     resume: bool,
 ) -> list[str]:
     command = [
-        str(Path(sys.executable).resolve()),
+        _python_executable_without_symlink_resolution(),
         TRAINER_SOURCE,
         "--config",
         _display_path(config),
@@ -546,7 +552,7 @@ def run_smoke(
                 "test_file_hashes_recorded": False,
             },
             "bound_files_sha256": bound_orchestration_files,
-            "python_executable": str(Path(sys.executable).resolve()),
+            "python_executable": _python_executable_without_symlink_resolution(),
         },
         "scope": {
             "test_split_accessed": False,

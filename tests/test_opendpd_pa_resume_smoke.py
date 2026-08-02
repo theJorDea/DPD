@@ -4,6 +4,7 @@ from pathlib import Path
 import signal
 import tempfile
 import unittest
+from unittest import mock
 
 from experiments import run_opendpd_pa_resume_smoke as smoke_runner
 from experiments import verify_opendpd_pa_resume_smoke as verifier
@@ -16,6 +17,20 @@ except ImportError:  # main NumPy-only test environment
 
 
 class OpenDPDResumeSmokePureTests(unittest.TestCase):
+    def test_trainer_command_preserves_virtualenv_launcher_symlink(self) -> None:
+        launcher = "/tmp/example-venv/bin/python"
+        with mock.patch.object(smoke_runner.sys, "executable", launcher):
+            command = smoke_runner._trainer_command(
+                Path("experiments/configs/config.json"),
+                Path("experiments/results/smoke/control"),
+                resume=False,
+            )
+            self.assertEqual(command[0], launcher)
+            self.assertEqual(
+                smoke_runner._python_executable_without_symlink_resolution(),
+                launcher,
+            )
+
     def test_trainer_command_freezes_two_epochs_and_full_loaders(self) -> None:
         command = smoke_runner._trainer_command(
             Path("experiments/configs/config.json"),
