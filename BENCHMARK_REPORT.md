@@ -456,6 +456,42 @@ These are not local reruns. The local causal GMP differs from bundled GMP by
 only 0.037/0.053 dB, but boundary/solver/operation conventions differ; no
 superiority/equivalence claim is made.
 
+### 10.1 Local OpenDPD CPU resume smoke
+
+A real abrupt-interruption/restart experiment is now committed at
+`experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/`
+(`920d58f`). Completion-manifest SHA-256:
+`b856c62892210565265441c55c4858ddbc14286702fea15c175376b2b4f1df38`.
+It uses the full APA train and validation loaders and TRes-GRU-H27 from the
+production 300-epoch config, but intentionally stops after two effective
+epochs.
+
+| Check | Result |
+|---|---:|
+| Bundle status | `passed_runtime_resume_equivalence` |
+| Actual interruption | `SIGKILL`, return code `-9` |
+| Control wall | 725.6676 s |
+| Interrupted wall until kill | 306.2589 s |
+| Resume wall | 286.6817 s |
+| Epoch 1 validation NMSE | -30.677835 dB |
+| Epoch 2 validation NMSE | -31.215885 dB |
+| Exact current/best model state | PASS / PASS |
+| Exact optimizer/scheduler state | PASS / PASS |
+| Exact history and RNG/shuffle state | PASS / PASS |
+| Exact validation-selected checkpoint | PASS |
+
+The normalized resume contract also matches. The manifest explicitly records
+`quality_result=false`: this demonstrates deterministic durable restart, not
+convergence or model selection. It is neither a 300-epoch quality run nor CUDA,
+DPD, physical-PA, Huawei, or test-split evidence.
+
+Two preceding negative attempts are disclosed. The first stopped before
+training because the child launcher could not find the required venv; the fix
+preserves the caller-supplied unresolved virtualenv launcher path instead of
+resolving its Python symlink out of that environment. The second was externally
+aborted. Their incomplete raw directories are intentionally not committed and
+are not counted as results.
+
 ## 11. Fixed-point, robustness and hardware
 
 Current status:
@@ -519,7 +555,9 @@ Details: `HARDWARE_COST.md` and `ROBUSTNESS_AND_ADAPTATION.md`.
   post-fit numerical workaround.
 - Bundled OpenDPD checkpoints/GPU are unavailable, but a sealed CPU
   train/validation runner has completed bounded GRU/TRes-GRU/TRes-DeltaGRU
-  preflight. Full validation-quality training remains pending.
+  preflight and a real two-epoch full-loader SIGKILL/resume equivalence PASS.
+  Full 300-epoch validation-quality training and independent ranking remain
+  pending.
 - Existing Egor circular score does not establish deployment DPD. The DPD
   reservoir pair alone requires about 728,622 dense real MUL/sample before
   additions, activations and memory traffic, so it is implausible under the
@@ -550,6 +588,7 @@ Raw locations:
 - `experiments/results/pa_transfer_apa200_to_b_test_release_verification.json`;
 - `experiments/results/pa_fixed_point_{dpa200,apa200,apa200_b}/`;
 - `experiments/results/spline_memory_{dpa200,apa200}/`.
+- `experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/`.
 
 ## 14. Benchmark conclusion
 

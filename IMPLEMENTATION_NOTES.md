@@ -537,13 +537,53 @@ linearization, customer RF harmonic/spur attenuation, OpenDPD superiority,
 Huawei acceptance, target latency/resources/power or that 12 bit is sufficient.
 No precision was selected; Gate A->B remains closed.
 
+### 3.11 OpenDPD abrupt-interruption/resume evidence
+
+`experiments/run_opendpd_pa_resume_smoke.py` launches the production
+TRes-GRU-H27 trainer in three processes: an uninterrupted control, an
+interrupted run, and an exact `--resume`. The smoke keeps the production
+300-epoch config and full APA train/validation loaders, but overrides the run
+to only two effective epochs. The child command deliberately preserves the
+caller-supplied unresolved virtualenv launcher path: resolving its Python
+symlink would escape the locked environment. This fixes the first negative
+attempt, which stopped before training because its child launcher could not
+find the required venv. A second attempt was externally aborted. Neither
+incomplete raw directory is committed.
+
+The committed PASS bundle is
+`experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/`
+at `920d58f`. Its final completion-manifest SHA-256 is
+`b856c62892210565265441c55c4858ddbc14286702fea15c175376b2b4f1df38`.
+The interrupted process was alive after the first durable epoch publication
+and was actually killed with `SIGKILL` (`returncode=-9`) before the next epoch
+publication. Measured walls were `725.6676 s` for control, `306.2589 s` until
+kill, and `286.6817 s` for resume.
+
+`experiments/verify_opendpd_pa_resume_smoke.py` reports
+`passed_runtime_resume_equivalence`. Normalized contracts and exact
+current/best model, optimizer, scheduler, history, RNG/shuffle state, and
+validation-selected checkpoint comparisons all pass. Validation OpenDPD NMSE
+was `-30.677835 dB` after epoch 1 and `-31.215885 dB` after epoch 2. These
+numbers are execution-regression diagnostics only: the manifest sets
+`quality_result=false`, no test path was resolved, and no DPD or physical PA
+was evaluated. This is not 300-epoch convergence, CUDA reproducibility,
+DPD quality, Huawei acceptance, or physical-PA evidence.
+
 ## 5. Tests and invariants
 
 The targeted one-command-demo sealing suite is **10/10 passed** on
 the environment in this document, including the real end-to-end demo. The
-repository-wide count changes as the independent OpenDPD resume work lands and
-is not inferred from this targeted run. The full discovery command below remains
-the acceptance command after any code change.
+OpenDPD resume runner/verifier tests and the real full-loader PASS bundle are
+also complete; this does not replace the full discovery command below after
+any code change.
+
+Final release checks on 2026-08-03:
+
+- NumPy environment: **347 tests passed**, 8 expected OpenDPD/PyTorch skips,
+  `15.838 s`;
+- locked OpenDPD environment: **47/47 tests passed**, including four real
+  resume integration tests, `5.239 s`.
+
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -633,6 +673,7 @@ The previous 120-test 0.396 s timing is obsolete.
 | `91aedae` / `16b736a` / `d649aa1` | sealed spline-memory DPD integer runner and immutable DPA/APA validation bundles |
 | `c88b394` / `d7b72d5` | immutable DPA/APA float plus 16/14/12-bit spectral replay bundles |
 | `a385635` / `b982266` | one-command surrogate demo and hardened artifact sealing |
+| `920d58f` | immutable two-epoch CPU OpenDPD SIGKILL/resume equivalence PASS bundle |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -660,6 +701,7 @@ experiments/results/pa_fixed_point_apa200_b/fixed_point_report.json
 experiments/results/dpd_fixed_point_dpa200_validation/
 experiments/results/dpd_fixed_point_apa200_validation/
 experiments/results/dpd_fixed_point_{dpa200,apa200}_spectrum_{float,16bit,14bit,12bit}_validation/
+experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/
 ```
 
 The one-command wrapper writes its sealed bundle to the caller-supplied fresh
@@ -687,7 +729,9 @@ Normative documents:
 3. DPA has 9 train frames; APA only 3. Frames are not independent captures.
 4. Test splits are not globally pristine because historical MP workflows used
    them; new tuning must not use those values.
-5. No runnable OpenDPD neural checkpoint/GPU local reproduction.
+5. OpenDPD CPU interruption/resume equivalence is reproduced for two
+   full-loader epochs, but no full 300-epoch locally trained neural checkpoint,
+   convergence result, independent ranking or CUDA reproduction is complete.
 6. GMP NumPy batch inference is not optimized for target sample rate.
 7. Peak RSS was not measured for formal fits.
 8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
@@ -752,7 +796,8 @@ slow-state evidence exists.
 
 1. Obtain exact harmonic/spur and 1000-real-MUL timing-reference definitions.
 2. Complete full validation-quality training of the preregistered OpenDPD PA
-   evaluator; sealed CPU runner/config and bounded runtime preflight are done.
+   evaluator; sealed CPU runner/config, bounded runtime preflight and real
+   two-epoch SIGKILL/resume equivalence are done.
 3. Record provenance for `APA_200MHz_b` and obtain controlled physical-PA data.
 4. Retain the completed fixed-point spline-memory DPD as a numerical regression
    reference; evaluate `desired x -> DPD -> independent PA evaluator/physical

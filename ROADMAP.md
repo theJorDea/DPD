@@ -126,9 +126,28 @@ tested 90-degree phase rotation.
 observer/advisor, который может только предложить не более одной
 ветви, но не менять frozen DPD. Текущая reused validation может
 служить `observer_discovery`, но для честного `advisor_shadow` нужен
-новый sealed capture. Full validation-quality OpenDPD PA training и
-реальный interrupt/resume smoke ещё **pending**; ни один из них не
-помечается completed этим demo.
+новый sealed capture. Реальный CPU interrupt/resume smoke теперь
+завершён со статусом `passed_runtime_resume_equivalence`, но он
+сознательно ограничен двумя эпохами и имеет `quality_result=false`.
+Full 300-epoch validation-quality OpenDPD PA training и independent ranking
+остаются **pending**.
+
+Запечатанный PASS bundle находится в
+`experiments/results/opendpd_pa_cpu_resume_smoke_apa200_tres_gru_h27_run3/`
+(`920d58f`, completion SHA-256
+`b856c62892210565265441c55c4858ddbc14286702fea15c175376b2b4f1df38`).
+Внутри production 300-epoch config было выполнено только 2 effective
+epochs с full train/validation loaders. Control занял `725.6676 s`;
+interrupted process был реально остановлен `SIGKILL` (`returncode=-9`)
+через `306.2589 s`, а resume занял `286.6817 s`. Exact checks
+current/best model, optimizer, scheduler, history, RNG/shuffle и selected
+checkpoint все PASS. Validation NMSE изменился с `-30.677835 dB`
+на первой эпохе до `-31.215885 dB` на второй, но эти две точки
+не являются convergence/quality result. Два предыдущих негативных
+attempts сохранены в аудите: первый остановился до обучения
+из-за missing venv в child launcher, что исправлено сохранением
+unresolved virtualenv launcher path; второй был внешне прерван. Их
+incomplete raw directories не закоммичены.
 
 ## Правила выполнения
 
@@ -355,8 +374,9 @@ Observed result:
 
 Статус: MP, causal GMP, standalone APA SPH, первый non-factorized sparse PA и
 residual-guided lag-9 sparse PA завершены. Sealed OpenDPD CPU runner,
-hash-bound APA config и bounded three-backbone preflight уже выполнены; full
-quality training/checkpoint ещё не завершён. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
+hash-bound APA config, bounded three-backbone preflight и real SIGKILL/resume
+equivalence smoke уже выполнены; full quality training/checkpoint ещё не
+завершён. Lag-9 sparse PA проходит cheap-Pareto gate относительно MP,
 но SPH и оба sparse PA отклонены как quality evaluators. После clarification
 high-fidelity OpenDPD PA retraining становится приоритетом: его больше нельзя
 откладывать только из-за превышения DPD cost budget.
@@ -380,6 +400,7 @@ high-fidelity OpenDPD PA retraining становится приоритетом:
    - [x] sealed train/validation-only runner и provenance tests;
    - [x] hash-bound APA CPU config;
    - [x] bounded GRU/TRes-GRU/TRes-DeltaGRU runtime preflight;
+   - [x] real full-loader two-epoch CPU SIGKILL/resume equivalence smoke;
    - [ ] full validation-quality training и independent ranking.
 4. [x] Spline/CPWL memoryless nonlinearity + short complex FIR (APA SPH;
    отрицательный train-OOF result, не evaluator).
@@ -639,8 +660,8 @@ selection/refit.
    phase rotation; маркировать historical validation reuse.
 23. [ ] Обучить/reproduce high-fidelity OpenDPD PA evaluator на тех же splits
    без DPD latency cap и проверить independent ranking; sealed runner/config
-   и bounded CPU preflight готовы; real interrupt/resume smoke и full quality
-   run pending.
+   и bounded CPU preflight готовы. Real two-epoch interrupt/resume smoke
+   completed; full 300-epoch quality run и independent ranking pending.
 24. [ ] Получить controlled physical-PA capture с известными operating axes и
    повторить zero-shot/limited-calibration protocol.
 25. [ ] Выполнить read-only observer/advisor discovery без изменения frozen
