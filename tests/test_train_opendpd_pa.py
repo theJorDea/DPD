@@ -148,6 +148,213 @@ class OpenDPDSealedRunnerTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "requires deterministic=true"):
                 runner.load_config(path)
 
+    def test_environment_lock_config_is_optional_but_strict_when_present(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / "config.json"
+            config = _base_config("dataset")
+            path.write_text(json.dumps(config), encoding="utf-8")
+            self.assertNotIn("environment_lock", runner.load_config(path))
+
+            config["environment_lock"] = {
+                "path": "requirements.lock",
+                "sha256": "0" * 64,
+                "verify_installed_versions": False,
+            }
+            path.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ValueError,
+                "verify_installed_versions must be true",
+            ):
+                runner.load_config(path)
+
+            config["environment_lock"][
+                "verify_installed_versions"
+            ] = True
+            config["environment_lock"]["path"] = "../outside.lock"
+            path.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "cannot escape"):
+                runner.load_config(path)
+
+    def test_environment_lock_verifies_hash_and_exact_versions(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            lock = root / "requirements.lock"
+            lock.write_text(
+                "# frozen\nNumPy==2.5.1\ntyping-extensions==4.16.0\n",
+                encoding="utf-8",
+            )
+            config = {
+                "environment_lock": {
+                    "path": "requirements.lock",
+                    "sha256": runner.sha256_file(lock),
+                    "verify_installed_versions": True,
+                }
+            }
+            versions = {
+                "NumPy": "2.5.1",
+                "typing-extensions": "4.16.0",
+            }
+            with (
+                mock.patch.object(runner, "PROJECT_ROOT", root),
+                mock.patch.object(
+                    runner.importlib_metadata,
+                    "version",
+                    side_effect=lambda name: versions[name],
+                ),
+            ):
+                evidence = runner.verify_environment_lock(config)
+            self.assertIsNotNone(evidence)
+            assert evidence is not None
+            self.assertEqual(evidence["locked_distribution_count"], 2)
+            self.assertEqual(evidence["sha256"], runner.sha256_file(lock))
+            self.assertEqual(
+                set(evidence["installed_locked_distributions"]),
+                {"numpy", "typing-extensions"},
+            )
+            self.assertTrue(
+                evidence["verified_before_source_and_waveform_access"]
+            )
+
+            config["environment_lock"]["sha256"] = "f" * 64
+            with mock.patch.object(runner, "PROJECT_ROOT", root):
+                with self.assertRaisesRegex(RuntimeError, "SHA-256 mismatch"):
+                    runner.verify_environment_lock(config)
+
+    def test_environment_lock_rejects_version_mismatch_and_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            lock = root / "requirements.lock"
+            lock.write_text("numpy==2.5.1\n", encoding="utf-8")
+            config = {
+                "environment_lock": {
+                    "path": "requirements.lock",
+                    "sha256": runner.sha256_file(lock),
+                    "verify_installed_versions": True,
+                }
+            }
+            with (
+                mock.patch.object(runner, "PROJECT_ROOT", root),
+                mock.patch.object(
+                    runner.importlib_metadata,
+                    "version",
+                    return_value="0.0.0",
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "expected 2.5.1, found 0.0.0",
+                ):
+                    runner.verify_environment_lock(config)
+
+            link = root / "linked.lock"
+            link.symlink_to(lock)
+            config["environment_lock"]["path"] = "linked.lock"
+            with mock.patch.object(runner, "PROJECT_ROOT", root):
+                with self.assertRaisesRegex(ValueError, "non-symlink"):
+                    runner.verify_environment_lock(config)
+
+            real_directory = root / "real"
+            real_directory.mkdir()
+            nested_lock = real_directory / "requirements.lock"
+            nested_lock.write_text("numpy==2.5.1\n", encoding="utf-8")
+            (root / "linked-directory").symlink_to(
+                real_directory,
+                target_is_directory=True,
+            )
+            config["environment_lock"] = {
+                "path": "linked-directory/requirements.lock",
+                "sha256": runner.sha256_file(nested_lock),
+                "verify_installed_versions": True,
+            }
+            with mock.patch.object(runner, "PROJECT_ROOT", root):
+                with self.assertRaisesRegex(ValueError, "non-symlink"):
+                    runner.verify_environment_lock(config)
+
+    def test_environment_lock_reads_the_opened_inode_during_path_swap(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            lock = root / "requirements.lock"
+            lock.write_text("numpy==2.5.1\n", encoding="utf-8")
+            expected_hash = runner.sha256_file(lock)
+            config = {
+                "environment_lock": {
+                    "path": "requirements.lock",
+                    "sha256": expected_hash,
+                    "verify_installed_versions": True,
+                }
+            }
+            original_fstat = runner.os.fstat
+            swapped = False
+
+            def swap_path_after_open(descriptor):
+                nonlocal swapped
+                metadata = original_fstat(descriptor)
+                if not swapped:
+                    lock.replace(root / "opened-original.lock")
+                    lock.write_text("numpy==0.0.0\n", encoding="utf-8")
+                    swapped = True
+                return metadata
+
+            with (
+                mock.patch.object(runner, "PROJECT_ROOT", root),
+                mock.patch.object(
+                    runner.os,
+                    "fstat",
+                    side_effect=swap_path_after_open,
+                ),
+                mock.patch.object(
+                    runner.importlib_metadata,
+                    "version",
+                    return_value="2.5.1",
+                ),
+            ):
+                evidence = runner.verify_environment_lock(config)
+            self.assertTrue(swapped)
+            assert evidence is not None
+            self.assertEqual(evidence["sha256"], expected_hash)
+            self.assertNotEqual(runner.sha256_file(lock), expected_hash)
+
+    def test_environment_mismatch_stops_before_source_or_waveform_access(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            dataset = self._dataset(root)
+            config = _base_config(str(dataset))
+            _bind_dataset_hashes(config, dataset)
+            _bind_source_hashes(config)
+            config["environment_lock"] = {
+                "path": "experiments/requirements/opendpd_cpu_py312.lock",
+                "sha256": "0" * 64,
+                "verify_installed_versions": True,
+            }
+            config_path = root / "config.json"
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+            loaded = runner.load_config(config_path)
+            with (
+                mock.patch.object(
+                    runner,
+                    "verify_environment_lock",
+                    side_effect=RuntimeError("environment mismatch"),
+                ),
+                mock.patch.object(runner, "verify_source_inputs") as source,
+                mock.patch.object(runner, "load_allowed_split") as loader,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "environment mismatch"):
+                    runner.run_candidate(
+                        loaded,
+                        config_path,
+                        loaded["candidates"][0],
+                        output_dir=root / "output",
+                    )
+                source.assert_not_called()
+                loader.assert_not_called()
+
     def test_test_split_is_rejected_before_path_construction(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "forbidden split"):
             runner.load_allowed_split("/does/not/exist", "test")

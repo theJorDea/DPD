@@ -27,8 +27,10 @@ from __future__ import annotations
 
 import argparse
 import copy
+import errno
 import fcntl
 import hashlib
+import importlib.metadata as importlib_metadata
 import io
 import json
 import os
@@ -36,6 +38,7 @@ from pathlib import Path
 import platform
 import random
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -75,6 +78,9 @@ STATE_FILE_PATTERN = re.compile(
     r"^state_epoch_(?P<epoch>[0-9]{6})_(?P<digest>[0-9a-f]{16})\.pt$"
 )
 JOURNAL_FILE_PATTERN = re.compile(r"^epoch_(?P<epoch>[0-9]{6})\.json$")
+LOCKED_REQUIREMENT_PATTERN = re.compile(
+    r"^(?P<name>[A-Za-z0-9][A-Za-z0-9._-]*)==(?P<version>[^\s;]+)$"
+)
 
 
 def _display_path(path: str | Path) -> str:
@@ -137,6 +143,38 @@ def _validate_git_commit(value: Any, *, label: str) -> str:
     if not isinstance(value, str) or GIT_COMMIT_PATTERN.fullmatch(value) is None:
         raise ValueError(f"{label} must be one full lowercase Git commit ID")
     return value
+
+
+def _validate_environment_lock_config(value: Any) -> None:
+    """Validate optional environment-lock metadata without opening the file."""
+
+    if not isinstance(value, dict):
+        raise ValueError("environment_lock must be an object")
+    expected_keys = {"path", "sha256", "verify_installed_versions"}
+    if set(value) != expected_keys:
+        raise ValueError(
+            "environment_lock must contain exactly path, sha256 and "
+            "verify_installed_versions"
+        )
+    path_value = value["path"]
+    if (
+        not isinstance(path_value, str)
+        or not path_value
+        or "\\" in path_value
+    ):
+        raise ValueError(
+            "environment_lock.path must be a non-empty POSIX repository path"
+        )
+    path = Path(path_value)
+    if path.is_absolute() or path in {Path("."), Path("..")} or ".." in path.parts:
+        raise ValueError(
+            "environment_lock.path must be repository-relative and cannot escape"
+        )
+    _validate_sha256(value["sha256"], label="environment_lock.sha256")
+    if value["verify_installed_versions"] is not True:
+        raise ValueError(
+            "environment_lock.verify_installed_versions must be true"
+        )
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
@@ -281,6 +319,8 @@ def load_config(path: str | Path) -> dict[str, Any]:
         raise ValueError("runner currently reproduces only AdamW + MSE")
     if value.get("selection_metric") != "validation_opendpd_nmse_db":
         raise ValueError("checkpoint selection metric must be validation NMSE")
+    if "environment_lock" in value:
+        _validate_environment_lock_config(value["environment_lock"])
     source = value.get("source")
     if not isinstance(source, dict):
         raise ValueError("config.source must be an object")
@@ -301,6 +341,157 @@ def load_config(path: str | Path) -> dict[str, Any]:
         _validate_source_name(name)
         _validate_sha256(digest, label=f"source.files_sha256[{name!r}]")
     return value
+
+
+def _normalize_distribution_name(name: str) -> str:
+    """Return the PEP 503 comparison form used for locked distributions."""
+
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def _read_regular_file_beneath_project(relative_path: Path) -> bytes:
+    """Read one regular repository file through no-follow directory handles."""
+
+    if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+        raise RuntimeError(
+            "sealed environment-lock verification requires O_NOFOLLOW "
+            "and O_DIRECTORY"
+        )
+    directory_flags = (
+        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
+    )
+    file_flags = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
+    directory_descriptors: list[int] = []
+    file_descriptor: int | None = None
+    try:
+        directory_descriptors.append(os.open(PROJECT_ROOT, directory_flags))
+        for component in relative_path.parts[:-1]:
+            directory_descriptors.append(
+                os.open(
+                    component,
+                    directory_flags,
+                    dir_fd=directory_descriptors[-1],
+                )
+            )
+        file_descriptor = os.open(
+            relative_path.parts[-1],
+            file_flags,
+            dir_fd=directory_descriptors[-1],
+        )
+        metadata = os.fstat(file_descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("environment lock must be one regular file")
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(file_descriptor, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        return b"".join(chunks)
+    except OSError as error:
+        if error.errno in {errno.ELOOP, errno.ENOTDIR}:
+            raise ValueError(
+                "each environment_lock.path component must be a real "
+                "non-symlink directory or file"
+            ) from error
+        raise
+    finally:
+        if file_descriptor is not None:
+            os.close(file_descriptor)
+        for descriptor in reversed(directory_descriptors):
+            os.close(descriptor)
+
+
+def verify_environment_lock(
+    config: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Verify the optional requirements lock and every listed package version.
+
+    Extra installed distributions are allowed because the editable ``opendpd``
+    package is imported from the separately hash-bound vendored source tree.
+    Every distribution named by the lock, however, must be present at exactly
+    the recorded version before source or waveform data are accessed.
+    """
+
+    value = config.get("environment_lock")
+    if value is None:
+        return None
+    _validate_environment_lock_config(value)
+    relative_path = Path(str(value["path"]))
+    payload = _read_regular_file_beneath_project(relative_path)
+    actual_hash = hashlib.sha256(payload).hexdigest()
+    expected_hash = str(value["sha256"])
+    if actual_hash != expected_hash:
+        raise RuntimeError(
+            "environment lock SHA-256 mismatch: "
+            f"expected {expected_hash}, found {actual_hash}"
+        )
+    try:
+        lines = payload.decode("utf-8").splitlines()
+    except UnicodeDecodeError as error:
+        raise ValueError("environment lock must be UTF-8 text") from error
+
+    requirements: dict[str, tuple[str, str]] = {}
+    for line_number, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        match = LOCKED_REQUIREMENT_PATTERN.fullmatch(stripped)
+        if match is None:
+            raise ValueError(
+                "environment lock supports only exact name==version entries; "
+                f"invalid line {line_number}"
+            )
+        declared_name = match.group("name")
+        normalized_name = _normalize_distribution_name(declared_name)
+        if normalized_name in requirements:
+            raise ValueError(
+                "environment lock contains duplicate distribution "
+                f"{normalized_name!r}"
+            )
+        requirements[normalized_name] = (
+            declared_name,
+            match.group("version"),
+        )
+    if not requirements:
+        raise ValueError("environment lock contains no distributions")
+
+    inventory: dict[str, dict[str, str]] = {}
+    mismatches: list[str] = []
+    for normalized_name in sorted(requirements):
+        declared_name, expected_version = requirements[normalized_name]
+        try:
+            actual_version = importlib_metadata.version(declared_name)
+        except importlib_metadata.PackageNotFoundError:
+            mismatches.append(
+                f"{declared_name}: expected {expected_version}, not installed"
+            )
+            continue
+        inventory[normalized_name] = {
+            "declared_name": declared_name,
+            "expected_version": expected_version,
+            "installed_version": actual_version,
+        }
+        if actual_version != expected_version:
+            mismatches.append(
+                f"{declared_name}: expected {expected_version}, "
+                f"found {actual_version}"
+            )
+    if mismatches:
+        raise RuntimeError(
+            "installed environment does not match lock: " + "; ".join(mismatches)
+        )
+
+    return {
+        "path": relative_path.as_posix(),
+        "sha256": actual_hash,
+        "verify_installed_versions": True,
+        "locked_distribution_count": len(requirements),
+        "installed_locked_distributions": inventory,
+        "installed_locked_inventory_sha256": sha256_json(inventory),
+        "extra_installed_distributions_permitted": True,
+        "verified_before_source_and_waveform_access": True,
+    }
 
 
 def _validate_candidate(candidate: Any) -> None:
@@ -1038,6 +1229,7 @@ def _build_resume_contract(
     candidate: Mapping[str, Any],
     *,
     output: Path,
+    environment: Mapping[str, Any] | None,
     source: Mapping[str, Any],
     dataset_dir: Path,
     dataset_hashes: Mapping[str, str],
@@ -1064,6 +1256,9 @@ def _build_resume_contract(
             "files_sha256": dict(dataset_hashes),
             "test_file_hashes_recorded": False,
         },
+        "environment_lock": (
+            None if environment is None else dict(environment)
+        ),
         "source": dict(source),
         "recipe": {
             "requested_epochs": int(requested_epochs),
@@ -1626,6 +1821,7 @@ def _run_candidate_locked(
         raise RuntimeError(
             "run_candidate config mapping differs from its bound config file"
         )
+    environment = verify_environment_lock(config)
     source = verify_source_inputs(config)
     dataset_dir, dataset_hashes = verify_allowed_inputs(config, config_path)
 
@@ -1653,6 +1849,7 @@ def _run_candidate_locked(
         config_path,
         candidate,
         output=output,
+        environment=environment,
         source=source,
         dataset_dir=dataset_dir,
         dataset_hashes=dataset_hashes,
@@ -1919,6 +2116,12 @@ def _run_candidate_locked(
         raise RuntimeError(
             "config changed during OpenDPD training; final publication aborted"
         )
+    final_environment = verify_environment_lock(config)
+    if final_environment != environment:
+        raise RuntimeError(
+            "environment-lock provenance changed during OpenDPD training; "
+            "final publication aborted"
+        )
     final_source = verify_source_inputs(config)
     if final_source != source:
         raise RuntimeError(
@@ -1975,6 +2178,7 @@ def _run_candidate_locked(
             "files_sha256": dataset_hashes,
             "test_file_hashes_recorded": False,
         },
+        "environment_lock": environment,
         "source": source,
         "candidate": dict(candidate),
         "model": {

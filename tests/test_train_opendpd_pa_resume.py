@@ -552,6 +552,14 @@ class OpenDPDResumeIntegrationTests(unittest.TestCase):
             },
             "candidates": [candidate],
             "selection_metric": "validation_opendpd_nmse_db",
+            "environment_lock": {
+                "path": "experiments/requirements/opendpd_cpu_py312.lock",
+                "sha256": runner.sha256_file(
+                    runner.PROJECT_ROOT
+                    / "experiments/requirements/opendpd_cpu_py312.lock"
+                ),
+                "verify_installed_versions": True,
+            },
         }
         config["source"] = {
             "opendpd_commit": subprocess.check_output(
@@ -661,6 +669,15 @@ class OpenDPDResumeIntegrationTests(unittest.TestCase):
             self.assertEqual(
                 resumed_report["resume"]["session_count_observed_in_journal"],
                 2,
+            )
+            environment = resumed_report["environment_lock"]
+            self.assertEqual(environment["locked_distribution_count"], 28)
+            run_manifest = json.loads(
+                (resumed / runner.RESUME_MANIFEST).read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                run_manifest["resume_contract"]["environment_lock"],
+                environment,
             )
 
             uninterrupted_state = torch.load(
@@ -832,6 +849,82 @@ class OpenDPDResumeIntegrationTests(unittest.TestCase):
                 output_dir=output,
                 resume=True,
             )
+            self.assertEqual(
+                report["resume"]["resumed_from_completed_epochs"],
+                2,
+            )
+            self.assertTrue((output / "completion_manifest.json").is_file())
+
+    def test_environment_change_aborts_and_resume_requires_original_evidence(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config, config_path = self._training_case(root)
+            candidate = config["candidates"][0]
+            output = root / "environment-change"
+            original = runner.verify_environment_lock(config)
+            assert original is not None
+            changed = copy.deepcopy(original)
+            changed["installed_locked_inventory_sha256"] = "f" * 64
+
+            with mock.patch.object(
+                runner,
+                "verify_environment_lock",
+                side_effect=[original, changed],
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "environment-lock provenance changed",
+                ):
+                    runner.run_candidate(
+                        config,
+                        config_path,
+                        candidate,
+                        output_dir=output,
+                    )
+
+            self.assertFalse((output / "training_report.json").exists())
+            self.assertFalse((output / "completion_manifest.json").exists())
+            self.assertTrue(
+                (
+                    output
+                    / runner.RESUME_DIRECTORY
+                    / runner.RESUME_JOURNAL_DIRECTORY
+                    / "epoch_000002.json"
+                ).is_file()
+            )
+
+            with mock.patch.object(
+                runner,
+                "verify_environment_lock",
+                return_value=changed,
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "resume contract mismatch",
+                ):
+                    runner.run_candidate(
+                        config,
+                        config_path,
+                        candidate,
+                        output_dir=output,
+                        resume=True,
+                    )
+
+            with mock.patch.object(
+                runner,
+                "verify_environment_lock",
+                return_value=original,
+            ):
+                report = runner.run_candidate(
+                    config,
+                    config_path,
+                    candidate,
+                    output_dir=output,
+                    resume=True,
+                )
+            self.assertEqual(report["environment_lock"], original)
             self.assertEqual(
                 report["resume"]["resumed_from_completed_epochs"],
                 2,
