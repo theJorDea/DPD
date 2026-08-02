@@ -1,6 +1,6 @@
 # Implementation notes
 
-Дата среза: 2026-07-30.
+Дата среза: 2026-08-03.
 
 ## 1. Repository layout and dependency policy
 
@@ -470,15 +470,80 @@ report zero saturation in all evaluated rows.  APA 16-bit GMP/sparse
 fixed-vs-float validation degradation is below −64 dB, APA 12-bit GMP
 degrades to about −36.4 dB, and DPA 12-bit GMP remains about −52.5 dB.  The
 sparse schedule reports six integer divisions explicitly; reciprocal-multiply
-hardware must account for them.  Host timings are not target latency, and no
-fixed-point DPD cascade is implemented yet.
+hardware must account for them. Host timings are not target latency. The separate
+fixed-point spline-memory DPD cascade is implemented as described below; it does
+not convert PA-evaluator arithmetic into physical-PA evidence.
+
+### 3.10 Fixed-point spline-memory DPD and one-command surrogate demo
+
+`baseline/fixed_point_spline_memory_dpd.py` implements the selected
+three-branch phase-equivariant DPD as deterministic signed-integer arithmetic.
+`experiments/evaluate_fixed_point_dpd.py` freezes formats from train-only desired
+input, floating DPD train drive and coefficients, then evaluates 16/14/12-bit
+validation without adapting scales, topology or precision. It writes float/fixed
+waveforms and a completion manifest; the frozen PA surrogate remains floating so
+the report isolates DPD arithmetic degradation.
+
+`experiments/run_surrogate_demo.py` is the presentation/reproduction wrapper
+added in `a385635` and hardened in `b982266`. Run it with a new output path:
+
+```bash
+DPD_DEMO_OUTPUT=/tmp/dpd-surrogate-demo-manual
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  -m experiments.run_surrogate_demo --output-root "$DPD_DEMO_OUTPUT"
+```
+
+The wrapper performs no fit or model selection and opens no measured output or
+test split. Its only evaluation direction is
+`desired validation x -> frozen DPD -> frozen legacy PA surrogate`. It verifies
+the frozen config/source/artifact hashes, metric tolerances, operation contracts,
+zero fixed-point saturation/knot collisions, exact configured chunked-streaming
+equivalence and bit-exact 90-degree rotation on the evaluated signals. It
+requires exactly 12 child completion manifests, publishes `summary.json`
+atomically and publishes
+`completion_manifest.json` last. A missing final manifest marks an incomplete
+run; an existing output root is never overwritten.
+
+Compact numerical regression contract:
+
+| Dataset | Float NMSE no DPD -> DPD | Float configured adjacent relative L/R | 12-bit cascade NMSE | 12-bit drive vs float NMSE |
+|---|---:|---:|---:|---:|
+| DPA_200MHz validation | -20.3381 -> -30.5324 dB | +4.7494 / +7.7372 dB | -30.5148 dB | -54.8714 dB |
+| APA_200MHz validation | -19.9688 -> -32.3800 dB | +16.4797 / +13.8639 dB | -32.3790 dB | -53.5984 dB |
+
+The float operation vector is `21 MUL, 24 ADD, 0 DIV, 1 magnitude nonlinear,
+6 LUT, 18 reads, 2 writes, 4 state reals` per complex sample, with `5/3`
+comparisons and `144/48` stored coefficient reals for DPA/APA. The integer
+reference vector is `20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT, 28 reads,
+2 writes, 4 state reals`, again with `5/3` comparisons. These are analytical
+software schedules, not measured customer-equivalent timing.
+
+Targeted sealing command:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  -m unittest tests.test_run_surrogate_demo -v
+```
+
+All **10/10 tests passed** on the current environment. They cover the sealed
+end-to-end run, frozen hashes/claims/tolerances, symlink-safe reads, exact child
+manifest set, output-directory identity/no-overwrite handling, failure marking
+and fixed integrity checks.
+
+The validation data had already participated in historical floating-model
+selection. Therefore this is explicitly `validation_replay_surrogate_only`, not
+untouched final evidence. It does not prove physical-PA or independent-evaluator
+linearization, customer RF harmonic/spur attenuation, OpenDPD superiority,
+Huawei acceptance, target latency/resources/power or that 12 bit is sufficient.
+No precision was selected; Gate A->B remains closed.
 
 ## 5. Tests and invariants
 
-Last complete code suite after sealed OpenDPD runner hardening:
-**272/272 passed in 5.02 s** on the environment in this document. The sparse, transfer
-and fixed-point results are immutable numeric artifacts; no code was changed
-while publishing the numerical report.
+The targeted one-command-demo sealing suite is **10/10 passed** on
+the environment in this document, including the real end-to-end demo. The
+repository-wide count changes as the independent OpenDPD resume work lands and
+is not inferred from this targeted run. The full discovery command below remains
+the acceptance command after any code change.
 Test modules cover:
 
 - gain/delay and frame-safe fractional alignment;
@@ -496,8 +561,12 @@ Test modules cover:
   and shared audit dispatch;
 - release predicates and streaming checks;
 - optional incremental-control gate and bounded lag-9 preregistration contract;
-- existing memoryless spline fixed-point arithmetic/saturation;
+- memoryless and selected spline-memory DPD fixed-point arithmetic,
+  16/14/12-bit format freeze, saturation/collision, phase rotation and
+  configured chunked-streaming equivalence;
 - fixed-point GMP/sparse PA arithmetic, format freeze and no-test runner.
+- one-command surrogate-demo hashes, claim scope, metric tolerances, exact child
+  manifests, output identity/failure semantics and sealed end-to-end execution.
 
 Run after any code change:
 
@@ -561,6 +630,9 @@ The previous 120-test 0.396 s timing is obsolete.
 | `619f680` | preregistered target PA fixed-point config |
 | `62ea00c` | immutable target PA fixed-point result report |
 | `706c0e5` | target quantization benchmark documentation |
+| `91aedae` / `16b736a` / `d649aa1` | sealed spline-memory DPD integer runner and immutable DPA/APA validation bundles |
+| `c88b394` / `d7b72d5` | immutable DPA/APA float plus 16/14/12-bit spectral replay bundles |
+| `a385635` / `b982266` | one-command surrogate demo and hardened artifact sealing |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -585,7 +657,14 @@ experiments/results/pa_transfer_apa200_to_b_test_release_verification.json
 experiments/results/pa_fixed_point_apa200/fixed_point_report.json
 experiments/results/pa_fixed_point_dpa200/fixed_point_report.json
 experiments/results/pa_fixed_point_apa200_b/fixed_point_report.json
+experiments/results/dpd_fixed_point_dpa200_validation/
+experiments/results/dpd_fixed_point_apa200_validation/
+experiments/results/dpd_fixed_point_{dpa200,apa200}_spectrum_{float,16bit,14bit,12bit}_validation/
 ```
+
+The one-command wrapper writes its sealed bundle to the caller-supplied fresh
+output root; no machine-specific demo output path is a normative repository
+artifact.
 
 Normative documents:
 
@@ -613,9 +692,12 @@ Normative documents:
 7. Peak RSS was not measured for formal fits.
 8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
    generated yet.
-9. DPA/APA source and target-calibrated APA-B GMP/sparse payloads now have a
-   16/14/12-bit integer report; spline-memory DPD and PA→DPD cascade remain
-   pending. PA cost is not checked against the deployment DPD timing gate.
+9. DPA/APA source and target-calibrated APA-B GMP/sparse payloads and the
+   selected DPA/APA spline-memory DPD now have 16/14/12-bit integer reports.
+   The DPD result is still a reused-validation replay through a frozen legacy
+   surrogate; an independent evaluator/physical-PA integer cascade and target
+   timing remain pending. PA cost is not checked against the deployment DPD
+   timing gate.
 10. No controlled power/temperature captures or physical predistorted output.
 11. Gate A→B remains closed; existing DPD is surrogate-only.
 12. Checked APA short conjugate supports failed the 0.1 dB OOF threshold;
@@ -672,5 +754,6 @@ slow-state evidence exists.
 2. Complete full validation-quality training of the preregistered OpenDPD PA
    evaluator; sealed CPU runner/config and bounded runtime preflight are done.
 3. Record provenance for `APA_200MHz_b` and obtain controlled physical-PA data.
-4. Implement the fixed-point spline-memory DPD and evaluate the correct
-   desired-x→DPD→independent-PA cascade only after Gate A→B is reopened.
+4. Retain the completed fixed-point spline-memory DPD as a numerical regression
+   reference; evaluate `desired x -> DPD -> independent PA evaluator/physical
+   PA` only after Gate A→B is reopened.

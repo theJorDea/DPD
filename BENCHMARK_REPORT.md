@@ -1,6 +1,6 @@
 # Benchmark report
 
-Дата среза: 2026-07-30.
+Дата среза: 2026-08-03.
 
 Requirement correction: the 1000-real-MUL-equivalent time budget applies only
 to deployment DPD, not to PA models in this report. The completed strict
@@ -19,9 +19,13 @@ low-latency DPD, проверенный через независимый frozen
 measured x -> frozen PA model -> y_hat -> compare with measured y
 ```
 
-Новый DPD-through-GMP cascade, physical PA experiment и timed DPD hardware
-implementation не выполнялись. DPA/APA GMP и APA sparse PA arithmetic уже
-проверены при 16/14/12 bit, но это evaluator-numerics evidence, не DPD timing.
+Воспроизводимый validation-only spline-memory DPD demo и его
+16/14/12-bit integer replay выполнены в правильном направлении
+`desired x -> frozen DPD -> frozen legacy PA surrogate`. Новый cascade
+через независимый GMP/OpenDPD evaluator, physical PA experiment и timed
+DPD hardware implementation не выполнялись. DPA/APA GMP и APA sparse PA
+arithmetic также проверены при 16/14/12 bit, но это
+evaluator-numerics evidence, не DPD timing.
 APA standalone SPH и первый non-factorized sparse
 forward run были недостаточно точными для замены GMP; bounded lag-9 sparse run
 впервые прошёл cheap-Pareto gate относительно MP, но всё ещё уступил GMP.
@@ -354,7 +358,69 @@ are analytical factorized schedules, not FPGA resource measurements.
 Peak RSS was not measured. The host throughput is far below 800/983.04
 MSample/s and does not represent a factorized FPGA implementation.
 
-## 9. Legacy DPD benchmark: surrogate only
+## 9. Reproducible DPD surrogate demo
+
+### 9.1 One-command frozen validation replay
+
+Коммиты `a385635` и `b982266` добавили и затем усилили одну
+sealed точку запуска. `DPD_DEMO_OUTPUT` должен указывать на ещё не
+существующий каталог; runner намеренно не перезаписывает артефакты.
+
+```bash
+DPD_DEMO_OUTPUT=/tmp/dpd-surrogate-demo-manual
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  -m experiments.run_surrogate_demo --output-root "$DPD_DEMO_OUTPUT"
+```
+
+Команда не обучает и не выбирает модель. Она проверяет хеши
+конфигов, кода, waveform inputs и frozen artifacts, запускает float и
+16/14/12-bit paths для DPA и APA, а затем публикует `summary.json` и
+`completion_manifest.json`. Путь оценки жёстко зафиксирован как
+`desired validation x -> frozen DPD -> frozen PA surrogate`; measured PA output
+и test split не открываются.
+
+| Dataset | Float NMSE no DPD -> DPD | Configured adjacent relative improvement L/R | Main-power change | Peak / PAPR |
+|---|---:|---:|---:|---:|
+| DPA_200MHz validation | -20.3381 -> -30.5324 dB | +4.7494 / +7.7372 dB | -0.0515 dB | 1.1926 / 10.4690 dB |
+| APA_200MHz validation | -19.9688 -> -32.3800 dB | +16.4797 / +13.8639 dB | -0.0414 dB | 1.0615 / 10.5835 dB |
+
+Пример 12-bit preservation: DPA cascade NMSE `-30.5148 dB`,
+fixed-vs-float drive NMSE `-54.8714 dB` и configured absolute suppression
+left/right `4.7819/7.6921 dB`; APA соответственно `-32.3790 dB`,
+`-53.5984 dB` и `16.3691/13.9821 dB`. Все шесть integer rows имеют
+нулевые saturation/knot-collision counters, exact configured
+chunked-streaming equivalence и bit-exact 90-degree rotation на проверенных
+signals. Precision не выбиралась.
+
+Аналитический float operation vector на complex sample: `21 MUL, 24 ADD,
+0 DIV, 1 magnitude nonlinear, 6 LUT, 18 reads, 2 writes, 4 state reals`;
+comparisons `5/3` и stored coefficient reals `144/48` для DPA/APA.
+Integer reference: `20 MUL, 25 ADD, 1 DIV, 1 integer sqrt, 8 LUT, 28 reads,
+2 writes, 4 state reals`; comparisons также `5/3`. Эти vectors не
+заменяют target timing.
+
+Целевой sealing suite:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  -m unittest tests.test_run_surrogate_demo -v
+```
+
+На текущем environment все **10/10 tests passed**, включая end-to-end
+run, hash/tolerance contracts, symlink/no-follow defense, exact набор из 12 child
+completion manifests, output-identity/no-overwrite guards и отсутствие final
+manifest у незавершённого run.
+
+### 9.2 Evidence boundary
+
+Validation уже участвовала в историческом выборе floating model. Поэтом demo
+— это воспроизводимая `validation_replay_surrogate_only` демонстрация, а
+не untouched final evidence. Она не доказывает physical-PA linearization,
+customer-defined RF harmonic/spur attenuation, превосходство над
+OpenDPD, Huawei acceptance, target FPGA/ASIC latency/resources/power или
+достаточность 12 bit. Gate A->B остаётся закрыт.
+
+### 9.3 Historical legacy-test replay: surrogate only
 
 Best old spline branch was `signal_delay_012`, evaluated through an old MP PA
 surrogate:
@@ -399,8 +465,9 @@ Current status:
 | First-stage memoryless spline FP16/16/12 numerical emulation | completed, surrogate-only, not selected spline-memory DPD |
 | Selected source PA 16/14/12 bit | completed for DPA/APA GMP and APA lag-9 sparse; train/validation only |
 | Target-calibrated APA-B PA 16/14/12 bit | completed for hash-bound GMP/sparse payloads; train/validation only, no target test access |
-| Selected spline-memory DPD 16/14/12 bit | not run |
-| GMP→DPD integer cascade | not run |
+| Selected spline-memory DPD 16/14/12 bit | completed on reused validation; frozen legacy surrogate only, no precision selected |
+| Integer DPD → frozen legacy PA-surrogate cascade | completed for DPA/APA; zero saturation/collision and exact streaming on evaluated signals |
+| Integer DPD → independent GMP/OpenDPD evaluator or physical PA | not run |
 | APA_200MHz_b capture transfer/adaptation | held-out release completed; access count 2 with first metric-free failure; metadata axes unknown |
 | FPGA/ASIC synthesis and latency/throughput | not run |
 | Physical predistorted PA measurement | not available |
