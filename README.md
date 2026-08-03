@@ -1,69 +1,72 @@
-# Low-complexity phase-equivariant Digital Predistortion
+# Фазово-эквивариантное цифровое предыскажение низкой вычислительной сложности
 
-В проекте разработан дешёвый причинный `spline-memory DPD`, проведён аудит
-OpenDPD и reservoir-подхода Егора, построен воспроизводимый evaluation
-pipeline и реализован bit-accurate software reference для 16/14/12-bit
-inference.
+В проекте разработан вычислительно дешёвый причинный DPD на сплайнах с
+памятью, проведён аудит OpenDPD и подхода Егора на основе резервуарных
+вычислений, построена воспроизводимая процедура оценки и реализован
+побитово точный программный эталон для 16/14/12-разрядных вычислений с
+фиксированной точкой.
 
 > Главный результат текущего этапа: правильный
-> `desired x -> DPD -> frozen PA surrogate -> y_hat; compare with g*x` тракт
-> использует в deployed DPD core **21 real MUL + 24 real ADD + 1 magnitude +
-> 6 LUT accesses на complex sample** и воспроизводимо уменьшает
-> surrogate cascade error и мощность в заранее заданных adjacent regions.
+> `желаемый x -> DPD -> зафиксированная модель PA -> y_hat; сравнение с g*x`
+> использует в рабочем ядре DPD **21 вещественное умножение + 24
+> вещественных сложения + 1 вычисление модуля + 6 обращений к LUT на
+> комплексный отсчёт** и воспроизводимо уменьшает ошибку каскада на
+> модели PA и мощность в заранее заданных соседних областях спектра.
 > Это ещё не измерение на физическом PA и не заявление о соответствии Huawei.
 
 ## Статус за 30 секунд
 
 | Компонент | Статус | Что это означает |
 |---|---|---|
-| Method, audit, code | ✅ готово | Реализован и протестирован phase-equivariant spline-memory fast path |
-| One-command surrogate demo | ✅ готово | Fresh clone воспроизводит frozen validation results и hashes |
-| Correct DPD direction | ✅ проверено | Вход DPD — desired signal `x`, а не измеренный `y_test` |
-| Streaming inference | ✅ software reference | Проверена exact configured chunk equivalence с явным state |
-| Fixed-point 16/14/12 bit | ✅ software reference | Bit-accurate integer arithmetic, saturation counters и phase checks |
-| Physical PA replay | ⛔ не выполнено | Predistorted waveform ещё не измерен на одном calibrated DUT |
-| Huawei harmonic/spur gate | ⛔ definition отсутствует | Не заданы RF bands, reference, threshold и measurement protocol |
-| 1000-MUL-equivalent timing | ⛔ target отсутствует | Analytical count есть, но нет customer reference kernel/FPGA timing |
-| Better than OpenDPD | ⛔ не доказано | Нет единого physical PA или общего frozen evaluator для двух DPD |
+| Метод, аудит и код | ✅ готово | Реализован и протестирован фазово-эквивариантный быстрый тракт DPD на сплайнах с памятью |
+| Демонстрация одной командой | ✅ готово | Новая копия репозитория воспроизводит зафиксированные результаты на проверочной выборке и контрольные суммы |
+| Корректное направление DPD | ✅ проверено | Вход DPD — желаемый сигнал `x`, а не измеренный `y_test` |
+| Потоковое вычисление | ✅ программный эталон | Проверено точное совпадение при разбиении на заданные блоки с явным состоянием |
+| Фиксированная точка, 16/14/12 бит | ✅ программный эталон | Побитово точная целочисленная арифметика, счётчики насыщения и проверки фазы |
+| Проверка на физическом PA | ⛔ не выполнена | Сигнал после DPD ещё не измерен на одном откалиброванном испытуемом усилителе |
+| Спектральный критерий Huawei | ⛔ определения нет | Не заданы полосы РЧ, опорный уровень, порог и процедура измерения |
+| Временной эквивалент 1000 MUL | ⛔ эталона нет | Аналитический подсчёт есть, но нет эталонного ядра заказчика и измерения времени на FPGA |
+| Превосходство над OpenDPD | ⛔ не доказано | Нет единого физического PA или общей зафиксированной модели PA для двух DPD |
 
 ## Как работает модель
 
-![Animated DPD overview](docs/assets/presentation/dpd_overview.gif)
+![Анимация работы DPD](docs/assets/presentation/dpd_overview.gif)
 
-Animation переключает только реально сохранённые состояния:
+Анимация переключает только реально сохранённые состояния:
 
 ```text
-DPA: no DPD -> float spline DPD -> 12-bit spline DPD
-APA: no DPD -> float spline DPD -> 12-bit spline DPD
+DPA: без DPD -> сплайновый DPD с плавающей точкой -> 12-разрядный сплайновый DPD
+APA: без DPD -> сплайновый DPD с плавающей точкой -> 12-разрядный сплайновый DPD
 ```
 
-Это **не animation обучения по epochs**. Spline coefficients получаются
-закрытым complex ridge/least-squares решением, а представленные кадры читаются
-из frozen validation artifacts. На всех PSD используется общая reference
-power; каждая кривая не нормируется независимо.
+Это **не анимация обучения по эпохам**. Коэффициенты сплайна получаются
+аналитическим комплексным решением задачи наименьших квадратов с гребневой регуляризацией,
+а кадры читаются из зафиксированных данных проверочной выборки. На всех PSD
+используется общая опорная мощность; каждая кривая не нормируется независимо.
 
 Четыре панели показывают:
 
-- `AM/AM` — насколько PA и cascade изменяют amplitude;
-- `AM/PM` — phase error относительно ideal complex gain;
-- `PSD` — spectral regrowth и изменение в configured adjacent regions;
-- `time-domain tracking` — приближение выхода cascade к desired waveform.
+- `AM/AM` — насколько PA и каскад изменяют амплитуду;
+- `AM/PM` — фазовая ошибка относительно идеального комплексного усиления;
+- `PSD` — расширение спектра и изменение мощности в заданных соседних областях;
+- `отслеживание желаемого сигнала во времени` — приближение выхода каскада к желаемому сигналу.
 
-Constellation намеренно не показана: raw complex OFDM samples образуют I/Q
-cloud, но без зафиксированного validation-only demodulation contract это не
-является корректной QAM constellation.
+Диаграмма сигнального созвездия намеренно не показана: исходные комплексные отсчёты
+OFDM образуют облако I/Q, но без зафиксированного протокола демодуляции для проверочной
+выборки это не является корректной QAM-диаграммой.
 
-Короткий словарь evidence labels:
+Короткий словарь уровней доказательности:
 
-- `frozen surrogate` — зафиксированная и не дообучаемая программная модель PA;
-- `reused validation` — validation split уже участвовал в историческом выборе
-  float model, поэтому не считается untouched final test;
-- `adjacent region` — заранее заданная соседняя baseband frequency band, а не
-  автоматически настоящая RF harmonic около `2fc` или `3fc`.
+- `зафиксированная модель PA` — программная модель, которая больше не дообучается;
+- `повторно использованная проверочная выборка` — эта выборка уже участвовала в
+  историческом выборе модели с плавающей точкой, поэтому не считается независимым
+  итоговым тестом;
+- `соседняя область` — заранее заданная соседняя полоса частот основной полосы, а не
+  автоматически настоящая гармоника РЧ около `2fc` или `3fc`.
 
 ## 1. Физическая задача
 
-Исходный complex baseband signal:
+Исходный комплексный сигнал основной полосы:
 
 $$
 x[n] = I[n] + jQ[n].
@@ -75,55 +78,54 @@ $$
 y_{ideal}[n] = g x[n],
 $$
 
-но реальный усилитель добавляет AM/AM, AM/PM, nonlinear distortion, spectral
-regrowth и memory effects. Deployed path должен быть таким:
+но реальный усилитель добавляет AM/AM, AM/PM, нелинейные искажения, расширение
+спектра и эффекты памяти. Рабочий тракт должен быть таким:
 
 ```text
-desired x[n] -> DPD -> z[n] -> physical PA -> y[n] ~= g*x[n]
+желаемый x[n] -> DPD -> z[n] -> физический PA -> y[n] ~= g*x[n]
 ```
 
-Принципиально неправильной final-проверкой является circular reconstruction:
+Принципиально неправильной итоговой проверкой является круговая реконструкция:
 
 ```text
-measured y_test/g -> inverse model -> estimated PA input
-                  -> PA surrogate -> reconstruct measured y_test
+измеренный y_test/g -> обратная модель -> оценка входа PA
+                            -> модель PA -> реконструкция измеренного y_test
 ```
 
-Она проверяет согласованность inverse и forward models на уже известном
-`y_test`, но не доказывает linearization нового desired signal. Наш основной
-DPD evaluator такой circular path не использует.
+Она проверяет согласованность обратной и прямой моделей на уже известном `y_test`, но не
+доказывает линеаризацию нового желаемого сигнала. Наш основной оценочный тракт DPD не использует
+такую круговую схему.
 
 ## 2. Что известно о требованиях Huawei
 
 По переданному уточнению научного руководителя подтверждено следующее:
 
-1. Ограничение относится только к deployed DPD, а не к вспомогательному PA
-   model/evaluator.
-2. Основной quality criterion — attenuation паразитных harmonics/spurs после
-   физического cascade `desired x -> DPD -> PA`.
-3. «1000 real multiplications» — equivalent-time budget. Все MUL, ADD, DIV,
-   nonlinear operations, LUT и memory traffic вместе должны выполняться не
-   дольше customer reference из 1000 умножений.
-4. Формула `E(f) < 10^-5` и формулы моделей на исходных slides являются
-   иллюстративными и не используются как active acceptance gate.
+1. Ограничение относится только к рабочему DPD, а не к вспомогательной модели PA.
+2. Основной критерий качества — подавление паразитных гармоник и спектральных составляющих после
+   физического каскада `желаемый x -> DPD -> PA`.
+3. «1000 вещественных умножений» — временной эквивалент. Все умножения, сложения,
+   деления, нелинейные операции, обращения к LUT и памяти вместе должны выполняться не
+   дольше эталона заказчика из 1000 умножений.
+4. Формула `E(f) < 10^-5` и формулы моделей на исходных слайдах являются иллюстративными и не
+   используются как действующий критерий приёмки.
 
-Отдельно на предоставленных slides, которые не являются полной Huawei
-specification, сформулированы strong nonlinear/memory modeling, удобство
-real-time coefficient calculation, public self-verification и затем проверка
-на real-world service data.
+Отдельно на предоставленных слайдах, которые не являются полным техническим заданием Huawei,
+сформулированы способность моделировать сильную нелинейность с памятью, расчёт коэффициентов
+в реальном времени, самопроверка на открытых данных и затем проверка на эксплуатационных данных.
 
 Пока неизвестны:
 
-- что именно заказчик называет «harmonics»: компоненты около `2fc/3fc`,
-  intermodulation, adjacent-channel regrowth или emission-mask violations;
-- exact RF integration bands, RBW/FFT/window, dBc reference и threshold;
-- DUT, carrier, bandwidth, power/backoff, waveform и required robustness axes;
-- target FPGA/DSP/ASIC, clock, throughput, maximum latency и word lengths;
-- reference implementation для 1000-MUL-equivalent timing;
-- допустимое число calibration samples и update interval.
+- что именно заказчик называет «гармониками»: компоненты около `2fc/3fc`, интермодуляция,
+  расширение соседнего канала или нарушение спектральной маски;
+- точные полосы интегрирования РЧ, RBW/FFT/окно, опорный уровень dBc и порог;
+- испытуемый усилитель, несущая, ширина полосы, мощность/отступ от насыщения, форма сигнала и
+  условия проверки устойчивости;
+- целевая FPGA/DSP/ASIC, тактовая частота, пропускная способность, максимальная задержка и разрядности;
+- эталонная реализация для временного эквивалента 1000 MUL;
+- допустимое число калибровочных отсчётов и период обновления.
 
-Поэтому текущие left/right numbers называются **configured complex-baseband
-adjacent-region diagnostics**, а не Huawei RF-harmonic certification.
+Поэтому текущие числа для левой и правой областей называются **диагностикой в заданных соседних
+областях комплексного сигнала основной полосы**, а не сертификацией Huawei по гармоникам РЧ.
 
 Полная матрица: [`REQUIREMENTS.md`](REQUIREMENTS.md).
 
@@ -131,30 +133,30 @@ adjacent-region diagnostics**, а не Huawei RF-harmonic certification.
 
 Проект разделяет две разные инженерные задачи.
 
-### Contour A — PA system identification
+### Контур A — идентификация PA
 
 ```text
-measured PA input x -> PA model -> y_hat
-measured PA output y ----------------^ compare
+измеренный вход PA x -> модель PA -> y_hat
+измеренный выход PA y ---------------------^ сравнение
 ```
 
-PA model нужен как auxiliary evaluator и training instrument. На него не
-распространяется DPD timing gate. Приоритеты здесь — fidelity, независимость и
-правильный ranking DPD candidates.
+Модель PA нужна как вспомогательное средство оценки и обучения. На неё не распространяется
+временное ограничение DPD. Приоритеты здесь — точность, независимость и правильное ранжирование
+кандидатов DPD.
 
-### Contour B — deployed predistortion
+### Контур B — рабочее цифровое предыскажение
 
 ```text
-desired x -> low-latency DPD -> frozen independent evaluator / physical PA
-          -> compare output with g*x and customer spectral mask
+желаемый x -> DPD с малой задержкой -> зафиксированная независимая модель / физический PA
+             -> сравнение выхода с g*x и спектральной маской заказчика
 ```
 
-Именно Contour B принят как рабочая конечная задача проекта по уточнению
-научного руководителя. Полной официальной Huawei specification у проекта нет.
+Именно контур B принят как рабочая конечная задача проекта по уточнению научного руководителя.
+Полного официального технического задания Huawei у проекта нет.
 
-## 4. Предложенная architecture
+## 4. Предлагаемая архитектура
 
-### Fast path — реализован
+### Быстрый тракт — реализован
 
 Текущая причинная трёхветвевая модель:
 
@@ -162,275 +164,263 @@ $$
 z[n] = \sum_{m \in \{0,1,2\}} x[n-m] C_m(|x[n]|),
 $$
 
-где каждая $C_m(r)$ — complex piecewise-linear spline с quantile knots.
+где каждая $C_m(r)$ — комплексный кусочно-линейный сплайн с квантильными узлами.
 
 Основные свойства:
 
-- на sample активны только две соседние basis functions;
-- amplitude и phase корректируются одним complex coefficient field;
-- отдельные произвольные I/Q networks не требуются;
-- local support хорошо отображается в LUT/interpolator;
-- обучение coefficients — convex complex least squares/ridge;
-- state — короткая explicit delay line;
-- inference причинный и streaming-compatible;
-- структура сохраняет phase equivariance:
+- на отсчёте активны только две соседние базисные функции;
+- амплитуда и фаза корректируются одним комплексным полем коэффициентов;
+- отдельные произвольные сети для I/Q не требуются;
+- локальная поддержка удобно реализуется с помощью LUT и интерполятора;
+- обучение коэффициентов — выпуклая комплексная задача наименьших квадратов с гребневой регуляризацией;
+- состояние — короткая явная линия задержки;
+- вычисление причинное и подходит для потоковой обработки;
+- структура сохраняет фазовую эквивариантность:
 
 $$
 D(xe^{j\phi}) = D(x)e^{j\phi}.
 $$
 
-### Slow path — proposed research stage
+### Медленный тракт — предлагаемое исследовательское продолжение
 
 Следующее поколение системы предлагается сделать двухскоростным:
 
 ```text
-sample-rate fast path:
-    desired x -> small spline/GMP DPD -> PA
+быстрый тракт на частоте отсчётов:
+    желаемый x -> малый сплайновый/GMP DPD -> PA
 
-frame/event-rate slow path:
-    observation receiver -> alignment -> residual observer
-    -> recommend one coefficient update or one sparse branch
-    -> shadow spectral validation -> apply / rollback
+медленный тракт по кадрам или событиям:
+    приёмник обратной связи -> выравнивание -> анализ остаточной ошибки
+    -> предложение одного обновления коэффициентов или одной разреженной ветви
+    -> теневая спектральная проверка -> применение / откат
 ```
 
-`Residual observer/advisor` пока является research proposal, а не частью
-готового demo. Его задача — расходовать дополнительную complexity только на
-структуру ошибки, реально подтверждённую независимым evaluator или physical PA.
+Модуль анализа остаточной ошибки пока является исследовательским предложением, а не частью готовой
+демонстрации. Его задача — расходовать дополнительные вычислительные ресурсы только на структуру ошибки,
+реально подтверждённую независимой моделью оценки или физическим PA.
 
-## 5. Почему fast path использует 21, а не 1000 MUL
+## 5. Почему быстрый тракт использует 21, а не 1000 MUL
 
-1000 MUL — upper timing bound, а не обязательная quota.
+1000 MUL — верхняя граница времени, а не обязательная загрузка.
 
-Текущий 21-MUL core является current low-cost reference point и оставляет
-большой запас для
-evidence-based extensions. Слепое расширение до 1000 операций сейчас было бы
+Текущее ядро из 21 умножения является малозатратной отправной точкой и оставляет большой
+запас для дополнений, обоснованных измерениями. Слепое расширение до 1000 операций сейчас было бы
 методологически неверным:
 
-- DPD residual уже близок к ошибке legacy PA surrogate;
-- дополнительная model capacity может exploit surrogate error;
-- complexity не гарантирует улучшение ACLR/spurs;
-- лишние branches могут повысить peak drive/PAPR и ухудшить conditioning;
-- фактический budget включает nonlinear operations и memory traffic.
+- остаточная ошибка DPD уже близка к ошибке прежней модели PA;
+- дополнительная ёмкость модели может подстроиться под ошибку модели PA;
+- рост вычислительных затрат не гарантирует улучшение ACLR и подавление паразитных составляющих;
+- лишние ветви могут повысить пиковую амплитуду возбуждения и PAPR, а также ухудшить обусловленность;
+- фактическое ограничение включает нелинейные операции и обращения к памяти.
 
 План расходования запаса:
 
-| Extension | Предварительная дополнительная стоимость | Когда добавлять |
+| Дополнение | Предварительная дополнительная стоимость | Когда добавлять |
 |---|---:|---|
-| Одна common-envelope spline branch | около 6 MUL/sample | Есть stable residual и PA-sensitivity evidence |
-| Ещё одна selected memory branch | около 6 MUL/sample | Даёт independent spectral improvement |
-| Short complex FIR | около 4–20 MUL/sample | Residual показывает linear frequency-selective memory |
-| Sparse selected GMP groups | около 10–100 MUL/sample | Cross-memory подтверждена validation/physical PA |
-| Tiny phase-equivariant residual NN | около 50–300 MUL/sample | Structured models исчерпаны |
+| Одна сплайновая ветвь с общей огибающей | около 6 MUL/отсчёт | Есть устойчивая остаточная ошибка и подтверждена чувствительность PA |
+| Ещё одна отобранная ветвь памяти | около 6 MUL/отсчёт | Даёт независимо подтверждённое улучшение спектра |
+| Короткий комплексный FIR | около 4–20 MUL/отсчёт | Остаточная ошибка показывает линейную частотно-избирательную память |
+| Разреженные отобранные группы GMP | около 10–100 MUL/отсчёт | Перекрёстная память подтверждена на проверочной выборке или физическом PA |
+| Малая фазово-эквивариантная остаточная нейросеть | около 50–300 MUL/отсчёт | Возможности структурных моделей исчерпаны |
 
-## 6. Воспроизводимый surrogate result
+## 6. Воспроизводимый результат на модели PA
 
-Все результаты этого раздела относятся к historically reused validation split
-и frozen legacy PA surrogate. DPA и APA — разные PA/captures и не смешиваются.
+Все результаты этого раздела относятся к исторически повторно использованной проверочной выборке и
+зафиксированной прежней модели PA. DPA и APA — разные PA и захваты сигнала; они не смешиваются.
 
-| Dataset | No-DPD pooled NMSE | Float-DPD pooled NMSE | Improvement | Adjacent-region improvement L/R |
+| Набор данных | Объединённый NMSE без DPD | Объединённый NMSE с DPD и плавающей точкой | Улучшение | Улучшение в соседних областях, левая/правая |
 |---|---:|---:|---:|---:|
 | DPA_200MHz | -20.338 dB | -30.532 dB | +10.194 dB | +4.749 / +7.737 dB |
 | APA_200MHz | -19.969 dB | -32.380 dB | +12.411 dB | +16.480 / +13.864 dB |
 
-One-command demo сохраняет historical replay contract с four-sample PA
-surrogate warm-up. Fixed-point/presentation protocol ниже использует более
-консервативный six-sample cascade warm-up (`2 DPD + 4 PA`), поэтому для тех же
-float waveforms получает `-30.533/-32.384 dB`. Разница меньше `0.004 dB`, но
-два sealed protocols маркируются отдельно и не переписываются задним числом.
+Демонстрация одной командой сохраняет исторический протокол воспроизведения с прогревом модели PA на
+четырёх отсчётах. Описанный ниже протокол для вычислений с фиксированной точкой и презентации использует более консервативный прогрев
+каскада на шести отсчётах (`2 DPD + 4 PA`), поэтому для тех же сигналов с плавающей точкой получает
+`-30.533/-32.384 dB`. Разница меньше `0.004 dB`, но два зафиксированных протокола маркируются отдельно и не
+переписываются задним числом.
 
-Main-region power изменилась примерно на `-0.052 dB` для DPA и `-0.041 dB`
-для APA. Это важно: spectral improvement не получен простым сильным снижением
-полезной output power.
+Мощность полезной области изменилась примерно на `-0.052 dB` для DPA и `-0.041 dB` для APA. Это важно:
+улучшение спектра не получено простым сильным снижением полезной выходной мощности.
 
-На DPA за пределами заранее определённых adjacent regions blue DPD spectrum не
-везде ниже red no-DPD spectrum. График намеренно это не скрывает: текущий claim
-ограничен выделенными bands и не является утверждением о подавлении всего OOB
-или RF harmonics.
+На DPA за пределами заранее определённых соседних областей синий спектр с DPD не везде ниже красного спектра без DPD.
+График намеренно это не скрывает: текущий вывод ограничен выделенными полосами и не является утверждением о
+подавлении всего внеполосного излучения (OOB) или гармоник РЧ.
 
 <details>
-<summary>Static DPA_200MHz overview</summary>
+<summary>Статический обзор DPA_200MHz</summary>
 
-![DPA overview](docs/assets/presentation/overview_dpa200.png)
+![Обзор DPA](docs/assets/presentation/overview_dpa200.png)
 
 </details>
 
 <details>
-<summary>Static APA_200MHz overview</summary>
+<summary>Статический обзор APA_200MHz</summary>
 
-![APA overview](docs/assets/presentation/overview_apa200.png)
+![Обзор APA](docs/assets/presentation/overview_apa200.png)
 
 </details>
 
-## 7. Fixed-point readiness
+## 7. Готовность к вычислениям с фиксированной точкой
 
-![Fixed-point stability](docs/assets/presentation/fixed_point_stability.png)
+![Устойчивость к фиксированной точке](docs/assets/presentation/fixed_point_stability.png)
 
-Bit-accurate integer reference проверяет input, coefficients, interpolation,
-delay state, accumulators, rounding и saturation.
+Побитово точная целочисленная эталонная реализация проверяет вход, коэффициенты, интерполяцию,
+состояние задержки, накопители, округление и насыщение.
 
-| Format | DPA cascade NMSE | DPA relative adjacent improvement L/R | APA cascade NMSE | APA relative adjacent improvement L/R |
+| Формат | NMSE каскада DPA | Относительное улучшение DPA слева/справа | NMSE каскада APA | Относительное улучшение APA слева/справа |
 |---|---:|---:|---:|---:|
-| float | -30.533 dB | 4.749 / 7.737 dB | -32.384 dB | 16.480 / 13.864 dB |
-| signed 16-bit | -30.532 dB | 4.746 / 7.736 dB | -32.385 dB | 16.470 / 13.865 dB |
-| signed 14-bit | -30.534 dB | 4.742 / 7.725 dB | -32.370 dB | 16.494 / 13.829 dB |
-| signed 12-bit | -30.515 dB | 4.731 / 7.641 dB | -32.379 dB | 16.328 / 13.941 dB |
+| плавающая точка | -30.533 dB | 4.749 / 7.737 dB | -32.384 dB | 16.480 / 13.864 dB |
+| знаковый 16-разрядный | -30.532 dB | 4.746 / 7.736 dB | -32.385 dB | 16.470 / 13.865 dB |
+| знаковый 14-разрядный | -30.534 dB | 4.742 / 7.725 dB | -32.370 dB | 16.494 / 13.829 dB |
+| знаковый 12-разрядный | -30.515 dB | 4.731 / 7.641 dB | -32.379 dB | 16.328 / 13.941 dB |
 
-В этой таблице все cascade NMSE используют одинаковый six-sample
-`DPD + PA surrogate` warm-up, а все spectral columns используют одну и ту же
-relative leakage improvement definition. Поэтому float и integer rows можно
+В этой таблице все NMSE каскада используют одинаковый прогрев на шести отсчётах для
+`DPD + модель PA`, а все столбцы спектральных показателей используют одно и то же определение относительного
+улучшения утечки. Поэтому строки с плавающей и фиксированной точкой можно
 сравнивать между собой.
 
-Для всех шести fixed dataset/format combinations подтверждены:
+Для всех шести сочетаний набора данных и формата с фиксированной точкой подтверждены:
 
-- zero saturation и zero knot-code collision;
-- exact configured chunked-streaming equivalence;
-- bit-exact 90-degree phase-rotation equivariance;
-- bounded peak-drive change.
+- отсутствие насыщения и совпадений кодов узлов;
+- точное совпадение при заданной потоковой обработке блоками;
+- побитово точная фазовая эквивариантность при повороте на 90 градусов;
+- ограниченное изменение пиковой амплитуды возбуждения.
 
-Это software arithmetic evidence. Оно не означает, что 12 bit уже выбраны для
-customer target, и не заменяет RTL/HLS equivalence, synthesis и timing closure.
+Это программное подтверждение арифметики. Оно не означает, что 12 бит уже выбраны для целевой платформы заказчика,
+и не заменяет проверку эквивалентности RTL/HLS, синтез и замыкание временных ограничений.
 
-## 8. Inference cost
+## 8. Вычислительные затраты
 
-Это analytical schedules на один complex sample:
+Это аналитические оценки на один комплексный отсчёт:
 
-| Schedule | MUL | ADD | DIV | Nonlinear | LUT | Compare DPA/APA | Reads/Writes | State |
+| Вариант | MUL | ADD | DIV | Нелинейная операция | LUT | Сравнения DPA/APA | Чтения/записи | Состояние |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Float reference | 21 | 24 | 0 | 1 magnitude | 6 | 5 / 3 | 18 / 2 | 4 reals |
-| Fixed integer | 20 | 25 | 1 | 1 integer sqrt | 8 | 5 / 3 | 28 / 2 | 4 reals |
+| Плавающая точка | 21 | 24 | 0 | 1 модуль | 6 | 5 / 3 | 18 / 2 | 4 скалярные компоненты состояния |
+| Фиксированная точка | 20 | 25 | 1 | 1 целочисленный корень | 8 | 5 / 3 | 28 / 2 | 4 скалярные компоненты состояния |
 
-Хранится 144 real coefficients для DPA и 48 для APA. Parameter count,
-operation count и measured latency публикуются отдельно.
+Хранится 144 вещественных коэффициента для DPA и 48 для APA. Число параметров, число операций и измеренная
+задержка публикуются отдельно.
 
-![Complexity proxy](docs/assets/presentation/complexity_proxy.png)
+![Сравнение вычислительных затрат](docs/assets/presentation/complexity_proxy.png)
 
-График использует audited raw real-MUL count. Для reservoir Егора отдельно
-указаны 1,278 DIV; его ранее использованный normalized proxy равен примерно
-728,622 multiplication-equivalents. Красная линия — только count reference,
-а не pass/fail boundary. GRU дополнительно выполняет sigmoid/tanh и
-state-memory traffic, а target FPGA может выполнять несколько multiplies
+График использует проверенное число вещественных умножений без нормировки. Для резервуара Егора отдельно указаны
+1,278 делений; его ранее использованная нормированная оценка равна примерно 728,622 эквивалентам умножения. Красная
+линия — только опорное число, а не граница приёмки. GRU дополнительно выполняет сигмоидные функции, tanh и обращения к памяти
+состояния, а целевая FPGA может выполнять несколько умножений
 параллельно.
 
-## 9. Сравнение с Егором, OpenDPD и Huawei gate
+## 9. Сравнение с Егором, OpenDPD и критериями Huawei
 
-| Критерий | Наш spline-memory | Egor EnhancedESN_FAN | OpenDPD | Huawei acceptance |
+| Критерий | Наш DPD на сплайнах с памятью | EnhancedESN_FAN Егора | OpenDPD | Приёмка Huawei |
 |---|---|---|---|---|
-| Честный DPD input | Всегда desired `x` | Cells 10/14 circular; cell 11 correct | DLA/ILA evaluation использует desired `x` | Desired waveform |
-| Evidence | Reused validation, frozen legacy surrogate | Learned PA surrogate; mixed diagnostics | Repository surrogate + отдельная physical paper measurement | Physical PA measurement |
-| Correct-direction DPA NMSE | -29.864 dB legacy test; -30.532 dB reused validation | -28.209 dB local notebook-path reproduction; другой gain/evaluator | Canonical table использует другой DPA_160MHz | Не задан как primary gate |
-| Spectrum | Reproducible configured L/R regions | Correct ACLR/EVM отсутствуют; PSD protocol ошибочен | Repository ACLR и physical-paper ACPR | Customer-defined spurs/harmonics |
-| DPD arithmetic/sample | 21 MUL | около 727,344 raw MUL + 1,278 DIV; normalized proxy около 728,622 | GRU-H16 944 MUL; TRes-GRU-H15 около 1058+ MUL | Полный equivalent-time budget |
-| Nonlinear operations | 1 magnitude | 1200 tanh + 64 trig | GRU gates/features | Все входят во время |
-| Streaming | Explicit state, exact chunk checks | `predict()` начинает с zero state | Зависит от backbone; frame resets/right context | Target contract неизвестен |
-| Phase equivariance | Обеспечена архитектурой | Не гарантирована independent random I/Q models | Не гарантирована большинством neural backbones | Не задана, но физически полезна |
-| Fixed point | Bit-accurate 16/14/12-bit software | Отсутствует | Main repo использует partial fake quantization | Target bit-true implementation |
-| Допустимый вывод | Очень дешёвый surrogate Pareto point | Текущий code path не подходит по cost | Главный quality baseline | Ни один локальный метод ещё не прошёл physical gate |
+| Честный вход DPD | Всегда желаемый `x` | Ячейки 10/14 используют круговую схему; ячейка 11 корректна | Оценка DLA/ILA использует желаемый `x` | Желаемая форма сигнала |
+| Основание | Повторно использованная проверочная выборка, зафиксированная прежняя модель PA | Обученная модель PA; смешанные диагностические схемы | Модель PA в репозитории + отдельное измерение статьи на физическом PA | Измерение физического PA |
+| NMSE DPA в корректном направлении | -29.864 dB на прежнем тесте; -30.532 dB на повторно использованной проверочной выборке | -28.209 dB при локальном воспроизведении из блокнота; другой коэффициент усиления и другая модель PA | Эталонная таблица использует другой DPA_160MHz | Не задан как основной критерий |
+| Спектр | Воспроизводимые результаты в заданных левой и правой областях | Корректные ACLR/EVM отсутствуют; протокол PSD ошибочен | ACLR из репозитория и ACPR из измерения статьи | Заданные заказчиком паразитные составляющие/гармоники |
+| Арифметика DPD на отсчёт | 21 MUL | около 727,344 непосредственных MUL + 1,278 DIV; нормированная оценка около 728,622 | GRU-H16: 944 MUL; TRes-GRU-H15: около 1058+ MUL | Полный временной эквивалент |
+| Нелинейные операции | 1 модуль | 1200 tanh + 64 тригонометрические функции | Затворы/признаки GRU | Все входят во время |
+| Потоковое выполнение | Явное состояние, точные проверки блоков | `predict()` начинает с нулевого состояния | Зависит от базовой архитектуры; сбросы между кадрами/правый контекст | Целевой протокол неизвестен |
+| Фазовая эквивариантность | Обеспечена архитектурой | Не гарантирована независимыми случайными моделями I/Q | Не гарантирована большинством нейросетевых архитектур | Не задана, но физически полезна |
+| Фиксированная точка | Побитово точная 16/14/12-разрядная программная реализация | Отсутствует | Основной репозиторий использует частичную имитацию квантования | Целевая побитово точная реализация |
+| Допустимый вывод | Очень малозатратная точка на границе Парето, показанная на модели PA | Текущий путь выполнения кода не подходит по стоимости | Главный эталон качества | Ни один локальный метод ещё не прошёл проверку на физическом PA |
 
 ### Метод Егора
 
-Положительная сторона — convex ridge readout и наличие отдельного
-correct-direction plot. Но основной notebook также использует circular
-`y_test/g -> inverse -> PA surrogate -> y_test` diagnostics.
+Положительная сторона — выходной слой обучается решением выпуклой задачи гребневой регрессии, и есть отдельный график с
+корректным направлением. Но основной блокнот также использует круговую диагностику
+`y_test/g -> обратная модель -> модель PA -> y_test`.
 
 Ключевые ограничения текущего `EnhancedESN_FAN`:
 
-- dense `W @ state`, несмотря на sparse initialization;
-- около 727,344 raw real MUL, 1,278 DIV, 726,152 ADD, 1200 tanh и
-  64 sin/cos на sample; normalized multiplication-equivalent proxy — около
-  728,622;
-- даже идеализированный CSR estimate остаётся около 80,410 MUL/sample;
-- обычный `predict()` сбрасывает hidden state;
-- independent random I/Q models не обеспечивают phase equivariance;
+- плотное умножение `W @ state`, несмотря на разреженную инициализацию;
+- около 727,344 непосредственных вещественных MUL, 1,278 DIV, 726,152 ADD, 1200 tanh и 64 sin/cos на отсчёт;
+  нормированная оценка эквивалентов умножения — около 728,622;
+- даже идеализированная оценка CSR остаётся около 80,410 MUL/отсчёт;
+- обычный `predict()` сбрасывает скрытое состояние;
+- независимые случайные модели I/Q не обеспечивают фазовую эквивариантность;
 - исходный PSD использует `fs=200`, `nperseg=256` вместо 800 MHz/2560;
-- validation, fixed-point и reproducible timing logs отсутствуют.
+- проверочная выборка, фиксированная точка и воспроизводимые журналы времени отсутствуют.
 
-Local notebook-path result сохранён в
+Результат локального воспроизведения из блокнота сохранён в
 [`experiments/results/egor_reproduction_dpa200.json`](experiments/results/egor_reproduction_dpa200.json).
-Числа нельзя ранжировать как quality gain: PA surrogates, gain protocols и
-evaluation paths различаются.
+Числа нельзя ранжировать как выигрыш в качестве: модели PA, протоколы усиления и оценочные тракты различаются.
 
-Подробный audit: [`research/egor_pipeline_audit.md`](research/egor_pipeline_audit.md).
+Подробный аудит: [`research/egor_pipeline_audit.md`](research/egor_pipeline_audit.md).
 
 ### OpenDPD
 
-OpenDPD — основной quality baseline. В нём правильно разделены PA modeling и
-DPD direct learning:
+OpenDPD — основной эталон качества. В нём правильно разделены моделирование PA и прямое обучение DPD:
 
 ```text
-desired x -> neural DPD -> frozen differentiable PA -> y_hat
-                                                    -> compare with g*x
+желаемый x -> нейросетевой DPD -> зафиксированная дифференцируемая модель PA -> y_hat
+                                                                         -> сравнение с g*x
 ```
 
-У OpenDPD есть развитый test suite: 93 declared test functions под `tests/`
-плюс шесть installation checks и parameterization. CI проверяет metrics,
-datasets, API/CLI, backbones, checkpoint
-creation, quantization-aware path и короткий end-to-end
-`train_pa -> train_dpd -> run_dpd -> plot`. Weekly job расширяет smoke на
-datasets/backbones.
+У OpenDPD есть развитый набор тестов: 93 объявленных тестовых функции в `tests/` плюс шесть проверок установки и
+параметризация. Непрерывная интеграция (CI) проверяет метрики, наборы данных, API/CLI, базовые архитектуры, создание
+контрольной точки, тракт с учётом квантования и короткую сквозную цепочку `train_pa -> train_dpd -> run_dpd -> plot`.
+Еженедельная задача расширяет быструю проверку на другие наборы данных и базовые архитектуры.
 
-Но smoke tests в основном требуют finite metrics и наличие artifacts. Они не
-доказывают published RF quality. Quality numbers находятся в отдельном
-benchmark и статье.
+Но быстрые тесты в основном требуют конечных значений метрик и наличия файлов результатов. Они не доказывают опубликованное
+качество РЧ. Числовые показатели качества находятся в отдельном сравнительном испытании и статье.
 
-Canonical APA_200MHz repository benchmark сообщает:
+Эталонное сравнительное испытание APA_200MHz в репозитории сообщает:
 
-| DPD | Test NMSE | Test repository-EVM | Test ACLR average |
+| DPD | NMSE на тесте | EVM на тесте по методике репозитория | Средний ACLR на тесте |
 |---|---:|---:|---:|
 | MP | -42.19 dB | -48.15 dB | -45.19 dB |
 | GMP | -38.53 dB | -46.35 dB | -43.59 dB |
 | GRU-H16 | -45.13 dB | -47.43 dB | -51.01 dB |
 | TRes-GRU-H15 | -44.29 dB | -45.10 dB | -53.49 dB |
 
-Эти results проходят через OpenDPD TRes-GRU PA surrogate. Наш demo использует
-legacy MP surrogate, другой gain protocol и pooled NMSE. Поэтому raw numbers
+Эти результаты проходят через модель PA TRes-GRU из OpenDPD. Наша демонстрация использует прежнюю MP-модель,
+другой протокол усиления и объединённый NMSE. Поэтому исходные числа
 нельзя использовать как прямую турнирную таблицу.
 
-В physical experiment статьи OpenDPDv2 TRes-DeltaGRU сообщает примерно
+В физическом эксперименте статьи OpenDPDv2 TRes-DeltaGRU сообщает примерно
 `-39.6 dB NMSE`, `-42.1 dB EVM` и `-59.9 dBc ACPR` против `-20.5/-24.7/-28.3`
-без DPD. Это сильнейший physical evidence layer среди рассматриваемых работ,
-но corresponding raw captures/checkpoints/bit-true hardware artifacts не входят
-в current checkout.
+без DPD. Это самое сильное подтверждение на физическом PA среди рассматриваемых работ, но соответствующие исходные захваты,
+контрольные точки и материалы побитово точной аппаратной реализации не входят в текущую копию проекта.
 
-Подробный audit: [`research/opendpd_audit.md`](research/opendpd_audit.md).
+Подробный аудит: [`research/opendpd_audit.md`](research/opendpd_audit.md).
 
 ## 10. Что доказано, а что нет
 
-### Доказано кодом и frozen artifacts
+### Доказано кодом и зафиксированными файлами результатов
 
-- correct desired-input DPD direction;
-- deterministic train/validation/test contracts и no-test demo access;
-- one-command reproducibility с 13 completion manifests;
-- float spline-memory streaming inference;
-- analytical operation/storage vectors;
-- validation-only surrogate NMSE и adjacent-region improvement;
-- software bit-accurate 16/14/12-bit preservation;
-- zero saturation/collision на evaluated signals;
-- exact configured chunks и 90-degree phase equivariance;
-- two-epoch OpenDPD training-state `SIGKILL`/resume equivalence smoke для
-  model, optimizer, scheduler, history и RNG; это не validation-quality
-  checkpoint.
+- корректное направление DPD с желаемым сигналом на входе;
+- детерминированные протоколы обучающей, проверочной и тестовой выборок и отсутствие доступа демонстрации к тесту;
+- воспроизводимость одной командой с 13 итоговыми файлами контроля (манифестами);
+- потоковое вычисление сплайновой модели с памятью и плавающей точкой;
+- аналитический подсчёт операций и памяти;
+- NMSE на модели PA и улучшение в соседних областях только на проверочной выборке;
+- программное побитово точное сохранение качества для 16/14/12 бит;
+- отсутствие насыщения и совпадений кодов на проверенных сигналах;
+- точное совпадение заданных блоков и фазовая эквивариантность при повороте на 90 градусов;
+- быстрая проверка эквивалентности состояния обучения OpenDPD после `SIGKILL` и возобновления на двух эпохах для
+  модели, оптимизатора, планировщика, истории и генератора случайных чисел; это не контрольная точка качества.
 
-### Доказано только на surrogate
+### Доказано только на модели PA
 
-- linearization quality текущего spline DPD;
-- AM/AM, AM/PM и PSD improvements;
-- fixed-point cascade preservation;
-- comparison с reproduced Egor path;
-- любые conclusions, заканчивающиеся на learned PA evaluator.
+- качество линеаризации текущего сплайнового DPD;
+- улучшения AM/AM, AM/PM и PSD;
+- сохранение качества каскада при фиксированной точке;
+- сравнение с воспроизведённым трактом Егора;
+- любые выводы, которые заканчиваются на обученной модели PA.
 
 ### Пока не доказано
 
-- customer-defined RF harmonic/spur attenuation;
-- linearization одного physical PA нашим DPD;
-- better-than-OpenDPD на одном DUT/evaluator;
-- target timing, throughput, power, area и RTL resources;
-- достаточность 12/14/16 bit на physical PA;
-- robustness по power, waveform, temperature, bias, aging и load;
-- безопасный online observer/advisor apply/rollback.
+- заданное заказчиком подавление гармоник и паразитных составляющих РЧ;
+- линеаризация одного физического PA нашим DPD;
+- превосходство над OpenDPD на одном испытуемом усилителе или общей модели оценки;
+- время, пропускная способность, мощность, площадь и ресурсы RTL на целевой платформе;
+- достаточность 12/14/16 бит на физическом PA;
+- устойчивость по мощности, форме сигнала, температуре, смещению, старению и нагрузке;
+- безопасный анализ остаточной ошибки с применением и откатом обновлений в рабочем контуре.
 
-## 11. One-command reproduction
+## 11. Воспроизведение одной командой
 
-### Surrogate demo
+### Демонстрация на модели PA
 
 ```bash
 git clone --recurse-submodules https://github.com/theJorDea/DPD.git
@@ -442,9 +432,9 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m experiments.run_surrogate_demo \
 ```
 
 `--output-root` должен быть новым, ещё не существующим каталогом. Это защищает
-старые evidence bundles от незаметной перезаписи.
+старые пакеты подтверждающих данных от незаметной перезаписи.
 
-Ожидаемый финал:
+Ожидаемый дословный вывод программы:
 
 ```text
 DPA_200MHz: NMSE -20.338 -> -30.532 dB; adjacent relative L/R +4.749/+7.737 dB
@@ -452,7 +442,7 @@ APA_200MHz: NMSE -19.969 -> -32.380 dB; adjacent relative L/R +16.480/+13.864 dB
 PASS: validation-only surrogate demo; no physical-PA claim
 ```
 
-### Presentation assets
+### Материалы презентации
 
 ```bash
 .venv/bin/python -m pip install -r requirements-presentation.txt
@@ -461,63 +451,59 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
   --output-dir /tmp/dpd_presentation_reproduction
 ```
 
-Visualizer:
+Генератор графиков:
 
-- проверяет completion manifests и SHA-256 каждого input artifact;
-- не открывает measured validation/test output;
-- не выполняет fit, selection, retuning или model evaluation;
-- строит PNG/GIF только из frozen waveform/PSD arrays;
-- записывает source/output hashes в `presentation_manifest.json`;
-- отказывается изменять output directory с неизвестными файлами.
+- проверяет итоговые файлы контроля (манифесты) и SHA-256 каждого входного файла;
+- не открывает измеренный выход проверочной/тестовой выборки;
+- не выполняет обучение, отбор, повторную настройку или оценку модели;
+- строит PNG/GIF только из зафиксированных массивов сигналов/PSD;
+- записывает контрольные суммы исходных и выходных файлов в `presentation_manifest.json`;
+- отказывается изменять каталог результатов с неизвестными файлами.
 
-### Tests
+### Тесты
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-Последний full NumPy-environment audit: `353` tests passed, `8` ожидаемо
-skipped из-за отсутствия locked PyTorch/OpenDPD environment. Отдельный locked
-OpenDPD integration/resume suite: `47` tests passed. Это software correctness
-evidence, а не RF-quality measurement.
+Последняя полная проверка в окружении NumPy: `353` теста пройдено, `8` ожидаемо пропущены из-за отсутствия
+зафиксированного окружения PyTorch/OpenDPD. Отдельный зафиксированный набор тестов интеграции и возобновления OpenDPD: `47`
+тестов пройдено. Это подтверждение корректности ПО, а не измерение качества РЧ.
 
 ## 12. Следующий решающий эксперимент
 
-На одном calibrated physical PA и одном operating point необходимо подать один
-и тот же desired waveform:
+На одном откалиброванном физическом PA и одной рабочей точке необходимо подать один и тот же желаемый сигнал:
 
 ```text
-1. no DPD
-2. OpenDPD reference
-3. spline-memory DPD
+1. без DPD
+2. эталон OpenDPD
+3. DPD на сплайнах с памятью
 ```
 
-До запуска необходимо заморозить:
+До запуска необходимо заранее зафиксировать:
 
-- customer spectral bands/reference/threshold;
-- gain, integer/fractional delay и feedback-path equalization;
-- waveform, sample rate, output power/backoff и capture length;
-- left/right/worst-bin/integrated-OOB metrics;
-- EVM, NMSE, main power, peak, PAPR и clipping gates;
-- target timing kernel, word lengths и streaming contract.
+- спектральные полосы, опорный уровень и порог заказчика;
+- усиление, целочисленную/дробную задержку и коррекцию тракта обратной связи;
+- форму сигнала, частоту дискретизации, выходную мощность/отступ от насыщения и длину захвата;
+- метрики левой/правой областей, худшей частотной ячейки спектра и интегрального OOB;
+- EVM, NMSE, мощность полезной области, пик, PAPR и ограничения по обрезанию амплитуды;
+- целевое ядро измерения времени, разрядности и протокол потокового выполнения.
 
-После measurement выполняется residual analysis. Добавляется максимум одна
-cheap branch, если она улучшает independent spectral shadow result и проходит
-peak/PAPR/timing gates. Предыдущий known-good coefficient bank сохраняется для
-rollback.
+После измерения выполняется анализ остаточной ошибки. Добавляется максимум одна малозатратная
+ветвь, если она улучшает результат независимой теневой спектральной проверки и проходит критерии пика, PAPR и времени. Предыдущий
+заведомо работоспособный набор
+коэффициентов сохраняется для отката.
 
 ## Итог
 
-Текущий проект не пытается выиграть leaderboard количеством parameters. Он
-строит Pareto solution:
+Текущий проект не пытается добиться преимущества одним лишь количеством параметров. Он строит решение на границе Парето:
 
 ```text
-maximum independently verified spectral suppression
-subject to bounded peak/PAPR, causal streaming, fixed-point stability
-and customer-equivalent execution time below the 1000-MUL reference.
+максимальное независимо подтверждённое подавление спектра
+при ограничениях на пик и PAPR, причинном потоковом выполнении,
+сохранении качества при вычислениях с фиксированной точкой и времени выполнения ниже эталона заказчика из 1000 MUL.
 ```
 
-На текущем evidence layer spline-memory DPD является очень дешёвым и
-воспроизводимым surrogate baseline. Для утверждения «лучше OpenDPD» или
-«соответствует Huawei» остаются обязательными один physical PA,
-apples-to-apples spectral measurement и target-specific timing.
+На текущем уровне доказательности DPD на сплайнах с памятью является очень малозатратным и воспроизводимым базовым
+вариантом на модели PA. Для утверждения «лучше OpenDPD» или «соответствует Huawei» остаются обязательными один физический PA,
+сопоставимое спектральное измерение и измерение времени на целевой платформе.
