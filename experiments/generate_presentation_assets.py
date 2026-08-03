@@ -610,10 +610,10 @@ def render_complexity_proxy(output_path: Path) -> None:
         "This work\nspline-memory",
         "OpenDPD\nGRU-H16",
         "OpenDPD\nTRes-GRU-H15",
-        "Egor\nEnhancedESN-FAN",
+        "Egor\nEnhancedESN-FAN\n(+1,278 DIV)",
     )
-    values = np.asarray((21.0, 944.0, 1058.0, 728_622.0))
-    display_values = ("21", "944", "≈1,058+", "≈728,622")
+    values = np.asarray((21.0, 944.0, 1058.0, 727_344.0))
+    display_values = ("21", "944", "≈1,058+", "≈727,344")
     colors = (COLOR_FIXED, COLOR_FLOAT, COLOR_BAND, "#DD8452")
     figure, ax = plt.subplots(figsize=(10.8, 5.5), constrained_layout=True)
     positions = np.arange(values.size)

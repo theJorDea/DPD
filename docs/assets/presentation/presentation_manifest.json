@@ -8,7 +8,7 @@
     "validation_reused_after_historical_selection": true
   },
   "generator": "experiments/generate_presentation_assets.py",
-  "generator_sha256": "8551577a688a50086906ae8e46ad171f4e1d666e6e9e4f9bbc5ff954076ac6eb",
+  "generator_sha256": "cf7aa296ded9fb539f041e44317884d109919c3d6076aea1497ea92929fdad6a",
   "inputs": {
     "experiments/configs/dpd_fixed_point_apa200_validation.json": "d2d743b421a72b5b5eef4c325c95a5ae017a2761f39091d103367a3b89686d61",
     "experiments/configs/dpd_fixed_point_dpa200_validation.json": "163b05686131dc2533774f9697de85e19b765f51d0dd18be03034cf9d006ea8c",
@@ -34,7 +34,7 @@
     "experiments/results/dpd_fixed_point_dpa200_validation/waveforms_float.npz": "cf7ee33eb563a16ac54595fa253fa8a82a7d2f9b6654a6778ee68efeeccd442b"
   },
   "outputs": {
-    "complexity_proxy.png": "c4e7530aaf5a7f4cd538ca7e24f9df4d481efe668e130f983ff804b2d3dbdc37",
+    "complexity_proxy.png": "536cc71823a595f5db93fa480638ad335d9bd00f3f2e25b2da93b8bbe519c457",
     "dpd_overview.gif": "62beef2ccd9a36606844d479fffb955855ec7c152aca33a760c1d1ed2c2fd85b",
     "fixed_point_stability.png": "a7dcdca9cb5001a31f173bf6b80ccb2ec16cb896d619028e7315c94faec20460",
     "overview_apa200.png": "013c1f7c58fdcba0c352e38fb713d5d14b7692c91d718f701ae88174b78da71c",
