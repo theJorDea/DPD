@@ -674,6 +674,9 @@ The previous 120-test 0.396 s timing is obsolete.
 | `c88b394` / `d7b72d5` | immutable DPA/APA float plus 16/14/12-bit spectral replay bundles |
 | `a385635` / `b982266` | one-command surrogate demo and hardened artifact sealing |
 | `920d58f` | immutable two-epoch CPU OpenDPD SIGKILL/resume equivalence PASS bundle |
+| `2fdfff2` / `49f4d8a` / `59b23be` | deterministic presentation PNG/GIF assets and provenance manifest |
+| `178b407` / `38e3562` | timing-boundary and raw-operation-label corrections in presentation assets |
+| `f8a177d` | supervisor-facing README presentation with explicit evidence boundaries |
 
 Each numerical dataset task was committed and pushed separately from code and
 documentation.
@@ -719,6 +722,45 @@ Normative documents:
 - `HARDWARE_COST.md`;
 - `FINAL_GAP_ANALYSIS.md`.
 
+### 7.1 README presentation assets
+
+`experiments/generate_presentation_assets.py` is a read-only renderer for the
+supervisor-facing figures under `docs/assets/presentation/`. It verifies the
+sealed completion manifests and SHA256 values of every consumed result before
+rendering. It does not fit, select, retune, or evaluate a model and cannot read
+test artifacts. Unknown files in the output directory are protected even when
+`--force` is used; the provenance manifest is published last.
+
+The five deterministic outputs are:
+
+```text
+overview_dpa200.png
+overview_apa200.png
+complexity_proxy.png
+fixed_point_stability.png
+dpd_overview.gif
+```
+
+The animated overview shows measured experiment states rather than invented
+training epochs: no DPD, float spline-memory DPD, and 12-bit DPD for DPA/APA.
+Its fourth panel is time-domain target tracking, not a symbol-rate
+constellation. All panels remain explicitly labelled as validation-only frozen
+surrogate evidence.
+
+Reproduction from a clean checkout:
+
+```bash
+.venv/bin/python -m pip install -r requirements-presentation.txt
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  -m experiments.generate_presentation_assets \
+  --output-dir /tmp/dpd_presentation
+```
+
+`docs/assets/presentation/presentation_manifest.json` records the renderer
+hash, Python/NumPy/Matplotlib/Pillow versions, 22 input hashes, and five output
+hashes. `tests/test_generate_presentation_assets.py` covers deterministic
+reproduction, sealing, path scope, output protection, and GIF semantics.
+
 ## 8. Known issues
 
 1. Scientific-supervisor clarification freezes DPD-only equivalent-time scope,
@@ -734,8 +776,8 @@ Normative documents:
    convergence result, independent ranking or CUDA reproduction is complete.
 6. GMP NumPy batch inference is not optimized for target sample rate.
 7. Peak RSS was not measured for formal fits.
-8. New GMP PSD/AM-AM/AM-PM arrays exist, but canonical rendered plots are not
-   generated yet.
+8. Canonical surrogate presentation plots now exist and are reproducible, but
+   physical-PA plots using customer-defined harmonic/spur bands remain pending.
 9. DPA/APA source and target-calibrated APA-B GMP/sparse payloads and the
    selected DPA/APA spline-memory DPD now have 16/14/12-bit integer reports.
    The DPD result is still a reused-validation replay through a frozen legacy
