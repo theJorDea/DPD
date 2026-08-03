@@ -506,33 +506,6 @@ cheap branch, если она улучшает independent spectral shadow resul
 peak/PAPR/timing gates. Предыдущий known-good coefficient bank сохраняется для
 rollback.
 
-## 13. Repository map
-
-```text
-baseline/       DPD/PA models, alignment, metrics, fixed-point, complexity
-experiments/    sealed runners, configs, numerical results, visualizer
-tests/          unit, direction, streaming, fixed-point and integration tests
-research/       literature, OpenDPD/Egor audits, proposed observer/controller
-docs/assets/    deterministic README presentation figures and GIF
-vendor/         pinned OpenDPD, DPD_for_PA and chaotic_library sources
-```
-
-Ключевые документы:
-
-- [`RESEARCH_REPORT.md`](RESEARCH_REPORT.md) — общий technical/research report;
-- [`BENCHMARK_REPORT.md`](BENCHMARK_REPORT.md) — только выполненные runs;
-- [`DPD_BENCHMARK.md`](DPD_BENCHMARK.md) — DPD protocol и results;
-- [`PA_MODEL_BENCHMARK.md`](PA_MODEL_BENCHMARK.md) — auxiliary evaluator contour;
-- [`HARDWARE_COST.md`](HARDWARE_COST.md) — operation, memory и fixed-point audit;
-- [`FINAL_GAP_ANALYSIS.md`](FINAL_GAP_ANALYSIS.md) — evidence boundaries;
-- [`EXPERIMENT_PLAN.md`](EXPERIMENT_PLAN.md) — exact commands и acceptance gates;
-- [`ROADMAP.md`](ROADMAP.md) — выполненные и следующие milestones;
-- [`IMPLEMENTATION_NOTES.md`](IMPLEMENTATION_NOTES.md) — APIs и known issues;
-- [`research/FINAL_MODERN_DPD_RESEARCH_CONCLUSION.md`](research/FINAL_MODERN_DPD_RESEARCH_CONCLUSION.md)
-  — synthesis 89 primary sources;
-- [`research/residual_observer_and_controller.md`](research/residual_observer_and_controller.md)
-  — proposed slow observer/advisor, shadow validation и rollback.
-
 ## Итог
 
 Текущий проект не пытается выиграть leaderboard количеством parameters. Он
