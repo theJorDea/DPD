@@ -129,6 +129,54 @@ class PrepareBlackBoxDataTests(unittest.TestCase):
                     test_start=15,
                 )
 
+    def test_zero_eref_is_serialized_without_nonfinite_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            zero = np.zeros((1, 20), dtype=np.complex128)
+            source, _, _, _ = self._write_source(root, override={"eRef": zero})
+            output = root / "prepared"
+            manifest = prepare_blackbox_data(
+                source,
+                output,
+                train_start=2,
+                validation_start=10,
+                test_start=15,
+            )
+            self.assertEqual(manifest["eRef_diagnostic"]["power_relative_to_y"], 0.0)
+            self.assertIsNone(manifest["eRef_diagnostic"]["power_relative_to_y_db"])
+            json.loads((output / "preparation_manifest.json").read_text())
+
+    def test_failed_validation_does_not_publish_partial_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            zero_y = np.zeros((1, 20), dtype=np.complex128)
+            source, _, _, _ = self._write_source(root, override={"y": zero_y})
+            output = root / "prepared"
+            with self.assertRaisesRegex(ValueError, "non-zero average power"):
+                prepare_blackbox_data(
+                    source,
+                    output,
+                    train_start=2,
+                    validation_start=10,
+                    test_start=15,
+                )
+            self.assertFalse(output.exists())
+
+    def test_refuses_unprotected_output_inside_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, _, _, _ = self._write_source(root)
+            unsafe = Path(__file__).resolve().parents[1] / "unsafe_capture_export"
+            with self.assertRaisesRegex(ValueError, "data/private"):
+                prepare_blackbox_data(
+                    source,
+                    unsafe,
+                    train_start=2,
+                    validation_start=10,
+                    test_start=15,
+                )
+            self.assertFalse(unsafe.exists())
+
     def test_rejects_missing_or_invalid_variables(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -1,0 +1,4 @@
+# Reproducible importer for external MATLAB v5 captures.
+# The baseline package itself remains NumPy-only.
+numpy==2.5.1
+scipy==1.18.0

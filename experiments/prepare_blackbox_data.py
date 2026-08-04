@@ -23,13 +23,18 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
+import shutil
+import tempfile
 from typing import Any
 
 import numpy as np
 
 
 SCHEMA_VERSION = 1
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PRIVATE_DATA_ROOT = PROJECT_ROOT / "data" / "private"
 OWNED_FILES = (
     "selection/train_input.csv",
     "selection/train_output.csv",
@@ -137,6 +142,27 @@ def _write_iq_csv(path: Path, signal: np.ndarray) -> None:
     )
 
 
+def _is_beneath(path: Path, parent: Path) -> bool:
+    try:
+        path.relative_to(parent)
+    except ValueError:
+        return False
+    return True
+
+
+def _validate_output_location(output: Path, *, allow_public_output: bool) -> None:
+    if (
+        _is_beneath(output, PROJECT_ROOT)
+        and not _is_beneath(output, PRIVATE_DATA_ROOT)
+        and not allow_public_output
+    ):
+        raise ValueError(
+            "prepared capture data inside the repository must stay under "
+            f"{PRIVATE_DATA_ROOT}; pass allow_public_output=True only after "
+            "confirming publication rights"
+        )
+
+
 def prepare_blackbox_data(
     mat_path: str | Path,
     output_dir: str | Path,
@@ -144,7 +170,7 @@ def prepare_blackbox_data(
     train_start: int = 5_000,
     validation_start: int = 97_000,
     test_start: int = 120_000,
-    overwrite: bool = False,
+    allow_public_output: bool = False,
 ) -> dict[str, Any]:
     """Export deterministic chronological splits and an evidence manifest."""
 
@@ -158,20 +184,87 @@ def prepare_blackbox_data(
         test_start=test_start,
     )
 
-    output = Path(output_dir).resolve()
-    existing = [output / name for name in OWNED_FILES if (output / name).exists()]
-    if existing and not overwrite:
+    final_output = Path(output_dir).resolve()
+    _validate_output_location(
+        final_output,
+        allow_public_output=allow_public_output,
+    )
+    if final_output.exists():
         raise FileExistsError(
-            "refusing to overwrite prepared data: "
-            + ", ".join(str(path) for path in existing)
+            "prepared datasets are immutable; choose a new output directory: "
+            f"{final_output}"
         )
-    output.mkdir(parents=True, exist_ok=True)
 
     ranges = {
         "train": (train_start, validation_start),
         "val": (validation_start, test_start),
         "test": (test_start, sample_count),
     }
+    training_input = vectors["x"][train_start:validation_start]
+    training_peak = float(np.max(np.abs(training_input)))
+    if training_peak <= 0.0:
+        raise ValueError("training x must have non-zero peak amplitude")
+
+    eref = vectors["eRef"]
+    y = vectors["y"]
+    eref_power = float(np.mean(np.abs(eref) ** 2))
+    y_power = float(np.mean(np.abs(y) ** 2))
+    if y_power <= 0.0:
+        raise ValueError("y must have non-zero average power")
+    eref_relative_power = eref_power / y_power
+    eref_relative_db = (
+        None
+        if eref_relative_power == 0.0
+        else float(10.0 * np.log10(eref_relative_power))
+    )
+
+    final_output.parent.mkdir(parents=True, exist_ok=True)
+    output = Path(
+        tempfile.mkdtemp(
+            prefix=f".{final_output.name}.tmp-",
+            dir=final_output.parent,
+        )
+    )
+    try:
+        return _prepare_into_staging(
+            loaded=loaded,
+            vectors=vectors,
+            sample_count=sample_count,
+            output=output,
+            ranges=ranges,
+            train_start=train_start,
+            validation_start=validation_start,
+            test_start=test_start,
+            training_peak=training_peak,
+            eref_power=eref_power,
+            eref_relative_power=eref_relative_power,
+            eref_relative_db=eref_relative_db,
+            final_output=final_output,
+        )
+    finally:
+        published = final_output.exists() and not output.exists()
+        if not published and output.exists():
+            shutil.rmtree(output)
+
+
+def _prepare_into_staging(
+    *,
+    loaded: dict[str, Any],
+    vectors: dict[str, np.ndarray],
+    sample_count: int,
+    output: Path,
+    ranges: dict[str, tuple[int, int]],
+    train_start: int,
+    validation_start: int,
+    test_start: int,
+    training_peak: float,
+    eref_power: float,
+    eref_relative_power: float,
+    eref_relative_db: float | None,
+    final_output: Path,
+) -> dict[str, Any]:
+    """Build a complete bundle in a private staging directory, then publish."""
+
     for split in ("train", "val"):
         start, stop = ranges[split]
         _write_iq_csv(
@@ -192,11 +285,6 @@ def prepare_blackbox_data(
         vectors["y"][test_begin:test_end],
     )
 
-    training_input = vectors["x"][train_start:validation_start]
-    training_peak = float(np.max(np.abs(training_input)))
-    if training_peak <= 0.0:
-        raise ValueError("training x must have non-zero peak amplitude")
-
     spec = {
         "schema_version": SCHEMA_VERSION,
         "dataset_label": "BlackBoxData external capture",
@@ -208,15 +296,11 @@ def prepare_blackbox_data(
         "sequence_policy": "each split is one independent chronological record",
         "normalization_policy": (
             "CSV values remain in source units; model runners must divide x and y "
-            "by preparation_manifest.training_input_peak"
+            "by selection_view.normalization_contract.training_input_peak"
         ),
     }
     _write_json(output / "selection" / "spec.json", spec)
 
-    eref = vectors["eRef"]
-    y = vectors["y"]
-    eref_power = float(np.mean(np.abs(eref) ** 2))
-    y_power = float(np.mean(np.abs(y) ** 2))
     manifest: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "artifact_type": "blackbox_mat_split_manifest",
@@ -270,8 +354,8 @@ def prepare_blackbox_data(
         },
         "eRef_diagnostic": {
             "rms": float(np.sqrt(eref_power)),
-            "power_relative_to_y": eref_power / y_power,
-            "power_relative_to_y_db": float(10.0 * np.log10(eref_power / y_power)),
+            "power_relative_to_y": eref_relative_power,
+            "power_relative_to_y_db": eref_relative_db,
             "interpretation": "unknown_do_not_use_without_owner_definition",
         },
         "missing_metadata": [
@@ -357,6 +441,7 @@ def prepare_blackbox_data(
         ],
     }
     _write_json(output / "preparation_manifest.json", manifest)
+    os.replace(output, final_output)
     return manifest
 
 
@@ -369,7 +454,14 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--train-start", type=int, default=5_000)
     parser.add_argument("--validation-start", type=int, default=97_000)
     parser.add_argument("--test-start", type=int, default=120_000)
-    parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--allow-public-output",
+        action="store_true",
+        help=(
+            "allow generated capture samples inside the repository but outside "
+            "data/private; use only after confirming publication rights"
+        ),
+    )
     return parser
 
 
@@ -381,7 +473,7 @@ def main(argv: list[str] | None = None) -> int:
         train_start=args.train_start,
         validation_start=args.validation_start,
         test_start=args.test_start,
-        overwrite=args.overwrite,
+        allow_public_output=args.allow_public_output,
     )
     split = manifest["split_contract"]
     print(
