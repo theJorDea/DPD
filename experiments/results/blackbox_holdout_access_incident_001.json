@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "incident_id": "blackbox_holdout_access_incident_001",
+  "recorded_date": "2026-08-04",
+  "dataset": {
+    "filename": "BlackBoxData.mat",
+    "sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "historical_holdout_range": [
+      120000,
+      245760
+    ]
+  },
+  "summary": "The historical holdout was inspected during exploratory auditing and is not a pristine blind test.",
+  "accesses": [
+    {
+      "phase": "before_formal_pa_selection",
+      "scope": "The single MAT container was loaded and aggregate holdout statistics were computed, including RMS/support diagnostics and a preliminary memory-polynomial PA fidelity score.",
+      "used_by_formal_selector": false
+    },
+    {
+      "phase": "after_formal_pa_selection",
+      "scope": "One normalized maximum of holdout x and CSV line counts were inspected during read-only design/review. No DPD cascade or formal holdout performance metric was computed.",
+      "used_by_formal_selector": false
+    }
+  ],
+  "formal_selector_contract": {
+    "selection_directory": "data/private/blackbox_v2/selection",
+    "available_splits": [
+      "train",
+      "validation"
+    ],
+    "sealed_files_opened_by_selector": false,
+    "architecture_or_ridge_selected_from_holdout_metric": false
+  },
+  "impact": {
+    "blind_test_claim_allowed": false,
+    "allowed_label": "historically accessed holdout evaluation",
+    "dpd_superiority_claim_allowed": false,
+    "reason": "Human exploratory access can influence later decisions even when the formal selector is code-isolated."
+  },
+  "remediation": [
+    "Freeze every remaining model and protocol choice without further holdout access.",
+    "Use the current holdout only as a disclosed historical evaluation split.",
+    "Obtain a new untouched capture for a genuinely blind final evaluation.",
+    "Use a physical PA or queryable black box to measure the response to new predistorted input."
+  ]
+}
