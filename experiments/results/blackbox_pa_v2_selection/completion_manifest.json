@@ -1,0 +1,11 @@
+{
+  "artifact_type": "blackbox_pa_selection_completion",
+  "bound_files_sha256": {
+    "selected_pa.npz": "e4275d0acbdd93642d14aa0f1351b89cc952afbde850e5614ef97286b81fc6f8",
+    "selection_manifest.json": "586db4848144995b445dee0854e45819e36bb21c61de8e34885e51c310e6eb94",
+    "validation_trials.json": "8d7ffe5dbaff2ec4725782704a51574d0b21824dadcc0baafa7f717de7163291"
+  },
+  "publication_contract": "the bundle is valid only when every bound hash verifies",
+  "schema_version": 1,
+  "status": "complete"
+}

@@ -83,6 +83,17 @@ class PrepareBlackBoxDataTests(unittest.TestCase):
                 )
             )
             self.assertFalse(selection_view["test_split_available"])
+            self.assertEqual(
+                selection_view["generator"],
+                {
+                    "project_relative_path": "experiments/prepare_blackbox_data.py",
+                    "sha256": file_sha256(
+                        Path(__file__).parents[1]
+                        / "experiments"
+                        / "prepare_blackbox_data.py"
+                    ),
+                },
+            )
             serialized_selection = json.dumps(selection_view)
             self.assertNotIn("test_input.csv", serialized_selection)
             self.assertNotIn("test_output.csv", serialized_selection)

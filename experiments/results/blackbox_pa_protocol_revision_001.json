@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "artifact_type": "blackbox_pa_selection_protocol_revision",
+  "revision": "blackbox_pa_v2_stability_aware_ridge",
+  "scope": "validation_only_rule_revision_after_a_historical_holdout_access_incident",
+  "holdout_history": {
+    "incident": "experiments/results/blackbox_holdout_access_incident_001.json",
+    "incident_sha256": "2df19772e1549cb71609d41ba5654e2cd1cf9888cbe4bc1be98e341fc64e72e6",
+    "summary": "the historical holdout had already been inspected for exploratory aggregate statistics and preliminary MP fidelity",
+    "heldout_used_for_revision": false,
+    "pristine_blind_holdout_available": false
+  },
+  "v1_diagnostic": {
+    "publication_status": "not_published_as_a_release_bundle; numerical audit record retained here",
+    "selection_manifest_sha256": "f240cff1aa2840b94322978271644a5583cbf8c98fd9646e4262f3389a21f4dd",
+    "selected_model_sha256": "999379771a38b53266c09d5e3fb84252588cc2778c4d199706a8ff4c04199640",
+    "validation_trials_sha256": "6fcb2528656d90a187b1e29f491afa708ce954f4c3cc242670292c1028893739",
+    "config_sha256": "4ab18e98a3b010792e581c5121488d79e91d737ae1bcb15b5be150176e70197c",
+    "selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "exact_winner": {
+      "candidate_name": "gmp_189_term_causal",
+      "ridge": 0.0,
+      "validation_common_warmup_nmse_db": -28.647242909198415,
+      "coefficient_l2_norm": 8891.698222379135,
+      "scaled_augmented_condition_number": 2047017.10012082
+    },
+    "status": "immutable_diagnostic_not_release_selection"
+  },
+  "audit_finding": {
+    "problem": "the exact validation winner used ridge=0 at the lower search boundary",
+    "risk": "an effectively unregularized ill-conditioned fit may win by a negligible validation margin while being less stable under capture or arithmetic changes",
+    "timing": "identified and resolved using validation artifacts only; this does not restore blindness lost through earlier historical access",
+    "v1_artifacts_modified": false
+  },
+  "v2_frozen_policy": {
+    "practical_ridge_tie_db": 0.1,
+    "per_topology": "find exact best validation NMSE; among ridge fits no worse than best+0.1 dB choose the largest ridge; lower NMSE resolves a same-ridge tie",
+    "global": "choose the topology representative with lowest validation NMSE; analytical cost breaks only an exact NMSE tie",
+    "exact_winner_retained_for_audit": true,
+    "selection_data_only": true,
+    "heldout_used_for_revision": false,
+    "pristine_blind_holdout_available": false
+  },
+  "v2_config": "experiments/configs/blackbox_pa_v2.json",
+  "v2_output": "experiments/results/blackbox_pa_v2_selection",
+  "claim_boundary": "protocol v2 is a validation-only stability correction; the historical holdout is not blind and cannot support an untouched-test claim, and no physical-PA result is established"
+}

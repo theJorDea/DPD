@@ -381,6 +381,10 @@ def _prepare_into_staging(
     selection_view = {
         "schema_version": SCHEMA_VERSION,
         "artifact_type": "blackbox_selection_view",
+        "generator": {
+            "project_relative_path": "experiments/prepare_blackbox_data.py",
+            "sha256": file_sha256(Path(__file__).resolve()),
+        },
         "source_filename": loaded["source"].name,
         "source_sha256": loaded["source_sha256"],
         "available_splits": ["train", "validation"],

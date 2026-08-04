@@ -1,0 +1,1018 @@
+{
+  "alignment": {
+    "fractional_delay_applied": false,
+    "fractional_delay_diagnostic": {
+      "curvature": -0.8508749559050494,
+      "estimated_delay": -0.01260551534524879,
+      "fractional_offset": -0.01260551534524879,
+      "integer_delay": 0,
+      "peak_score": 0.9738828686867197,
+      "reliable": true
+    },
+    "integer_delay_definition": "maximum normalized complex-correlation power on normalized train only",
+    "integer_delay_samples": 0,
+    "post_prediction_delay_fit": false,
+    "post_prediction_gain_fit": false,
+    "search_maximum_absolute_delay_samples": 32,
+    "validation_delay_refit": false
+  },
+  "artifacts": {
+    "selection_manifest": "experiments/results/blackbox_pa_v2_selection/selection_manifest.json",
+    "validation_trials": "experiments/results/blackbox_pa_v2_selection/validation_trials.json",
+    "validation_trials_sha256": "8d7ffe5dbaff2ec4725782704a51574d0b21824dadcc0baafa7f717de7163291"
+  },
+  "candidate_grid": {
+    "candidate_iteration_order": "MP config order, then GMP config order; ridge order inside each architecture",
+    "fit_count": 42,
+    "maximum_fit_count": 48,
+    "model_families": [
+      "complex_memory_polynomial",
+      "complex_gmp"
+    ],
+    "pa_deployment_operation_limit_applied": false,
+    "reason": "PA model is an auxiliary evaluator, not the deployed DPD"
+  },
+  "code_sha256": {
+    "baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "baseline/complexity.py": "acd74e57681e10733f0c35fe19bee538152422edeab3dfc24b83194dd98dc5fa",
+    "baseline/gmp_pa.py": "c140bc7c8db837fb2aa029a647be521c31d76542f51b792af5c11e07f60c86d4",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/pa_models.py": "16d003361e3bfd95888d1f420b7963b8814c6cc9996d1f4f8f5a1ac74b5ae935",
+    "experiments/prepare_blackbox_data.py": "79ad7e18d67afc2e860ba6633ea09c2088603d0d31c4fcbfc3bfa920fb767d26",
+    "experiments/select_blackbox_pa.py": "10abf2c8bf4516bc325c081421dbc7bd4cb1a59703f0afa4084df346cc040b9c"
+  },
+  "config": {
+    "path": "experiments/configs/blackbox_pa_v2.json",
+    "sha256": "a16e8bb802557bb7a75255584ae8287e74f26b2be6d9066bbb45cd87cef70b59"
+  },
+  "data_provenance": {
+    "configured_expected_selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "configured_expected_source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "missing_metadata": [
+      "sample_rate_hz",
+      "rf_carrier_hz",
+      "waveform_definition",
+      "frame_boundaries",
+      "occupied_bandwidth_hz",
+      "adjacent_or_harmonic_regions_hz"
+    ],
+    "selection_directory": "data/private/blackbox_v3/selection",
+    "selection_generator": {
+      "project_relative_path": "experiments/prepare_blackbox_data.py",
+      "sha256": "79ad7e18d67afc2e860ba6633ea09c2088603d0d31c4fcbfc3bfa920fb767d26"
+    },
+    "selection_view": "data/private/blackbox_v3/selection/selection_view.json",
+    "selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "semantics": {
+      "eRef": "unknown auxiliary/reference channel",
+      "eRef_used_as_model_input_or_target": false,
+      "status": "must_be_confirmed_by_data_owner",
+      "x": "provisional PA/black-box complex input",
+      "y": "provisional corresponding complex output"
+    },
+    "source_filename": "BlackBoxData.mat",
+    "source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "split_contract": {
+      "train": {
+        "count": 92000,
+        "start": 5000,
+        "stop": 97000
+      },
+      "validation": {
+        "count": 23000,
+        "start": 97000,
+        "stop": 120000
+      }
+    },
+    "verified_selection_files_sha256": {
+      "spec.json": "e04619c71d9958c8d79f3ba2e1d47c4e415a12bf70e2f9e44964a3289b6dba95",
+      "train_input.csv": "cc0b988608bbf482c0ee86e9d9f97d46f08bb6e0c9d86fa39989e7f5553da29d",
+      "train_output.csv": "f80e65867d9d6a1b5352d44feb20b36709d0fdfd98fd08ff7bc0e456f8266b46",
+      "val_input.csv": "9a77dc76b6c6350b0287eeab14e681ea8adcaf363621917a3405fd5f48ed3585",
+      "val_output.csv": "3166e8446892c301327b672792abadbba020d80ccbdb19e30f653ec4f45a5b35"
+    }
+  },
+  "dataset_label": "BlackBoxData external capture",
+  "determinism": {
+    "coefficient_dtype": "complex128",
+    "seed": null,
+    "solver": "numpy augmented complex least squares",
+    "stochastic_fitting": false
+  },
+  "direction": "normalized aligned x -> PA model -> y_hat; compare with measured y",
+  "environment": {
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]"
+  },
+  "model_loading_contract": {
+    "input_transform": "x_normalized = x_source_units / common_train_only_scale",
+    "model_npz_is_not_standalone": true,
+    "output_transform": "y_source_hat = y_normalized_hat * common_train_only_scale",
+    "required_loader": "experiments.select_blackbox_pa.load_frozen_blackbox_pa_selection",
+    "timing_contract": "integer_delay_samples maps input time to observed-output time; it must accompany the model and is not absorbed into coefficients"
+  },
+  "normalization": {
+    "common_train_only_scale": 18336.09364068585,
+    "normalized_train_input_peak": 0.9999999999999999,
+    "normalized_train_output_peak": 1.093882817542217,
+    "normalized_validation_input_peak": 0.9719561049933806,
+    "normalized_validation_output_peak": 1.0855304876366918,
+    "policy": "divide x and y by one common train-input peak",
+    "recomputed_raw_train_input_peak": 18336.09364068585,
+    "scale_source": "selection_view train_input_only contract",
+    "validation_refit": false
+  },
+  "schema_version": 1,
+  "scope": "train_validation_selection_only",
+  "selected_model": {
+    "model_family": "gmp",
+    "path": "experiments/results/blackbox_pa_v2_selection/selected_pa.npz",
+    "sha256": "e4275d0acbdd93642d14aa0f1351b89cc952afbde850e5614ef97286b81fc6f8"
+  },
+  "selection": {
+    "exact_validation_winner": {
+      "candidate_name": "gmp_189_term_causal",
+      "fit_diagnostics": {
+        "causal_warmup_samples": 9,
+        "coefficient_l2_norm": 8891.698222379135,
+        "column_rms_maximum": 0.4021360352810169,
+        "column_rms_minimum": 0.049246046440296024,
+        "feature_count": 189,
+        "future_cooldown_samples": 0,
+        "retained_singular_value_minimum": null,
+        "ridge": 0.0,
+        "sample_count": 92000,
+        "scaled_augmented_condition_number": 2047017.10012082,
+        "segment_count": 1,
+        "segment_length": 92000,
+        "singular_value_cutoff": null,
+        "singular_value_maximum": 6.644395791907392,
+        "singular_value_minimum": 3.245891688699241e-06,
+        "solver": "numpy_column_scaled_complex_lstsq",
+        "solver_mode": "ridge_lstsq",
+        "solver_rank": 189,
+        "svd_rcond": null,
+        "training_nmse_db_full": -28.666984850301212,
+        "training_nmse_db_interior": -28.667892248252166,
+        "training_scored_samples_interior": 91991
+      },
+      "fit_seconds": 7.271670357993571,
+      "model_family": "gmp",
+      "model_specification": {
+        "complex_coefficient_count": 189,
+        "gmp_config": {
+          "ka": 9,
+          "kb": 3,
+          "kc": 3,
+          "la": 9,
+          "lb": 7,
+          "lc": 7,
+          "leading_policy": "causal_leading",
+          "mb": 3,
+          "mc": 3
+        }
+      },
+      "operation_count_per_complex_sample": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+        ],
+        "real_additions": 395,
+        "real_divisions": 0,
+        "real_memory_reads": 576,
+        "real_memory_writes": 10,
+        "real_multiplications": 404,
+        "state_real_values": 83,
+        "stored_real_coefficients": 378,
+        "stored_real_constants": 9
+      },
+      "ridge": 0.0,
+      "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+      "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+      "selection_score_db": -28.647242909198415,
+      "solver": "augmented_complex_lstsq",
+      "validation_common_warmup": {
+        "complex_nmse_pooled_db": -28.647242909198415,
+        "discarded_sample_count": 10,
+        "mse": 0.00022919551151271366,
+        "reference_power": 0.16785349916727904,
+        "relative_error_power": 0.0013654497085241132,
+        "scored_sample_count": 22990,
+        "warmup_samples_at_record_start": 10
+      },
+      "validation_full_record": {
+        "complex_nmse_pooled_db": -28.51443665827417,
+        "discarded_sample_count": 0,
+        "mse": 0.00023627063137188084,
+        "reference_power": 0.16782374480102516,
+        "relative_error_power": 0.0014078498346703414,
+        "scored_sample_count": 23000,
+        "warmup_samples_at_record_start": 0
+      }
+    },
+    "metric": "validation_common_warmup.complex_nmse_pooled_db",
+    "metric_policy": "within each topology retain the largest ridge no worse than its exact best plus practical_ridge_tie_db; then choose the representative with minimum NMSE; analytical cost breaks only an exact NMSE tie",
+    "no_post_fit_alignment_or_gain": true,
+    "practical_ridge_tie_db": 0.1,
+    "protocol_revision": "blackbox_pa_v2_stability_aware_ridge",
+    "selected_trial": {
+      "candidate_name": "gmp_189_term_causal",
+      "fit_diagnostics": {
+        "causal_warmup_samples": 9,
+        "coefficient_l2_norm": 1544.5806170075507,
+        "column_rms_maximum": 0.4021360352810169,
+        "column_rms_minimum": 0.049246046440296024,
+        "feature_count": 189,
+        "future_cooldown_samples": 0,
+        "retained_singular_value_minimum": null,
+        "ridge": 1e-10,
+        "sample_count": 92000,
+        "scaled_augmented_condition_number": 631980.9535771055,
+        "segment_count": 1,
+        "segment_length": 92000,
+        "singular_value_cutoff": null,
+        "singular_value_maximum": 6.644395791914906,
+        "singular_value_minimum": 1.0513601326601134e-05,
+        "solver": "numpy_column_scaled_complex_lstsq",
+        "solver_mode": "ridge_lstsq",
+        "solver_rank": 189,
+        "svd_rcond": null,
+        "training_nmse_db_full": -28.606258338824468,
+        "training_nmse_db_interior": -28.607110205674697,
+        "training_scored_samples_interior": 91991
+      },
+      "fit_seconds": 10.15936240699375,
+      "model_family": "gmp",
+      "model_specification": {
+        "complex_coefficient_count": 189,
+        "gmp_config": {
+          "ka": 9,
+          "kb": 3,
+          "kc": 3,
+          "la": 9,
+          "lb": 7,
+          "lc": 7,
+          "leading_policy": "causal_leading",
+          "mb": 3,
+          "mc": 3
+        }
+      },
+      "operation_count_per_complex_sample": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 1,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "factorized y=sum_q x[n-q]*h_q kernel",
+          "leading policy causal_leading; lookahead=0 samples",
+          "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+        ],
+        "real_additions": 395,
+        "real_divisions": 0,
+        "real_memory_reads": 576,
+        "real_memory_writes": 10,
+        "real_multiplications": 404,
+        "state_real_values": 83,
+        "stored_real_coefficients": 378,
+        "stored_real_constants": 9
+      },
+      "ridge": 1e-10,
+      "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+      "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+      "selection_score_db": -28.5904324992657,
+      "solver": "augmented_complex_lstsq",
+      "validation_common_warmup": {
+        "complex_nmse_pooled_db": -28.5904324992657,
+        "discarded_sample_count": 10,
+        "mse": 0.00023221333154452162,
+        "reference_power": 0.16785349916727904,
+        "relative_error_power": 0.0013834286011106805,
+        "scored_sample_count": 22990,
+        "warmup_samples_at_record_start": 10
+      },
+      "validation_full_record": {
+        "complex_nmse_pooled_db": -28.45778641894365,
+        "discarded_sample_count": 0,
+        "mse": 0.00023937278120605399,
+        "reference_power": 0.16782374480102516,
+        "relative_error_power": 0.0014263344051216272,
+        "scored_sample_count": 23000,
+        "warmup_samples_at_record_start": 0
+      }
+    },
+    "split": "validation",
+    "topology_representatives": [
+      {
+        "candidate_name": "mp_linear_fir_m9",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10,
+          1e-08,
+          1e-06
+        ],
+        "exact_best_nmse_db": -17.576956125752233,
+        "model_family": "mp",
+        "practical_threshold_nmse_db": -17.47695612575223,
+        "representative_trial": {
+          "candidate_name": "mp_linear_fir_m9",
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 620.9959758447628,
+            "causal_warmup_samples": 8,
+            "feature_count": 9,
+            "gram_condition_number": 385636.00201538927,
+            "maximum_training_input_amplitude": 0.9999999999999999,
+            "ridge": 1e-06,
+            "sample_count": 92000,
+            "segment_count": 1,
+            "segment_length": null,
+            "solver": "augmented_complex_lstsq",
+            "solver_rank": 9,
+            "state_reset_policy": "once_at_record_start",
+            "training_mse_after_warmup": 0.002915482758167289,
+            "training_mse_full": 0.002915453334260032,
+            "training_nmse_db_after_warmup": -17.551756433944465,
+            "training_nmse_db_full": -17.552039125622073,
+            "training_relative_error_power_after_warmup": 0.017572127938724088,
+            "training_relative_error_power_full": 0.01757098416811125,
+            "training_scored_samples_after_warmup": 91992
+          },
+          "fit_seconds": 0.22475782601395622,
+          "model_family": "mp",
+          "model_specification": {
+            "complex_coefficient_count": 9,
+            "delays": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "orders": [
+              1
+            ]
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 9,
+            "lookups": 0,
+            "nonlinear_operations": 0,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "shared |x|^2, sqrt, and envelope powers per delay",
+              "analytical arithmetic lower bound; delay-buffer capacity is counted, dynamic traffic and power/address control are not measured"
+            ],
+            "real_additions": 34,
+            "real_divisions": 0,
+            "real_memory_reads": 36,
+            "real_memory_writes": 2,
+            "real_multiplications": 36,
+            "state_real_values": 16,
+            "stored_real_coefficients": 18,
+            "stored_real_constants": 10
+          },
+          "ridge": 1e-06,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -17.576365091119943,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -17.576365091119943,
+            "discarded_sample_count": 10,
+            "mse": 0.002932877272414937,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.017472839630778843,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -17.57525705326907,
+            "discarded_sample_count": 0,
+            "mse": 0.0029331056220141044,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.017477298134966818,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "mp_odd_o9_m9",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10,
+          1e-08
+        ],
+        "exact_best_nmse_db": -25.581358365299074,
+        "model_family": "mp",
+        "practical_threshold_nmse_db": -25.481358365299073,
+        "representative_trial": {
+          "candidate_name": "mp_odd_o9_m9",
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 3434.107981415962,
+            "causal_warmup_samples": 8,
+            "feature_count": 45,
+            "gram_condition_number": 11793097.628024813,
+            "maximum_training_input_amplitude": 0.9999999999999999,
+            "ridge": 1e-08,
+            "sample_count": 92000,
+            "segment_count": 1,
+            "segment_length": null,
+            "solver": "augmented_complex_lstsq",
+            "solver_rank": 45,
+            "state_reset_policy": "once_at_record_start",
+            "training_mse_after_warmup": 0.0004687349646959206,
+            "training_mse_full": 0.000468795688584373,
+            "training_nmse_db_after_warmup": -25.489587704111475,
+            "training_nmse_db_full": -25.489263979962367,
+            "training_relative_error_power_after_warmup": 0.002825148166599934,
+            "training_relative_error_power_full": 0.002825358761671109,
+            "training_scored_samples_after_warmup": 91992
+          },
+          "fit_seconds": 1.5314657889830414,
+          "model_family": "mp",
+          "model_specification": {
+            "complex_coefficient_count": 45,
+            "delays": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "orders": [
+              1,
+              3,
+              5,
+              7,
+              9
+            ]
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 9,
+            "lookups": 0,
+            "nonlinear_operations": 0,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "shared |x|^2, sqrt, and envelope powers per delay",
+              "analytical arithmetic lower bound; delay-buffer capacity is counted, dynamic traffic and power/address control are not measured"
+            ],
+            "real_additions": 187,
+            "real_divisions": 0,
+            "real_memory_reads": 108,
+            "real_memory_writes": 2,
+            "real_multiplications": 297,
+            "state_real_values": 16,
+            "stored_real_coefficients": 90,
+            "stored_real_constants": 14
+          },
+          "ridge": 1e-08,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -25.579948210822714,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -25.579948210822714,
+            "discarded_sample_count": 10,
+            "mse": 0.0004644463756169767,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.002766974641107242,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -25.540400773928784,
+            "discarded_sample_count": 0,
+            "mse": 0.00046861191870099485,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.00279228615269305,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "mp_full_o9_m9",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11
+        ],
+        "exact_best_nmse_db": -26.425923859277837,
+        "model_family": "mp",
+        "practical_threshold_nmse_db": -26.325923859277836,
+        "representative_trial": {
+          "candidate_name": "mp_full_o9_m9",
+          "fit_diagnostics": {
+            "augmented_design_condition_number": 243099.82034665605,
+            "causal_warmup_samples": 8,
+            "feature_count": 81,
+            "gram_condition_number": 59097522652.57645,
+            "maximum_training_input_amplitude": 0.9999999999999999,
+            "ridge": 1e-11,
+            "sample_count": 92000,
+            "segment_count": 1,
+            "segment_length": null,
+            "solver": "augmented_complex_lstsq",
+            "solver_rank": 81,
+            "state_reset_policy": "once_at_record_start",
+            "training_mse_after_warmup": 0.00039288546888360804,
+            "training_mse_full": 0.00039297125224706074,
+            "training_nmse_db_after_warmup": -26.256201543370047,
+            "training_nmse_db_full": -26.255492261195087,
+            "training_relative_error_power_after_warmup": 0.0023679898998367607,
+            "training_relative_error_power_full": 0.0023683766674003305,
+            "training_scored_samples_after_warmup": 91992
+          },
+          "fit_seconds": 5.335577117977664,
+          "model_family": "mp",
+          "model_specification": {
+            "complex_coefficient_count": 81,
+            "delays": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "orders": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 9,
+            "lookups": 0,
+            "nonlinear_operations": 9,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "shared |x|^2, sqrt, and envelope powers per delay",
+              "analytical arithmetic lower bound; delay-buffer capacity is counted, dynamic traffic and power/address control are not measured"
+            ],
+            "real_additions": 331,
+            "real_divisions": 0,
+            "real_memory_reads": 180,
+            "real_memory_writes": 2,
+            "real_multiplications": 540,
+            "state_real_values": 16,
+            "stored_real_coefficients": 162,
+            "stored_real_constants": 18
+          },
+          "ridge": 1e-11,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -26.35287130177514,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -26.35287130177514,
+            "discarded_sample_count": 10,
+            "mse": 0.00038872571320655857,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.0023158630301723005,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -26.2715428377576,
+            "discarded_sample_count": 0,
+            "mse": 0.0003960035907437733,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.0023596398186280627,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "gmp_aligned_k5_l9",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10,
+          1e-08,
+          1e-06
+        ],
+        "exact_best_nmse_db": -25.982237357702008,
+        "model_family": "gmp",
+        "practical_threshold_nmse_db": -25.882237357702007,
+        "representative_trial": {
+          "candidate_name": "gmp_aligned_k5_l9",
+          "fit_diagnostics": {
+            "causal_warmup_samples": 8,
+            "coefficient_l2_norm": 36.74027195952931,
+            "column_rms_maximum": 0.4021360352810169,
+            "column_rms_minimum": 0.08952870205599354,
+            "feature_count": 45,
+            "future_cooldown_samples": 0,
+            "retained_singular_value_minimum": null,
+            "ridge": 1e-06,
+            "sample_count": 92000,
+            "scaled_augmented_condition_number": 2950.3522283341326,
+            "segment_count": 1,
+            "segment_length": 92000,
+            "singular_value_cutoff": null,
+            "singular_value_maximum": 3.196847092029141,
+            "singular_value_minimum": 0.0010835476053766596,
+            "solver": "numpy_column_scaled_complex_lstsq",
+            "solver_mode": "ridge_lstsq",
+            "solver_rank": 45,
+            "svd_rcond": null,
+            "training_nmse_db_full": -25.847006917826562,
+            "training_nmse_db_interior": -25.847066032748174,
+            "training_scored_samples_interior": 91992
+          },
+          "fit_seconds": 0.8319750709924847,
+          "model_family": "gmp",
+          "model_specification": {
+            "complex_coefficient_count": 45,
+            "gmp_config": {
+              "ka": 5,
+              "kb": 0,
+              "kc": 0,
+              "la": 9,
+              "lb": 0,
+              "lc": 0,
+              "leading_policy": "causal_leading",
+              "mb": 0,
+              "mc": 0
+            }
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 107,
+            "real_divisions": 0,
+            "real_memory_reads": 144,
+            "real_memory_writes": 6,
+            "real_multiplications": 112,
+            "state_real_values": 48,
+            "stored_real_coefficients": 90,
+            "stored_real_constants": 9
+          },
+          "ridge": 1e-06,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -25.94465412913809,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -25.94465412913809,
+            "discarded_sample_count": 10,
+            "mse": 0.0004270364895153428,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.0025441023966367706,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -25.939537277670706,
+            "discarded_sample_count": 0,
+            "mse": 0.00042746413242335853,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.0025471016209903294,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "gmp_lag_k2_l9_m2",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10,
+          1e-08
+        ],
+        "exact_best_nmse_db": -27.405451290708736,
+        "model_family": "gmp",
+        "practical_threshold_nmse_db": -27.305451290708735,
+        "representative_trial": {
+          "candidate_name": "gmp_lag_k2_l9_m2",
+          "fit_diagnostics": {
+            "causal_warmup_samples": 10,
+            "coefficient_l2_norm": 276.2603404736267,
+            "column_rms_maximum": 0.4021360352810169,
+            "column_rms_minimum": 0.06363033875547397,
+            "feature_count": 99,
+            "future_cooldown_samples": 0,
+            "retained_singular_value_minimum": null,
+            "ridge": 1e-08,
+            "sample_count": 92000,
+            "scaled_augmented_condition_number": 35322.405801941095,
+            "segment_count": 1,
+            "segment_length": 92000,
+            "singular_value_cutoff": null,
+            "singular_value_maximum": 4.644238362803375,
+            "singular_value_minimum": 0.0001314813715929892,
+            "solver": "numpy_column_scaled_complex_lstsq",
+            "solver_mode": "ridge_lstsq",
+            "solver_rank": 99,
+            "svd_rcond": null,
+            "training_nmse_db_full": -27.28039219884674,
+            "training_nmse_db_interior": -27.281220675969998,
+            "training_scored_samples_interior": 91990
+          },
+          "fit_seconds": 4.966077049000887,
+          "model_family": "gmp",
+          "model_specification": {
+            "complex_coefficient_count": 99,
+            "gmp_config": {
+              "ka": 7,
+              "kb": 2,
+              "kc": 0,
+              "la": 9,
+              "lb": 9,
+              "lc": 0,
+              "leading_policy": "causal_leading",
+              "mb": 2,
+              "mc": 0
+            }
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 215,
+            "real_divisions": 0,
+            "real_memory_reads": 306,
+            "real_memory_writes": 8,
+            "real_multiplications": 222,
+            "state_real_values": 68,
+            "stored_real_coefficients": 198,
+            "stored_real_constants": 9
+          },
+          "ridge": 1e-08,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -27.323507506422406,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -27.323507506422406,
+            "discarded_sample_count": 10,
+            "mse": 0.0003108705979781984,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.0018520352540782705,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -27.224538487599954,
+            "discarded_sample_count": 0,
+            "mse": 0.00031797981980907525,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.0018947248506823503,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "gmp_both_k2_l9_m2",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10
+        ],
+        "exact_best_nmse_db": -28.253130260511035,
+        "model_family": "gmp",
+        "practical_threshold_nmse_db": -28.153130260511034,
+        "representative_trial": {
+          "candidate_name": "gmp_both_k2_l9_m2",
+          "fit_diagnostics": {
+            "causal_warmup_samples": 10,
+            "coefficient_l2_norm": 603.03038924254,
+            "column_rms_maximum": 0.4021360352810169,
+            "column_rms_minimum": 0.06363033875547397,
+            "feature_count": 129,
+            "future_cooldown_samples": 0,
+            "retained_singular_value_minimum": null,
+            "ridge": 1e-10,
+            "sample_count": 92000,
+            "scaled_augmented_condition_number": 63619.22562777051,
+            "segment_count": 1,
+            "segment_length": 92000,
+            "singular_value_cutoff": null,
+            "singular_value_maximum": 5.4661286507823235,
+            "singular_value_minimum": 8.591944646990951e-05,
+            "solver": "numpy_column_scaled_complex_lstsq",
+            "solver_mode": "ridge_lstsq",
+            "solver_rank": 129,
+            "svd_rcond": null,
+            "training_nmse_db_full": -28.259514584449686,
+            "training_nmse_db_interior": -28.260513499443682,
+            "training_scored_samples_interior": 91990
+          },
+          "fit_seconds": 4.6675247509847395,
+          "model_family": "gmp",
+          "model_specification": {
+            "complex_coefficient_count": 129,
+            "gmp_config": {
+              "ka": 7,
+              "kb": 2,
+              "kc": 2,
+              "la": 9,
+              "lb": 9,
+              "lc": 9,
+              "leading_policy": "causal_leading",
+              "mb": 2,
+              "mc": 2
+            }
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 275,
+            "real_divisions": 0,
+            "real_memory_reads": 396,
+            "real_memory_writes": 8,
+            "real_multiplications": 282,
+            "state_real_values": 68,
+            "stored_real_coefficients": 258,
+            "stored_real_constants": 9
+          },
+          "ridge": 1e-10,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -28.253130260511035,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -28.253130260511035,
+            "discarded_sample_count": 10,
+            "mse": 0.00025096743567132047,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.0014951576041987182,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -28.132734254660523,
+            "discarded_sample_count": 0,
+            "mse": 0.00025797640250281904,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.0015371865453764036,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      },
+      {
+        "candidate_name": "gmp_189_term_causal",
+        "eligible_ridges": [
+          0.0,
+          1e-12,
+          1e-11,
+          1e-10
+        ],
+        "exact_best_nmse_db": -28.647242909198415,
+        "model_family": "gmp",
+        "practical_threshold_nmse_db": -28.547242909198413,
+        "representative_trial": {
+          "candidate_name": "gmp_189_term_causal",
+          "fit_diagnostics": {
+            "causal_warmup_samples": 9,
+            "coefficient_l2_norm": 1544.5806170075507,
+            "column_rms_maximum": 0.4021360352810169,
+            "column_rms_minimum": 0.049246046440296024,
+            "feature_count": 189,
+            "future_cooldown_samples": 0,
+            "retained_singular_value_minimum": null,
+            "ridge": 1e-10,
+            "sample_count": 92000,
+            "scaled_augmented_condition_number": 631980.9535771055,
+            "segment_count": 1,
+            "segment_length": 92000,
+            "singular_value_cutoff": null,
+            "singular_value_maximum": 6.644395791914906,
+            "singular_value_minimum": 1.0513601326601134e-05,
+            "solver": "numpy_column_scaled_complex_lstsq",
+            "solver_mode": "ridge_lstsq",
+            "solver_rank": 189,
+            "svd_rcond": null,
+            "training_nmse_db_full": -28.606258338824468,
+            "training_nmse_db_interior": -28.607110205674697,
+            "training_scored_samples_interior": 91991
+          },
+          "fit_seconds": 10.15936240699375,
+          "model_family": "gmp",
+          "model_specification": {
+            "complex_coefficient_count": 189,
+            "gmp_config": {
+              "ka": 9,
+              "kb": 3,
+              "kc": 3,
+              "la": 9,
+              "lb": 7,
+              "lc": 7,
+              "leading_policy": "causal_leading",
+              "mb": 3,
+              "mc": 3
+            }
+          },
+          "operation_count_per_complex_sample": {
+            "comparisons": 0,
+            "lookups": 0,
+            "nonlinear_operations": 1,
+            "notes": [
+              "complex multiply convention 4m2a",
+              "factorized y=sum_q x[n-q]*h_q kernel",
+              "leading policy causal_leading; lookahead=0 samples",
+              "persistent state stores raw I/Q and delayed amplitude-power streams; static addressing assumes no per-sample comparisons"
+            ],
+            "real_additions": 395,
+            "real_divisions": 0,
+            "real_memory_reads": 576,
+            "real_memory_writes": 10,
+            "real_multiplications": 404,
+            "state_real_values": 83,
+            "stored_real_coefficients": 378,
+            "stored_real_constants": 9
+          },
+          "ridge": 1e-10,
+          "score_transform": "direct model prediction versus measured y; no post-fit delay or gain",
+          "selection_metric_name": "validation_common_warmup.complex_nmse_pooled_db",
+          "selection_score_db": -28.5904324992657,
+          "solver": "augmented_complex_lstsq",
+          "validation_common_warmup": {
+            "complex_nmse_pooled_db": -28.5904324992657,
+            "discarded_sample_count": 10,
+            "mse": 0.00023221333154452162,
+            "reference_power": 0.16785349916727904,
+            "relative_error_power": 0.0013834286011106805,
+            "scored_sample_count": 22990,
+            "warmup_samples_at_record_start": 10
+          },
+          "validation_full_record": {
+            "complex_nmse_pooled_db": -28.45778641894365,
+            "discarded_sample_count": 0,
+            "mse": 0.00023937278120605399,
+            "reference_power": 0.16782374480102516,
+            "relative_error_power": 0.0014263344051216272,
+            "scored_sample_count": 23000,
+            "warmup_samples_at_record_start": 0
+          }
+        }
+      }
+    ]
+  },
+  "sequence_contract": {
+    "common_warmup_samples_at_record_start": 10,
+    "frame_length_invented": false,
+    "state_reset": "once at each record start",
+    "train": "one independent chronological record",
+    "validation": "one independent chronological record"
+  },
+  "task": "blackbox_forward_pa_identification_model_selection",
+  "unavailable_metrics": {
+    "frame_mean_nmse": "not computed because frame boundaries are unknown",
+    "spectral_metrics": "not computed because sample rate and RF regions are unknown"
+  }
+}
