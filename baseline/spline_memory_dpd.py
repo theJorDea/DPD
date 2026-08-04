@@ -28,7 +28,6 @@ not fitted as unrelated models, and the architecture obeys
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import cached_property
 import math
 from pathlib import Path
 from typing import Iterable, Literal
@@ -38,6 +37,7 @@ import numpy as np
 from .complex_spline_dpd import (
     KnotStrategy,
     _strict_knots,
+    local_spline_coordinates,
     make_knots,
     spline_basis,
 )
@@ -112,30 +112,6 @@ def _causal_delay(signal: np.ndarray, delay: int) -> np.ndarray:
     elif delay < signal.size:
         result[delay:] = signal[:-delay]
     return result
-
-
-def _local_spline_coordinates_from_envelope(
-    envelope: np.ndarray,
-    knots: np.ndarray,
-    reciprocal_knot_widths: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Return local coordinates for one already selected envelope delay.
-
-    This is the optimized inference-path counterpart of
-    :func:`baseline.complex_spline_dpd.local_spline_coordinates`.  The caller
-    supplies one reciprocal per knot interval, so interpolation uses a
-    multiply rather than a division for every sample.  Model construction
-    validates the knots, and ``SparseSplineMemoryDPD`` owns the read-only
-    reciprocal table; this private helper therefore avoids repeating those
-    deployment-table checks in every streaming chunk.
-    """
-
-    radii = np.abs(envelope)
-    clipped = np.clip(radii, knots[0], knots[-1])
-    left = np.searchsorted(knots, clipped, side="right") - 1
-    left = np.clip(left, 0, knots.size - 2)
-    weight = (clipped - knots[left]) * reciprocal_knot_widths[left]
-    return left.astype(np.int64, copy=False), weight
 
 
 def spline_memory_design_matrix(
@@ -232,27 +208,9 @@ class SparseSplineMemoryDPD:
             coefficients = coefficients.astype(np.complex128)
         if not np.all(np.isfinite(coefficients)):
             raise ValueError("coefficients contain NaN or infinite values")
-        # ``frozen=True`` prevents attribute rebinding but not in-place ndarray
-        # mutation.  The reciprocal-width cache is derived from this table, so
-        # make the copied authoritative knots genuinely immutable as well.
-        knots.setflags(write=False)
         object.__setattr__(self, "knots", knots)
         object.__setattr__(self, "branches", branches)
         object.__setattr__(self, "coefficients", coefficients.copy())
-
-    @cached_property
-    def _reciprocal_knot_widths(self) -> np.ndarray:
-        """Read-only reciprocal interval widths, outside sample-rate work.
-
-        The derived table is deliberately absent from the constructor and NPZ
-        schema.  It is created once per loaded/constructed model, cached in the
-        instance, and recomputed from the authoritative knot table after a
-        save/load round trip.
-        """
-
-        reciprocal = np.reciprocal(np.diff(self.knots))
-        reciprocal.setflags(write=False)
-        return reciprocal
 
     @property
     def branch_count(self) -> int:
@@ -329,38 +287,19 @@ class SparseSplineMemoryDPD:
         history_length = self.maximum_delay
         output = np.zeros(samples.size, dtype=np.complex128)
 
-        # Several branches may use the same delayed envelope.  Addressing the
-        # spline separately inside the branch loop would repeat magnitude,
-        # interval search, and interpolation-weight work that operation_count
-        # explicitly treats as shared.  Cache one vectorized coordinate pair
-        # per unique envelope delay for this chunk instead.
-        coordinates_by_envelope_delay: dict[
-            int, tuple[np.ndarray, np.ndarray]
-        ] = {}
-        reciprocal_knot_widths = self._reciprocal_knot_widths
-        for envelope_delay in dict.fromkeys(
-            branch.envelope_delay for branch in self.branches
-        ):
-            envelope_start = history_length - envelope_delay
-            envelope_lag = delay_line[
-                envelope_start:envelope_start + samples.size
-            ]
-            coordinates_by_envelope_delay[envelope_delay] = (
-                _local_spline_coordinates_from_envelope(
-                    envelope_lag,
-                    self.knots,
-                    reciprocal_knot_widths,
-                )
-            )
-
         for branch_index, branch in enumerate(self.branches):
             signal_start = history_length - branch.signal_delay
+            envelope_start = history_length - branch.envelope_delay
             signal_lag = delay_line[
                 signal_start:signal_start + samples.size
             ]
-            left, weight = coordinates_by_envelope_delay[
-                branch.envelope_delay
+            envelope_lag = delay_line[
+                envelope_start:envelope_start + samples.size
             ]
+            left, weight = local_spline_coordinates(
+                np.abs(envelope_lag),
+                self.knots,
+            )
             branch_coefficients = self.coefficients[branch_index]
             correction = branch_coefficients[left] + weight * (
                 branch_coefficients[left + 1] - branch_coefficients[left]
@@ -420,12 +359,6 @@ class SparseSplineMemoryDPD:
     ) -> OperationCount:
         """Return an auditable per-sample arithmetic/storage count.
 
-        This is the arithmetic count of the optimized vectorized/reference
-        datapath implemented by :meth:`predict_chunk`; it is not a Python
-        wall-clock or target-hardware timing measurement.  Host timing is
-        benchmarked separately because array dispatch, allocation, memory
-        hierarchy, and chunk size are not represented by this count.
-
         Envelope magnitude, knot address, and interpolation weight are shared
         by branches having the same ``envelope_delay``.  Delay-line control and
         physical cache/bus behavior remain implementation-dependent and are
@@ -482,20 +415,12 @@ class SparseSplineMemoryDPD:
                     "weight shared within each group"
                 ),
                 (
-                    "reciprocal knot widths are precomputed once per model; "
-                    "sample-path interpolation has no division"
-                ),
-                (
                     f"{unique_input_delays} unique input delays; delayed sample "
                     "reads shared when signal/envelope taps coincide"
                 ),
                 (
                     "delay-line state size included; physical memory traffic "
                     "and control latency are implementation-dependent"
-                ),
-                (
-                    "optimized vectorized/reference datapath arithmetic only; "
-                    "Python wall-clock and target timing are measured separately"
                 ),
             ),
         )
