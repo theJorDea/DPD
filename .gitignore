@@ -24,3 +24,7 @@ experiments/results/**/tmp/
 
 # Nested upstream repositories are published as submodule pointers.
 vendor/*/.git/
+
+# External or potentially restricted measurement captures.  Commit loaders,
+# manifests, and aggregate results; do not publish raw captures by accident.
+data/private/
