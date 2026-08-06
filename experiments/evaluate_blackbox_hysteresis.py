@@ -17,8 +17,10 @@ import numpy as np
 from baseline.complex_spline_dpd import make_knots
 from baseline.gmp_pa import GMPConfig, fit_gmp_pa
 from baseline.hysteresis_spline_dpd import (
+    ResidualHysteresisSplineMemoryDPD,
     branch_hysteresis_gate,
     fit_residual_hysteresis_spline_memory_dpd,
+    hysteresis_design_matrices,
 )
 from baseline.metrics import nmse_pooled_db
 from baseline.spline_memory_dpd import (
@@ -121,6 +123,48 @@ def residual_direction_analysis(
     return {"branches": result}
 
 
+def fit_one_branch_residual(
+    calibration_input: np.ndarray,
+    target: np.ndarray,
+    *,
+    knots: np.ndarray,
+    branches: tuple[SplineMemoryBranch, ...],
+    active_branch: int,
+    deadband: float,
+    ridge_baseline: float,
+    ridge_residual: float,
+) -> ResidualHysteresisSplineMemoryDPD:
+    """Fit baseline plus one selected hysteresis branch only."""
+    base, residual, _ = hysteresis_design_matrices(
+        calibration_input, knots, branches, deadband
+    )
+    warmup = max(max(b.signal_delay, b.envelope_delay + 1) for b in branches)
+    base = base[warmup:]
+    residual = residual[warmup:]
+    target = target[warmup:]
+    knot_count = knots.size
+    start = active_branch * knot_count
+    stop = start + knot_count
+    residual_active = residual[:, start:stop]
+    feature_count = base.shape[1]
+    joint = np.column_stack((base, residual_active)) / np.sqrt(float(target.size))
+    regularizer = np.zeros((feature_count + knot_count, feature_count + knot_count), dtype=np.complex128)
+    regularizer[:feature_count, :feature_count] = np.sqrt(ridge_baseline) * np.eye(feature_count)
+    regularizer[feature_count:, feature_count:] = np.sqrt(ridge_residual) * np.eye(knot_count)
+    augmented = np.vstack((joint, regularizer))
+    augmented_target = np.concatenate((target / np.sqrt(float(target.size)), np.zeros(feature_count + knot_count, dtype=np.complex128)))
+    solved = np.linalg.lstsq(augmented, augmented_target, rcond=None)[0]
+    residual_coefficients = np.zeros((len(branches), knot_count), dtype=np.complex128)
+    residual_coefficients[active_branch] = solved[feature_count:]
+    return ResidualHysteresisSplineMemoryDPD(
+        knots=knots,
+        branches=branches,
+        baseline_coefficients=solved[:feature_count].reshape(len(branches), knot_count),
+        residual_coefficients=residual_coefficients,
+        deadband=deadband,
+    )
+
+
 def main() -> None:
     train_x_raw = read_iq(SELECTION_DIR / "train_input.csv")
     train_y_raw = read_iq(SELECTION_DIR / "train_output.csv")
@@ -205,6 +249,26 @@ def main() -> None:
                 "operation_count_online_residual": model.operation_count(precomputed_banks=False).to_dict(),
             })
 
+    sparse_rows = []
+    for active_branch in range(len(BRANCHES)):
+        for ridge_residual in (1e-2, 1e-1, 1.0):
+            model = fit_one_branch_residual(
+                ila_input, train_x, knots=knots, branches=BRANCHES,
+                active_branch=active_branch, deadband=0.5 * delta_scale,
+                ridge_baseline=RIDGE_BASELINE, ridge_residual=ridge_residual,
+            )
+            drive = model.predict(val_x)
+            output = pa_model.predict(drive)
+            metrics = pooled_metrics(output, ideal_val)
+            sparse_rows.append({
+                "active_branch": active_branch,
+                "ridge_residual": ridge_residual,
+                "metrics": metrics,
+                "improvement_vs_baseline_db": float(10.0 * np.log10(baseline_metrics["mse"] / metrics["mse"])),
+                "residual_to_baseline_norm": float(np.linalg.norm(model.residual_coefficients) / max(np.linalg.norm(model.baseline_coefficients), 1e-30)),
+                "segment_nmse_db": segment_nmse(output, ideal_val),
+            })
+
     best = min(hysteresis_rows, key=lambda row: row["metrics"]["nmse_db"])
     report = {
         "schema_version": 1,
@@ -225,6 +289,7 @@ def main() -> None:
         "delta_scale_median": delta_scale,
         "baseline_residual_direction_analysis": residual_analysis,
         "hysteresis": hysteresis_rows,
+        "sparse_one_branch_hysteresis": sparse_rows,
         "best_by_validation_nmse": best,
         "status": "surrogate-only; validation used for alpha selection; no physical PA measurement",
     }
@@ -236,6 +301,7 @@ def main() -> None:
         "best_hysteresis_alpha": best["alpha"],
         "best_hysteresis_nmse_db": best["metrics"]["nmse_db"],
         "best_gain_vs_baseline_db": best["improvement_vs_baseline_db"],
+        "best_sparse_gain_vs_baseline_db": max(row["improvement_vs_baseline_db"] for row in sparse_rows),
         "best_residual_ratio": best["residual_to_baseline_norm"],
         "output": str(OUTPUT_PATH),
     }, ensure_ascii=False, indent=2))
