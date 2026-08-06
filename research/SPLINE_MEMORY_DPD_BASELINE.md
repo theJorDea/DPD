@@ -20,7 +20,7 @@ z[n]=\sum_{m=0}^{2}x[n-m]C_m(|x[n-m]|).
 
 ## Зафиксированный BlackBox результат
 
-В эксперименте `experiments/evaluate_blackbox_hysteresis.py`:
+В зафиксированном BlackBox benchmark:
 
 - no DPD: `-16.00477 dB` pooled cascade NMSE;
 - Spline Memory DPD: `-17.19093 dB`;
