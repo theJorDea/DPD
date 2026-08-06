@@ -1,0 +1,2379 @@
+{
+  "schema_version": 1,
+  "dataset": "BlackBox capture; train 92000, validation 23000",
+  "pa_evaluator": {
+    "model": "causal GMP",
+    "coefficient_count": 189,
+    "fit_seconds": 9.253030287043657,
+    "validation_nmse_db": -28.493138489057284
+  },
+  "baseline": {
+    "branches": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "knot_count": 24,
+    "metrics": {
+      "nmse_db": -17.190934487662922,
+      "mse": 0.0031198841372285665,
+      "peak": 1.0222110327967655,
+      "papr_db": 8.0823184879939
+    },
+    "fit_diagnostics": {
+      "sample_count": 92000,
+      "branch_count": 3,
+      "knot_count": 24,
+      "feature_count": 72,
+      "ridge": 0.0001,
+      "gram_condition_number": 430.94876408366486,
+      "augmented_design_condition_number": 20.7593054817271,
+      "solver_rank": 72,
+      "solver": "augmented_complex_lstsq",
+      "causal_warmup_samples": 2,
+      "training_mse_full": 0.0005544109461397812,
+      "training_relative_error_power_full": 0.0034283552101149395,
+      "training_nmse_db_full": -24.649141873903627,
+      "training_mse_after_warmup": 0.0005544130754187365,
+      "training_relative_error_power_after_warmup": 0.003428302951223776,
+      "training_nmse_db_after_warmup": -24.649208074514853,
+      "maximum_calibration_radius": 1.0942975472500822
+    }
+  },
+  "no_dpd": {
+    "nmse_db": -16.004770663744342,
+    "mse": 0.004099726152918821,
+    "peak": 1.0540003577139563,
+    "papr_db": 8.212136018094737
+  },
+  "delta_scale_median": 0.12105574575658848,
+  "baseline_residual_direction_analysis": {
+    "branches": [
+      {
+        "signal_delay": 0,
+        "envelope_delay": 0,
+        "bins": [
+          {
+            "radius_left": 0.002769074487407845,
+            "radius_right": 0.15044967936043913,
+            "rising_count": 361,
+            "falling_count": 2514,
+            "mean_error_rising_real": -0.00138582769764743,
+            "mean_error_rising_imag": 0.0019702446038027017,
+            "mean_error_falling_real": 0.00012093449534599151,
+            "mean_error_falling_imag": 0.00025414535340965083,
+            "mean_difference_abs": 0.002283709470014506
+          },
+          {
+            "radius_left": 0.15044967936043913,
+            "radius_right": 0.21840855237064766,
+            "rising_count": 844,
+            "falling_count": 2033,
+            "mean_error_rising_real": 0.0009034053859421516,
+            "mean_error_rising_imag": -0.00016933812652118488,
+            "mean_error_falling_real": -0.0008295966996806579,
+            "mean_error_falling_imag": 0.0001253410281302743,
+            "mean_difference_abs": 0.0017578771381865988
+          },
+          {
+            "radius_left": 0.21840855237064766,
+            "radius_right": 0.27843649984796237,
+            "rising_count": 1241,
+            "falling_count": 1634,
+            "mean_error_rising_real": -0.0014585294601702967,
+            "mean_error_rising_imag": -6.457775715083145e-05,
+            "mean_error_falling_real": 0.00056687276317986,
+            "mean_error_falling_imag": -0.001890355644836351,
+            "mean_difference_abs": 0.002726851492383323
+          },
+          {
+            "radius_left": 0.27843649984796237,
+            "radius_right": 0.3389579702238107,
+            "rising_count": 1439,
+            "falling_count": 1437,
+            "mean_error_rising_real": 0.0027395790324855384,
+            "mean_error_rising_imag": -0.0003371287363359857,
+            "mean_error_falling_real": 0.0001644658871871194,
+            "mean_error_falling_imag": 0.00090830481025648,
+            "mean_difference_abs": 0.002860474161754761
+          },
+          {
+            "radius_left": 0.3389579702238107,
+            "radius_right": 0.4023840992900972,
+            "rising_count": 1643,
+            "falling_count": 1232,
+            "mean_error_rising_real": 4.689331453997935e-05,
+            "mean_error_rising_imag": 0.0018386968779525105,
+            "mean_error_falling_real": -0.0002918270514016258,
+            "mean_error_falling_imag": 0.001015960933989399,
+            "mean_difference_abs": 0.0008897336229414324
+          },
+          {
+            "radius_left": 0.4023840992900972,
+            "radius_right": 0.47747357752441166,
+            "rising_count": 1796,
+            "falling_count": 1079,
+            "mean_error_rising_real": 0.0006391508510007676,
+            "mean_error_rising_imag": -0.0007783892210059706,
+            "mean_error_falling_real": -0.0007481579020292457,
+            "mean_error_falling_imag": -0.00288302681163424,
+            "mean_difference_abs": 0.002520738971833311
+          },
+          {
+            "radius_left": 0.47747357752441166,
+            "radius_right": 0.5862632364611298,
+            "rising_count": 1973,
+            "falling_count": 902,
+            "mean_error_rising_real": 0.00021966458127779405,
+            "mean_error_rising_imag": 0.0009157738219572082,
+            "mean_error_falling_real": 0.0017942832840544352,
+            "mean_error_falling_imag": 0.0012541422187983932,
+            "mean_difference_abs": 0.0016105642586108962
+          },
+          {
+            "radius_left": 0.5862632364611298,
+            "radius_right": 0.9719561049933806,
+            "rising_count": 2216,
+            "falling_count": 659,
+            "mean_error_rising_real": -0.0005218677488967177,
+            "mean_error_rising_imag": -0.0016808499235191924,
+            "mean_error_falling_real": 0.0008261332287786559,
+            "mean_error_falling_imag": -0.00017078800634526316,
+            "mean_difference_abs": 0.002024201973497893
+          }
+        ],
+        "maximum_mean_difference_abs": 0.002860474161754761
+      },
+      {
+        "signal_delay": 1,
+        "envelope_delay": 1,
+        "bins": [
+          {
+            "radius_left": 0.002769074487407845,
+            "radius_right": 0.15044967936043913,
+            "rising_count": 361,
+            "falling_count": 2514,
+            "mean_error_rising_real": 0.002643929413523809,
+            "mean_error_rising_imag": 0.0011299587428619323,
+            "mean_error_falling_real": 0.0009222715293786183,
+            "mean_error_falling_imag": -0.0006633551236343699,
+            "mean_difference_abs": 0.002485976768557424
+          },
+          {
+            "radius_left": 0.15044967936043913,
+            "radius_right": 0.21840855237064766,
+            "rising_count": 844,
+            "falling_count": 2033,
+            "mean_error_rising_real": 9.956338411001064e-05,
+            "mean_error_rising_imag": 0.0010192197600373207,
+            "mean_error_falling_real": 0.0004170566392726664,
+            "mean_error_falling_imag": -0.0002288269688758977,
+            "mean_difference_abs": 0.001287797579056881
+          },
+          {
+            "radius_left": 0.21840855237064766,
+            "radius_right": 0.27845370848122386,
+            "rising_count": 1241,
+            "falling_count": 1634,
+            "mean_error_rising_real": 0.00018646606728876122,
+            "mean_error_rising_imag": -0.00015661935660097833,
+            "mean_error_falling_real": -0.0011607391568741454,
+            "mean_error_falling_imag": 0.0009258972719500417,
+            "mean_difference_abs": 0.0017282373005757326
+          },
+          {
+            "radius_left": 0.27845370848122386,
+            "radius_right": 0.3389579702238107,
+            "rising_count": 1439,
+            "falling_count": 1436,
+            "mean_error_rising_real": -0.0014847911449382693,
+            "mean_error_rising_imag": -0.001243195134486321,
+            "mean_error_falling_real": 0.0004280233979431472,
+            "mean_error_falling_imag": -0.00024726795639861104,
+            "mean_difference_abs": 0.002156555220603542
+          },
+          {
+            "radius_left": 0.3389579702238107,
+            "radius_right": 0.4023840992900972,
+            "rising_count": 1643,
+            "falling_count": 1232,
+            "mean_error_rising_real": 0.0008040537910058958,
+            "mean_error_rising_imag": -0.0013625563640151945,
+            "mean_error_falling_real": -0.0007436111939367371,
+            "mean_error_falling_imag": 0.0005002738796807347,
+            "mean_difference_abs": 0.002421859496842398
+          },
+          {
+            "radius_left": 0.4023840992900972,
+            "radius_right": 0.47747357752441166,
+            "rising_count": 1796,
+            "falling_count": 1079,
+            "mean_error_rising_real": -0.00039725783053992544,
+            "mean_error_rising_imag": -0.00016871325066158185,
+            "mean_error_falling_real": 6.978988671820217e-05,
+            "mean_error_falling_imag": 0.0016842747583546119,
+            "mean_difference_abs": 0.0019109416871673048
+          },
+          {
+            "radius_left": 0.47747357752441166,
+            "radius_right": 0.5862632364611298,
+            "rising_count": 1973,
+            "falling_count": 902,
+            "mean_error_rising_real": 0.00057407691569075,
+            "mean_error_rising_imag": -0.0006917014946206393,
+            "mean_error_falling_real": 0.000235859348927917,
+            "mean_error_falling_imag": 0.0005511852086157235,
+            "mean_difference_abs": 0.001288083258003428
+          },
+          {
+            "radius_left": 0.5862632364611298,
+            "radius_right": 0.9719561049933806,
+            "rising_count": 2216,
+            "falling_count": 659,
+            "mean_error_rising_real": 0.00047599494652486655,
+            "mean_error_rising_imag": 1.4774920289088558e-05,
+            "mean_error_falling_real": 0.0004863455812502912,
+            "mean_error_falling_imag": 0.0009375685820231082,
+            "mean_difference_abs": 0.000922851709526346
+          }
+        ],
+        "maximum_mean_difference_abs": 0.002485976768557424
+      },
+      {
+        "signal_delay": 2,
+        "envelope_delay": 2,
+        "bins": [
+          {
+            "radius_left": 0.002769074487407845,
+            "radius_right": 0.15044967936043913,
+            "rising_count": 361,
+            "falling_count": 2514,
+            "mean_error_rising_real": -0.00095585751357368,
+            "mean_error_rising_imag": -0.0003025361744304562,
+            "mean_error_falling_real": -0.0005872862614406972,
+            "mean_error_falling_imag": 0.0004392958653843503,
+            "mean_difference_abs": 0.0008283474773274023
+          },
+          {
+            "radius_left": 0.15044967936043913,
+            "radius_right": 0.2184004085911879,
+            "rising_count": 844,
+            "falling_count": 2032,
+            "mean_error_rising_real": 0.0015863011250706457,
+            "mean_error_rising_imag": -0.001949553312137855,
+            "mean_error_falling_real": 0.00104620592840804,
+            "mean_error_falling_imag": 0.0003089868872130639,
+            "mean_difference_abs": 0.002322220199193459
+          },
+          {
+            "radius_left": 0.2184004085911879,
+            "radius_right": 0.27843649984796237,
+            "rising_count": 1242,
+            "falling_count": 1633,
+            "mean_error_rising_real": 5.271293704677908e-05,
+            "mean_error_rising_imag": -0.000780280032011476,
+            "mean_error_falling_real": -0.0004137609142290053,
+            "mean_error_falling_imag": -0.000660254139932233,
+            "mean_difference_abs": 0.0004816680067157053
+          },
+          {
+            "radius_left": 0.27843649984796237,
+            "radius_right": 0.3388894447527391,
+            "rising_count": 1438,
+            "falling_count": 1437,
+            "mean_error_rising_real": 0.0022582201898246725,
+            "mean_error_rising_imag": 0.0007473041372140441,
+            "mean_error_falling_real": -0.0007197329383046294,
+            "mean_error_falling_imag": 0.0007678385005967599,
+            "mean_difference_abs": 0.002978023924251554
+          },
+          {
+            "radius_left": 0.3388894447527391,
+            "radius_right": 0.40234367306011515,
+            "rising_count": 1642,
+            "falling_count": 1233,
+            "mean_error_rising_real": -0.0014946006253045983,
+            "mean_error_rising_imag": 0.0009328212809223903,
+            "mean_error_falling_real": 0.000602278594103106,
+            "mean_error_falling_imag": -0.0008368579728346233,
+            "mean_difference_abs": 0.002743841672174589
+          },
+          {
+            "radius_left": 0.40234367306011515,
+            "radius_right": 0.4774663266013324,
+            "rising_count": 1796,
+            "falling_count": 1079,
+            "mean_error_rising_real": 0.0013486699253874867,
+            "mean_error_rising_imag": 0.0008628843611585205,
+            "mean_error_falling_real": -0.0011724917269337585,
+            "mean_error_falling_imag": -0.0027770146760075303,
+            "mean_difference_abs": 0.004427767053255798
+          },
+          {
+            "radius_left": 0.4774663266013324,
+            "radius_right": 0.5862632364611298,
+            "rising_count": 1973,
+            "falling_count": 902,
+            "mean_error_rising_real": -0.0010495881189269169,
+            "mean_error_rising_imag": -0.00034598954954756706,
+            "mean_error_falling_real": -0.0005326969898533402,
+            "mean_error_falling_imag": -0.0006085582811745279,
+            "mean_difference_abs": 0.0005797575166767119
+          },
+          {
+            "radius_left": 0.5862632364611298,
+            "radius_right": 0.9719561049933806,
+            "rising_count": 2216,
+            "falling_count": 659,
+            "mean_error_rising_real": 0.0019113435149420168,
+            "mean_error_rising_imag": -8.305201860442191e-05,
+            "mean_error_falling_real": -0.000994118648975932,
+            "mean_error_falling_imag": 0.0004437083589371885,
+            "mean_difference_abs": 0.002952826930469605
+          }
+        ],
+        "maximum_mean_difference_abs": 0.004427767053255798
+      }
+    ]
+  },
+  "hysteresis": [
+    {
+      "alpha": 0.0,
+      "ridge_residual": 0.001,
+      "deadband": 0.0,
+      "metrics": {
+        "nmse_db": -15.266150049321332,
+        "mse": 0.004859783361634068,
+        "peak": 1.0391769874661545,
+        "papr_db": 8.18295356499542
+      },
+      "improvement_vs_no_dpd_db": -0.7386206144230114,
+      "improvement_vs_baseline_db": -1.9247844383415902,
+      "fit_seconds": 9.23565199499717,
+      "up_fraction": [
+        0.5118862571605596,
+        0.5118862571605596,
+        0.5118971270802308
+      ],
+      "steady_fraction": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "down_fraction": [
+        0.4881137428394404,
+        0.4881137428394404,
+        0.4881028729197691
+      ],
+      "condition_number": 24.714342147124828,
+      "residual_to_baseline_norm": 0.030811126745276012,
+      "max_drive": 0.9239095799801103,
+      "segment_nmse_db": [
+        -15.238873927219029,
+        -15.442588869733616,
+        -15.336631331287476,
+        -15.266794960829568,
+        -15.168185132955603,
+        -15.33410451239343,
+        -15.216081022966772,
+        -15.112495161228539
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.0,
+      "ridge_residual": 0.01,
+      "deadband": 0.0,
+      "metrics": {
+        "nmse_db": -16.574157536514523,
+        "mse": 0.0035959708378545136,
+        "peak": 1.0139221859860998,
+        "papr_db": 7.999706068576868
+      },
+      "improvement_vs_no_dpd_db": 0.569386872770181,
+      "improvement_vs_baseline_db": -0.6167769511483983,
+      "fit_seconds": 8.886988601007033,
+      "up_fraction": [
+        0.5118862571605596,
+        0.5118862571605596,
+        0.5118971270802308
+      ],
+      "steady_fraction": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "down_fraction": [
+        0.4881137428394404,
+        0.4881137428394404,
+        0.4881028729197691
+      ],
+      "condition_number": 25.380966140431905,
+      "residual_to_baseline_norm": 0.009646679578573743,
+      "max_drive": 0.9217313398229943,
+      "segment_nmse_db": [
+        -16.49847361055112,
+        -16.808736312677787,
+        -16.63926379899467,
+        -16.53981770337486,
+        -16.46252582607898,
+        -16.701870720174036,
+        -16.507380150626457,
+        -16.439200400510533
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.0,
+      "ridge_residual": 0.1,
+      "deadband": 0.0,
+      "metrics": {
+        "nmse_db": -17.1291832216285,
+        "mse": 0.003164561881957616,
+        "peak": 1.0200506657291555,
+        "papr_db": 8.062756095206371
+      },
+      "improvement_vs_no_dpd_db": 1.1244125578841584,
+      "improvement_vs_baseline_db": -0.06175126603442036,
+      "fit_seconds": 8.531296718982048,
+      "up_fraction": [
+        0.5118862571605596,
+        0.5118862571605596,
+        0.5118971270802308
+      ],
+      "steady_fraction": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "down_fraction": [
+        0.4881137428394404,
+        0.4881137428394404,
+        0.4881028729197691
+      ],
+      "condition_number": 35.901150364361655,
+      "residual_to_baseline_norm": 0.0015030701731444751,
+      "max_drive": 0.9228064406446981,
+      "segment_nmse_db": [
+        -17.02046052394829,
+        -17.396282157418014,
+        -17.17393513225951,
+        -17.10182632248242,
+        -17.0225433240231,
+        -17.263993703400153,
+        -17.014653636390257,
+        -17.059032968254602
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.0,
+      "ridge_residual": 1.0,
+      "deadband": 0.0,
+      "metrics": {
+        "nmse_db": -17.185307835366984,
+        "mse": 0.0031239288305323267,
+        "peak": 1.0219718624502658,
+        "papr_db": 8.080185297712157
+      },
+      "improvement_vs_no_dpd_db": 1.180537171622642,
+      "improvement_vs_baseline_db": -0.005626652295936982,
+      "fit_seconds": 9.212213243998121,
+      "up_fraction": [
+        0.5118862571605596,
+        0.5118862571605596,
+        0.5118971270802308
+      ],
+      "steady_fraction": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "down_fraction": [
+        0.4881137428394404,
+        0.4881137428394404,
+        0.4881028729197691
+      ],
+      "condition_number": 98.49505636119957,
+      "residual_to_baseline_norm": 0.0001613097849231701,
+      "max_drive": 0.9231265875242857,
+      "segment_nmse_db": [
+        -17.071014148156866,
+        -17.455390610637107,
+        -17.223414274829125,
+        -17.162066649564263,
+        -17.08169599483717,
+        -17.31873674919228,
+        -17.060982272682427,
+        -17.131165697635325
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.0,
+      "ridge_residual": 10.0,
+      "deadband": 0.0,
+      "metrics": {
+        "nmse_db": -17.190505651445317,
+        "mse": 0.003120192219745363,
+        "peak": 1.0221792498768876,
+        "papr_db": 8.082050216930778
+      },
+      "improvement_vs_no_dpd_db": 1.1857349877009753,
+      "improvement_vs_baseline_db": -0.000428836217603873,
+      "fit_seconds": 8.217986714967992,
+      "up_fraction": [
+        0.5118862571605596,
+        0.5118862571605596,
+        0.5118971270802308
+      ],
+      "steady_fraction": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "down_fraction": [
+        0.4881137428394404,
+        0.4881137428394404,
+        0.4881028729197691
+      ],
+      "condition_number": 307.0781842824111,
+      "residual_to_baseline_norm": 1.625398399200501e-05,
+      "max_drive": 0.9231613492701837,
+      "segment_nmse_db": [
+        -17.07559310262265,
+        -17.460843122916806,
+        -17.227836473649063,
+        -17.167742992560846,
+        -17.087263214063164,
+        -17.323746739783942,
+        -17.065133619048037,
+        -17.138186870956176
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.1,
+      "ridge_residual": 0.001,
+      "deadband": 0.012105574575658848,
+      "metrics": {
+        "nmse_db": -15.255579009779588,
+        "mse": 0.0048716268313814155,
+        "peak": 1.0272495235190136,
+        "papr_db": 8.082858257174792
+      },
+      "improvement_vs_no_dpd_db": -0.7491916539647538,
+      "improvement_vs_baseline_db": -1.9353554778833335,
+      "fit_seconds": 8.739382958039641,
+      "up_fraction": [
+        0.48477667750035325,
+        0.48477667750035325,
+        0.48478754742002456
+      ],
+      "steady_fraction": [
+        0.05480613498266248,
+        0.05480613498266248,
+        0.05480613498266248
+      ],
+      "down_fraction": [
+        0.46041718751698424,
+        0.46041718751698424,
+        0.46040631759731293
+      ],
+      "condition_number": 24.641247526390064,
+      "residual_to_baseline_norm": 0.03189270751908262,
+      "max_drive": 0.9239257073331579,
+      "segment_nmse_db": [
+        -15.257770453775521,
+        -15.400852304477919,
+        -15.278454634184524,
+        -15.31561036450583,
+        -15.18629869033984,
+        -15.26672037957741,
+        -15.224745358680469,
+        -15.090760510983918
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.1,
+      "ridge_residual": 0.01,
+      "deadband": 0.012105574575658848,
+      "metrics": {
+        "nmse_db": -16.581134068725504,
+        "mse": 0.003590198886348981,
+        "peak": 1.0087699166711048,
+        "papr_db": 7.95570642759464
+      },
+      "improvement_vs_no_dpd_db": 0.5763634049811642,
+      "improvement_vs_baseline_db": -0.6098004189374145,
+      "fit_seconds": 8.615836322016548,
+      "up_fraction": [
+        0.48477667750035325,
+        0.48477667750035325,
+        0.48478754742002456
+      ],
+      "steady_fraction": [
+        0.05480613498266248,
+        0.05480613498266248,
+        0.05480613498266248
+      ],
+      "down_fraction": [
+        0.46041718751698424,
+        0.46041718751698424,
+        0.46040631759731293
+      ],
+      "condition_number": 25.29304912826725,
+      "residual_to_baseline_norm": 0.009793781461163803,
+      "max_drive": 0.9217401350612727,
+      "segment_nmse_db": [
+        -16.525013274022662,
+        -16.802926015428664,
+        -16.628846498483885,
+        -16.578001991608286,
+        -16.466889520869227,
+        -16.674345220779692,
+        -16.526616183772564,
+        -16.4446265409951
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.1,
+      "ridge_residual": 0.1,
+      "deadband": 0.012105574575658848,
+      "metrics": {
+        "nmse_db": -17.129512146194767,
+        "mse": 0.003164322214457553,
+        "peak": 1.020041417521784,
+        "papr_db": 8.062695404104405
+      },
+      "improvement_vs_no_dpd_db": 1.1247414824504265,
+      "improvement_vs_baseline_db": -0.06142234146815248,
+      "fit_seconds": 8.75464340398321,
+      "up_fraction": [
+        0.48477667750035325,
+        0.48477667750035325,
+        0.48478754742002456
+      ],
+      "steady_fraction": [
+        0.05480613498266248,
+        0.05480613498266248,
+        0.05480613498266248
+      ],
+      "down_fraction": [
+        0.46041718751698424,
+        0.46041718751698424,
+        0.46040631759731293
+      ],
+      "condition_number": 35.76856721200294,
+      "residual_to_baseline_norm": 0.0015047810069219495,
+      "max_drive": 0.9228066360139442,
+      "segment_nmse_db": [
+        -17.024316482779646,
+        -17.39554595784813,
+        -17.17216444547194,
+        -17.107123839927066,
+        -17.020639871725333,
+        -17.258122380836618,
+        -17.01725241775289,
+        -17.05934266026209
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.1,
+      "ridge_residual": 1.0,
+      "deadband": 0.012105574575658848,
+      "metrics": {
+        "nmse_db": -17.1852993733561,
+        "mse": 0.0031239349173574254,
+        "peak": 1.0219714377501512,
+        "papr_db": 8.080182818613416
+      },
+      "improvement_vs_no_dpd_db": 1.1805287096117554,
+      "improvement_vs_baseline_db": -0.005635114306823337,
+      "fit_seconds": 8.471452773024794,
+      "up_fraction": [
+        0.48477667750035325,
+        0.48477667750035325,
+        0.48478754742002456
+      ],
+      "steady_fraction": [
+        0.05480613498266248,
+        0.05480613498266248,
+        0.05480613498266248
+      ],
+      "down_fraction": [
+        0.46041718751698424,
+        0.46041718751698424,
+        0.46040631759731293
+      ],
+      "condition_number": 98.4438592834751,
+      "residual_to_baseline_norm": 0.00016097806808189387,
+      "max_drive": 0.9231267948963822,
+      "segment_nmse_db": [
+        -17.07137426264223,
+        -17.45530021498735,
+        -17.2231987315193,
+        -17.16257890983315,
+        -17.081415294359697,
+        -17.31806216660268,
+        -17.061222922488692,
+        -17.13116016485433
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.1,
+      "ridge_residual": 10.0,
+      "deadband": 0.012105574575658848,
+      "metrics": {
+        "nmse_db": -17.190504245101835,
+        "mse": 0.00312019323013414,
+        "peak": 1.022179213383775,
+        "papr_db": 8.082050010824052
+      },
+      "improvement_vs_no_dpd_db": 1.1857335813574923,
+      "improvement_vs_baseline_db": -0.0004302425610868459,
+      "fit_seconds": 8.392540141998325,
+      "up_fraction": [
+        0.48477667750035325,
+        0.48477667750035325,
+        0.48478754742002456
+      ],
+      "steady_fraction": [
+        0.05480613498266248,
+        0.05480613498266248,
+        0.05480613498266248
+      ],
+      "down_fraction": [
+        0.46041718751698424,
+        0.46041718751698424,
+        0.46040631759731293
+      ],
+      "condition_number": 307.0617573845685,
+      "residual_to_baseline_norm": 1.6214568876728667e-05,
+      "max_drive": 0.9231613722787642,
+      "segment_nmse_db": [
+        -17.075628672563315,
+        -17.4608338419374,
+        -17.22781441391183,
+        -17.16779388619767,
+        -17.08723402743737,
+        -17.323678238958834,
+        -17.065157377485164,
+        -17.13818582323807
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.25,
+      "ridge_residual": 0.001,
+      "deadband": 0.03026393643914712,
+      "metrics": {
+        "nmse_db": -15.232790555238836,
+        "mse": 0.004897256588864769,
+        "peak": 1.0294285336726086,
+        "papr_db": 8.10136753740226
+      },
+      "improvement_vs_no_dpd_db": -0.7719801085055065,
+      "improvement_vs_baseline_db": -1.9581439324240852,
+      "fit_seconds": 8.709400119958445,
+      "up_fraction": [
+        0.44413404784938637,
+        0.44413404784938637,
+        0.4441449177690577
+      ],
+      "steady_fraction": [
+        0.13485222344206876,
+        0.13485222344206876,
+        0.13485222344206876
+      ],
+      "down_fraction": [
+        0.42101372870854487,
+        0.42101372870854487,
+        0.42100285878887356
+      ],
+      "condition_number": 24.492565997862474,
+      "residual_to_baseline_norm": 0.03321782035484909,
+      "max_drive": 0.9245748955995781,
+      "segment_nmse_db": [
+        -15.214504282802215,
+        -15.391915741824887,
+        -15.255566463188453,
+        -15.356226225631568,
+        -15.14002155576238,
+        -15.194733129309306,
+        -15.240260205361434,
+        -15.042323823732346
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.25,
+      "ridge_residual": 0.01,
+      "deadband": 0.03026393643914712,
+      "metrics": {
+        "nmse_db": -16.589948007935618,
+        "mse": 0.003582920022013917,
+        "peak": 1.0083303105011674,
+        "papr_db": 7.952229101656973
+      },
+      "improvement_vs_no_dpd_db": 0.5851773441912791,
+      "improvement_vs_baseline_db": -0.6009864797272999,
+      "fit_seconds": 8.586542583012488,
+      "up_fraction": [
+        0.44413404784938637,
+        0.44413404784938637,
+        0.4441449177690577
+      ],
+      "steady_fraction": [
+        0.13485222344206876,
+        0.13485222344206876,
+        0.13485222344206876
+      ],
+      "down_fraction": [
+        0.42101372870854487,
+        0.42101372870854487,
+        0.42100285878887356
+      ],
+      "condition_number": 25.12214041902066,
+      "residual_to_baseline_norm": 0.009975387493067445,
+      "max_drive": 0.9219951744931316,
+      "segment_nmse_db": [
+        -16.521883155658955,
+        -16.814390270262006,
+        -16.627307382845665,
+        -16.614815734881937,
+        -16.467137781258632,
+        -16.67225333956808,
+        -16.557409059352445,
+        -16.44168967286656
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.25,
+      "ridge_residual": 0.1,
+      "deadband": 0.03026393643914712,
+      "metrics": {
+        "nmse_db": -17.130465872348918,
+        "mse": 0.003163627394321533,
+        "peak": 1.0200158346351003,
+        "papr_db": 8.062511466346736
+      },
+      "improvement_vs_no_dpd_db": 1.125695208604576,
+      "improvement_vs_baseline_db": -0.060468615314003125,
+      "fit_seconds": 8.043645606026985,
+      "up_fraction": [
+        0.44413404784938637,
+        0.44413404784938637,
+        0.4441449177690577
+      ],
+      "steady_fraction": [
+        0.13485222344206876,
+        0.13485222344206876,
+        0.13485222344206876
+      ],
+      "down_fraction": [
+        0.42101372870854487,
+        0.42101372870854487,
+        0.42100285878887356
+      ],
+      "condition_number": 35.55121464060458,
+      "residual_to_baseline_norm": 0.0015059256638591835,
+      "max_drive": 0.9228249285008429,
+      "segment_nmse_db": [
+        -17.022933524632755,
+        -17.395887719691775,
+        -17.170016796562695,
+        -17.112630965296493,
+        -17.02107021903204,
+        -17.258648198539476,
+        -17.021501329934058,
+        -17.059402091799026
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.25,
+      "ridge_residual": 1.0,
+      "deadband": 0.03026393643914712,
+      "metrics": {
+        "nmse_db": -17.18536337672727,
+        "mse": 0.003123888879265515,
+        "peak": 1.0219695602537269,
+        "papr_db": 8.080169860338577
+      },
+      "improvement_vs_no_dpd_db": 1.1805927129829297,
+      "improvement_vs_baseline_db": -0.005571110935648988,
+      "fit_seconds": 8.577118866029195,
+      "up_fraction": [
+        0.44413404784938637,
+        0.44413404784938637,
+        0.4441449177690577
+      ],
+      "steady_fraction": [
+        0.13485222344206876,
+        0.13485222344206876,
+        0.13485222344206876
+      ],
+      "down_fraction": [
+        0.42101372870854487,
+        0.42101372870854487,
+        0.42100285878887356
+      ],
+      "condition_number": 98.36351253973747,
+      "residual_to_baseline_norm": 0.000160470137570642,
+      "max_drive": 0.9231288341096247,
+      "segment_nmse_db": [
+        -17.071172128408833,
+        -17.455264276747332,
+        -17.222908251656932,
+        -17.163127124979702,
+        -17.08144713888235,
+        -17.318108678585485,
+        -17.061636851509515,
+        -17.131158095189274
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.25,
+      "ridge_residual": 10.0,
+      "deadband": 0.03026393643914712,
+      "metrics": {
+        "nmse_db": -17.190510198789156,
+        "mse": 0.0031201889527042114,
+        "peak": 1.0221790337081138,
+        "papr_db": 8.082048778199457
+      },
+      "improvement_vs_no_dpd_db": 1.185739535044815,
+      "improvement_vs_baseline_db": -0.0004242888737638177,
+      "fit_seconds": 9.14155711903004,
+      "up_fraction": [
+        0.44413404784938637,
+        0.44413404784938637,
+        0.4441449177690577
+      ],
+      "steady_fraction": [
+        0.13485222344206876,
+        0.13485222344206876,
+        0.13485222344206876
+      ],
+      "down_fraction": [
+        0.42101372870854487,
+        0.42101372870854487,
+        0.42100285878887356
+      ],
+      "condition_number": 307.03616631318516,
+      "residual_to_baseline_norm": 1.6156133207774586e-05,
+      "max_drive": 0.9231615786049605,
+      "segment_nmse_db": [
+        -17.07560762160586,
+        -17.460829318344192,
+        -17.2277844365163,
+        -17.1678485595243,
+        -17.087237016718145,
+        -17.323682747682632,
+        -17.06519855858869,
+        -17.138185470406828
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.5,
+      "ridge_residual": 0.001,
+      "deadband": 0.06052787287829424,
+      "metrics": {
+        "nmse_db": -15.203937872527346,
+        "mse": 0.004929900198867484,
+        "peak": 1.032575231801596,
+        "papr_db": 8.127387656270525
+      },
+      "improvement_vs_no_dpd_db": -0.8008327912169948,
+      "improvement_vs_baseline_db": -1.9869966151355736,
+      "fit_seconds": 8.350634619011544,
+      "up_fraction": [
+        0.3786536517495136,
+        0.37866452166918485,
+        0.37867539158885616
+      ],
+      "steady_fraction": [
+        0.2622368120699588,
+        0.2622259421502875,
+        0.2622259421502875
+      ],
+      "down_fraction": [
+        0.3591095361805276,
+        0.3591095361805276,
+        0.35909866626085635
+      ],
+      "condition_number": 24.195088305720354,
+      "residual_to_baseline_norm": 0.034503915654279585,
+      "max_drive": 0.925642671498454,
+      "segment_nmse_db": [
+        -15.097731727078717,
+        -15.445167050998887,
+        -15.150609009390678,
+        -15.368002106577839,
+        -15.095844888010495,
+        -15.188750478907064,
+        -15.192693000562352,
+        -15.069531947255149
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.5,
+      "ridge_residual": 0.01,
+      "deadband": 0.06052787287829424,
+      "metrics": {
+        "nmse_db": -16.605236390687917,
+        "mse": 0.0035703293139356107,
+        "peak": 1.0110385041736374,
+        "papr_db": 7.9757425457507285
+      },
+      "improvement_vs_no_dpd_db": 0.6004657269435767,
+      "improvement_vs_baseline_db": -0.5856980969750027,
+      "fit_seconds": 8.520495296979789,
+      "up_fraction": [
+        0.3786536517495136,
+        0.37866452166918485,
+        0.37867539158885616
+      ],
+      "steady_fraction": [
+        0.2622368120699588,
+        0.2622259421502875,
+        0.2622259421502875
+      ],
+      "down_fraction": [
+        0.3591095361805276,
+        0.3591095361805276,
+        0.35909866626085635
+      ],
+      "condition_number": 24.78566184776651,
+      "residual_to_baseline_norm": 0.010118443207411811,
+      "max_drive": 0.9222791555308018,
+      "segment_nmse_db": [
+        -16.490413258178208,
+        -16.86177801415459,
+        -16.61026837532738,
+        -16.648229737222508,
+        -16.486600248964276,
+        -16.688926646366372,
+        -16.57050452425491,
+        -16.48472549974111
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.5,
+      "ridge_residual": 0.1,
+      "deadband": 0.06052787287829424,
+      "metrics": {
+        "nmse_db": -17.13190673094654,
+        "mse": 0.003162577971903282,
+        "peak": 1.0200078880655423,
+        "papr_db": 8.06245524064404
+      },
+      "improvement_vs_no_dpd_db": 1.1271360672021982,
+      "improvement_vs_baseline_db": -0.05902775671638083,
+      "fit_seconds": 8.55655979696894,
+      "up_fraction": [
+        0.3786536517495136,
+        0.37866452166918485,
+        0.37867539158885616
+      ],
+      "steady_fraction": [
+        0.2622368120699588,
+        0.2622259421502875,
+        0.2622259421502875
+      ],
+      "down_fraction": [
+        0.3591095361805276,
+        0.3591095361805276,
+        0.35909866626085635
+      ],
+      "condition_number": 35.160864147867706,
+      "residual_to_baseline_norm": 0.0014923777156781411,
+      "max_drive": 0.9228622007800826,
+      "segment_nmse_db": [
+        -17.01716503047573,
+        -17.40011396757559,
+        -17.16676507788978,
+        -17.1178211700674,
+        -17.024305254778447,
+        -17.259298285491123,
+        -17.023261350249136,
+        -17.065187950105123
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.5,
+      "ridge_residual": 1.0,
+      "deadband": 0.06052787287829424,
+      "metrics": {
+        "nmse_db": -17.185457737336307,
+        "mse": 0.003123821006228392,
+        "peak": 1.0219698504293955,
+        "papr_db": 8.080172651079675
+      },
+      "improvement_vs_no_dpd_db": 1.1806870735919657,
+      "improvement_vs_baseline_db": -0.005476750326613472,
+      "fit_seconds": 8.60210936900694,
+      "up_fraction": [
+        0.3786536517495136,
+        0.37866452166918485,
+        0.37867539158885616
+      ],
+      "steady_fraction": [
+        0.2622368120699588,
+        0.2622259421502875,
+        0.2622259421502875
+      ],
+      "down_fraction": [
+        0.3591095361805276,
+        0.3591095361805276,
+        0.35909866626085635
+      ],
+      "condition_number": 98.22336750443841,
+      "residual_to_baseline_norm": 0.00015822900341927392,
+      "max_drive": 0.9231328277213259,
+      "segment_nmse_db": [
+        -17.070511622687764,
+        -17.4555942089639,
+        -17.22251032882248,
+        -17.163642728191206,
+        -17.081755320260452,
+        -17.318102104724474,
+        -17.061780655406476,
+        -17.131709539708865
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 0.5,
+      "ridge_residual": 10.0,
+      "deadband": 0.06052787287829424,
+      "metrics": {
+        "nmse_db": -17.190518953327146,
+        "mse": 0.003120182663012232,
+        "peak": 1.022179075268189,
+        "papr_db": 8.082049152956781
+      },
+      "improvement_vs_no_dpd_db": 1.1857482895828069,
+      "improvement_vs_baseline_db": -0.00041553433577212284,
+      "fit_seconds": 7.933822225022595,
+      "up_fraction": [
+        0.3786536517495136,
+        0.37866452166918485,
+        0.37867539158885616
+      ],
+      "steady_fraction": [
+        0.2622368120699588,
+        0.2622259421502875,
+        0.2622259421502875
+      ],
+      "down_fraction": [
+        0.3591095361805276,
+        0.3591095361805276,
+        0.35909866626085635
+      ],
+      "condition_number": 306.99163753638817,
+      "residual_to_baseline_norm": 1.5921390846559008e-05,
+      "max_drive": 0.923161980959232,
+      "segment_nmse_db": [
+        -17.075540549293365,
+        -17.460861087708373,
+        -17.227743716152723,
+        -17.167899958437577,
+        -17.087267546152706,
+        -17.323681166283084,
+        -17.06521246756188,
+        -17.138240165578576
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 1.0,
+      "ridge_residual": 0.001,
+      "deadband": 0.12105574575658848,
+      "metrics": {
+        "nmse_db": -15.17077600874368,
+        "mse": 0.0049676880238746935,
+        "peak": 1.0510806734841052,
+        "papr_db": 8.278959455030183
+      },
+      "improvement_vs_no_dpd_db": -0.833994655000662,
+      "improvement_vs_baseline_db": -2.020158478919241,
+      "fit_seconds": 8.35985712800175,
+      "up_fraction": [
+        0.2664760807417633,
+        0.26648695066143463,
+        0.26648695066143463
+      ],
+      "steady_fraction": [
+        0.4796460754155027,
+        0.4796352054958314,
+        0.4796460754155027
+      ],
+      "down_fraction": [
+        0.253877843842734,
+        0.253877843842734,
+        0.25386697392306273
+      ],
+      "condition_number": 23.569069339239224,
+      "residual_to_baseline_norm": 0.03451333132581554,
+      "max_drive": 0.9252204044614658,
+      "segment_nmse_db": [
+        -15.133884713642495,
+        -15.339473114900919,
+        -15.093868952495919,
+        -15.260174591166926,
+        -15.03503678384445,
+        -15.138861564105184,
+        -15.28888512389826,
+        -15.072287264712473
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 1.0,
+      "ridge_residual": 0.01,
+      "deadband": 0.12105574575658848,
+      "metrics": {
+        "nmse_db": -16.620928584825634,
+        "mse": 0.0035574520598994517,
+        "peak": 1.0209654723186765,
+        "papr_db": 8.060094159429845
+      },
+      "improvement_vs_no_dpd_db": 0.616157921081293,
+      "improvement_vs_baseline_db": -0.5700059028372861,
+      "fit_seconds": 8.666713640035596,
+      "up_fraction": [
+        0.2664760807417633,
+        0.26648695066143463,
+        0.26648695066143463
+      ],
+      "steady_fraction": [
+        0.4796460754155027,
+        0.4796352054958314,
+        0.4796460754155027
+      ],
+      "down_fraction": [
+        0.253877843842734,
+        0.253877843842734,
+        0.25386697392306273
+      ],
+      "condition_number": 24.080273943300632,
+      "residual_to_baseline_norm": 0.009859754463720963,
+      "max_drive": 0.9221592968226756,
+      "segment_nmse_db": [
+        -16.538748225544758,
+        -16.86629689630817,
+        -16.606242717544095,
+        -16.630518846922698,
+        -16.495260295077305,
+        -16.701756949801762,
+        -16.617579003579653,
+        -16.52228073281043
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 1.0,
+      "ridge_residual": 0.1,
+      "deadband": 0.12105574575658848,
+      "metrics": {
+        "nmse_db": -17.13263432969706,
+        "mse": 0.0031620481712426422,
+        "peak": 1.0200660330909859,
+        "papr_db": 8.062862391551562
+      },
+      "improvement_vs_no_dpd_db": 1.1278636659527175,
+      "improvement_vs_baseline_db": -0.058300157965861646,
+      "fit_seconds": 8.29947515798267,
+      "up_fraction": [
+        0.2664760807417633,
+        0.26648695066143463,
+        0.26648695066143463
+      ],
+      "steady_fraction": [
+        0.4796460754155027,
+        0.4796352054958314,
+        0.4796460754155027
+      ],
+      "down_fraction": [
+        0.253877843842734,
+        0.253877843842734,
+        0.25386697392306273
+      ],
+      "condition_number": 34.37907935851621,
+      "residual_to_baseline_norm": 0.0014072438487609084,
+      "max_drive": 0.9229744716624673,
+      "segment_nmse_db": [
+        -17.022961834770122,
+        -17.400551676610526,
+        -17.163758886848203,
+        -17.113044356494274,
+        -17.024446839960202,
+        -17.260266445652867,
+        -17.026688883571772,
+        -17.070135557973302
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 1.0,
+      "ridge_residual": 1.0,
+      "deadband": 0.12105574575658848,
+      "metrics": {
+        "nmse_db": -17.185452332415025,
+        "mse": 0.0031238248939170106,
+        "peak": 1.0219779963149853,
+        "papr_db": 8.08023170189172
+      },
+      "improvement_vs_no_dpd_db": 1.180681668670684,
+      "improvement_vs_baseline_db": -0.005482155247895401,
+      "fit_seconds": 8.330077827966306,
+      "up_fraction": [
+        0.2664760807417633,
+        0.26648695066143463,
+        0.26648695066143463
+      ],
+      "steady_fraction": [
+        0.4796460754155027,
+        0.4796352054958314,
+        0.4796460754155027
+      ],
+      "down_fraction": [
+        0.253877843842734,
+        0.253877843842734,
+        0.25386697392306273
+      ],
+      "condition_number": 97.94514318867557,
+      "residual_to_baseline_norm": 0.00014811592800578535,
+      "max_drive": 0.9231444283120707,
+      "segment_nmse_db": [
+        -17.071031037274857,
+        -17.45557990678757,
+        -17.222095084410356,
+        -17.16304853528934,
+        -17.081699024600983,
+        -17.318133857368487,
+        -17.062025822824893,
+        -17.132179364824538
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    },
+    {
+      "alpha": 1.0,
+      "ridge_residual": 10.0,
+      "deadband": 0.12105574575658848,
+      "metrics": {
+        "nmse_db": -17.19051738527026,
+        "mse": 0.0031201837895807236,
+        "peak": 1.022179916135615,
+        "papr_db": 8.082055262483852
+      },
+      "improvement_vs_no_dpd_db": 1.1857467215259205,
+      "improvement_vs_baseline_db": -0.0004171023926587235,
+      "fit_seconds": 8.746464551019017,
+      "up_fraction": [
+        0.2664760807417633,
+        0.26648695066143463,
+        0.26648695066143463
+      ],
+      "steady_fraction": [
+        0.4796460754155027,
+        0.4796352054958314,
+        0.4796460754155027
+      ],
+      "down_fraction": [
+        0.253877843842734,
+        0.253877843842734,
+        0.25386697392306273
+      ],
+      "condition_number": 306.9037018613677,
+      "residual_to_baseline_norm": 1.4891477744262526e-05,
+      "max_drive": 0.9231631451008812,
+      "segment_nmse_db": [
+        -17.07559161784203,
+        -17.460858853672523,
+        -17.227700758471357,
+        -17.167839097074374,
+        -17.087260983517268,
+        -17.323683454971366,
+        -17.065235734675625,
+        -17.138286742284777
+      ],
+      "operation_count_precomputed_banks": {
+        "real_multiplications": 27,
+        "real_additions": 31,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 6,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "precomputed C+H/C/C-H banks",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      },
+      "operation_count_online_residual": {
+        "real_multiplications": 33,
+        "real_additions": 49,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 18,
+        "lookups": 12,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 0,
+        "state_real_values": 6,
+        "notes": [
+          "branch-local ternary gate; g in {-1,0,+1}",
+          "online residual interpolation",
+          "physical memory traffic and control latency remain platform-dependent"
+        ]
+      }
+    }
+  ],
+  "best_by_validation_nmse": {
+    "alpha": 0.5,
+    "ridge_residual": 10.0,
+    "deadband": 0.06052787287829424,
+    "metrics": {
+      "nmse_db": -17.190518953327146,
+      "mse": 0.003120182663012232,
+      "peak": 1.022179075268189,
+      "papr_db": 8.082049152956781
+    },
+    "improvement_vs_no_dpd_db": 1.1857482895828069,
+    "improvement_vs_baseline_db": -0.00041553433577212284,
+    "fit_seconds": 7.933822225022595,
+    "up_fraction": [
+      0.3786536517495136,
+      0.37866452166918485,
+      0.37867539158885616
+    ],
+    "steady_fraction": [
+      0.2622368120699588,
+      0.2622259421502875,
+      0.2622259421502875
+    ],
+    "down_fraction": [
+      0.3591095361805276,
+      0.3591095361805276,
+      0.35909866626085635
+    ],
+    "condition_number": 306.99163753638817,
+    "residual_to_baseline_norm": 1.5921390846559008e-05,
+    "max_drive": 0.923161980959232,
+    "segment_nmse_db": [
+      -17.075540549293365,
+      -17.460861087708373,
+      -17.227743716152723,
+      -17.167899958437577,
+      -17.087267546152706,
+      -17.323681166283084,
+      -17.06521246756188,
+      -17.138240165578576
+    ],
+    "operation_count_precomputed_banks": {
+      "real_multiplications": 27,
+      "real_additions": 31,
+      "real_divisions": 0,
+      "nonlinear_operations": 3,
+      "comparisons": 18,
+      "lookups": 6,
+      "real_memory_reads": 0,
+      "real_memory_writes": 0,
+      "stored_real_coefficients": 288,
+      "stored_real_constants": 0,
+      "state_real_values": 6,
+      "notes": [
+        "branch-local ternary gate; g in {-1,0,+1}",
+        "precomputed C+H/C/C-H banks",
+        "physical memory traffic and control latency remain platform-dependent"
+      ]
+    },
+    "operation_count_online_residual": {
+      "real_multiplications": 33,
+      "real_additions": 49,
+      "real_divisions": 0,
+      "nonlinear_operations": 3,
+      "comparisons": 18,
+      "lookups": 12,
+      "real_memory_reads": 0,
+      "real_memory_writes": 0,
+      "stored_real_coefficients": 288,
+      "stored_real_constants": 0,
+      "state_real_values": 6,
+      "notes": [
+        "branch-local ternary gate; g in {-1,0,+1}",
+        "online residual interpolation",
+        "physical memory traffic and control latency remain platform-dependent"
+      ]
+    }
+  },
+  "status": "surrogate-only; validation used for alpha selection; no physical PA measurement"
+}
