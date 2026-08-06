@@ -1456,27 +1456,11 @@ def main() -> None:
             cell["source"] = source.splitlines(keepends=True)
 
     output_directory = Path(__file__).resolve().parents[1] / "docs/notebooks"
-    primary = output_directory / "Spline_memory_DPD.ipynb"
-    corrected = output_directory / "Spline_memory_DPD_corrected.ipynb"
-    write_notebook(primary, embedded_cells)
-    write_notebook(corrected, embedded_cells)
-
-    external_cells = copy.deepcopy(cells)
-    for cell in external_cells:
-        source = "".join(cell["source"])
-        source = source.replace("__EMBEDDED_PAYLOAD__", "")
-        source = source.replace("USE_EMBEDDED_DATA = True", "USE_EMBEDDED_DATA = False")
-        source = source.replace(
-            "Эта самодостаточная версия содержит\n        > встроенную копию измеренных train/validation-данных.",
-            "Эта внешняя версия не содержит\n        > измеренные train/validation-данные.",
-        )
-        for placeholder in summary_replacements:
-            source = source.replace(placeholder, "вычисляется при запуске")
-        cell["source"] = source.splitlines(keepends=True)
-        if cell["cell_type"] == "code":
-            cell["execution_count"] = None
-            cell["outputs"] = []
-    write_notebook(output_directory / "Spline_memory_DPD_external.ipynb", external_cells)
+    # The repository deliberately keeps only two notebooks: the historical
+    # reproducible version and this detailed corrected version. The historical
+    # file is restored from the preceding Git commit; this generator owns only
+    # the detailed file and does not create extra copies.
+    write_notebook(output_directory / "Spline_memory_DPD_detailed.ipynb", embedded_cells)
 
 
 if __name__ == "__main__":

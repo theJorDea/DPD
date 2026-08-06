@@ -76,11 +76,11 @@ Validation использовалась для model selection. Эти числ�
 
 ## Файлы
 
-- `Spline_memory_DPD.ipynb` — основная выполненная самодостаточная версия.
-- `Spline_memory_DPD_corrected.ipynb` — идентичный снимок исправленной версии.
-- `Spline_memory_DPD_external.ipynb` — версия без встроенных измерений; требует
-  MAT или четыре I/Q CSV.
-- `Spline_memory_DPD_corrected.html` — статический отчёт выполненного notebook.
+- `Spline_memory_DPD.ipynb` — исходный воспроизводимый вариант до подробной
+  переработки.
+- `Spline_memory_DPD_detailed.ipynb` — подробный исправленный вариант с полным
+  model selection, диагностикой и тестами.
+- `Spline_memory_DPD_detailed.html` — статический отчёт подробного варианта.
 - `experiments/build_blackbox_dpd_notebook.py` — детерминированный генератор.
 
 ## Воспроизведение
@@ -91,6 +91,7 @@ Validation использовалась для model selection. Эти числ�
 MPLCONFIGDIR=/tmp/dpd_mpl_config python experiments/build_blackbox_dpd_notebook.py
 ```
 
-Для внешней версии установить `USE_EMBEDDED_DATA=False` и указать `MAT_PATH`
-либо `SELECTION_DIR`. Для MAT требуются SciPy и комплексные массивы `x`, `y`,
-`eRef` одинаковой длины.
+В подробном notebook по умолчанию используется встроенный payload. Для
+локального запуска с внешними данными установить `USE_EMBEDDED_DATA=False` и
+указать `MAT_PATH` либо `SELECTION_DIR`. Для MAT требуются SciPy и комплексные
+массивы `x`, `y`, `eRef` одинаковой длины.
