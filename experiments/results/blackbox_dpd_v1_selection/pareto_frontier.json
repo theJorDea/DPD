@@ -1,0 +1,618 @@
+{
+  "dominance_dimensions": [
+    "validation correct-direction complex NMSE",
+    "real MUL",
+    "real ADD",
+    "real DIV",
+    "nonlinear operations",
+    "comparisons",
+    "LUT accesses",
+    "memory reads",
+    "memory writes",
+    "state values",
+    "stored coefficients",
+    "stored constants",
+    "maximum predistorted amplitude"
+  ],
+  "frontier": [
+    {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 1.4542517879744992,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 98.81571454714361,
+        "raw_steady_design_feature_count": 96,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 96,
+        "ridge_solve_seconds": 0.0009742089896462858,
+        "singular_value_cutoff": 3.8425011040068565e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.003114575211691351,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.18814947468023,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 32,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 15,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 192,
+        "stored_real_constants": 63
+      },
+      "requested_knot_count": 32,
+      "ridge": 0.0001,
+      "selection_score_db": -17.19850031515248,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.9212524642339582,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -23.985066195410354,
+        "discarded_sample_count": 2,
+        "mse": 0.0006460225119877164,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.003994784723884304,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.19850031515248,
+        "discarded_sample_count": 11,
+        "mse": 0.003114575211691351,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.019061188161263357,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9212524642339582,
+        "papr_db": 7.221171320542878,
+        "rms_amplitude": 0.40116228514580055
+      }
+    },
+    {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 0.894252336001955,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 84.6510788968943,
+        "raw_steady_design_feature_count": 72,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 72,
+        "ridge_solve_seconds": 0.00011177000124007463,
+        "singular_value_cutoff": 4.369188770853985e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.003119067766470272,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.1818895971262269,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 24,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 15,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47
+      },
+      "requested_knot_count": 24,
+      "ridge": 0.0001,
+      "selection_score_db": -17.192240437598475,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.9231649488017301,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -24.64927400760665,
+        "discarded_sample_count": 2,
+        "mse": 0.0005544046585743502,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.0034282509043047386,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.192240437598475,
+        "discarded_sample_count": 11,
+        "mse": 0.003119067766470272,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.0190886825790075,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9231649488017301,
+        "papr_db": 7.203329303499948,
+        "rms_amplitude": 0.4028216846816939
+      }
+    },
+    {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 0.513777417014353,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 67.08385491016678,
+        "raw_steady_design_feature_count": 48,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 48,
+        "ridge_solve_seconds": 0.00011658400762826204,
+        "singular_value_cutoff": 5.20936612388984e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.0032004995579759236,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.0699599872653558,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 16,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 12,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 96,
+        "stored_real_constants": 31
+      },
+      "requested_knot_count": 16,
+      "ridge": 0.0001,
+      "selection_score_db": -17.080310827737605,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.9249677866210381,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -25.274079879905532,
+        "discarded_sample_count": 2,
+        "mse": 0.0004801161155271121,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.0029688756791107734,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.080310827737605,
+        "discarded_sample_count": 11,
+        "mse": 0.0032004995579759236,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.019587044825766373,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9249677866210381,
+        "papr_db": 7.182269078965126,
+        "rms_amplitude": 0.4045881458560965
+      }
+    },
+    {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 2.9438672769465484,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 125.87125918907907,
+        "raw_steady_design_feature_count": 144,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 144,
+        "ridge_solve_seconds": 0.00014300696784630418,
+        "singular_value_cutoff": 3.198115863050266e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.003215548035287944,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.0495876862597895,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 48,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 18,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 288,
+        "stored_real_constants": 95
+      },
+      "requested_knot_count": 48,
+      "ridge": 0.0001,
+      "selection_score_db": -17.059938526732036,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.9210634938775147,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -22.74758126237533,
+        "discarded_sample_count": 2,
+        "mse": 0.0008590058974250239,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.005311801946656095,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.059938526732036,
+        "discarded_sample_count": 11,
+        "mse": 0.003215548035287944,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.01967914144828754,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9210634938775147,
+        "papr_db": 7.287666466250066,
+        "rms_amplitude": 0.398021237985497
+      }
+    },
+    {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 0.18119719403330237,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 41.836476671683755,
+        "raw_steady_design_feature_count": 24,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 24,
+        "ridge_solve_seconds": 9.794597281143069e-05,
+        "singular_value_cutoff": 6.865584385536271e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.003224375834460759,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.0376811266574784,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 8,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 9,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 48,
+        "stored_real_constants": 15
+      },
+      "requested_knot_count": 8,
+      "ridge": 0.001,
+      "selection_score_db": -17.048031967129727,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.8909612358284025,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -21.15170020416174,
+        "discarded_sample_count": 2,
+        "mse": 0.0012404642465343384,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.007670611365125696,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.048031967129727,
+        "discarded_sample_count": 11,
+        "mse": 0.003224375834460759,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.01973316754483234,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.8909612358284025,
+        "papr_db": 7.094316597367381,
+        "rms_amplitude": 0.39367966202480575
+      }
+    },
+    {
+      "branches": [],
+      "candidate_kind": "no_dpd_reference",
+      "deployment_role": "reference_and_safe_fallback",
+      "eligible_for_diagnostic_selection": false,
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "knot_count": 0,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 0,
+        "notes": [],
+        "real_additions": 0,
+        "real_divisions": 0,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "real_multiplications": 0,
+        "state_real_values": 0,
+        "stored_real_coefficients": 0,
+        "stored_real_constants": 0
+      },
+      "requested_knot_count": 0,
+      "ridge": 0.0,
+      "selection_score_db": -16.01035084047225,
+      "structurally_valid": true,
+      "topology_name": "no_dpd",
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -16.01035084047225,
+        "discarded_sample_count": 11,
+        "mse": 0.004094621573400152,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.025059068076691213,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9719561049933806,
+        "papr_db": 7.617680170712838,
+        "rms_amplitude": 0.4043548377584955
+      }
+    }
+  ],
+  "no_dpd_reference_included": true,
+  "schema_version": 1,
+  "task": "blackbox_validation_only_spline_memory_dpd_pareto_frontier"
+}

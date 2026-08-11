@@ -1,0 +1,1067 @@
+{
+  "stage": "knot_placement_ablation",
+  "fixed_topology": [
+    {
+      "signal_delay": 0,
+      "envelope_delay": 0
+    },
+    {
+      "signal_delay": 1,
+      "envelope_delay": 1
+    },
+    {
+      "signal_delay": 2,
+      "envelope_delay": 2
+    }
+  ],
+  "fixed_knot_count": 24,
+  "fixed_ila_ridge": 0.0001,
+  "direct_update_fit_and_advisor_are_train_only": true,
+  "strategy_selected_on_validation": true,
+  "trials": [
+    {
+      "strategy": "uniform_amplitude",
+      "compression_power": 2.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 239.3520360589517,
+        "augmented_design_condition_number": 15.47100630401758,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.000518762051569592,
+        "training_relative_error_power_full": 0.003207910295948811,
+        "training_nmse_db_full": -24.9377778456466,
+        "training_mse_after_warmup": 0.0005187643844901102,
+        "training_relative_error_power_after_warmup": 0.0032078635032082906,
+        "training_nmse_db_after_warmup": -24.937841195227296,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.964286371316753,
+        "improvement_over_no_dpd_db": 0.9539355308445039,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4040524489388692,
+          "peak": 0.9138386592189731,
+          "papr_db": 7.0886356649524105
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.8076142375781146,
+          1.0707656549150215,
+          0.9232830973543713,
+          0.787486458253774,
+          0.9208575332325708,
+          1.1954634701808544,
+          0.9496752304177711,
+          1.000213205000529
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.422267474551212,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.97915382693635,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.439912556591143,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.878323057374267,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.014150190911096,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.422267474551212,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.461825742670946,
+        "improvement_over_no_dpd_db": 5.451474902198697,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.40515884764401894,
+          "peak": 0.9219281498681648,
+          "papr_db": 7.14143497104523
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.39987250879156,
+          5.434878870166447,
+          5.52543957627438,
+          5.301557271075115,
+          5.425592802732222,
+          5.572999537114178,
+          5.500296903419127,
+          5.462093825532447
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "uniform_power",
+      "compression_power": 2.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 228.86273988899404,
+        "augmented_design_condition_number": 15.128210068907492,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005183684907567297,
+        "training_relative_error_power_full": 0.0032054766025438226,
+        "training_nmse_db_full": -24.94107388776566,
+        "training_mse_after_warmup": 0.0005183614184122148,
+        "training_relative_error_power_after_warmup": 0.0032053716972691025,
+        "training_nmse_db_after_warmup": -24.941216021161452,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.809522346472402,
+        "improvement_over_no_dpd_db": 0.7991715060001532,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4047595379532051,
+          "peak": 0.9018998507618493,
+          "papr_db": 6.959224471750894
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.6844839093493853,
+          0.9077494886531845,
+          0.758726987782051,
+          0.6026429364211374,
+          0.7784610931776967,
+          1.0148732649737724,
+          0.8268060568745561,
+          0.8426320749710268
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.43561606715336,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.871776864659967,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.3517203060878,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.819804367379493,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -20.994560104737282,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.43561606715336,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.425673586334586,
+        "improvement_over_no_dpd_db": 5.415322745862337,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.40530468728375385,
+          "peak": 0.922684082230049,
+          "papr_db": 7.145428041750101
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.398883201446701,
+          5.389657998916036,
+          5.430050938016549,
+          5.227030350609464,
+          5.360956887953172,
+          5.549666198732751,
+          5.510627679561985,
+          5.468865739991921
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "quantile",
+      "compression_power": 2.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 430.9487640836597,
+        "augmented_design_condition_number": 20.759305481726976,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005544109461397805,
+        "training_relative_error_power_full": 0.0034283552101149356,
+        "training_nmse_db_full": -24.64914187390363,
+        "training_mse_after_warmup": 0.0005544130754187361,
+        "training_relative_error_power_after_warmup": 0.0034283029512237728,
+        "training_nmse_db_after_warmup": -24.64920807451486,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -17.1921183790351,
+        "improvement_over_no_dpd_db": 1.1817675385628519,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4028279443918289,
+          "peak": 0.9231647853953516,
+          "papr_db": 7.203192791356788
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          1.0216367232461039,
+          1.301073547872111,
+          1.1780242316927065,
+          1.023883527726607,
+          1.1338152324168327,
+          1.4223040876891275,
+          1.2101820605812854,
+          1.1879309569235001
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.453726970267674,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -17.21389990470337,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.641246325780095,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -20.02869141106993,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.098796566094784,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.453726970267674,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.474653897331155,
+        "improvement_over_no_dpd_db": 5.464303056858906,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4050700095337946,
+          "peak": 0.9223583493803637,
+          "papr_db": 7.147391864971424
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.433475402349867,
+          5.421538413991708,
+          5.526346509591576,
+          5.325443236412394,
+          5.440001322828465,
+          5.572221833555581,
+          5.497421084131268,
+          5.50617779785618
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "compression_aware",
+      "compression_power": 1.5,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 260.858714979012,
+        "augmented_design_condition_number": 16.15112116786361,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005217549187778776,
+        "training_relative_error_power_full": 0.003226417527738064,
+        "training_nmse_db_full": -24.91279431658991,
+        "training_mse_after_warmup": 0.0005217542492024926,
+        "training_relative_error_power_after_warmup": 0.0032263518153922673,
+        "training_nmse_db_after_warmup": -24.912882770113214,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.927519022119135,
+        "improvement_over_no_dpd_db": 0.9171681816468862,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4047257727620316,
+          "peak": 0.9106418599035883,
+          "papr_db": 7.043734977867575
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.7818263768481586,
+          1.0180595564057526,
+          0.89917062781468,
+          0.7232332140628266,
+          0.8766872834159933,
+          1.1522030654764812,
+          0.9408551746155887,
+          0.9696937453021786
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.431236384606684,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.95823800764805,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.423259504731636,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.868736292684808,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.014270691104496,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.431236384606684,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.454271678781357,
+        "improvement_over_no_dpd_db": 5.443920838309108,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4052672363168284,
+          "peak": 0.922978377670119,
+          "papr_db": 7.149000645632836
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.40863090930344,
+          5.413791557675118,
+          5.506068281616848,
+          5.276239703567395,
+          5.415241042566766,
+          5.575365075977828,
+          5.499455382960914,
+          5.46813307862813
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "compression_aware",
+      "compression_power": 2.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 321.0807444819509,
+        "augmented_design_condition_number": 17.91872608423799,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005212117582170598,
+        "training_relative_error_power_full": 0.003223058742433455,
+        "training_nmse_db_full": -24.917317791037938,
+        "training_mse_after_warmup": 0.0005212101426357435,
+        "training_relative_error_power_after_warmup": 0.003222987244404909,
+        "training_nmse_db_after_warmup": -24.917414132886346,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.875105386930116,
+        "improvement_over_no_dpd_db": 0.864754546457867,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.405234220455133,
+          "peak": 0.9099261916438113,
+          "papr_db": 7.026001067623798
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.7224905791734884,
+          0.9763018091737514,
+          0.8473551860622948,
+          0.6755564193793226,
+          0.8184970867861807,
+          1.091159117582972,
+          0.8807033882794322,
+          0.9303611493849875
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.472860101734874,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.917905213724683,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.400535252525266,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.870564001689527,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.0429133426181,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.472860101734874,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.49658606075631,
+        "improvement_over_no_dpd_db": 5.486235220284062,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4052558571660769,
+          "peak": 0.9203656933272383,
+          "papr_db": 7.124622430488654
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.480043667009706,
+          5.46876754516364,
+          5.521863173541799,
+          5.342481837022998,
+          5.422087690427716,
+          5.610155522589615,
+          5.537620737751034,
+          5.5163494923765395
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "compression_aware",
+      "compression_power": 3.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 421.67158625369075,
+        "augmented_design_condition_number": 20.53464356285959,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005169512527977453,
+        "training_relative_error_power_full": 0.003196712715080043,
+        "training_nmse_db_full": -24.95296391523621,
+        "training_mse_after_warmup": 0.0005169512898432401,
+        "training_relative_error_power_after_warmup": 0.0031966519391159066,
+        "training_nmse_db_after_warmup": -24.953046484172244,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.73763411377701,
+        "improvement_over_no_dpd_db": 0.7272832733047601,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4059427433033528,
+          "peak": 0.9116644240836264,
+          "papr_db": 7.0274045069149595
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.5960771858012954,
+          0.8242379917509375,
+          0.7132279850855348,
+          0.5515133607337965,
+          0.669735656507072,
+          0.9516746642511613,
+          0.7464873442306619,
+          0.7876136907364835
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.488684787455213,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.78225540281835,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.288805922364336,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.797226890359884,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.020123547026436,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.488684787455213,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.515909619572092,
+        "improvement_over_no_dpd_db": 5.505558779099843,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4053043123450956,
+          "peak": 0.9221030832426386,
+          "papr_db": 7.13996499236428
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.485896517062443,
+          5.490304992144491,
+          5.555219914509024,
+          5.379152457564235,
+          5.468966616608011,
+          5.637243811557763,
+          5.5500302642082815,
+          5.486942591584045
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    },
+    {
+      "strategy": "compression_aware",
+      "compression_power": 4.0,
+      "effective_knot_count": 24,
+      "fit_diagnostics": {
+        "sample_count": 92000,
+        "branch_count": 3,
+        "knot_count": 24,
+        "feature_count": 72,
+        "ridge": 0.0001,
+        "gram_condition_number": 523.0681164956303,
+        "augmented_design_condition_number": 22.87068246676584,
+        "solver_rank": 72,
+        "solver": "augmented_complex_lstsq",
+        "causal_warmup_samples": 2,
+        "training_mse_full": 0.0005066101934944199,
+        "training_relative_error_power_full": 0.0031327658814406427,
+        "training_nmse_db_full": -25.040720596978026,
+        "training_mse_after_warmup": 0.0005066068181187247,
+        "training_relative_error_power_after_warmup": 0.003132685224558856,
+        "training_nmse_db_after_warmup": -25.04083241283325,
+        "maximum_calibration_radius": 1.094297547250075
+      },
+      "ila_validation": {
+        "nmse_db": -16.673922693547382,
+        "improvement_over_no_dpd_db": 0.6635718530751333,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.40637447628803186,
+          "peak": 0.9143282524859164,
+          "papr_db": 7.04351433483451
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          0.5125104278336927,
+          0.7568966338862388,
+          0.7106211107147722,
+          0.4445767893646355,
+          0.6136794256494227,
+          0.8714623971494646,
+          0.6957436307857243,
+          0.729060247747908
+        ]
+      },
+      "direct_update": {
+        "fit_range": [
+          16384,
+          20480
+        ],
+        "advisor_range": [
+          32768,
+          40960
+        ],
+        "epsilon": 0.0001,
+        "ridge": 1e-08,
+        "selected": {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.50095802226545,
+          "support_valid": true
+        },
+        "trials": [
+          {
+            "step": 0.0,
+            "advisor_train_nmse_db": -16.744892527807945,
+            "support_valid": true
+          },
+          {
+            "step": 0.25,
+            "advisor_train_nmse_db": -18.2601431965331,
+            "support_valid": true
+          },
+          {
+            "step": 0.5,
+            "advisor_train_nmse_db": -19.781739246741022,
+            "support_valid": true
+          },
+          {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.021098990369957,
+            "support_valid": true
+          },
+          {
+            "step": 1.0,
+            "advisor_train_nmse_db": -21.50095802226545,
+            "support_valid": true
+          }
+        ]
+      },
+      "direct_validation": {
+        "nmse_db": -21.518378487623586,
+        "improvement_over_no_dpd_db": 5.508027647151337,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4053931793228021,
+          "peak": 0.9226476285631788,
+          "papr_db": 7.143188647066138
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.489422020218935,
+          5.469119076760212,
+          5.556513359757048,
+          5.392300415200484,
+          5.4737994374109284,
+          5.624025552203651,
+          5.55116524554867,
+          5.515081922822967
+        ]
+      },
+      "operation_count": {
+        "real_multiplications": 27,
+        "real_additions": 28,
+        "real_divisions": 0,
+        "nonlinear_operations": 3,
+        "comparisons": 15,
+        "lookups": 6,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47,
+        "state_real_values": 4,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ]
+      }
+    }
+  ],
+  "selected": {
+    "strategy": "compression_aware",
+    "compression_power": 4.0,
+    "effective_knot_count": 24,
+    "fit_diagnostics": {
+      "sample_count": 92000,
+      "branch_count": 3,
+      "knot_count": 24,
+      "feature_count": 72,
+      "ridge": 0.0001,
+      "gram_condition_number": 523.0681164956303,
+      "augmented_design_condition_number": 22.87068246676584,
+      "solver_rank": 72,
+      "solver": "augmented_complex_lstsq",
+      "causal_warmup_samples": 2,
+      "training_mse_full": 0.0005066101934944199,
+      "training_relative_error_power_full": 0.0031327658814406427,
+      "training_nmse_db_full": -25.040720596978026,
+      "training_mse_after_warmup": 0.0005066068181187247,
+      "training_relative_error_power_after_warmup": 0.003132685224558856,
+      "training_nmse_db_after_warmup": -25.04083241283325,
+      "maximum_calibration_radius": 1.094297547250075
+    },
+    "ila_validation": {
+      "nmse_db": -16.673922693547382,
+      "improvement_over_no_dpd_db": 0.6635718530751333,
+      "no_dpd_nmse_db": -16.01035084047225,
+      "drive_summary": {
+        "rms": 0.40637447628803186,
+        "peak": 0.9143282524859164,
+        "papr_db": 7.04351433483451
+      },
+      "support_valid": true,
+      "segment_improvements_db": [
+        0.5125104278336927,
+        0.7568966338862388,
+        0.7106211107147722,
+        0.4445767893646355,
+        0.6136794256494227,
+        0.8714623971494646,
+        0.6957436307857243,
+        0.729060247747908
+      ]
+    },
+    "direct_update": {
+      "fit_range": [
+        16384,
+        20480
+      ],
+      "advisor_range": [
+        32768,
+        40960
+      ],
+      "epsilon": 0.0001,
+      "ridge": 1e-08,
+      "selected": {
+        "step": 1.0,
+        "advisor_train_nmse_db": -21.50095802226545,
+        "support_valid": true
+      },
+      "trials": [
+        {
+          "step": 0.0,
+          "advisor_train_nmse_db": -16.744892527807945,
+          "support_valid": true
+        },
+        {
+          "step": 0.25,
+          "advisor_train_nmse_db": -18.2601431965331,
+          "support_valid": true
+        },
+        {
+          "step": 0.5,
+          "advisor_train_nmse_db": -19.781739246741022,
+          "support_valid": true
+        },
+        {
+          "step": 0.75,
+          "advisor_train_nmse_db": -21.021098990369957,
+          "support_valid": true
+        },
+        {
+          "step": 1.0,
+          "advisor_train_nmse_db": -21.50095802226545,
+          "support_valid": true
+        }
+      ]
+    },
+    "direct_validation": {
+      "nmse_db": -21.518378487623586,
+      "improvement_over_no_dpd_db": 5.508027647151337,
+      "no_dpd_nmse_db": -16.01035084047225,
+      "drive_summary": {
+        "rms": 0.4053931793228021,
+        "peak": 0.9226476285631788,
+        "papr_db": 7.143188647066138
+      },
+      "support_valid": true,
+      "segment_improvements_db": [
+        5.489422020218935,
+        5.469119076760212,
+        5.556513359757048,
+        5.392300415200484,
+        5.4737994374109284,
+        5.624025552203651,
+        5.55116524554867,
+        5.515081922822967
+      ]
+    },
+    "operation_count": {
+      "real_multiplications": 27,
+      "real_additions": 28,
+      "real_divisions": 0,
+      "nonlinear_operations": 3,
+      "comparisons": 15,
+      "lookups": 6,
+      "real_memory_reads": 18,
+      "real_memory_writes": 2,
+      "stored_real_coefficients": 144,
+      "stored_real_constants": 47,
+      "state_real_values": 4,
+      "notes": [
+        "complex multiply convention 4m2a",
+        "binary interval selection",
+        "3 unique envelope delays; address and weight shared within each group",
+        "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+        "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+      ]
+    }
+  },
+  "gain_over_quantile_one_update_db": 0.04372459029243103,
+  "gain_over_iterative_quantile_db": -0.06920160085455507,
+  "elapsed_seconds": 28.967220162041485,
+  "claim_limit": "knot strategy is selected on the same validation capture; no sealed-test claim is permitted"
+}

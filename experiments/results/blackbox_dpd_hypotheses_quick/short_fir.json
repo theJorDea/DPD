@@ -1,0 +1,88 @@
+{
+  "stage": "direct_refined_spline_plus_short_fir",
+  "fir_form": "z = base_spline(x) + sum_{l=1}^{L-1} h_l*base_spline(x)[n-l]",
+  "selection": "length/ridge/step selected on disjoint train advisor",
+  "validation_used_for_selection": false,
+  "advisor_trial_count": 45,
+  "selected": {
+    "fir_length": 6,
+    "tail_count": 5,
+    "ridge": 0.0001,
+    "step": 1.0,
+    "tail_coefficients": [
+      {
+        "real": -0.0016685186063720102,
+        "imag": -0.013243885929439281
+      },
+      {
+        "real": 0.005240673918440858,
+        "imag": 0.03855627750380519
+      },
+      {
+        "real": -0.014437027222082774,
+        "imag": -0.04330485717023811
+      },
+      {
+        "real": 0.0121289880920479,
+        "imag": 0.02445480126463351
+      },
+      {
+        "real": -0.012429490352439962,
+        "imag": 0.0055730341796040375
+      }
+    ],
+    "advisor_train_nmse_db": -21.62465849867219,
+    "support_valid": true
+  },
+  "direct_validation": {
+    "nmse_db": -21.474654666811016,
+    "improvement_over_no_dpd_db": 5.464303826338767,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.40507001344976773,
+      "peak": 0.9223583527172905,
+      "papr_db": 7.147391812425457
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.433476101965105,
+      5.4215390961622845,
+      5.52634702419218,
+      5.325443876533527,
+      5.440002017639511,
+      5.572222682046313,
+      5.497422162866396,
+      5.506178802565033
+    ]
+  },
+  "fir_validation": {
+    "nmse_db": -21.61691564114907,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.4050559939596151,
+      "peak": 0.9253233689419028,
+      "papr_db": 7.175569343684857
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.579968064668456,
+      5.550503368071631,
+      5.663860060003241,
+      5.483613454272227,
+      5.56490878024761,
+      5.726247249474433,
+      5.626979046827138,
+      5.663694723962246
+    ]
+  },
+  "validation_gain_over_direct_refined_db": 0.14226097433805407,
+  "incremental_operation_count": {
+    "real_multiplications": 20,
+    "real_additions": 20,
+    "stored_real_coefficients": 10,
+    "state_real_values": 10,
+    "notes": "proper-complex FIR tail; h0 fixed to one"
+  },
+  "elapsed_seconds": 0.5217005040030926,
+  "claim_limit": "FIR is optimized through the same frozen PA evaluator and has not been evaluated on sealed test or physical PA"
+}

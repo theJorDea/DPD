@@ -1,0 +1,134 @@
+{
+  "stage": "alternative_pa_evaluator_ranking",
+  "evaluator": {
+    "name": "gmp_both_k2_l9_m2_ridge_1e-10_refit",
+    "config": {
+      "ka": 7,
+      "la": 9,
+      "kb": 2,
+      "lb": 9,
+      "mb": 2,
+      "kc": 2,
+      "lc": 9,
+      "mc": 2,
+      "leading_policy": "causal_leading"
+    },
+    "fit_diagnostics": {
+      "sample_count": 92000,
+      "feature_count": 129,
+      "ridge": 1e-10,
+      "column_rms_minimum": 0.06363033875547397,
+      "column_rms_maximum": 0.4021360352810169,
+      "solver_rank": 129,
+      "scaled_augmented_condition_number": 63619.22562777305,
+      "training_nmse_db_full": -28.259514584449693,
+      "training_nmse_db_interior": -28.260513499443675,
+      "causal_warmup_samples": 10,
+      "future_cooldown_samples": 0,
+      "training_scored_samples_interior": 91990,
+      "segment_length": 92000,
+      "segment_count": 1,
+      "solver_mode": "ridge_lstsq",
+      "svd_rcond": null,
+      "singular_value_maximum": 5.466128650782316,
+      "singular_value_minimum": 8.591944646990597e-05,
+      "singular_value_cutoff": null,
+      "retained_singular_value_minimum": null,
+      "coefficient_l2_norm": 603.0303892432361,
+      "solver": "numpy_column_scaled_complex_lstsq"
+    },
+    "measured_output_fidelity_nmse_db": -28.25311332913225
+  },
+  "no_dpd_nmse_db": -16.028115419456327,
+  "ranking": [
+    {
+      "name": "direct_plus_short_fir",
+      "nmse_db": -21.751300025022374,
+      "improvement_over_no_dpd_db": 5.723184605566047,
+      "drive_summary": {
+        "rms": 0.4050559939596151,
+        "peak": 0.9253233689419028,
+        "papr_db": 7.175569343684857
+      },
+      "segment_improvements_db": [
+        5.6891946214730496,
+        5.686314211259582,
+        5.796134647806468,
+        5.6075096215961615,
+        5.676882731567817,
+        5.833452314117583,
+        5.730127148354725,
+        5.77271844115411
+      ]
+    },
+    {
+      "name": "iterative_direct_refined_spline",
+      "nmse_db": -21.73614574971557,
+      "improvement_over_no_dpd_db": 5.708030330259241,
+      "drive_summary": {
+        "rms": 0.40488424160330644,
+        "peak": 0.920485351521888,
+        "papr_db": 7.133720151196402
+      },
+      "segment_improvements_db": [
+        5.7076340498125795,
+        5.708984766350895,
+        5.726348157870934,
+        5.595942570213072,
+        5.68109325419235,
+        5.795696327694031,
+        5.7341149896201955,
+        5.720319725874324
+      ]
+    },
+    {
+      "name": "one_direct_update",
+      "nmse_db": -21.615801768280413,
+      "improvement_over_no_dpd_db": 5.587686348824086,
+      "drive_summary": {
+        "rms": 0.40507001344976773,
+        "peak": 0.9223583527172905,
+        "papr_db": 7.147391812425457
+      },
+      "segment_improvements_db": [
+        5.546614749340151,
+        5.564947858047347,
+        5.664485340743358,
+        5.453910466467331,
+        5.560179998606396,
+        5.68593684462817,
+        5.607792821107033,
+        5.625515955757374
+      ]
+    },
+    {
+      "name": "ila_spline_baseline",
+      "nmse_db": -17.432636189109402,
+      "improvement_over_no_dpd_db": 1.4045207696530753,
+      "drive_summary": {
+        "rms": 0.40282800793408896,
+        "peak": 0.9231649488017301,
+        "papr_db": 7.203192958701553
+      },
+      "segment_improvements_db": [
+        1.2287277406818298,
+        1.5347794333016935,
+        1.4160686624877705,
+        1.2508139340428706,
+        1.3531452102631203,
+        1.6440596964958658,
+        1.4241119846931944,
+        1.4093933491552146
+      ]
+    }
+  ],
+  "ranking_names_best_first": [
+    "direct_plus_short_fir",
+    "iterative_direct_refined_spline",
+    "one_direct_update",
+    "ila_spline_baseline"
+  ],
+  "elapsed_seconds": 4.157798204978462,
+  "evidence_level": "weak independent-topology robustness check",
+  "claim_limit": "the alternative evaluator uses the same measured capture and the same GMP model family; agreement cannot replace an independently trained neural evaluator or a physical PA test"
+}

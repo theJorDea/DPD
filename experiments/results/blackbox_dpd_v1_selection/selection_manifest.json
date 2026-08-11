@@ -1,0 +1,842 @@
+{
+  "alignment": {
+    "fractional_delay_applied": false,
+    "integer_delay_samples": 0,
+    "source": "frozen train-only PA bundle",
+    "validation_refit": false
+  },
+  "artifacts": {
+    "pareto_frontier": "experiments/results/blackbox_dpd_v1_selection/pareto_frontier.json",
+    "pareto_frontier_sha256": "2b788d06b5b943ba40aacda5b240eca8d7cdd0784ab619ad2211c75434675672",
+    "selection_manifest": "experiments/results/blackbox_dpd_v1_selection/selection_manifest.json",
+    "validation_trials": "experiments/results/blackbox_dpd_v1_selection/validation_trials.json",
+    "validation_trials_sha256": "1b9fddb1eb224487ae37b0dd96a5ec75e9a67a02bd0900a28ae6804c37e30e12"
+  },
+  "calibration_timing": {
+    "expected_factorization_count": 49,
+    "factorization_count": 49,
+    "factorization_seconds_total": 45.71170592616545,
+    "factorizations": [
+      {
+        "feature_count": 8,
+        "knot_count": 8,
+        "rank": 8,
+        "seconds": 0.11501418304396793,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 12,
+        "knot_count": 12,
+        "rank": 12,
+        "seconds": 0.11353180499281734,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 16,
+        "knot_count": 16,
+        "rank": 16,
+        "seconds": 0.1393102430156432,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 24,
+        "rank": 24,
+        "seconds": 0.23982343496754766,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 32,
+        "knot_count": 32,
+        "rank": 32,
+        "seconds": 0.36558391904691234,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 48,
+        "rank": 48,
+        "seconds": 0.6044872190104797,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 64,
+        "knot_count": 64,
+        "rank": 64,
+        "seconds": 0.8625436869915575,
+        "steady_sample_count": 92000,
+        "topology_name": "memoryless"
+      },
+      {
+        "feature_count": 16,
+        "knot_count": 8,
+        "rank": 16,
+        "seconds": 0.12720928102498874,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 12,
+        "rank": 24,
+        "seconds": 0.1704125750111416,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 32,
+        "knot_count": 16,
+        "rank": 32,
+        "seconds": 0.2582161820027977,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 24,
+        "rank": 48,
+        "seconds": 0.48893203999614343,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 64,
+        "knot_count": 32,
+        "rank": 64,
+        "seconds": 0.790696489973925,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 48,
+        "rank": 96,
+        "seconds": 1.739475473004859,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 128,
+        "knot_count": 64,
+        "rank": 128,
+        "seconds": 2.4043624619953334,
+        "steady_sample_count": 91999,
+        "topology_name": "current_lag1"
+      },
+      {
+        "feature_count": 16,
+        "knot_count": 8,
+        "rank": 16,
+        "seconds": 0.11615602596430108,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 12,
+        "rank": 24,
+        "seconds": 0.16040068300208077,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 32,
+        "knot_count": 16,
+        "rank": 32,
+        "seconds": 0.26955735101364553,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 24,
+        "rank": 48,
+        "seconds": 0.5395390440244228,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 64,
+        "knot_count": 32,
+        "rank": 64,
+        "seconds": 0.7323631739709526,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 48,
+        "rank": 96,
+        "seconds": 1.6427288940176368,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 128,
+        "knot_count": 64,
+        "rank": 128,
+        "seconds": 2.6764199510216713,
+        "steady_sample_count": 91998,
+        "topology_name": "current_lag2"
+      },
+      {
+        "feature_count": 16,
+        "knot_count": 8,
+        "rank": 16,
+        "seconds": 0.11603610101155937,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 12,
+        "rank": 24,
+        "seconds": 0.17244138498790562,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 32,
+        "knot_count": 16,
+        "rank": 32,
+        "seconds": 0.2366268330370076,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 24,
+        "rank": 48,
+        "seconds": 0.45837796898558736,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 64,
+        "knot_count": 32,
+        "rank": 64,
+        "seconds": 0.7413546530297026,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 48,
+        "rank": 96,
+        "seconds": 1.4141795260366052,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 128,
+        "knot_count": 64,
+        "rank": 128,
+        "seconds": 2.472727424988989,
+        "steady_sample_count": 91999,
+        "topology_name": "aligned_lag1"
+      },
+      {
+        "feature_count": 16,
+        "knot_count": 8,
+        "rank": 16,
+        "seconds": 0.12440774898277596,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 12,
+        "rank": 24,
+        "seconds": 0.17626123799709603,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 32,
+        "knot_count": 16,
+        "rank": 32,
+        "seconds": 0.25294123200001195,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 24,
+        "rank": 48,
+        "seconds": 0.4947734929737635,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 64,
+        "knot_count": 32,
+        "rank": 64,
+        "seconds": 0.7190812639892101,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 48,
+        "rank": 96,
+        "seconds": 1.5999577949987724,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 128,
+        "knot_count": 64,
+        "rank": 128,
+        "seconds": 2.487627861031797,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_lag2"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 8,
+        "rank": 24,
+        "seconds": 0.18964485701872036,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 36,
+        "knot_count": 12,
+        "rank": 36,
+        "seconds": 0.2598673869506456,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 16,
+        "rank": 48,
+        "seconds": 0.4574071100214496,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 72,
+        "knot_count": 24,
+        "rank": 72,
+        "seconds": 0.9211327400407754,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 32,
+        "rank": 96,
+        "seconds": 1.5490390070481226,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 144,
+        "knot_count": 48,
+        "rank": 144,
+        "seconds": 2.4003442699904554,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 192,
+        "knot_count": 64,
+        "rank": 192,
+        "seconds": 3.823979347012937,
+        "steady_sample_count": 91998,
+        "topology_name": "current_012"
+      },
+      {
+        "feature_count": 24,
+        "knot_count": 8,
+        "rank": 24,
+        "seconds": 0.18119719403330237,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 36,
+        "knot_count": 12,
+        "rank": 36,
+        "seconds": 0.2667513340129517,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 48,
+        "knot_count": 16,
+        "rank": 48,
+        "seconds": 0.513777417014353,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 72,
+        "knot_count": 24,
+        "rank": 72,
+        "seconds": 0.894252336001955,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 96,
+        "knot_count": 32,
+        "rank": 96,
+        "seconds": 1.4542517879744992,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 144,
+        "knot_count": 48,
+        "rank": 144,
+        "seconds": 2.9438672769465484,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      },
+      {
+        "feature_count": 192,
+        "knot_count": 64,
+        "rank": 192,
+        "seconds": 3.832635220955126,
+        "steady_sample_count": 91998,
+        "topology_name": "aligned_012"
+      }
+    ],
+    "inference_throughput_artifact": "pending separate benchmark",
+    "inference_throughput_measured": false,
+    "measurement_scope": "local Python/NumPy wall-clock",
+    "ridge_solve_seconds_total": 0.14025805570418015,
+    "selection_wall_scope": "select_from_config entry through data loading, grouped factorization, all ridge solves, validation cascade evaluation, selection, diagnostics, and PSD computation; excludes artifact publication and inference timing",
+    "selection_wall_seconds_before_publication": 60.47376078099478
+  },
+  "candidate_grid": {
+    "fit_count": 490,
+    "knot_counts": [
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64
+    ],
+    "knot_strategy": "quantile",
+    "maximum_fit_count": 490,
+    "operation_count_class": "analytical_optimized_datapath",
+    "operation_count_is_measured_numpy_timing": false,
+    "ridge_values": [
+      0.0,
+      1e-10,
+      1e-09,
+      1e-08,
+      1e-07,
+      1e-06,
+      1e-05,
+      0.0001,
+      0.001,
+      0.01
+    ],
+    "selection_metric": "correct-direction pooled complex NMSE",
+    "selection_split": "validation",
+    "selection_tolerance_db": 0.1,
+    "test_used_for_architecture_or_hyperparameter_selection": false,
+    "tie_policy": "within tolerance of best NMSE choose lexicographically cheapest complete operation/storage vector",
+    "topology_count": 7
+  },
+  "claim_boundary": {
+    "huawei_compliance_proven": false,
+    "opendpd_superiority_proven": false,
+    "physical_pa_measurement": false,
+    "surrogate_only": true,
+    "x_as_desired_signal_is_provisional": true
+  },
+  "code_sha256": {
+    "baseline/alignment.py": "ea14b49cb166378192e42fd9360bfb3135248d91a7f9c339fcc2a85086209d17",
+    "baseline/complex_spline_dpd.py": "d3b0ef5afc46e813c30a8d8e14ff92fbc91a407ca622e6423ded08e9cb4dfd63",
+    "baseline/metrics.py": "21fe5602400913f65354af4ff7374aea27a9c3a3f71555b0f5975f4bb289a95b",
+    "baseline/spline_memory_dpd.py": "8e6fad95acf6ca1f61ef773f977ce03cc456b5959f6aacebfdc8e98df10574fa",
+    "experiments/select_blackbox_dpd.py": "8b59fb790f0ea459f4566bd268fb2a04ba26be2bf40dabfb8962859cbc2e5702",
+    "experiments/select_blackbox_pa.py": "10abf2c8bf4516bc325c081421dbc7bd4cb1a59703f0afa4084df346cc040b9c"
+  },
+  "config": {
+    "path": "experiments/configs/blackbox_dpd_v1.json",
+    "sha256": "eeb55d6f35c04bb7f10c4b8952e390f4b9fb760103a73fa687c19f04cb057f01"
+  },
+  "data_provenance": {
+    "actual_selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "actual_source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "expected_actual_selection_view_hash_match": true,
+    "expected_actual_source_hash_match": true,
+    "expected_selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "expected_source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "sealed_or_test_data_available_to_selector": false,
+    "selection_directory": "data/private/blackbox_v3/selection",
+    "selection_view": "data/private/blackbox_v3/selection/selection_view.json",
+    "selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+    "source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+    "split_contract": {
+      "train": {
+        "count": 92000,
+        "start": 5000,
+        "stop": 97000
+      },
+      "validation": {
+        "count": 23000,
+        "start": 97000,
+        "stop": 120000
+      }
+    },
+    "split_relationship": "adjacent chronological slices of one capture; not independent captures",
+    "verified_selection_files_sha256": {
+      "spec.json": "e04619c71d9958c8d79f3ba2e1d47c4e415a12bf70e2f9e44964a3289b6dba95",
+      "train_input.csv": "cc0b988608bbf482c0ee86e9d9f97d46f08bb6e0c9d86fa39989e7f5553da29d",
+      "train_output.csv": "f80e65867d9d6a1b5352d44feb20b36709d0fdfd98fd08ff7bc0e456f8266b46",
+      "val_input.csv": "9a77dc76b6c6350b0287eeab14e681ea8adcaf363621917a3405fd5f48ed3585",
+      "val_output.csv": "3166e8446892c301327b672792abadbba020d80ccbdb19e30f653ec4f45a5b35"
+    }
+  },
+  "dataset_label": "BlackBoxData external capture; provisional x/y semantics",
+  "determinism": {
+    "coefficient_dtype": "complex128",
+    "seed": null,
+    "stochastic_fitting": false
+  },
+  "directions": {
+    "ila_calibration": "train-only y/g -> x",
+    "measured_validation_y": "used only for frozen PA fidelity/headroom after selection",
+    "measured_validation_y_used_as_dpd_input": false,
+    "validation_deployment": "desired x -> DPD -> frozen PA -> compare g*x"
+  },
+  "environment": {
+    "numpy": "2.5.1",
+    "platform": "Linux-7.0.5-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.6 (main, Jun 23 2026, 18:14:05) [GCC 16.1.1 20260430]"
+  },
+  "evaluator_headroom_gate": {
+    "computed_after_selection": true,
+    "diagnostic_only": true,
+    "evaluator_fidelity_against_measured_validation_y": {
+      "complex_nmse_pooled_db": -28.590412808379433,
+      "discarded_sample_count": 11,
+      "mse": 0.00023222249859346434,
+      "perfect_reconstruction": false,
+      "reference_power": 0.16785936441820742,
+      "relative_error_power": 0.0013834348735820398,
+      "scored_sample_count": 22989,
+      "warmup_samples_at_record_start": 11
+    },
+    "evaluator_model_error_power": 0.00023222249859346434,
+    "independence_limitation": "PA architecture and DPD were selected on the same validation slice; train/validation are adjacent slices of one capture",
+    "independent_confirmation": false,
+    "margin_db_10log10_dpd_error_over_pa_model_error": 11.28120517032926,
+    "negative_infinite_margin_due_to_zero_dpd_error": false,
+    "pass": true,
+    "pass_does_not_confirm_physical_or_independent_performance": true,
+    "positive_infinite_margin_due_to_zero_evaluator_error": false,
+    "required_margin_db": 10.0,
+    "requirement_source": "internal diagnostic guard, not a Huawei requirement",
+    "selected_cascade_error_power": 0.003119067766470272,
+    "undefined_because_both_errors_are_zero": false,
+    "used_for_ranking": false
+  },
+  "frozen_pa_evaluator": {
+    "actual_completion_manifest_sha256": "c2e490bd8ad77f86ce6988db8b34273743d146be32d05e5c3562fbb94aa362d2",
+    "bundle_directory": "experiments/results/blackbox_pa_v2_selection",
+    "expected_actual_completion_hash_match": true,
+    "expected_completion_manifest_sha256": "c2e490bd8ad77f86ce6988db8b34273743d146be32d05e5c3562fbb94aa362d2",
+    "independent_from_dpd_candidate_fitting": true,
+    "integer_delay_samples": 0,
+    "model_family": "gmp",
+    "model_sha256": "e4275d0acbdd93642d14aa0f1351b89cc952afbde850e5614ef97286b81fc6f8",
+    "normalization_scale": 18336.09364068585,
+    "selection_manifest_sha256": "586db4848144995b445dee0854e45819e36bb21c61de8e34885e51c310e6eb94",
+    "validation_independence": "non-independent: PA architecture and DPD are both selected using the same validation slice"
+  },
+  "gain": {
+    "fit_split": "aligned train only",
+    "formula": "sum(conj(x_train)*y_train)/sum(abs(x_train)^2)",
+    "imag": 0.0006765594723679418,
+    "real": 0.9996207793284567,
+    "validation_refit": false
+  },
+  "normalization": {
+    "common_train_only_scale": 18336.09364068585,
+    "normalized_train_input_peak": 0.9999999999999999,
+    "normalized_train_output_peak": 1.093882817542217,
+    "normalized_validation_input_peak": 0.9719561049933806,
+    "normalized_validation_output_peak": 1.0855304876366918,
+    "policy": "divide x and y by one common train-input peak",
+    "recomputed_raw_train_input_peak": 18336.09364068585,
+    "validation_refit": false
+  },
+  "schema_version": 1,
+  "scope": "train_validation_surrogate_only",
+  "selected_model": {
+    "artifact_role": "deployment_candidate_on_frozen_surrogate",
+    "deployment_recommended": true,
+    "model_npz_is_not_safe_as_a_source_unit_api": true,
+    "model_type": "phase_equivariant_sparse_spline_memory_dpd",
+    "normalization_scale_required_for_source_units": true,
+    "path": "experiments/results/blackbox_dpd_v1_selection/selected_dpd.npz",
+    "required_loader": "experiments.select_blackbox_dpd.load_frozen_blackbox_dpd_selection",
+    "safe_source_unit_api": [
+      "predict",
+      "predict_chunk"
+    ],
+    "sha256": "011972f6571c952fd1cfad919c4c7f158c8575ebb40f6027e3a392fa85658cc0",
+    "source_unit_safety_wrapper": {
+      "checks_desired_against_knot_support": true,
+      "checks_each_output_or_chunk_against_train_pa_input_support": true,
+      "overhead": "runtime magnitude, maximum, and comparison safety checks; deployment implementation-dependent",
+      "overhead_included_in_analytical_optimized_datapath_count": false
+    }
+  },
+  "selection": {
+    "deployment_recommended": true,
+    "evaluator_headroom_used_for_ranking": false,
+    "no_dpd_is_recommended_when_false": false,
+    "no_dpd_reference": {
+      "branches": [],
+      "candidate_kind": "no_dpd_reference",
+      "deployment_role": "reference_and_safe_fallback",
+      "eligible_for_diagnostic_selection": false,
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "knot_count": 0,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 0,
+        "lookups": 0,
+        "nonlinear_operations": 0,
+        "notes": [],
+        "real_additions": 0,
+        "real_divisions": 0,
+        "real_memory_reads": 0,
+        "real_memory_writes": 0,
+        "real_multiplications": 0,
+        "state_real_values": 0,
+        "stored_real_coefficients": 0,
+        "stored_real_constants": 0
+      },
+      "requested_knot_count": 0,
+      "ridge": 0.0,
+      "selection_score_db": -16.01035084047225,
+      "structurally_valid": true,
+      "topology_name": "no_dpd",
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -16.01035084047225,
+        "discarded_sample_count": 11,
+        "mse": 0.004094621573400152,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.025059068076691213,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9719561049933806,
+        "papr_db": 7.617680170712838,
+        "rms_amplitude": 0.4043548377584955
+      }
+    },
+    "selected_after_all_hard_validity_gates": true,
+    "selected_trial": {
+      "branches": [
+        {
+          "envelope_delay": 0,
+          "signal_delay": 0
+        },
+        {
+          "envelope_delay": 1,
+          "signal_delay": 1
+        },
+        {
+          "envelope_delay": 2,
+          "signal_delay": 2
+        }
+      ],
+      "candidate_kind": "spline_memory_dpd",
+      "eligible_for_diagnostic_selection": true,
+      "fit_direction": "train-slice ILA: measured y/g -> known PA input x",
+      "fit_solver": {
+        "causal_warmup_samples_excluded": 2,
+        "causal_zero_padding_rows_used_for_fit_or_rank": false,
+        "factorization_reused_across_ridges": true,
+        "factorization_seconds_shared": 0.894252336001955,
+        "name": "cached_direct_svd_normalized_steady_design",
+        "objective": "mean(|Phi_steady*c-target_steady|^2) + ridge*sum(|c|^2)",
+        "raw_steady_design_condition_number": 84.6510788968943,
+        "raw_steady_design_feature_count": 72,
+        "raw_steady_design_full_column_rank": true,
+        "raw_steady_design_rank": 72,
+        "ridge_solve_seconds": 0.00011177000124007463,
+        "singular_value_cutoff": 4.369188770853985e-12,
+        "steady_scored_sample_count": 91998
+      },
+      "hard_invalid_reasons": [],
+      "hard_valid": true,
+      "improves_no_dpd_gate": {
+        "candidate_error_power": 0.003119067766470272,
+        "improvement_db_10log10_no_dpd_over_candidate": 1.1818895971262269,
+        "no_dpd_error_power": 0.004094621573400152,
+        "pass": true,
+        "policy": "strictly lower correct-direction validation error power",
+        "positive_infinite_improvement_due_to_zero_candidate_error": false,
+        "undefined_because_no_dpd_error_is_zero": false
+      },
+      "knot_count": 24,
+      "operation_count_class": "analytical_optimized_datapath",
+      "operation_count_is_measured_numpy_timing": false,
+      "operation_count_per_complex_sample": {
+        "comparisons": 15,
+        "lookups": 6,
+        "nonlinear_operations": 3,
+        "notes": [
+          "complex multiply convention 4m2a",
+          "binary interval selection",
+          "3 unique envelope delays; address and weight shared within each group",
+          "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+          "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+        ],
+        "real_additions": 28,
+        "real_divisions": 0,
+        "real_memory_reads": 18,
+        "real_memory_writes": 2,
+        "real_multiplications": 27,
+        "state_real_values": 4,
+        "stored_real_coefficients": 144,
+        "stored_real_constants": 47
+      },
+      "requested_knot_count": 24,
+      "ridge": 0.0001,
+      "selection_score_db": -17.192240437598475,
+      "structural_invalid_reasons": [],
+      "structurally_valid": true,
+      "support_checks": {
+        "extrapolation_permitted": false,
+        "maximum_train_ila_input_knot": 1.094297547250075,
+        "maximum_train_pa_input_amplitude": 0.9999999999999999,
+        "maximum_validation_desired_amplitude": 0.9719561049933806,
+        "maximum_validation_predistorted_amplitude": 0.9231649488017301,
+        "predistorted_drive_within_train_pa_input_support": true,
+        "requested_knot_count_preserved": true,
+        "validation_desired_within_train_knots": true
+      },
+      "topology_name": "aligned_012",
+      "train_ila_reconstruction_steady": {
+        "complex_nmse_pooled_db": -24.64927400760665,
+        "discarded_sample_count": 2,
+        "mse": 0.0005544046585743502,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16171647701695435,
+        "relative_error_power": 0.0034282509043047386,
+        "scored_sample_count": 91998,
+        "warmup_samples_at_record_start": 2
+      },
+      "validation_correct_direction": {
+        "complex_nmse_pooled_db": -17.192240437598475,
+        "discarded_sample_count": 11,
+        "mse": 0.003119067766470272,
+        "perfect_reconstruction": false,
+        "reference_power": 0.16339879682951097,
+        "relative_error_power": 0.0190886825790075,
+        "scored_sample_count": 22989,
+        "warmup_samples_at_record_start": 11
+      },
+      "validation_direction": "desired x -> DPD -> frozen PA -> compare with train-slice g*x",
+      "validation_drive": {
+        "maximum_amplitude": 0.9231649488017301,
+        "papr_db": 7.203329303499948,
+        "rms_amplitude": 0.4028216846816939
+      }
+    },
+    "selection_role": "deployment_candidate_on_frozen_surrogate"
+  },
+  "semantics_status": {
+    "eRef": "unknown auxiliary/reference channel",
+    "eRef_used_as_model_input_or_target": false,
+    "status": "must_be_confirmed_by_data_owner",
+    "x": "provisional PA/black-box complex input",
+    "y": "provisional corresponding complex output"
+  },
+  "sequence_contract": {
+    "common_cascade_warmup_samples": 11,
+    "independent_captures": false,
+    "maximum_candidate_dpd_warmup_samples": 2,
+    "pa_warmup_samples": 9,
+    "state_reset": "once at each record start",
+    "train": "earlier chronological slice of the same source capture",
+    "validation": "immediately adjacent later slice of the same source capture"
+  },
+  "spectral_artifact": {
+    "aclr_or_harmonic_metrics_computed": false,
+    "frequency_axis": "normalized cycles/sample, fs=1.0",
+    "path": "experiments/results/blackbox_dpd_v1_selection/normalized_psd.npz",
+    "reason": "sample rate and RF acceptance regions are unknown",
+    "sha256": "c2c32c22f6bf7641704a74c3f44a46b08004ef9199328199d657ba52cd83ddd4",
+    "welch": {
+      "detrend": "constant",
+      "fft_shifted": true,
+      "noverlap": 2048,
+      "nperseg": 4096,
+      "scaling": "spectrum",
+      "window": "periodic Hann"
+    }
+  },
+  "task": "blackbox_validation_only_spline_memory_dpd_selection",
+  "validation_summary": {
+    "measured_validation_no_dpd_capture": {
+      "complex_nmse_pooled_db": -15.78064467142287,
+      "diagnostic_only": true,
+      "discarded_sample_count": 11,
+      "meaning": "recorded y validation slice versus train-slice g*x; this is an actual captured no-DPD baseline only if the provisional x/y semantics are confirmed",
+      "mse": 0.0043170232456205705,
+      "perfect_reconstruction": false,
+      "reference_power": 0.16339879682951097,
+      "relative_error_power": 0.02642016544421021,
+      "scored_sample_count": 22989,
+      "used_for_dpd_ranking": false,
+      "warmup_samples_at_record_start": 11
+    },
+    "no_dpd_drive": {
+      "maximum_amplitude": 0.9719561049933806,
+      "papr_db": 7.617680170712838,
+      "rms_amplitude": 0.4043548377584955
+    },
+    "selected_dpd": {
+      "complex_nmse_pooled_db": -17.192240437598475,
+      "discarded_sample_count": 11,
+      "mse": 0.003119067766470272,
+      "perfect_reconstruction": false,
+      "reference_power": 0.16339879682951097,
+      "relative_error_power": 0.0190886825790075,
+      "scored_sample_count": 22989,
+      "warmup_samples_at_record_start": 11
+    },
+    "selected_drive": {
+      "maximum_amplitude": 0.9231649488017301,
+      "papr_db": 7.203329303499948,
+      "rms_amplitude": 0.4028216846816939
+    },
+    "surrogate_no_dpd_reference_used_for_dpd_ranking": {
+      "complex_nmse_pooled_db": -16.01035084047225,
+      "discarded_sample_count": 11,
+      "mse": 0.004094621573400152,
+      "perfect_reconstruction": false,
+      "reference_power": 0.16339879682951097,
+      "relative_error_power": 0.025059068076691213,
+      "scored_sample_count": 22989,
+      "warmup_samples_at_record_start": 11
+    }
+  }
+}

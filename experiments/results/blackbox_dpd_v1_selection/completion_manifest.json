@@ -1,0 +1,13 @@
+{
+  "artifact_type": "blackbox_dpd_selection_completion",
+  "bound_files_sha256": {
+    "normalized_psd.npz": "c2c32c22f6bf7641704a74c3f44a46b08004ef9199328199d657ba52cd83ddd4",
+    "pareto_frontier.json": "2b788d06b5b943ba40aacda5b240eca8d7cdd0784ab619ad2211c75434675672",
+    "selected_dpd.npz": "011972f6571c952fd1cfad919c4c7f158c8575ebb40f6027e3a392fa85658cc0",
+    "selection_manifest.json": "ea16c73aa14255690b43ffa85a4ff172552260bda6dabcd3580a50b1c06a9763",
+    "validation_trials.json": "1b9fddb1eb224487ae37b0dd96a5ec75e9a67a02bd0900a28ae6804c37e30e12"
+  },
+  "publication_contract": "the bundle is valid only when every bound hash verifies",
+  "schema_version": 1,
+  "status": "complete"
+}

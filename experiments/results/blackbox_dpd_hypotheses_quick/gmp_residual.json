@@ -1,0 +1,195 @@
+{
+  "stage": "one_sparse_gmp_residual_branch",
+  "base_model": "direct_refined_spline_memory",
+  "selection": "top 12 fit-block linearized scores, step on disjoint train advisor",
+  "validation_used_for_branch_or_step_selection": false,
+  "recipe_count": 147,
+  "advisor_trial_count": 36,
+  "selected": {
+    "signal_delay": 2,
+    "envelope_delay": 0,
+    "exponent": 1,
+    "step": 1.0,
+    "coefficient": {
+      "real": 0.010098396430738862,
+      "imag": 0.015602970420197896
+    },
+    "fit_linearized_gain_db": 0.07908892932382172,
+    "advisor_train_nmse_db": -21.578031518711718,
+    "support_valid": true
+  },
+  "direct_validation": {
+    "nmse_db": -21.474654666811016,
+    "improvement_over_no_dpd_db": 5.464303826338767,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.40507001344976773,
+      "peak": 0.9223583527172905,
+      "papr_db": 7.147391812425457
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.433476101965105,
+      5.4215390961622845,
+      5.52634702419218,
+      5.325443876533527,
+      5.440002017639511,
+      5.572222682046313,
+      5.497422162866396,
+      5.506178802565033
+    ]
+  },
+  "residual_validation": {
+    "nmse_db": -21.572078598581733,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.4053769804866631,
+      "peak": 0.9141480408160305,
+      "papr_db": 7.063148987530815
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.524838478582382,
+      5.530200411533535,
+      5.616015460796422,
+      5.420890328809591,
+      5.532234975369793,
+      5.666667311808087,
+      5.590699671188691,
+      5.620640462711458
+    ]
+  },
+  "validation_gain_over_direct_refined_db": 0.09742393177071662,
+  "incremental_operation_count": {
+    "real_multiplications": 6,
+    "real_additions": 4,
+    "nonlinear_operations": 0,
+    "stored_real_coefficients": 2,
+    "incremental_state_real_values": 0,
+    "notes": "conservative explicit x_lag*|x_env|^p, complex coefficient, and accumulation schedule"
+  },
+  "top_fit_linearized_recipes": [
+    {
+      "signal_delay": 5,
+      "envelope_delay": 3,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.07936762225834201,
+      "coefficient": {
+        "real": -0.01614323107329727,
+        "imag": 0.010494647958250674
+      }
+    },
+    {
+      "signal_delay": 2,
+      "envelope_delay": 0,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.07908892932382172,
+      "coefficient": {
+        "real": 0.010098396430738862,
+        "imag": 0.015602970420197896
+      }
+    },
+    {
+      "signal_delay": 1,
+      "envelope_delay": 0,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.07305260393891762,
+      "coefficient": {
+        "real": 0.010385662149971386,
+        "imag": 0.013154139698993327
+      }
+    },
+    {
+      "signal_delay": 4,
+      "envelope_delay": 4,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.07231241773691131,
+      "coefficient": {
+        "real": -0.014404162414309078,
+        "imag": 0.006344228010297377
+      }
+    },
+    {
+      "signal_delay": 2,
+      "envelope_delay": 0,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.07047036055556037,
+      "coefficient": {
+        "real": 0.01689938977086381,
+        "imag": 0.020017089664085923
+      }
+    },
+    {
+      "signal_delay": 4,
+      "envelope_delay": 0,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.06779892341538855,
+      "coefficient": {
+        "real": -0.018088812394587678,
+        "imag": 0.0035106914764936707
+      }
+    },
+    {
+      "signal_delay": 4,
+      "envelope_delay": 4,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.06251434352385263,
+      "coefficient": {
+        "real": -0.017467770411997548,
+        "imag": 0.006514998520583297
+      }
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 4,
+      "exponent": 1,
+      "fit_linearized_gain_db": 0.059110978891534965,
+      "coefficient": {
+        "real": -0.012119511287041022,
+        "imag": 0.008933152043543172
+      }
+    },
+    {
+      "signal_delay": 1,
+      "envelope_delay": 0,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.05767493773185758,
+      "coefficient": {
+        "real": 0.015945743694943504,
+        "imag": 0.013681036505808578
+      }
+    },
+    {
+      "signal_delay": 4,
+      "envelope_delay": 0,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.05707512842963696,
+      "coefficient": {
+        "real": -0.025862960068588927,
+        "imag": 0.002677228429230903
+      }
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 3,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.055669020414755306,
+      "coefficient": {
+        "real": -0.020537627009786525,
+        "imag": 0.01161588611493836
+      }
+    },
+    {
+      "signal_delay": 0,
+      "envelope_delay": 1,
+      "exponent": 2,
+      "fit_linearized_gain_db": 0.050627947681219976,
+      "coefficient": {
+        "real": 0.015711831173015722,
+        "imag": 0.010351728981202764
+      }
+    }
+  ],
+  "elapsed_seconds": 0.8940917300060391,
+  "claim_limit": "candidate is optimized through the same frozen PA evaluator; validation is only a final surrogate check"
+}

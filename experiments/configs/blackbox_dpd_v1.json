@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "selection_dir": "data/private/blackbox_v3/selection",
+  "expected_source_sha256": "ae6e79fbe7e108c4ad5538f44112bef36ceca588f22129d00f5bce0c2eec5968",
+  "expected_selection_view_sha256": "50ec1eb054c5991234ea2dd15978ca6cf04472afb26fa8e4d9affaa545a026ab",
+  "pa_bundle_dir": "experiments/results/blackbox_pa_v2_selection",
+  "expected_pa_completion_sha256": "c2e490bd8ad77f86ce6988db8b34273743d146be32d05e5c3562fbb94aa362d2",
+  "output_dir": "experiments/results/blackbox_dpd_v1_selection",
+  "dataset_label": "BlackBoxData external capture; provisional x/y semantics",
+  "knot_strategy": "quantile",
+  "knot_counts": [8, 12, 16, 24, 32, 48, 64],
+  "ridge_values": [0, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2],
+  "branch_topologies": [
+    {
+      "name": "memoryless",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0}
+      ]
+    },
+    {
+      "name": "current_lag1",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 1, "envelope_delay": 0}
+      ]
+    },
+    {
+      "name": "current_lag2",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 2, "envelope_delay": 0}
+      ]
+    },
+    {
+      "name": "aligned_lag1",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 1, "envelope_delay": 1}
+      ]
+    },
+    {
+      "name": "aligned_lag2",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 2, "envelope_delay": 2}
+      ]
+    },
+    {
+      "name": "current_012",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 1, "envelope_delay": 0},
+        {"signal_delay": 2, "envelope_delay": 0}
+      ]
+    },
+    {
+      "name": "aligned_012",
+      "branches": [
+        {"signal_delay": 0, "envelope_delay": 0},
+        {"signal_delay": 1, "envelope_delay": 1},
+        {"signal_delay": 2, "envelope_delay": 2}
+      ]
+    }
+  ],
+  "selection_tolerance_db": 0.1,
+  "evaluator_headroom_gate_db": 10.0,
+  "maximum_fit_count": 490,
+  "psd_nperseg": 4096,
+  "psd_noverlap": 2048
+}

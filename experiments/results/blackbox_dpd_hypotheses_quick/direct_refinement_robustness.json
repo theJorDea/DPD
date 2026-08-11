@@ -1,0 +1,183 @@
+{
+  "stage": "direct_refinement_robustness",
+  "case_count": 3,
+  "cases": [
+    {
+      "fit_range": [
+        0,
+        4096
+      ],
+      "advisor_range": [
+        8192,
+        16384
+      ],
+      "epsilon": 3e-05,
+      "selected_step_on_train_advisor": {
+        "step": 1.0,
+        "nmse_db": -21.508070900601346,
+        "support_valid": true
+      },
+      "advisor_candidates": [
+        {
+          "step": 0.5,
+          "nmse_db": -19.94209180261596,
+          "support_valid": true
+        },
+        {
+          "step": 0.75,
+          "nmse_db": -21.044627086082762,
+          "support_valid": true
+        },
+        {
+          "step": 1.0,
+          "nmse_db": -21.508070900601346,
+          "support_valid": true
+        }
+      ],
+      "validation": {
+        "nmse_db": -21.528308722501663,
+        "improvement_over_no_dpd_db": 5.517957882029414,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4048560133673113,
+          "peak": 0.9205010181188236,
+          "papr_db": 7.134473578222372
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.56572654625511,
+          5.490278225343758,
+          5.515979895066799,
+          5.403350233949919,
+          5.518405016782943,
+          5.585816915024822,
+          5.549518832607028,
+          5.519515546829412
+        ]
+      },
+      "validation_gain_over_baseline_dpd_db": 4.336068284903188,
+      "coefficient_change_relative_norm": 0.31618897183091593
+    },
+    {
+      "fit_range": [
+        8192,
+        12288
+      ],
+      "advisor_range": [
+        24576,
+        32768
+      ],
+      "epsilon": 0.0001,
+      "selected_step_on_train_advisor": {
+        "step": 1.0,
+        "nmse_db": -21.444306520131192,
+        "support_valid": true
+      },
+      "advisor_candidates": [
+        {
+          "step": 0.5,
+          "nmse_db": -19.805922734314684,
+          "support_valid": true
+        },
+        {
+          "step": 0.75,
+          "nmse_db": -20.937442815171444,
+          "support_valid": true
+        },
+        {
+          "step": 1.0,
+          "nmse_db": -21.444306520131192,
+          "support_valid": true
+        }
+      ],
+      "validation": {
+        "nmse_db": -21.52015602061374,
+        "improvement_over_no_dpd_db": 5.509805180141491,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4046132595681935,
+          "peak": 0.9179590245144531,
+          "papr_db": 7.115663697060038
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.489943216171884,
+          5.512832864568637,
+          5.48271589722561,
+          5.3906818277648405,
+          5.486005152541754,
+          5.630235171942452,
+          5.5546587470603015,
+          5.538964259119604
+        ]
+      },
+      "validation_gain_over_baseline_dpd_db": 4.327915583015265,
+      "coefficient_change_relative_norm": 0.27789270236608904
+    },
+    {
+      "fit_range": [
+        49152,
+        53248
+      ],
+      "advisor_range": [
+        65536,
+        73728
+      ],
+      "epsilon": 0.0003,
+      "selected_step_on_train_advisor": {
+        "step": 1.0,
+        "nmse_db": -21.507987008567024,
+        "support_valid": true
+      },
+      "advisor_candidates": [
+        {
+          "step": 0.5,
+          "nmse_db": -19.930331253719984,
+          "support_valid": true
+        },
+        {
+          "step": 0.75,
+          "nmse_db": -21.039788918195836,
+          "support_valid": true
+        },
+        {
+          "step": 1.0,
+          "nmse_db": -21.507987008567024,
+          "support_valid": true
+        }
+      ],
+      "validation": {
+        "nmse_db": -21.521748863248543,
+        "improvement_over_no_dpd_db": 5.511398022776294,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.40448003287924816,
+          "peak": 0.919364626278051,
+          "papr_db": 7.131814042695355
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.566225651667288,
+          5.477626578156116,
+          5.528991897373778,
+          5.372146422544365,
+          5.4705021885358285,
+          5.636496758648029,
+          5.559393537191916,
+          5.488586139557421
+        ]
+      },
+      "validation_gain_over_baseline_dpd_db": 4.329508425650069,
+      "coefficient_change_relative_norm": 0.25743868020820265
+    }
+  ],
+  "validation_gain_summary_db": {
+    "minimum": 4.327915583015265,
+    "median": 4.329508425650069,
+    "maximum": 4.336068284903188
+  },
+  "all_cases_improve_every_validation_segment": true,
+  "operation_count_changed": false,
+  "elapsed_seconds": 1.4893790140049532,
+  "claim_limit": "robustness across train blocks and finite-difference steps does not remove same-surrogate optimization bias"
+}

@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "artifact_type": "blackbox_direct_dpd_one_shot_test_release",
+  "scope": "frozen PA surrogate only",
+  "physical_pa_result": false,
+  "official_spectral_metric_available": false,
+  "test_output_opened": false,
+  "test_input_access_count": 1,
+  "direction": "desired test x -> DPD -> frozen PA -> compare with g*x",
+  "preregistration": {
+    "path": "experiments/configs/blackbox_direct_dpd_test_preregistration.json",
+    "sha256": "bb6286eaa5d91981ea0f0b8b7aebb2583176930de2d62510c8e7a9e8056a2fa8"
+  },
+  "sealed_release_manifest_sha256": "de6038fa4061b7d43128892323e41453deea3dde59e622c95d0301ac3f4d60b0",
+  "test_input_sha256": "808e3d9f9fbc184c6078e4742a34b2eb627ea02104376c7fd3653b7822700c47",
+  "sample_count": 125760,
+  "normalization_scale_from_train": 18336.09364068585,
+  "target_gain_from_aligned_train": {
+    "real": 0.9996207793284567,
+    "imag": 0.0006765594723679418
+  },
+  "metrics": {
+    "no_dpd": {
+      "pooled_complex_nmse_db": -15.936111147745631,
+      "warmup_samples": 11,
+      "scored_sample_count": 125749,
+      "segments": [
+        {
+          "segment": 0,
+          "sample_count": 15719,
+          "nmse_db": -15.933212854061154
+        },
+        {
+          "segment": 1,
+          "sample_count": 15719,
+          "nmse_db": -15.93425686293643
+        },
+        {
+          "segment": 2,
+          "sample_count": 15719,
+          "nmse_db": -15.898132269530326
+        },
+        {
+          "segment": 3,
+          "sample_count": 15719,
+          "nmse_db": -15.8817852252554
+        },
+        {
+          "segment": 4,
+          "sample_count": 15719,
+          "nmse_db": -15.959887209976051
+        },
+        {
+          "segment": 5,
+          "sample_count": 15718,
+          "nmse_db": -16.05119685693783
+        },
+        {
+          "segment": 6,
+          "sample_count": 15718,
+          "nmse_db": -15.937820658543
+        },
+        {
+          "segment": 7,
+          "sample_count": 15718,
+          "nmse_db": -15.889648389488812
+        }
+      ]
+    },
+    "ila_spline": {
+      "pooled_complex_nmse_db": -17.20771126364067,
+      "warmup_samples": 11,
+      "scored_sample_count": 125749,
+      "segments": [
+        {
+          "segment": 0,
+          "sample_count": 15719,
+          "nmse_db": -17.097593355140162
+        },
+        {
+          "segment": 1,
+          "sample_count": 15719,
+          "nmse_db": -17.206910245357285
+        },
+        {
+          "segment": 2,
+          "sample_count": 15719,
+          "nmse_db": -17.183538241836903
+        },
+        {
+          "segment": 3,
+          "sample_count": 15719,
+          "nmse_db": -17.210165450803338
+        },
+        {
+          "segment": 4,
+          "sample_count": 15719,
+          "nmse_db": -17.19442298299186
+        },
+        {
+          "segment": 5,
+          "sample_count": 15718,
+          "nmse_db": -17.311105079020887
+        },
+        {
+          "segment": 6,
+          "sample_count": 15718,
+          "nmse_db": -17.141686527462404
+        },
+        {
+          "segment": 7,
+          "sample_count": 15718,
+          "nmse_db": -17.325656354487663
+        }
+      ]
+    },
+    "iterative_direct_spline": {
+      "pooled_complex_nmse_db": -21.544509067049212,
+      "warmup_samples": 11,
+      "scored_sample_count": 125749,
+      "segments": [
+        {
+          "segment": 0,
+          "sample_count": 15719,
+          "nmse_db": -21.44197482315836
+        },
+        {
+          "segment": 1,
+          "sample_count": 15719,
+          "nmse_db": -21.57747709054821
+        },
+        {
+          "segment": 2,
+          "sample_count": 15719,
+          "nmse_db": -21.557998648986135
+        },
+        {
+          "segment": 3,
+          "sample_count": 15719,
+          "nmse_db": -21.511469462938724
+        },
+        {
+          "segment": 4,
+          "sample_count": 15719,
+          "nmse_db": -21.554141879618854
+        },
+        {
+          "segment": 5,
+          "sample_count": 15718,
+          "nmse_db": -21.657269480855028
+        },
+        {
+          "segment": 6,
+          "sample_count": 15718,
+          "nmse_db": -21.489429590169735
+        },
+        {
+          "segment": 7,
+          "sample_count": 15718,
+          "nmse_db": -21.56938146361185
+        }
+      ]
+    }
+  },
+  "drive": {
+    "ila_spline": {
+      "rms": 0.39903753090124605,
+      "peak": 0.9550553528352939,
+      "papr_db": 7.5802959696480166
+    },
+    "iterative_direct_spline": {
+      "rms": 0.4009449142684598,
+      "peak": 0.9600943078676326,
+      "papr_db": 7.584583715817164
+    }
+  },
+  "derived": {
+    "gain_over_ila_db": 4.33679780340854,
+    "gain_over_no_dpd_db": 5.608397919303581,
+    "segment_gains_over_ila_db": [
+      4.344381468018199,
+      4.370566845190925,
+      4.374460407149233,
+      4.301304012135386,
+      4.359718896626994,
+      4.346164401834141,
+      4.34774306270733,
+      4.243725109124188
+    ]
+  },
+  "acceptance_checks": {
+    "gain_over_ila": true,
+    "gain_over_no_dpd": true,
+    "every_segment_better_than_ila": true,
+    "drive_within_train_pa_support": true
+  },
+  "acceptance_pass": true,
+  "claims_limit": "untouched waveform evidence through the frozen software PA; not measured predistorted output from a physical PA",
+  "execution_unix_time": 1786296734.8316417
+}

@@ -1,0 +1,74 @@
+{
+  "scope": "BlackBox frozen-PA surrogate, validation-only",
+  "points": [
+    {
+      "name": "no_dpd",
+      "nmse_db": -16.01035084047225,
+      "real_multiplications": 0,
+      "real_additions": 0,
+      "status": "reference"
+    },
+    {
+      "name": "ila_spline_baseline",
+      "nmse_db": -17.192240437598475,
+      "real_multiplications": 27,
+      "real_additions": 28,
+      "status": "dominated_by_direct_refinement"
+    },
+    {
+      "name": "direct_refined_spline",
+      "nmse_db": -21.474654666811016,
+      "real_multiplications": 27,
+      "real_additions": 28,
+      "status": "dominated_by_iterative_direct_at_same_inference_cost"
+    },
+    {
+      "name": "iterative_direct_refined_spline",
+      "nmse_db": -21.58758008847814,
+      "real_multiplications": 27,
+      "real_additions": 28,
+      "status": "recommended_fast_path"
+    },
+    {
+      "name": "one_cross_memory_spline_branch",
+      "nmse_db": -17.114926685824805,
+      "real_multiplications": 33,
+      "real_additions": 36,
+      "status": "rejected_worse_than_baseline"
+    },
+    {
+      "name": "compression_aware_knots_one_direct_update",
+      "nmse_db": -21.518378487623586,
+      "real_multiplications": 27,
+      "real_additions": 28,
+      "status": "dominated_by_iterative_quantile_direct"
+    },
+    {
+      "name": "direct_plus_one_gmp_residual",
+      "nmse_db": -21.572078598581733,
+      "real_multiplications": 33,
+      "real_additions": 32,
+      "status": "dominated_by_iterative_direct"
+    },
+    {
+      "name": "direct_plus_short_fir",
+      "nmse_db": -21.61691564114907,
+      "real_multiplications": 47,
+      "real_additions": 48,
+      "status": "optional_subthreshold_gain_over_iterative_direct"
+    }
+  ],
+  "nmse_mul_add_frontier": [
+    "no_dpd",
+    "iterative_direct_refined_spline",
+    "direct_plus_short_fir"
+  ],
+  "internal_extension_gate_db": 0.5,
+  "fir_gain_over_iterative_direct_db": 0.029335552670929133,
+  "recommended_for_next_independent_test": "iterative_direct_refined_spline",
+  "not_proven": [
+    "physical PA improvement",
+    "sealed-test generalization",
+    "independent-evaluator ranking agreement"
+  ]
+}

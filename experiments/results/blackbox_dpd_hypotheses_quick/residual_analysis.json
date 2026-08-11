@@ -1,0 +1,186 @@
+{
+  "stage": "residual_analysis",
+  "scope": "train_ranking_and_validation_diagnostics_only",
+  "baseline_validation": {
+    "nmse_db": -17.192240437598475,
+    "improvement_over_no_dpd_db": 1.1818895971262258,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.40282800793408896,
+      "peak": 0.9231649488017301,
+      "papr_db": 7.203192958701553
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      1.0217439747123933,
+      1.301184654162718,
+      1.1781296823063627,
+      1.023983527489932,
+      1.1339611947977417,
+      1.4224359097545332,
+      1.2103296972163022,
+      1.1880600838875015
+    ]
+  },
+  "lagged_complex_correlations": [
+    {
+      "delay": 0,
+      "complex_correlation": 0.0895927023613682
+    },
+    {
+      "delay": 1,
+      "complex_correlation": 0.01671536239091519
+    },
+    {
+      "delay": 2,
+      "complex_correlation": 0.04822650797077209
+    },
+    {
+      "delay": 3,
+      "complex_correlation": 0.07532793991292214
+    },
+    {
+      "delay": 4,
+      "complex_correlation": 0.11181368021527587
+    },
+    {
+      "delay": 5,
+      "complex_correlation": 0.10097796500893755
+    },
+    {
+      "delay": 6,
+      "complex_correlation": 0.058262474926970426
+    },
+    {
+      "delay": 7,
+      "complex_correlation": 0.028125209201720458
+    },
+    {
+      "delay": 8,
+      "complex_correlation": 0.03737664740569987
+    },
+    {
+      "delay": 9,
+      "complex_correlation": 0.03223948597824389
+    },
+    {
+      "delay": 10,
+      "complex_correlation": 0.003337178762288179
+    },
+    {
+      "delay": 11,
+      "complex_correlation": 0.027136112842269945
+    },
+    {
+      "delay": 12,
+      "complex_correlation": 0.01928010799220052
+    },
+    {
+      "delay": 13,
+      "complex_correlation": 0.011707585325513078
+    },
+    {
+      "delay": 14,
+      "complex_correlation": 0.025905927957325593
+    },
+    {
+      "delay": 15,
+      "complex_correlation": 0.008794559706622514
+    },
+    {
+      "delay": 16,
+      "complex_correlation": 0.020620790502456306
+    }
+  ],
+  "amplitude_diagnostics": {
+    "corr_error_power_vs_amplitude": 0.19225110817114707,
+    "corr_error_power_vs_power": 0.18594430881004015
+  },
+  "slow_state_diagnostics": [
+    {
+      "beta": 0.9,
+      "corr_error_power": 0.2291820099983615
+    },
+    {
+      "beta": 0.99,
+      "corr_error_power": 0.09641988790591309
+    },
+    {
+      "beta": 0.999,
+      "corr_error_power": 0.00525432528258263
+    },
+    {
+      "beta": 0.9999,
+      "corr_error_power": -0.004170735429114279
+    }
+  ],
+  "top_cross_memory_branch_scores": [
+    {
+      "signal_delay": 0,
+      "envelope_delay": 1,
+      "train_inverse_residual_improvement_db": 0.8475382180143877
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 0,
+      "train_inverse_residual_improvement_db": 0.35204672662604747
+    },
+    {
+      "signal_delay": 1,
+      "envelope_delay": 0,
+      "train_inverse_residual_improvement_db": 0.3405327303998622
+    },
+    {
+      "signal_delay": 3,
+      "envelope_delay": 1,
+      "train_inverse_residual_improvement_db": 0.2839784870436413
+    },
+    {
+      "signal_delay": 0,
+      "envelope_delay": 2,
+      "train_inverse_residual_improvement_db": 0.27003415902422545
+    },
+    {
+      "signal_delay": 2,
+      "envelope_delay": 1,
+      "train_inverse_residual_improvement_db": 0.25978751443823545
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 5,
+      "train_inverse_residual_improvement_db": 0.2586800190204445
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 3,
+      "train_inverse_residual_improvement_db": 0.25764782130197456
+    },
+    {
+      "signal_delay": 4,
+      "envelope_delay": 0,
+      "train_inverse_residual_improvement_db": 0.25656961259310546
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 2,
+      "train_inverse_residual_improvement_db": 0.255101331617116
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 6,
+      "train_inverse_residual_improvement_db": 0.25474641659338026
+    },
+    {
+      "signal_delay": 5,
+      "envelope_delay": 1,
+      "train_inverse_residual_improvement_db": 0.2538939541559426
+    }
+  ],
+  "candidate_pair_count": 46,
+  "elapsed_seconds": 19.84601391502656,
+  "interpretation_limits": [
+    "raw residual correlation is not a causal PA-sensitivity score",
+    "branch ranking uses train inverse residual only",
+    "validation measured y is never a DPD input"
+  ]
+}

@@ -1,0 +1,550 @@
+{
+  "stage": "iterative_bounded_direct_refinement",
+  "initial_model": "one direct update selected on train-only advisor",
+  "fixed_additional_iteration_count": 3,
+  "validation_used_for_update_or_stopping": false,
+  "selected_schedule": "predeclared_A",
+  "schedules": {
+    "predeclared_A": {
+      "schedule": [
+        [
+          49152,
+          65536
+        ],
+        [
+          0,
+          8192
+        ],
+        [
+          8192,
+          24576
+        ]
+      ],
+      "updates": [
+        {
+          "iteration": 1,
+          "fit_range": [
+            49152,
+            53248
+          ],
+          "advisor_range": [
+            65536,
+            73728
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.5,
+            "advisor_train_nmse_db": -21.5521215936074,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.465660903110933,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.52406607562981,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.5521215936074,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.54924631062721,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.515512708657056,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.56399151923623,
+            "improvement_over_no_dpd_db": 5.55364067876398,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.4048798571709968,
+              "peak": 0.9216166302075791,
+              "papr_db": 7.144482634536139
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.565798053247537,
+              5.511382872778352,
+              5.597059039078879,
+              5.413950262898769,
+              5.521315840726622,
+              5.668738067364458,
+              5.592997964008308,
+              5.565892533528844
+            ]
+          }
+        },
+        {
+          "iteration": 2,
+          "fit_range": [
+            0,
+            4096
+          ],
+          "advisor_range": [
+            8192,
+            16384
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.5,
+            "advisor_train_nmse_db": -21.566230138200968,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.539157072123846,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.56238105546947,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.566230138200968,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.55065132851024,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.515849134898804,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.589689013289245,
+            "improvement_over_no_dpd_db": 5.579338172816996,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.4049598295588867,
+              "peak": 0.9217629922821404,
+              "papr_db": 7.1441464538167265
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.609284573923542,
+              5.542409330976746,
+              5.604602422163026,
+              5.451396133543142,
+              5.563591579251561,
+              5.67008834556756,
+              5.614477594578627,
+              5.585156279771807
+            ]
+          }
+        },
+        {
+          "iteration": 3,
+          "fit_range": [
+            8192,
+            12288
+          ],
+          "advisor_range": [
+            24576,
+            32768
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.5,
+            "advisor_train_nmse_db": -21.48779616885413,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.466360527544424,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.4846039233516,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.48779616885413,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.475904824398157,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.449054200668897,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.58758008847814,
+            "improvement_over_no_dpd_db": 5.577229248005892,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.40488424160330644,
+              "peak": 0.920485351521888,
+              "papr_db": 7.133720151196402
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.582566572599642,
+              5.55883820506703,
+              5.5779919983844195,
+              5.454390703969398,
+              5.557720011688172,
+              5.680392439053662,
+              5.6173524599200775,
+              5.5951489520838695
+            ]
+          }
+        }
+      ],
+      "final_validation": {
+        "nmse_db": -21.58758008847814,
+        "improvement_over_no_dpd_db": 5.577229248005892,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.40488424160330644,
+          "peak": 0.920485351521888,
+          "papr_db": 7.133720151196402
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.582566572599642,
+          5.55883820506703,
+          5.5779919983844195,
+          5.454390703969398,
+          5.557720011688172,
+          5.680392439053662,
+          5.6173524599200775,
+          5.5951489520838695
+        ]
+      }
+    },
+    "order_robustness_B": {
+      "schedule": [
+        [
+          0,
+          8192
+        ],
+        [
+          49152,
+          65536
+        ],
+        [
+          8192,
+          24576
+        ]
+      ],
+      "updates": [
+        {
+          "iteration": 1,
+          "fit_range": [
+            0,
+            4096
+          ],
+          "advisor_range": [
+            8192,
+            16384
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.75,
+            "advisor_train_nmse_db": -21.548208532533167,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.45093241188009,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.51548381428978,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.548152218684304,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.548208532533167,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.51565412813101,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.570106876326015,
+            "improvement_over_no_dpd_db": 5.559756035853766,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.4050601174233489,
+              "peak": 0.9220199121962988,
+              "papr_db": 7.144416320553883
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.58661264948357,
+              5.524311925164426,
+              5.5808403396673825,
+              5.438764999034856,
+              5.553818137929991,
+              5.636590108382045,
+              5.5911998854954135,
+              5.571322548000525
+            ]
+          }
+        },
+        {
+          "iteration": 2,
+          "fit_range": [
+            49152,
+            53248
+          ],
+          "advisor_range": [
+            65536,
+            73728
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.25,
+            "advisor_train_nmse_db": -21.575636911535735,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.558789908607,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.575636911535735,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.574035845112217,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.554010916786556,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.515819092130364,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.58684651902469,
+            "improvement_over_no_dpd_db": 5.57649567855244,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.4049668271674949,
+              "peak": 0.9217171789302769,
+              "papr_db": 7.143564649269885
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.611798859710376,
+              5.539969650212132,
+              5.597183901271322,
+              5.450855790452611,
+              5.5623649755252025,
+              5.664390117331084,
+              5.611674106780086,
+              5.579795066583733
+            ]
+          }
+        },
+        {
+          "iteration": 3,
+          "fit_range": [
+            8192,
+            12288
+          ],
+          "advisor_range": [
+            24576,
+            32768
+          ],
+          "epsilon": 0.0001,
+          "ridge": 1e-08,
+          "selected": {
+            "step": 0.5,
+            "advisor_train_nmse_db": -21.485987349713106,
+            "support_valid": true
+          },
+          "trials": [
+            {
+              "step": 0.0,
+              "advisor_train_nmse_db": -21.46166302813488,
+              "support_valid": true
+            },
+            {
+              "step": 0.25,
+              "advisor_train_nmse_db": -21.481483852671516,
+              "support_valid": true
+            },
+            {
+              "step": 0.5,
+              "advisor_train_nmse_db": -21.485987349713106,
+              "support_valid": true
+            },
+            {
+              "step": 0.75,
+              "advisor_train_nmse_db": -21.475126698729156,
+              "support_valid": true
+            },
+            {
+              "step": 1.0,
+              "advisor_train_nmse_db": -21.449017709496804,
+              "support_valid": true
+            }
+          ],
+          "validation_diagnostic_not_used_for_stopping": {
+            "nmse_db": -21.586780099347717,
+            "improvement_over_no_dpd_db": 5.576429258875468,
+            "no_dpd_nmse_db": -16.01035084047225,
+            "drive_summary": {
+              "rms": 0.4048878647322429,
+              "peak": 0.920461535469967,
+              "papr_db": 7.133417689296712
+            },
+            "support_valid": true,
+            "segment_improvements_db": [
+              5.5842729570036695,
+              5.5582884085684405,
+              5.574935463687549,
+              5.45471753575087,
+              5.5577812983815384,
+              5.678138161393164,
+              5.616687874569337,
+              5.593056935419211
+            ]
+          }
+        }
+      ],
+      "final_validation": {
+        "nmse_db": -21.586780099347717,
+        "improvement_over_no_dpd_db": 5.576429258875468,
+        "no_dpd_nmse_db": -16.01035084047225,
+        "drive_summary": {
+          "rms": 0.4048878647322429,
+          "peak": 0.920461535469967,
+          "papr_db": 7.133417689296712
+        },
+        "support_valid": true,
+        "segment_improvements_db": [
+          5.5842729570036695,
+          5.5582884085684405,
+          5.574935463687549,
+          5.45471753575087,
+          5.5577812983815384,
+          5.678138161393164,
+          5.616687874569337,
+          5.593056935419211
+        ]
+      }
+    }
+  },
+  "one_update_validation": {
+    "nmse_db": -21.474654666811016,
+    "improvement_over_no_dpd_db": 5.464303826338767,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.40507001344976773,
+      "peak": 0.9223583527172905,
+      "papr_db": 7.147391812425457
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.433476101965105,
+      5.4215390961622845,
+      5.52634702419218,
+      5.325443876533527,
+      5.440002017639511,
+      5.572222682046313,
+      5.497422162866396,
+      5.506178802565033
+    ]
+  },
+  "final_validation": {
+    "nmse_db": -21.58758008847814,
+    "improvement_over_no_dpd_db": 5.577229248005892,
+    "no_dpd_nmse_db": -16.01035084047225,
+    "drive_summary": {
+      "rms": 0.40488424160330644,
+      "peak": 0.920485351521888,
+      "papr_db": 7.133720151196402
+    },
+    "support_valid": true,
+    "segment_improvements_db": [
+      5.582566572599642,
+      5.55883820506703,
+      5.5779919983844195,
+      5.454390703969398,
+      5.557720011688172,
+      5.680392439053662,
+      5.6173524599200775,
+      5.5951489520838695
+    ]
+  },
+  "validation_gain_over_one_update_db": 0.11292542166712494,
+  "schedule_final_nmse_difference_db": 0.00079998913042445,
+  "operation_count_changed": false,
+  "operation_count": {
+    "real_multiplications": 27,
+    "real_additions": 28,
+    "real_divisions": 0,
+    "nonlinear_operations": 3,
+    "comparisons": 15,
+    "lookups": 6,
+    "real_memory_reads": 18,
+    "real_memory_writes": 2,
+    "stored_real_coefficients": 144,
+    "stored_real_constants": 47,
+    "state_real_values": 4,
+    "notes": [
+      "complex multiply convention 4m2a",
+      "binary interval selection",
+      "3 unique envelope delays; address and weight shared within each group",
+      "3 unique input delays; delayed sample reads shared when signal/envelope taps coincide",
+      "delay-line state size included; physical memory traffic and control latency are implementation-dependent"
+    ]
+  },
+  "elapsed_seconds": 2.7746508960262872,
+  "claim_limit": "all updates use the same frozen PA evaluator; schedule robustness does not establish physical-PA generalization"
+}

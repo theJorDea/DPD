@@ -1,0 +1,235 @@
+{
+  "stage": "iterative_direct_fixed_point_validation",
+  "model": "iterative_direct_model.npz",
+  "scale_selection": "input, coefficient and drive scales frozen from train only",
+  "validation_used_for_numeric_scale_or_precision_selection": false,
+  "protocol": {
+    "scale_guard_ratio": 1.001,
+    "power_bits": 48,
+    "accumulator_bits": 56,
+    "scalar_accumulator_bits": 56,
+    "interpolation_fraction_bits": 16,
+    "activation_bits": [
+      16,
+      14,
+      12
+    ]
+  },
+  "float_reference": {
+    "cascade_nmse_db": -21.58758008847814,
+    "drive_summary": {
+      "rms": 0.40488424160330644,
+      "peak": 0.920485351521888,
+      "papr_db": 7.133720151196402
+    }
+  },
+  "formats": [
+    {
+      "bits": 16,
+      "formats": {
+        "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+        "input_peak_from_train": 0.9999999999999999,
+        "drive_peak_from_float_train_dpd": 0.9639815424132235,
+        "coefficient_peak_from_frozen_dpd": 1.103433835988418,
+        "guard_ratio": 1.001,
+        "input": {
+          "bits": 16,
+          "fractional_bits": 14,
+          "scale": 6.103515625e-05,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.99993896484375
+        },
+        "coefficient": {
+          "bits": 16,
+          "fractional_bits": 14,
+          "scale": 6.103515625e-05,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.99993896484375
+        },
+        "power": {
+          "bits": 48,
+          "fractional_bits": 14,
+          "scale": 6.103515625e-05,
+          "representable_minimum": -8589934592.0,
+          "representable_maximum": 8589934591.999939
+        },
+        "output": {
+          "bits": 16,
+          "fractional_bits": 15,
+          "scale": 3.0517578125e-05,
+          "representable_minimum": -1.0,
+          "representable_maximum": 0.999969482421875
+        }
+      },
+      "cascade_nmse_db": -21.587399357128408,
+      "cascade_degradation_vs_float_db": 0.00018073134973306537,
+      "drive_nmse_vs_float_db": -81.15487582023454,
+      "cascade_nmse_vs_float_db": -71.51009251636067,
+      "drive_summary": {
+        "rms": 0.404879685703335,
+        "peak": 0.9204900084646909,
+        "papr_db": 7.133861832194871
+      },
+      "peak_change_vs_float_db": 4.394376167714897e-05,
+      "stats": {
+        "sample_count": 23000,
+        "input_saturations": 0,
+        "coefficient_saturations": 0,
+        "power_saturations": 0,
+        "scalar_accumulator_saturations": 0,
+        "accumulator_saturations": 0,
+        "output_saturations": 0,
+        "interpolation_saturations": 0,
+        "maximum_power_magnitude": 15924,
+        "maximum_scalar_accumulator_magnitude": 18079,
+        "maximum_accumulator_magnitude": 242184539,
+        "knot_code_collision_count": 0,
+        "maximum_knot_code_shift": 0
+      },
+      "coefficient_saturation_count": 0,
+      "knot_code_collision_count": 0,
+      "maximum_knot_code_shift": 0,
+      "streaming_chunk_equivalence": true,
+      "phase_equivariance_90_degree_nmse_db": -Infinity
+    },
+    {
+      "bits": 14,
+      "formats": {
+        "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+        "input_peak_from_train": 0.9999999999999999,
+        "drive_peak_from_float_train_dpd": 0.9639815424132235,
+        "coefficient_peak_from_frozen_dpd": 1.103433835988418,
+        "guard_ratio": 1.001,
+        "input": {
+          "bits": 14,
+          "fractional_bits": 12,
+          "scale": 0.000244140625,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.999755859375
+        },
+        "coefficient": {
+          "bits": 14,
+          "fractional_bits": 12,
+          "scale": 0.000244140625,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.999755859375
+        },
+        "power": {
+          "bits": 48,
+          "fractional_bits": 12,
+          "scale": 0.000244140625,
+          "representable_minimum": -34359738368.0,
+          "representable_maximum": 34359738367.999756
+        },
+        "output": {
+          "bits": 14,
+          "fractional_bits": 13,
+          "scale": 0.0001220703125,
+          "representable_minimum": -1.0,
+          "representable_maximum": 0.9998779296875
+        }
+      },
+      "cascade_nmse_db": -21.587759215343965,
+      "cascade_degradation_vs_float_db": -0.00017912686582377546,
+      "drive_nmse_vs_float_db": -69.16168678460723,
+      "cascade_nmse_vs_float_db": -59.609721202083,
+      "drive_summary": {
+        "rms": 0.4048888259719243,
+        "peak": 0.920643849137819,
+        "papr_db": 7.135117291781138
+      },
+      "peak_change_vs_float_db": 0.001495487446270677,
+      "stats": {
+        "sample_count": 23000,
+        "input_saturations": 0,
+        "coefficient_saturations": 0,
+        "power_saturations": 0,
+        "scalar_accumulator_saturations": 0,
+        "accumulator_saturations": 0,
+        "output_saturations": 0,
+        "interpolation_saturations": 0,
+        "maximum_power_magnitude": 3981,
+        "maximum_scalar_accumulator_magnitude": 4520,
+        "maximum_accumulator_magnitude": 15138421,
+        "knot_code_collision_count": 0,
+        "maximum_knot_code_shift": 0
+      },
+      "coefficient_saturation_count": 0,
+      "knot_code_collision_count": 0,
+      "maximum_knot_code_shift": 0,
+      "streaming_chunk_equivalence": true,
+      "phase_equivariance_90_degree_nmse_db": -Infinity
+    },
+    {
+      "bits": 12,
+      "formats": {
+        "scale_freeze_source": "train desired-input peak, frozen floating-DPD train-drive peak, and frozen DPD coefficient peak; validation waveform values not parsed or used (bytes hash-verified only)",
+        "input_peak_from_train": 0.9999999999999999,
+        "drive_peak_from_float_train_dpd": 0.9639815424132235,
+        "coefficient_peak_from_frozen_dpd": 1.103433835988418,
+        "guard_ratio": 1.001,
+        "input": {
+          "bits": 12,
+          "fractional_bits": 10,
+          "scale": 0.0009765625,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.9990234375
+        },
+        "coefficient": {
+          "bits": 12,
+          "fractional_bits": 10,
+          "scale": 0.0009765625,
+          "representable_minimum": -2.0,
+          "representable_maximum": 1.9990234375
+        },
+        "power": {
+          "bits": 48,
+          "fractional_bits": 10,
+          "scale": 0.0009765625,
+          "representable_minimum": -137438953472.0,
+          "representable_maximum": 137438953471.99902
+        },
+        "output": {
+          "bits": 12,
+          "fractional_bits": 11,
+          "scale": 0.00048828125,
+          "representable_minimum": -1.0,
+          "representable_maximum": 0.99951171875
+        }
+      },
+      "cascade_nmse_db": -21.573454529683037,
+      "cascade_degradation_vs_float_db": 0.014125558795104354,
+      "drive_nmse_vs_float_db": -57.007342741760006,
+      "cascade_nmse_vs_float_db": -47.39142072440245,
+      "drive_summary": {
+        "rms": 0.40479738670555654,
+        "peak": 0.9198286977177553,
+        "papr_db": 7.129385097515682
+      },
+      "peak_change_vs_float_db": -0.006198531948963771,
+      "stats": {
+        "sample_count": 23000,
+        "input_saturations": 0,
+        "coefficient_saturations": 0,
+        "power_saturations": 0,
+        "scalar_accumulator_saturations": 0,
+        "accumulator_saturations": 0,
+        "output_saturations": 0,
+        "interpolation_saturations": 0,
+        "maximum_power_magnitude": 995,
+        "maximum_scalar_accumulator_magnitude": 1130,
+        "maximum_accumulator_magnitude": 945374,
+        "knot_code_collision_count": 0,
+        "maximum_knot_code_shift": 0
+      },
+      "coefficient_saturation_count": 0,
+      "knot_code_collision_count": 0,
+      "maximum_knot_code_shift": 0,
+      "streaming_chunk_equivalence": true,
+      "phase_equivariance_90_degree_nmse_db": -Infinity
+    }
+  ],
+  "all_streaming_checks_passed": true,
+  "elapsed_seconds": 0.284085049002897,
+  "claim_limit": "bit-accurate Python integer reference through a float PA surrogate; not RTL/HLS timing or a physical-PA result"
+}

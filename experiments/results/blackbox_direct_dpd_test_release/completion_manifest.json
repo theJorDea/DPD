@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "artifact_type": "blackbox_direct_dpd_test_release_completion",
+  "test_evaluation_sha256": "6a52bc8605ced498eb656a3937b5047e51d65ee5bac0ef5bf72c6614b1044c07",
+  "preregistration_sha256": "bb6286eaa5d91981ea0f0b8b7aebb2583176930de2d62510c8e7a9e8056a2fa8",
+  "atomic_publication": true,
+  "rerun_or_overwrite_permitted": false
+}

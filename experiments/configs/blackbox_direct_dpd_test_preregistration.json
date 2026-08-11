@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "task": "blackbox_direct_dpd_one_shot_release",
+  "status": "frozen_before_test_access",
+  "candidate": "iterative_direct_refined_spline",
+  "candidate_selection_basis": "train-only bounded direct updates; validation comparison completed before this preregistration",
+  "architecture": {
+    "formula": "sum_b x[n-m_b] * C_b(abs(x[n-d_b]))",
+    "branches": [[0, 0], [1, 1], [2, 2]],
+    "knot_count": 24,
+    "knot_strategy": "quantile",
+    "real_multiplications_per_complex_sample": 27,
+    "real_additions_per_complex_sample": 28
+  },
+  "metric_protocol": {
+    "primary_metric": "pooled complex NMSE dB",
+    "direction": "desired test x -> frozen DPD -> frozen PA evaluator -> compare with g*x",
+    "warmup_samples": 11,
+    "segment_count": 8,
+    "state_reset": "once at the start of the independent test capture",
+    "gain": "frozen complex gain fitted on aligned train only",
+    "normalization": "one common scale fitted from train input peak only",
+    "official_spectral_metric": null,
+    "reason_spectral_metric_unavailable": "sample rate and official occupied/adjacent regions are absent"
+  },
+  "acceptance_gate": {
+    "minimum_gain_over_ila_db": 0.5,
+    "minimum_gain_over_no_dpd_db": 0.5,
+    "minimum_each_segment_gain_over_ila_db": 0.0,
+    "maximum_normalized_drive_amplitude": 1.0
+  },
+  "frozen_files": {
+    "release_script": "experiments/release_blackbox_direct_dpd.py",
+    "refined_dpd_model": "experiments/results/blackbox_dpd_hypotheses_quick/iterative_direct_model.npz",
+    "pa_model": "experiments/results/blackbox_pa_v2_selection/selected_pa.npz",
+    "pa_selection_manifest": "experiments/results/blackbox_pa_v2_selection/selection_manifest.json",
+    "pa_completion_manifest": "experiments/results/blackbox_pa_v2_selection/completion_manifest.json",
+    "ila_dpd_model": "experiments/results/blackbox_dpd_v1_selection/selected_dpd.npz",
+    "ila_dpd_selection_manifest": "experiments/results/blackbox_dpd_v1_selection/selection_manifest.json",
+    "ila_dpd_completion_manifest": "experiments/results/blackbox_dpd_v1_selection/completion_manifest.json",
+    "sealed_release_manifest": "data/private/blackbox_v3/sealed/test_release.json"
+  },
+  "frozen_sha256": {
+    "release_script": "77db50512b81d50e5d5527b9e8ee1a0ca3c29958693aaafb0c332034e69462e2",
+    "refined_dpd_model": "ddba7f70b63de3c9d3f72991f965a67b7f912795f1cea2556108e1a31a8eb222",
+    "pa_model": "e4275d0acbdd93642d14aa0f1351b89cc952afbde850e5614ef97286b81fc6f8",
+    "pa_selection_manifest": "586db4848144995b445dee0854e45819e36bb21c61de8e34885e51c310e6eb94",
+    "pa_completion_manifest": "c2e490bd8ad77f86ce6988db8b34273743d146be32d05e5c3562fbb94aa362d2",
+    "ila_dpd_model": "011972f6571c952fd1cfad919c4c7f158c8575ebb40f6027e3a392fa85658cc0",
+    "ila_dpd_selection_manifest": "ea16c73aa14255690b43ffa85a4ff172552260bda6dabcd3580a50b1c06a9763",
+    "ila_dpd_completion_manifest": "f919819f36588a047818d44b4717c282fd129cfa9e272877ee3e2ed7a762cf96",
+    "sealed_release_manifest": "de6038fa4061b7d43128892323e41453deea3dde59e622c95d0301ac3f4d60b0"
+  },
+  "test_output_opened": false,
+  "rerun_or_retuning_after_test": false,
+  "claim_limit": "surrogate-only untouched waveform evaluation; no physical predistorted PA measurement"
+}
