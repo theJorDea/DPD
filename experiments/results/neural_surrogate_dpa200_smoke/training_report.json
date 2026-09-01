@@ -1,0 +1,42 @@
+{
+  "claims_scope": {
+    "causal_deployed_evaluator": false,
+    "offline_frame_evaluator": true,
+    "test_split_accessed": false,
+    "train_val_only": true
+  },
+  "device": "cpu",
+  "elapsed_seconds": 0.6790697999967961,
+  "final_val_nmse_db": -0.2537116718866699,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.7280476093292236,
+      "val_nmse_db": 0.5261903633957835
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.6712526082992554,
+      "val_nmse_db": 0.1382947796502237
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6295967698097229,
+      "val_nmse_db": -0.2537116718866699
+    }
+  ],
+  "input_scale": 1.0000000000338956,
+  "model": {
+    "hidden_size": 27,
+    "num_layers": 1,
+    "type": "tres_gru"
+  },
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "training": {
+    "batch_size": 64,
+    "epochs": 3,
+    "frame_length": 200,
+    "lr": 0.005,
+    "val_every": 1
+  }
+}

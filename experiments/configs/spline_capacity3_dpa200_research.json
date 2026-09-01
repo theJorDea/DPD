@@ -1,0 +1,21 @@
+{
+  "task": "spline_capacity_research",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "primary_pa_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "secondary_pa_npz": "experiments/results/pa_gmp_dpa200_uncapped_selection/selected_gmp_pa.npz",
+  "branch_families": [
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [2, 1]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [2, 1], [3, 1]]
+  ],
+  "knot_counts": [24, 32],
+  "ridges": [1e-9, 1e-8],
+  "knot_strategy": "quantile",
+  "fit_block": [0, 16384],
+  "advisor_block": [16384, 20480],
+  "selection_block": [20480, 23040],
+  "baseline_reference_nmse_db": -29.76,
+  "output_dir": "experiments/results/dpd_spline_capacity3_dpa200_research"
+}

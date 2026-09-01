@@ -1,0 +1,177 @@
+{
+  "claims_scope": {
+    "causal_deployed_evaluator": false,
+    "offline_frame_evaluator": true,
+    "test_split_accessed": false,
+    "train_val_only": true
+  },
+  "device": "cpu",
+  "elapsed_seconds": 154.4759936999908,
+  "final_val_nmse_db": -27.807469569882652,
+  "history": [
+    {
+      "epoch": 10,
+      "train_loss": 0.0018394879589322954,
+      "val_nmse_db": -16.698537847541605
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.000575435915379785,
+      "val_nmse_db": -20.89830235876434
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.00046620612556580454,
+      "val_nmse_db": -21.85788704331809
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.0003878766729030758,
+      "val_nmse_db": -22.596637567119107
+    },
+    {
+      "epoch": 50,
+      "train_loss": 0.00033544340112712234,
+      "val_nmse_db": -23.124880887544812
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.00030202799098333344,
+      "val_nmse_db": -23.50859708212816
+    },
+    {
+      "epoch": 70,
+      "train_loss": 0.0002869078307412565,
+      "val_nmse_db": -23.811685622302107
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.0002651373033586424,
+      "val_nmse_db": -24.075554773508962
+    },
+    {
+      "epoch": 90,
+      "train_loss": 0.00024772455799393356,
+      "val_nmse_db": -24.31012307714125
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.00023442956080543809,
+      "val_nmse_db": -24.532616595170296
+    },
+    {
+      "epoch": 110,
+      "train_loss": 0.00022743713998352177,
+      "val_nmse_db": -24.736988975903266
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.0002201566494477447,
+      "val_nmse_db": -24.931893844978127
+    },
+    {
+      "epoch": 130,
+      "train_loss": 0.0002075397060252726,
+      "val_nmse_db": -25.11693824827639
+    },
+    {
+      "epoch": 140,
+      "train_loss": 0.00019902543499483727,
+      "val_nmse_db": -25.298167606285396
+    },
+    {
+      "epoch": 150,
+      "train_loss": 0.00019403179248911329,
+      "val_nmse_db": -25.47017159772453
+    },
+    {
+      "epoch": 160,
+      "train_loss": 0.00018414374790154397,
+      "val_nmse_db": -25.64202802831957
+    },
+    {
+      "epoch": 170,
+      "train_loss": 0.00017710314205032773,
+      "val_nmse_db": -25.808248564053144
+    },
+    {
+      "epoch": 180,
+      "train_loss": 0.00017326337183476426,
+      "val_nmse_db": -25.97309836592464
+    },
+    {
+      "epoch": 190,
+      "train_loss": 0.0001660095076658763,
+      "val_nmse_db": -26.134011344207355
+    },
+    {
+      "epoch": 200,
+      "train_loss": 0.00016212398986681364,
+      "val_nmse_db": -26.295647235744497
+    },
+    {
+      "epoch": 210,
+      "train_loss": 0.00015383344361907803,
+      "val_nmse_db": -26.44943214548992
+    },
+    {
+      "epoch": 220,
+      "train_loss": 0.00015017166879260913,
+      "val_nmse_db": -26.6091972980394
+    },
+    {
+      "epoch": 230,
+      "train_loss": 0.00014220639423001558,
+      "val_nmse_db": -26.755399553492474
+    },
+    {
+      "epoch": 240,
+      "train_loss": 0.00013710694838664494,
+      "val_nmse_db": -26.918589963671877
+    },
+    {
+      "epoch": 250,
+      "train_loss": 0.0001321368181379512,
+      "val_nmse_db": -27.076040493461193
+    },
+    {
+      "epoch": 260,
+      "train_loss": 0.00012797327144653536,
+      "val_nmse_db": -27.221553217789598
+    },
+    {
+      "epoch": 270,
+      "train_loss": 0.00012414511184033472,
+      "val_nmse_db": -27.37634761098562
+    },
+    {
+      "epoch": 280,
+      "train_loss": 0.00011924934733542614,
+      "val_nmse_db": -27.523906256500258
+    },
+    {
+      "epoch": 290,
+      "train_loss": 0.00011801161963376217,
+      "val_nmse_db": -27.66432793425814
+    },
+    {
+      "epoch": 300,
+      "train_loss": 0.00011317328426230233,
+      "val_nmse_db": -27.807469569882652
+    }
+  ],
+  "input_scale": 1.0000000000000002,
+  "model": {
+    "hidden_size": 27,
+    "num_layers": 1,
+    "type": "tres_deltagru"
+  },
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "training": {
+    "batch_size": 64,
+    "epochs": 300,
+    "frame_length": 200,
+    "lr": 0.005,
+    "val_every": 10
+  }
+}

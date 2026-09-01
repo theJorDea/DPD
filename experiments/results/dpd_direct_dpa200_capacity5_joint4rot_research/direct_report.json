@@ -1,0 +1,231 @@
+{
+  "claims_scope": {
+    "physical_pa_result": false,
+    "selection_rule": "train_only_block_disjoint_from_all_fit_and_advisor_slices",
+    "surrogate_only": true,
+    "test_split_accessed": false,
+    "validation_evaluated_as_diagnostic": true,
+    "validation_used_for_selection": false
+  },
+  "elapsed_seconds": 64.31023920000007,
+  "gauss_newton": {
+    "records": [
+      {
+        "advisor_gain_over_previous_db": null,
+        "advisor_improvement_db": 11.2758061152708,
+        "advisor_nmse_db": -31.39862667568439,
+        "advisor_no_dpd_nmse_db": -20.12282056041359,
+        "advisor_slice": [
+          8192,
+          12288
+        ],
+        "candidate_count": 30,
+        "delta_relative_norm": 2.1725804946031104,
+        "elapsed_seconds": 15.892023400010657,
+        "fit_slice": [
+          0,
+          4096
+        ],
+        "iteration": 1,
+        "maximum_drive": 1.176165640844518,
+        "selected_primary_nmse_db": -31.39862667568439,
+        "selected_ridge": 1e-07,
+        "selected_secondary_nmse_db": -31.630883256357208,
+        "selected_step": 0.5
+      },
+      {
+        "advisor_gain_over_previous_db": -0.897100625996778,
+        "advisor_improvement_db": 10.551427270302536,
+        "advisor_nmse_db": -30.501526049687612,
+        "advisor_no_dpd_nmse_db": -19.950098779385076,
+        "advisor_slice": [
+          4096,
+          8192
+        ],
+        "candidate_count": 30,
+        "delta_relative_norm": 0.403505606987852,
+        "elapsed_seconds": 16.25636270000541,
+        "fit_slice": [
+          12288,
+          16384
+        ],
+        "iteration": 2,
+        "maximum_drive": 1.1702848422564252,
+        "selected_primary_nmse_db": -30.501526049687612,
+        "selected_ridge": 1e-06,
+        "selected_secondary_nmse_db": -31.40124502561454,
+        "selected_step": 1.0
+      },
+      {
+        "advisor_gain_over_previous_db": 0.8275469434325835,
+        "advisor_improvement_db": 11.46675515907554,
+        "advisor_nmse_db": -31.329072993120196,
+        "advisor_no_dpd_nmse_db": -19.862317834044656,
+        "advisor_slice": [
+          12288,
+          16384
+        ],
+        "candidate_count": 30,
+        "delta_relative_norm": 0.05534676343099716,
+        "elapsed_seconds": 16.03243969999312,
+        "fit_slice": [
+          4096,
+          8192
+        ],
+        "iteration": 3,
+        "maximum_drive": 1.1671193064508305,
+        "selected_primary_nmse_db": -31.329072993120196,
+        "selected_ridge": 1e-06,
+        "selected_secondary_nmse_db": -32.484249826753896,
+        "selected_step": 0.25
+      },
+      {
+        "advisor_gain_over_previous_db": -0.6290631349799618,
+        "advisor_improvement_db": 10.748706198197734,
+        "advisor_nmse_db": -30.700009858140234,
+        "advisor_no_dpd_nmse_db": -19.9513036599425,
+        "advisor_slice": [
+          0,
+          4096
+        ],
+        "candidate_count": 30,
+        "delta_relative_norm": 0.005425571523406746,
+        "elapsed_seconds": 15.692392700002529,
+        "fit_slice": [
+          8192,
+          12288
+        ],
+        "iteration": 4,
+        "maximum_drive": 1.151324457112314,
+        "selected_primary_nmse_db": -30.700009858140234,
+        "selected_ridge": 0.0001,
+        "selected_secondary_nmse_db": -31.60489852207587,
+        "selected_step": 0.5
+      }
+    ],
+    "schedule": [
+      {
+        "advisor": [
+          8192,
+          12288
+        ],
+        "fit": [
+          0,
+          4096
+        ]
+      },
+      {
+        "advisor": [
+          4096,
+          8192
+        ],
+        "fit": [
+          12288,
+          16384
+        ]
+      },
+      {
+        "advisor": [
+          12288,
+          16384
+        ],
+        "fit": [
+          4096,
+          8192
+        ]
+      },
+      {
+        "advisor": [
+          0,
+          4096
+        ],
+        "fit": [
+          8192,
+          12288
+        ]
+      }
+    ]
+  },
+  "ilc": {
+    "config": {
+      "beta": 1.0,
+      "block": [
+        0,
+        8192
+      ],
+      "enabled": false,
+      "maximum_iterations": 6,
+      "refit_ridges": [
+        1e-08,
+        1e-06,
+        0.0001
+      ]
+    },
+    "records": []
+  },
+  "inputs": {
+    "baseline_dpd_npz": "experiments/results/dpd_spline_capacity5_dpa200_research/capacity_research_dpd.npz",
+    "baseline_dpd_sha256": "192779b7062ea87b4803b36d444ae3ab94088092d368415ded6d29e031d600c2",
+    "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+    "pa_model_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+    "pa_model_sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e"
+  },
+  "interpretation_limits": [
+    "cascade NMSE is measured through the same frozen GMP evaluator",
+    "a gain is surrogate-only until verified on an independent evaluator",
+    "validation numbers are diagnostics; selection used train blocks only"
+  ],
+  "operation_count_changed": false,
+  "protocol": {
+    "baseline_drive_peak": 1.1943780522912797,
+    "gain": {
+      "imag": 1.1941506152272328e-05,
+      "real": 3.1656092976318058
+    },
+    "gain_policy": "train_least_squares_frozen",
+    "identification_input_peak": 1.0000000000338956,
+    "maximum_drive_growth_allowed": 0.02,
+    "maximum_pa_input_bound": 1.2182656133371053,
+    "selection_block": [
+      16384,
+      23040
+    ],
+    "warmup_samples": 24
+  },
+  "schema_version": 1,
+  "selected_family": "gauss_newton_direct",
+  "selection_gain_over_baseline_db": 0.8492277742721832,
+  "task": "direct_learning_spline_memory_dpd_research",
+  "train_only_selection_nmse_db": {
+    "baseline_ila": {
+      "primary": -31.080934642004724,
+      "secondary": -31.25154317421487,
+      "worst_case": -31.080934642004724
+    },
+    "gauss_newton_direct": {
+      "primary": -31.930162416276907,
+      "secondary": -32.40026491684977,
+      "worst_case": -31.930162416276907
+    }
+  },
+  "validation_diagnostics": {
+    "baseline_ila": {
+      "drive_summary": {
+        "papr_db": 10.368239451497116,
+        "peak": 1.1803832901312956,
+        "rms": 0.35777589786759373
+      },
+      "secondary_validation_nmse_db": -30.977507850095087,
+      "validation_nmse_db": -30.516863676245208
+    },
+    "gauss_newton_direct": {
+      "drive_summary": {
+        "papr_db": 10.3128106741602,
+        "peak": 1.171320726103641,
+        "rms": 0.35730187425343174
+      },
+      "secondary_validation_nmse_db": -31.854601332103027,
+      "validation_nmse_db": -31.014754952141388
+    }
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "claims_scope": {
+    "physical_pa_result": false,
+    "selection_rule": "train-only blocks; selection block disjoint from fit, advisor, and Gauss-Newton slices",
+    "surrogate_only": true,
+    "test_split_accessed": false,
+    "validation_evaluated_as_diagnostic": true,
+    "validation_used_for_selection": false
+  },
+  "elapsed_seconds": 104.00552479999897,
+  "gauss_newton_polish": {
+    "final_flat_coefficient_count": 88,
+    "records": [
+      {
+        "advisor_gain_over_previous_db": null,
+        "advisor_improvement_db": 8.937894356432128,
+        "advisor_nmse_db": -28.800212190476785,
+        "advisor_no_dpd_nmse_db": -19.862317834044656,
+        "advisor_slice": [
+          12288,
+          16384
+        ],
+        "candidate_count": 12,
+        "delta_relative_norm": 0.0778249972085568,
+        "elapsed_seconds": 31.351859800000966,
+        "fit_slice": [
+          0,
+          4096
+        ],
+        "iteration": 1,
+        "maximum_drive": 1.2418950630213919,
+        "selected_ridge": 0.0001,
+        "selected_step": 1.0
+      },
+      {
+        "advisor_gain_over_previous_db": 0.07635806807763856,
+        "advisor_improvement_db": 8.926471479169347,
+        "advisor_nmse_db": -28.876570258554423,
+        "advisor_no_dpd_nmse_db": -19.950098779385076,
+        "advisor_slice": [
+          4096,
+          8192
+        ],
+        "candidate_count": 12,
+        "delta_relative_norm": 0.0403965050506276,
+        "elapsed_seconds": 26.466162600001553,
+        "fit_slice": [
+          8192,
+          12288
+        ],
+        "iteration": 2,
+        "maximum_drive": 1.2269391394315872,
+        "selected_ridge": 1e-06,
+        "selected_step": 0.25
+      }
+    ],
+    "schedule": [
+      {
+        "advisor": [
+          12288,
+          16384
+        ],
+        "fit": [
+          0,
+          4096
+        ]
+      },
+      {
+        "advisor": [
+          4096,
+          8192
+        ],
+        "fit": [
+          8192,
+          12288
+        ]
+      }
+    ]
+  },
+  "grid": {
+    "candidate_member_count": 512,
+    "maximum_envelope_delay": 8,
+    "maximum_exponent": 8,
+    "maximum_signal_delay": 8
+  },
+  "inputs": {
+    "baseline_dpd_npz": "experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+    "baseline_dpd_sha256": "a7b8376f387a6eed61cb6ab8ea6ce3b7676cc823a989232425556319178fac6d",
+    "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+    "pa_model_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+    "pa_model_sha256": "1d1850c6d7caba0881ee4645a01a5329ff2c152ed49c97f24bf646164c93a71e"
+  },
+  "interpretation_limits": [
+    "cascade NMSE is measured through the same frozen GMP evaluator",
+    "a gain is surrogate-only until verified on an independent evaluator",
+    "validation numbers are diagnostics; selection used train blocks only",
+    "the composite drive exceeds the PA identification support (peak extrapolation); physical verification is required before any hardware claim"
+  ],
+  "member_selection": {
+    "advisor_cascade_nmse_db": -28.642427803591822,
+    "all_candidates": [
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3971885485056603,
+        "member_budget": 16,
+        "member_count": 16,
+        "real_multiplications": 139,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-08,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3970336691312357,
+        "member_budget": 16,
+        "member_count": 16,
+        "real_multiplications": 139,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-07,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3887569717384745,
+        "member_budget": 16,
+        "member_count": 16,
+        "real_multiplications": 139,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-05,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": -28.642427803591822,
+        "drive_peak": 1.2751523987513889,
+        "member_budget": 16,
+        "member_count": 16,
+        "real_multiplications": 139,
+        "rejection_reason": null,
+        "ridge": 0.001,
+        "support_valid": true,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4415616952987824,
+        "member_budget": 24,
+        "member_count": 24,
+        "real_multiplications": 181,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-08,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4399702069858844,
+        "member_budget": 24,
+        "member_count": 24,
+        "real_multiplications": 181,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-07,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3898257400359464,
+        "member_budget": 24,
+        "member_count": 24,
+        "real_multiplications": 181,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-05,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": -28.5849832872207,
+        "drive_peak": 1.28112460263447,
+        "member_budget": 24,
+        "member_count": 24,
+        "real_multiplications": 181,
+        "rejection_reason": null,
+        "ridge": 0.001,
+        "support_valid": true,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.439162078795398,
+        "member_budget": 32,
+        "member_count": 32,
+        "real_multiplications": 219,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-08,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4375714108709834,
+        "member_budget": 32,
+        "member_count": 32,
+        "real_multiplications": 219,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-07,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3887502368956388,
+        "member_budget": 32,
+        "member_count": 32,
+        "real_multiplications": 219,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-05,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": -28.5545496112262,
+        "drive_peak": 1.2799813668162288,
+        "member_budget": 32,
+        "member_count": 32,
+        "real_multiplications": 219,
+        "rejection_reason": null,
+        "ridge": 0.001,
+        "support_valid": true,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4401376932080963,
+        "member_budget": 48,
+        "member_count": 48,
+        "real_multiplications": 283,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-08,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4381960532765599,
+        "member_budget": 48,
+        "member_count": 48,
+        "real_multiplications": 283,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-07,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3901439718899504,
+        "member_budget": 48,
+        "member_count": 48,
+        "real_multiplications": 283,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-05,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": -28.582796833654033,
+        "drive_peak": 1.2799453917652077,
+        "member_budget": 48,
+        "member_count": 48,
+        "real_multiplications": 283,
+        "rejection_reason": null,
+        "ridge": 0.001,
+        "support_valid": true,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4432941155096441,
+        "member_budget": 64,
+        "member_count": 64,
+        "real_multiplications": 347,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-08,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.4377144321981516,
+        "member_budget": 64,
+        "member_count": 64,
+        "real_multiplications": 347,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-07,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": null,
+        "drive_peak": 1.3740734777954993,
+        "member_budget": 64,
+        "member_count": 64,
+        "real_multiplications": 347,
+        "rejection_reason": "drive_peak_exceeds_bound",
+        "ridge": 1e-05,
+        "support_valid": false,
+        "within_mul_budget": true
+      },
+      {
+        "advisor_cascade_nmse_db": -28.51101459875157,
+        "drive_peak": 1.2866961069085041,
+        "member_budget": 64,
+        "member_count": 64,
+        "real_multiplications": 347,
+        "rejection_reason": null,
+        "ridge": 0.001,
+        "support_valid": true,
+        "within_mul_budget": true
+      }
+    ],
+    "candidate_count": 20,
+    "cascade_nmse_before_members_db": -27.90664848947585,
+    "chosen_member_budget": 16,
+    "chosen_ridge": 0.001,
+    "member_count": 16,
+    "members": [
+      {
+        "envelope_delay": 0,
+        "exponent": 5,
+        "signal_delay": 0
+      },
+      {
+        "envelope_delay": 6,
+        "exponent": 1,
+        "signal_delay": 7
+      },
+      {
+        "envelope_delay": 2,
+        "exponent": 2,
+        "signal_delay": 1
+      },
+      {
+        "envelope_delay": 4,
+        "exponent": 1,
+        "signal_delay": 0
+      },
+      {
+        "envelope_delay": 1,
+        "exponent": 3,
+        "signal_delay": 5
+      },
+      {
+        "envelope_delay": 0,
+        "exponent": 1,
+        "signal_delay": 7
+      },
+      {
+        "envelope_delay": 2,
+        "exponent": 8,
+        "signal_delay": 0
+      },
+      {
+        "envelope_delay": 4,
+        "exponent": 2,
+        "signal_delay": 3
+      },
+      {
+        "envelope_delay": 0,
+        "exponent": 3,
+        "signal_delay": 3
+      },
+      {
+        "envelope_delay": 7,
+        "exponent": 3,
+        "signal_delay": 7
+      },
+      {
+        "envelope_delay": 5,
+        "exponent": 8,
+        "signal_delay": 4
+      },
+      {
+        "envelope_delay": 0,
+        "exponent": 8,
+        "signal_delay": 7
+      },
+      {
+        "envelope_delay": 6,
+        "exponent": 1,
+        "signal_delay": 2
+      },
+      {
+        "envelope_delay": 6,
+        "exponent": 8,
+        "signal_delay": 4
+      },
+      {
+        "envelope_delay": 2,
+        "exponent": 4,
+        "signal_delay": 7
+      },
+      {
+        "envelope_delay": 3,
+        "exponent": 8,
+        "signal_delay": 7
+      }
+    ],
+    "real_multiplications": 139
+  },
+  "protocol": {
+    "baseline_drive_peak": 1.1904323638113472,
+    "gain": {
+      "imag": 1.1941506152272328e-05,
+      "real": 3.1656092976318058
+    },
+    "gain_policy": "train_least_squares_frozen",
+    "identification_input_peak": 1.0000000000338956,
+    "maximum_drive_bound": 1.3689972183830492,
+    "maximum_drive_growth_allowed": 0.15,
+    "real_multiplication_budget": 1000,
+    "warmup_samples": 24
+  },
+  "schema_version": 1,
+  "selected_family": "composite_domp_gauss_newton",
+  "task": "composite_spline_gmp_dpd_research",
+  "train_only_selection_nmse_db": {
+    "baseline_spline": -28.44643683955732,
+    "composite_domp": -28.91025485363162,
+    "composite_domp_gauss_newton": -29.27877213266566
+  },
+  "validation_diagnostics": {
+    "baseline_spline": {
+      "drive_summary": {
+        "papr_db": 10.460645026615229,
+        "peak": 1.1926112992007214,
+        "rms": 0.3576569497244099
+      },
+      "validation_nmse_db": -28.433823150327346
+    },
+    "composite_domp": {
+      "drive_summary": {
+        "papr_db": 10.991946224315436,
+        "peak": 1.2708642500208909,
+        "rms": 0.3585104769005191
+      },
+      "validation_nmse_db": -28.918081285695813
+    },
+    "composite_domp_gauss_newton": {
+      "drive_summary": {
+        "papr_db": 10.805491070250222,
+        "peak": 1.242075758182482,
+        "rms": 0.3579921735313937
+      },
+      "validation_nmse_db": -29.216703207440858
+    }
+  }
+}

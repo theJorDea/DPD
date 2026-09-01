@@ -1,0 +1,541 @@
+{
+  "baseline_reference_nmse_db": -30.78,
+  "blocks": {
+    "advisor": [
+      16384,
+      20480
+    ],
+    "fit": [
+      0,
+      16384
+    ],
+    "selection": [
+      20480,
+      23040
+    ]
+  },
+  "elapsed_seconds": 32.095332199998666,
+  "model_path": "experiments\\results\\dpd_spline_capacity5_dpa200_research\\capacity_research_dpd.npz",
+  "schema_version": 1,
+  "selection_policy": "train-only worst-case across evaluators A and B",
+  "task": "spline_capacity_research",
+  "trial_count": 6,
+  "trials": [
+    {
+      "advisor_nmse_db": [
+        -30.863932996583486,
+        -31.47268135934524
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_02",
+      "feature_count": 312,
+      "fit_seconds": 5.078507800004445,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-09,
+      "solver_rank": 312,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.863932996583486
+    },
+    {
+      "advisor_nmse_db": [
+        -30.862515428000684,
+        -31.470986190683064
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_02",
+      "feature_count": 312,
+      "fit_seconds": 2.391213999988395,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-08,
+      "solver_rank": 312,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.862515428000684
+    },
+    {
+      "advisor_nmse_db": [
+        -30.844672753721383,
+        -31.449948505178064
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_12_22",
+      "feature_count": 336,
+      "fit_seconds": 3.070630699992762,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-09,
+      "solver_rank": 336,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.844672753721383
+    },
+    {
+      "advisor_nmse_db": [
+        -30.84257865370339,
+        -31.44743078206952
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_12_22",
+      "feature_count": 336,
+      "fit_seconds": 2.9249955999985104,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-08,
+      "solver_rank": 336,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.84257865370339
+    },
+    {
+      "advisor_nmse_db": [
+        -30.777136722641224,
+        -31.339960848683987
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_01_21_02",
+      "feature_count": 360,
+      "fit_seconds": 3.6613185000023805,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-09,
+      "solver_rank": 360,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.777136722641224
+    },
+    {
+      "advisor_nmse_db": [
+        -30.775009676733873,
+        -31.336333345730925
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "family": "00_10_20_30_40_50_60_70_80_90_100_110_01_21_02",
+      "feature_count": 360,
+      "fit_seconds": 7.801812299992889,
+      "knot_count": 24,
+      "knot_strategy": "quantile",
+      "ridge": 1e-08,
+      "solver_rank": 360,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -30.775009676733873
+    }
+  ],
+  "winner": {
+    "advisor_nmse_db": [
+      -30.863932996583486,
+      -31.47268135934524
+    ],
+    "branches": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "family": "00_10_20_30_40_50_60_70_80_90_100_110_02",
+    "feature_count": 312,
+    "fit_seconds": 5.078507800004445,
+    "knot_count": 24,
+    "knot_strategy": "quantile",
+    "ridge": 1e-09,
+    "solver_rank": 312,
+    "valid_for_selection": true,
+    "worst_case_advisor_nmse_db": -30.863932996583486
+  },
+  "winner_selection_nmse_db": [
+    -31.396133676749688,
+    -30.970941048560977
+  ],
+  "winner_validation_nmse_db": [
+    -30.516863676245208,
+    -30.977507850095087
+  ],
+  "winner_worst_case_selection_nmse_db": -30.970941048560977
+}

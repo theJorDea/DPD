@@ -1,0 +1,11 @@
+{
+  "baseline_advisor_nmse_db": {
+    "primary": -28.18461407896651,
+    "secondary": -28.10496401605032
+  },
+  "candidate_count": 48,
+  "decision": "HOLD",
+  "hold_reason": "no DOMP candidate improves the baseline on both evaluators",
+  "schema_version": 1,
+  "task": "composite_spline_gmp_dpd_cross_research"
+}

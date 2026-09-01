@@ -1,0 +1,128 @@
+{
+  "claims_scope": {
+    "causal_deployed_evaluator": false,
+    "offline_frame_evaluator": true,
+    "test_split_accessed": false,
+    "train_val_only": true
+  },
+  "device": "cpu",
+  "elapsed_seconds": 210.4309515000059,
+  "final_val_nmse_db": -30.54689577635738,
+  "history": [
+    {
+      "epoch": 20,
+      "train_loss": 0.0003449473952059634,
+      "val_nmse_db": -23.137569752220095
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.00019951329522882588,
+      "val_nmse_db": -25.344354350978634
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.00015213993174256757,
+      "val_nmse_db": -26.394199943430348
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.000129039279272547,
+      "val_nmse_db": -27.212547320909415
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.00010920233216893394,
+      "val_nmse_db": -27.90569872786691
+    },
+    {
+      "epoch": 120,
+      "train_loss": 9.587967542756815e-05,
+      "val_nmse_db": -28.476350649758906
+    },
+    {
+      "epoch": 140,
+      "train_loss": 8.579972018196713e-05,
+      "val_nmse_db": -28.94610651782181
+    },
+    {
+      "epoch": 160,
+      "train_loss": 8.062517736107111e-05,
+      "val_nmse_db": -29.282228509917108
+    },
+    {
+      "epoch": 180,
+      "train_loss": 7.462777648470365e-05,
+      "val_nmse_db": -29.60079301167493
+    },
+    {
+      "epoch": 200,
+      "train_loss": 7.081424155330751e-05,
+      "val_nmse_db": -29.757054482345215
+    },
+    {
+      "epoch": 220,
+      "train_loss": 6.81975252518896e-05,
+      "val_nmse_db": -30.015418469245688
+    },
+    {
+      "epoch": 240,
+      "train_loss": 6.557020242325962e-05,
+      "val_nmse_db": -30.14612588997529
+    },
+    {
+      "epoch": 260,
+      "train_loss": 6.428342749131843e-05,
+      "val_nmse_db": -30.253753852723456
+    },
+    {
+      "epoch": 280,
+      "train_loss": 6.265675619943067e-05,
+      "val_nmse_db": -30.30832751586061
+    },
+    {
+      "epoch": 300,
+      "train_loss": 6.192741420818493e-05,
+      "val_nmse_db": -30.421559243508263
+    },
+    {
+      "epoch": 320,
+      "train_loss": 6.115474843682023e-05,
+      "val_nmse_db": -30.475012359152895
+    },
+    {
+      "epoch": 340,
+      "train_loss": 6.0594289607251994e-05,
+      "val_nmse_db": -30.513164687439264
+    },
+    {
+      "epoch": 360,
+      "train_loss": 6.029588075762149e-05,
+      "val_nmse_db": -30.534502793534813
+    },
+    {
+      "epoch": 380,
+      "train_loss": 6.005340583215002e-05,
+      "val_nmse_db": -30.54526894935823
+    },
+    {
+      "epoch": 400,
+      "train_loss": 6.0132861108286306e-05,
+      "val_nmse_db": -30.54689577635738
+    }
+  ],
+  "input_scale": 1.0000000000000002,
+  "model": {
+    "hidden_size": 96,
+    "num_layers": 1,
+    "type": "tres_deltagru"
+  },
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "training": {
+    "batch_size": 64,
+    "epochs": 400,
+    "frame_length": 200,
+    "lr": 0.005,
+    "lr_schedule": "cosine",
+    "val_every": 20
+  }
+}

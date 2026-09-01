@@ -1,0 +1,85 @@
+{
+  "decision": "PASS",
+  "degradation_limit_db": 0.05,
+  "elapsed_seconds": 0.3429844000056619,
+  "failed_predicates": [],
+  "interpretation_limits": [
+    "numerical equivalence gate only; not the sealed artifact-chain protocol",
+    "fixed-point kernel cost accounting is unchanged from the float model",
+    "the float dequantized reference cannot demonstrate integer-kernel bit-exact rotation; that property belongs to the sealed integer fixed-point kernel and is checked there"
+  ],
+  "model_npz": "experiments/results/dpd_direct_dpa200_capacity4_research/direct_improved_model.npz",
+  "model_sha256": "77588a1ddf889dd99a324291a258c052e5e34cda07348ae5d40385c294bbe52e",
+  "predicates": {
+    "chunk_equivalence_bit_exact": true,
+    "degradation_within_0p05db_16bit": true,
+    "rotation_not_worsened_by_quantization": true,
+    "rotation_ulp_scale": true,
+    "zero_saturations_16bit": true
+  },
+  "primary_pa_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "results_by_bits": {
+    "12": {
+      "primary": {
+        "degradation_db": 0.010070821663422436,
+        "float_nmse_db": -31.757007920013262,
+        "quantized_nmse_db": -31.74693709834984
+      },
+      "quantization": {
+        "coefficient_peak": 1.7159727396000122,
+        "fractional_bits": 10,
+        "saturation_count": 0
+      },
+      "secondary": {
+        "degradation_db": 0.01771879233106688,
+        "float_nmse_db": -31.432580106502755,
+        "quantized_nmse_db": -31.414861314171688
+      }
+    },
+    "14": {
+      "primary": {
+        "degradation_db": 0.0013217253140886953,
+        "float_nmse_db": -31.757007920013262,
+        "quantized_nmse_db": -31.755686194699173
+      },
+      "quantization": {
+        "coefficient_peak": 1.7159727396000122,
+        "fractional_bits": 12,
+        "saturation_count": 0
+      },
+      "secondary": {
+        "degradation_db": 0.00176914190329569,
+        "float_nmse_db": -31.432580106502755,
+        "quantized_nmse_db": -31.43081096459946
+      }
+    },
+    "16": {
+      "chunk_equivalence_bit_exact": true,
+      "float_model_rotation_max_abs_error": 5.026748538604307e-16,
+      "primary": {
+        "degradation_db": -0.00035550418532181993,
+        "float_nmse_db": -31.757007920013262,
+        "quantized_nmse_db": -31.757363424198584
+      },
+      "quantization": {
+        "coefficient_peak": 1.7159727396000122,
+        "fractional_bits": 14,
+        "saturation_count": 0
+      },
+      "rotation_max_abs_error": 5.613217783960923e-16,
+      "rotation_not_worsened_by_quantization": true,
+      "secondary": {
+        "degradation_db": -0.0006218646469804412,
+        "float_nmse_db": -31.432580106502755,
+        "quantized_nmse_db": -31.433201971149735
+      },
+      "validation_primary_float_nmse_db": -30.880856094027,
+      "validation_primary_quantized_nmse_db": -30.881055407768745,
+      "validation_secondary_float_nmse_db": -30.462769660157814,
+      "validation_secondary_quantized_nmse_db": -30.463617566919527
+    }
+  },
+  "schema_version": 1,
+  "secondary_pa_npz": "experiments/results/pa_gmp_dpa200_uncapped_selection/selected_gmp_pa.npz",
+  "task": "frozen_dpd_fixed_point_research"
+}

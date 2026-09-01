@@ -1,0 +1,3070 @@
+{
+  "baseline_reference_nmse_db": -28.286,
+  "blocks": {
+    "advisor": [
+      16384,
+      20480
+    ],
+    "fit": [
+      0,
+      16384
+    ],
+    "selection": [
+      20480,
+      23040
+    ]
+  },
+  "elapsed_seconds": 448.212657400014,
+  "model_path": "experiments\\results\\dpd_spline_capacity_dpa200_research\\capacity_research_dpd.npz",
+  "schema_version": 1,
+  "selection_policy": "train-only worst-case across evaluators A and B",
+  "task": "spline_capacity_research",
+  "trial_count": 90,
+  "trials": [
+    {
+      "advisor_nmse_db": [
+        -28.297478201068266,
+        -28.398261426216433
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 72,
+      "fit_seconds": 0.14801489999808837,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 72,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.297478201068266
+    },
+    {
+      "advisor_nmse_db": [
+        -28.27130261570112,
+        -28.36974497042082
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 72,
+      "fit_seconds": 0.1582436000026064,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 72,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.27130261570112
+    },
+    {
+      "advisor_nmse_db": [
+        -25.17371879085859,
+        -25.234342742091187
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 72,
+      "fit_seconds": 0.13688999999430962,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 72,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -25.17371879085859
+    },
+    {
+      "advisor_nmse_db": [
+        -28.283783246996247,
+        -28.16475070263092
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 96,
+      "fit_seconds": 0.31566779999411665,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.16475070263092
+    },
+    {
+      "advisor_nmse_db": [
+        -28.249704867481814,
+        -28.13493094842922
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 96,
+      "fit_seconds": 0.2303366999985883,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.13493094842922
+    },
+    {
+      "advisor_nmse_db": [
+        -24.228736131360563,
+        -24.249041858537783
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 96,
+      "fit_seconds": 0.2928001999971457,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.228736131360563
+    },
+    {
+      "advisor_nmse_db": [
+        -28.213874555896755,
+        -27.628548241598864
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 144,
+      "fit_seconds": 0.5091805999982171,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.628548241598864
+    },
+    {
+      "advisor_nmse_db": [
+        -28.168486875936082,
+        -27.598731425764804
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 144,
+      "fit_seconds": 0.7905813999968814,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.598731425764804
+    },
+    {
+      "advisor_nmse_db": [
+        -22.591671676579665,
+        -22.567033749661228
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 144,
+      "fit_seconds": 0.5232639000023482,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.567033749661228
+    },
+    {
+      "advisor_nmse_db": [
+        -28.125913291298023,
+        -27.055173860706596
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 192,
+      "fit_seconds": 1.0599017999920761,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.055173860706596
+    },
+    {
+      "advisor_nmse_db": [
+        -28.06962689365056,
+        -27.033402624927877
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 192,
+      "fit_seconds": 4.045602199999848,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.033402624927877
+    },
+    {
+      "advisor_nmse_db": [
+        -21.247842119390516,
+        -21.20914118049307
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 192,
+      "fit_seconds": 5.1705284000054235,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -21.20914118049307
+    },
+    {
+      "advisor_nmse_db": [
+        -27.962960678443793,
+        -26.216658508916012
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 288,
+      "fit_seconds": 4.714975200011395,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.216658508916012
+    },
+    {
+      "advisor_nmse_db": [
+        -27.897123585681108,
+        -26.209480480843872
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 288,
+      "fit_seconds": 17.706445200004964,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.209480480843872
+    },
+    {
+      "advisor_nmse_db": [
+        -19.21958102104152,
+        -19.185346990181024
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "family": "00_10_20",
+      "feature_count": 288,
+      "fit_seconds": 17.55281899998954,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.185346990181024
+    },
+    {
+      "advisor_nmse_db": [
+        -29.217028716561156,
+        -29.441868415785105
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 96,
+      "fit_seconds": 0.205694800009951,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.217028716561156
+    },
+    {
+      "advisor_nmse_db": [
+        -29.050595148529016,
+        -29.22364426009672
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 96,
+      "fit_seconds": 0.32704060000833124,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.050595148529016
+    },
+    {
+      "advisor_nmse_db": [
+        -24.720721149130537,
+        -24.783245636895597
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 96,
+      "fit_seconds": 0.3461248999956297,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.720721149130537
+    },
+    {
+      "advisor_nmse_db": [
+        -29.19937323119093,
+        -29.170630513340676
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 128,
+      "fit_seconds": 0.6374832000001334,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.170630513340676
+    },
+    {
+      "advisor_nmse_db": [
+        -28.990557237041674,
+        -28.914370698496406
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 128,
+      "fit_seconds": 0.3524457000021357,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.914370698496406
+    },
+    {
+      "advisor_nmse_db": [
+        -23.706083710412443,
+        -23.737686782346774
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 128,
+      "fit_seconds": 0.620897499989951,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -23.706083710412443
+    },
+    {
+      "advisor_nmse_db": [
+        -29.112965042445353,
+        -28.484565559777167
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 192,
+      "fit_seconds": 5.624767799992696,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.484565559777167
+    },
+    {
+      "advisor_nmse_db": [
+        -28.846362637555277,
+        -28.248155266116015
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 192,
+      "fit_seconds": 1.352494699996896,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.248155266116015
+    },
+    {
+      "advisor_nmse_db": [
+        -22.150905811051928,
+        -22.14808748796793
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 192,
+      "fit_seconds": 3.3225335000024643,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.14808748796793
+    },
+    {
+      "advisor_nmse_db": [
+        -28.971820625144655,
+        -27.60630328432926
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 256,
+      "fit_seconds": 10.19095119999838,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.60630328432926
+    },
+    {
+      "advisor_nmse_db": [
+        -28.684284208580962,
+        -27.514132145127984
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 256,
+      "fit_seconds": 1.5643546999926912,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.514132145127984
+    },
+    {
+      "advisor_nmse_db": [
+        -20.985647796309394,
+        -20.967940720288922
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 256,
+      "fit_seconds": 1.5354956000082893,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -20.967940720288922
+    },
+    {
+      "advisor_nmse_db": [
+        -28.697811684830935,
+        -26.16563933529694
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 384,
+      "fit_seconds": 2.3974530000123195,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.16563933529694
+    },
+    {
+      "advisor_nmse_db": [
+        -28.419410661131963,
+        -26.46390830369029
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 384,
+      "fit_seconds": 9.478279399991152,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.46390830369029
+    },
+    {
+      "advisor_nmse_db": [
+        -19.305019753235197,
+        -19.28449012388913
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "family": "00_10_20_30",
+      "feature_count": 384,
+      "fit_seconds": 8.096215099998517,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.28449012388913
+    },
+    {
+      "advisor_nmse_db": [
+        -29.4779422841791,
+        -29.752187372532504
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 120,
+      "fit_seconds": 0.5231468999991193,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 120,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.4779422841791
+    },
+    {
+      "advisor_nmse_db": [
+        -29.394233330300512,
+        -29.572130021092562
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 120,
+      "fit_seconds": 0.3810706000076607,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 120,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.394233330300512
+    },
+    {
+      "advisor_nmse_db": [
+        -25.23817969047979,
+        -25.300173147418047
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 120,
+      "fit_seconds": 0.4746161000075517,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 120,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -25.23817969047979
+    },
+    {
+      "advisor_nmse_db": [
+        -29.452265264224543,
+        -29.495875960829725
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 160,
+      "fit_seconds": 1.2303993999958038,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 160,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.452265264224543
+    },
+    {
+      "advisor_nmse_db": [
+        -29.347316888681032,
+        -29.23827816590858
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 160,
+      "fit_seconds": 0.9712342000129865,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 160,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.23827816590858
+    },
+    {
+      "advisor_nmse_db": [
+        -24.135064545590765,
+        -24.16307721270895
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 160,
+      "fit_seconds": 4.186924599998747,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 160,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.135064545590765
+    },
+    {
+      "advisor_nmse_db": [
+        -29.36338814456215,
+        -28.835859816428528
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 240,
+      "fit_seconds": 6.647108799996204,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 240,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.835859816428528
+    },
+    {
+      "advisor_nmse_db": [
+        -29.220557977164404,
+        -28.465265608473004
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 240,
+      "fit_seconds": 4.782512799996766,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 240,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.465265608473004
+    },
+    {
+      "advisor_nmse_db": [
+        -22.349347878811862,
+        -22.344466011523725
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 240,
+      "fit_seconds": 5.030558300000848,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 240,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.344466011523725
+    },
+    {
+      "advisor_nmse_db": [
+        -29.220162293035333,
+        -27.97362504433781
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 320,
+      "fit_seconds": 11.434698099998059,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 320,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.97362504433781
+    },
+    {
+      "advisor_nmse_db": [
+        -29.055927344194806,
+        -27.57222572338957
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 320,
+      "fit_seconds": 4.293882900004974,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 320,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.57222572338957
+    },
+    {
+      "advisor_nmse_db": [
+        -20.98519376036352,
+        -20.968097978426453
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 320,
+      "fit_seconds": 7.620876800006954,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 320,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -20.968097978426453
+    },
+    {
+      "advisor_nmse_db": [
+        -28.972976201934078,
+        -26.69010785253496
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 480,
+      "fit_seconds": 26.84030189999612,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 480,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.69010785253496
+    },
+    {
+      "advisor_nmse_db": [
+        -28.783471006369503,
+        -26.34748530911701
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 480,
+      "fit_seconds": 12.680500300004496,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 480,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.34748530911701
+    },
+    {
+      "advisor_nmse_db": [
+        -19.07138402430229,
+        -19.05616650583553
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "family": "00_10_20_30_40",
+      "feature_count": 480,
+      "fit_seconds": 3.9309620000130963,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 480,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.05616650583553
+    },
+    {
+      "advisor_nmse_db": [
+        -28.357008792646297,
+        -28.488075637975413
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 96,
+      "fit_seconds": 0.21669950000068638,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.357008792646297
+    },
+    {
+      "advisor_nmse_db": [
+        -28.328596709405293,
+        -28.455879392115317
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 96,
+      "fit_seconds": 0.2608959000062896,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.328596709405293
+    },
+    {
+      "advisor_nmse_db": [
+        -24.80921477571755,
+        -24.880785394071925
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 96,
+      "fit_seconds": 0.3740509000053862,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.80921477571755
+    },
+    {
+      "advisor_nmse_db": [
+        -28.34840528550327,
+        -28.2963934306952
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 128,
+      "fit_seconds": 0.4511953000037465,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.2963934306952
+    },
+    {
+      "advisor_nmse_db": [
+        -28.310948966974347,
+        -28.26045777853127
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 128,
+      "fit_seconds": 0.5452466000133427,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.26045777853127
+    },
+    {
+      "advisor_nmse_db": [
+        -23.93372417252813,
+        -23.977829380422
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 128,
+      "fit_seconds": 0.3572757000074489,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -23.93372417252813
+    },
+    {
+      "advisor_nmse_db": [
+        -28.272046698620045,
+        -27.843844878649726
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 192,
+      "fit_seconds": 4.577213600001414,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.843844878649726
+    },
+    {
+      "advisor_nmse_db": [
+        -28.22091500938488,
+        -27.80468693349022
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 192,
+      "fit_seconds": 4.7663679999968736,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.80468693349022
+    },
+    {
+      "advisor_nmse_db": [
+        -22.452778126672737,
+        -22.464709666962918
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 192,
+      "fit_seconds": 0.706287599998177,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.452778126672737
+    },
+    {
+      "advisor_nmse_db": [
+        -28.193073179552762,
+        -27.372584845822317
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 256,
+      "fit_seconds": 23.973254199998337,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.372584845822317
+    },
+    {
+      "advisor_nmse_db": [
+        -28.13031705073101,
+        -27.345851953392252
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 256,
+      "fit_seconds": 6.220429699998931,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.345851953392252
+    },
+    {
+      "advisor_nmse_db": [
+        -21.25526376704685,
+        -21.25540357335266
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 256,
+      "fit_seconds": 10.044381699990481,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -21.25526376704685
+    },
+    {
+      "advisor_nmse_db": [
+        -28.042589038474976,
+        -26.66407029384775
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 384,
+      "fit_seconds": 16.591897999998764,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.66407029384775
+    },
+    {
+      "advisor_nmse_db": [
+        -27.96557351169705,
+        -26.66767355469586
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 384,
+      "fit_seconds": 21.361690999998245,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.66767355469586
+    },
+    {
+      "advisor_nmse_db": [
+        -19.407485003184853,
+        -19.404734057753505
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "family": "00_10_20_11",
+      "feature_count": 384,
+      "fit_seconds": 15.153814999997849,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.404734057753505
+    },
+    {
+      "advisor_nmse_db": [
+        -28.347300389494663,
+        -28.476423195205495
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 96,
+      "fit_seconds": 0.20966409999527968,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.347300389494663
+    },
+    {
+      "advisor_nmse_db": [
+        -28.319547499425312,
+        -28.445988505903653
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 96,
+      "fit_seconds": 0.2037049000064144,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.319547499425312
+    },
+    {
+      "advisor_nmse_db": [
+        -25.245277230505504,
+        -25.32014154056284
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 96,
+      "fit_seconds": 0.21339989999250975,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 96,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -25.245277230505504
+    },
+    {
+      "advisor_nmse_db": [
+        -28.334943379684905,
+        -28.266846318044227
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 128,
+      "fit_seconds": 0.3569495999981882,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.266846318044227
+    },
+    {
+      "advisor_nmse_db": [
+        -28.29825299006425,
+        -28.233713045505784
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 128,
+      "fit_seconds": 0.5737183000019286,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.233713045505784
+    },
+    {
+      "advisor_nmse_db": [
+        -24.33638773149978,
+        -24.37491074042649
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 128,
+      "fit_seconds": 0.6261496999941301,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 128,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.33638773149978
+    },
+    {
+      "advisor_nmse_db": [
+        -28.25251563658459,
+        -27.77565522397702
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 192,
+      "fit_seconds": 0.607048300007591,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.77565522397702
+    },
+    {
+      "advisor_nmse_db": [
+        -28.2033165909887,
+        -27.740769795946036
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 192,
+      "fit_seconds": 4.088354699997581,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.740769795946036
+    },
+    {
+      "advisor_nmse_db": [
+        -22.744408407744103,
+        -22.74035444463088
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 192,
+      "fit_seconds": 0.7307016999984626,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.74035444463088
+    },
+    {
+      "advisor_nmse_db": [
+        -28.16661704810262,
+        -27.263689807518368
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 256,
+      "fit_seconds": 14.155337999996846,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.263689807518368
+    },
+    {
+      "advisor_nmse_db": [
+        -28.106440475305284,
+        -27.240949752773123
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 256,
+      "fit_seconds": 6.201118299999507,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.240949752773123
+    },
+    {
+      "advisor_nmse_db": [
+        -21.442541072082225,
+        -21.424824040544873
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 256,
+      "fit_seconds": 1.0815314000064973,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 256,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -21.424824040544873
+    },
+    {
+      "advisor_nmse_db": [
+        -28.010277659998884,
+        -26.50485842809068
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 384,
+      "fit_seconds": 2.426741099989158,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.50485842809068
+    },
+    {
+      "advisor_nmse_db": [
+        -27.940004971776485,
+        -26.506749573975974
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 384,
+      "fit_seconds": 2.141235400005826,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.506749573975974
+    },
+    {
+      "advisor_nmse_db": [
+        -19.448736807064698,
+        -19.431328831071056
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_21",
+      "feature_count": 384,
+      "fit_seconds": 15.213022399999318,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.431328831071056
+    },
+    {
+      "advisor_nmse_db": [
+        -29.0590042960697,
+        -29.15770845115003
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 144,
+      "fit_seconds": 3.2780925999977626,
+      "knot_count": 24,
+      "ridge": 1e-08,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -29.0590042960697
+    },
+    {
+      "advisor_nmse_db": [
+        -28.959089557526923,
+        -28.97821853060612
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 144,
+      "fit_seconds": 4.212160600000061,
+      "knot_count": 24,
+      "ridge": 1e-06,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.959089557526923
+    },
+    {
+      "advisor_nmse_db": [
+        -24.626678795585953,
+        -24.696118260306047
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 144,
+      "fit_seconds": 3.675836199996411,
+      "knot_count": 24,
+      "ridge": 0.0001,
+      "solver_rank": 144,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -24.626678795585953
+    },
+    {
+      "advisor_nmse_db": [
+        -29.019480390357742,
+        -28.797678755728654
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 192,
+      "fit_seconds": 2.3383290999918245,
+      "knot_count": 32,
+      "ridge": 1e-08,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.797678755728654
+    },
+    {
+      "advisor_nmse_db": [
+        -28.901262173749124,
+        -28.601215837121625
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 192,
+      "fit_seconds": 2.692165999993449,
+      "knot_count": 32,
+      "ridge": 1e-06,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.601215837121625
+    },
+    {
+      "advisor_nmse_db": [
+        -23.597602064286388,
+        -23.640810889622163
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 192,
+      "fit_seconds": 1.1369380999967689,
+      "knot_count": 32,
+      "ridge": 0.0001,
+      "solver_rank": 192,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -23.597602064286388
+    },
+    {
+      "advisor_nmse_db": [
+        -28.883811340216596,
+        -28.051440111503332
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 288,
+      "fit_seconds": 10.949921200008248,
+      "knot_count": 48,
+      "ridge": 1e-08,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -28.051440111503332
+    },
+    {
+      "advisor_nmse_db": [
+        -28.750081151639506,
+        -27.929735939159283
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 288,
+      "fit_seconds": 8.514060699992115,
+      "knot_count": 48,
+      "ridge": 1e-06,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.929735939159283
+    },
+    {
+      "advisor_nmse_db": [
+        -22.043945839952436,
+        -22.05615142194533
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 288,
+      "fit_seconds": 4.608906900000875,
+      "knot_count": 48,
+      "ridge": 0.0001,
+      "solver_rank": 288,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -22.043945839952436
+    },
+    {
+      "advisor_nmse_db": [
+        -28.713417846858817,
+        -27.212543326827557
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 384,
+      "fit_seconds": 17.17389189999085,
+      "knot_count": 64,
+      "ridge": 1e-08,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.212543326827557
+    },
+    {
+      "advisor_nmse_db": [
+        -28.6009091910648,
+        -27.30719513531884
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 384,
+      "fit_seconds": 7.551379500000621,
+      "knot_count": 64,
+      "ridge": 1e-06,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -27.30719513531884
+    },
+    {
+      "advisor_nmse_db": [
+        -20.931511508047997,
+        -20.929652973359495
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 384,
+      "fit_seconds": 1.9050594000000274,
+      "knot_count": 64,
+      "ridge": 0.0001,
+      "solver_rank": 384,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -20.929652973359495
+    },
+    {
+      "advisor_nmse_db": [
+        -28.47190761001958,
+        -26.11687321693546
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 576,
+      "fit_seconds": 3.9020428999938304,
+      "knot_count": 96,
+      "ridge": 1e-08,
+      "solver_rank": 576,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.11687321693546
+    },
+    {
+      "advisor_nmse_db": [
+        -28.38289652504929,
+        -26.55755513095368
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 576,
+      "fit_seconds": 11.99035749999166,
+      "knot_count": 96,
+      "ridge": 1e-06,
+      "solver_rank": 576,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -26.55755513095368
+    },
+    {
+      "advisor_nmse_db": [
+        -19.367480606538237,
+        -19.36106565162377
+      ],
+      "branches": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "family": "00_10_20_30_11_21",
+      "feature_count": 576,
+      "fit_seconds": 18.950622299991664,
+      "knot_count": 96,
+      "ridge": 0.0001,
+      "solver_rank": 576,
+      "valid_for_selection": true,
+      "worst_case_advisor_nmse_db": -19.36106565162377
+    }
+  ],
+  "winner": {
+    "advisor_nmse_db": [
+      -29.4779422841791,
+      -29.752187372532504
+    ],
+    "branches": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ]
+    ],
+    "family": "00_10_20_30_40",
+    "feature_count": 120,
+    "fit_seconds": 0.5231468999991193,
+    "knot_count": 24,
+    "ridge": 1e-08,
+    "solver_rank": 120,
+    "valid_for_selection": true,
+    "worst_case_advisor_nmse_db": -29.4779422841791
+  },
+  "winner_selection_nmse_db": [
+    -29.89548085567669,
+    -29.29528389413401
+  ],
+  "winner_validation_nmse_db": [
+    -29.437658056322356,
+    -29.628920629910414
+  ],
+  "winner_worst_case_selection_nmse_db": -29.29528389413401
+}

@@ -1,0 +1,128 @@
+{
+  "claims_scope": {
+    "causal_deployed_evaluator": false,
+    "offline_frame_evaluator": true,
+    "test_split_accessed": false,
+    "train_val_only": true
+  },
+  "device": "cpu",
+  "elapsed_seconds": 29.843516799999634,
+  "final_val_nmse_db": -24.623404503252353,
+  "history": [
+    {
+      "epoch": 20,
+      "train_loss": 0.01302101369947195,
+      "val_nmse_db": -17.179478274456898
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.004854334983974695,
+      "val_nmse_db": -21.005234418289056
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.0036271894350647926,
+      "val_nmse_db": -22.120904270676508
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.0029892779421061277,
+      "val_nmse_db": -22.76682982356951
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.002912359545007348,
+      "val_nmse_db": -23.212136519266117
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.002505143638700247,
+      "val_nmse_db": -23.55340224237324
+    },
+    {
+      "epoch": 140,
+      "train_loss": 0.002481132047250867,
+      "val_nmse_db": -23.80841996807735
+    },
+    {
+      "epoch": 160,
+      "train_loss": 0.002401706762611866,
+      "val_nmse_db": -23.994983119601564
+    },
+    {
+      "epoch": 180,
+      "train_loss": 0.002244551433250308,
+      "val_nmse_db": -24.136622256922735
+    },
+    {
+      "epoch": 200,
+      "train_loss": 0.0021334586199373007,
+      "val_nmse_db": -24.25215384880676
+    },
+    {
+      "epoch": 220,
+      "train_loss": 0.002223115647211671,
+      "val_nmse_db": -24.346207249812228
+    },
+    {
+      "epoch": 240,
+      "train_loss": 0.0018728285795077682,
+      "val_nmse_db": -24.426368533733175
+    },
+    {
+      "epoch": 260,
+      "train_loss": 0.001936042564921081,
+      "val_nmse_db": -24.48530150219399
+    },
+    {
+      "epoch": 280,
+      "train_loss": 0.0019328704802319407,
+      "val_nmse_db": -24.532285094215762
+    },
+    {
+      "epoch": 300,
+      "train_loss": 0.0019839350134134293,
+      "val_nmse_db": -24.56967969800832
+    },
+    {
+      "epoch": 320,
+      "train_loss": 0.002039048122242093,
+      "val_nmse_db": -24.594131367047446
+    },
+    {
+      "epoch": 340,
+      "train_loss": 0.0020896699279546738,
+      "val_nmse_db": -24.609935070346406
+    },
+    {
+      "epoch": 360,
+      "train_loss": 0.0018917705165222287,
+      "val_nmse_db": -24.619609394136162
+    },
+    {
+      "epoch": 380,
+      "train_loss": 0.0019559995271265507,
+      "val_nmse_db": -24.62290773092692
+    },
+    {
+      "epoch": 400,
+      "train_loss": 0.0017570335185155272,
+      "val_nmse_db": -24.623404503252353
+    }
+  ],
+  "input_scale": 1.0000000000338956,
+  "model": {
+    "hidden_size": 96,
+    "num_layers": 1,
+    "type": "tres_gru"
+  },
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "training": {
+    "batch_size": 64,
+    "epochs": 400,
+    "frame_length": 200,
+    "lr": 0.005,
+    "lr_schedule": "cosine",
+    "val_every": 20
+  }
+}

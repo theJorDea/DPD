@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "dataset_label": "OpenDPD DPA_200MHz (uncapped Loop-A evaluator search)",
+  "output_dir": "experiments/results/pa_gmp_dpa200_uncapped_selection",
+  "protocol_variant": "A0_integer_only_no_fractional_transform",
+  "alignment_delay": 0,
+  "alignment_max_abs_delay": 32,
+  "characteristic_bins": 32,
+  "selection_metric": "full_record",
+  "ka_values": [9, 13, 17, 21],
+  "memory_lengths": [16, 24, 32, 48, 64],
+  "topologies": [
+    {
+      "name": "aligned",
+      "kb": 0,
+      "mb": 0,
+      "kc": 0,
+      "mc": 0,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    },
+    {
+      "name": "lag_k2_m1",
+      "kb": 2,
+      "mb": 1,
+      "kc": 0,
+      "mc": 0,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    },
+    {
+      "name": "lead_k2_m1",
+      "kb": 0,
+      "mb": 0,
+      "kc": 2,
+      "mc": 1,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    },
+    {
+      "name": "both_k2_m1",
+      "kb": 2,
+      "mb": 1,
+      "kc": 2,
+      "mc": 1,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    },
+    {
+      "name": "lag_k4_m2",
+      "kb": 4,
+      "mb": 2,
+      "kc": 0,
+      "mc": 0,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    },
+    {
+      "name": "both_k4_m1",
+      "kb": 4,
+      "mb": 1,
+      "kc": 4,
+      "mc": 1,
+      "leading_policy": "causal_leading",
+      "selection_eligible": true
+    }
+  ],
+  "architecture_solver_mode": "truncated_svd",
+  "architecture_ridge": 0.0,
+  "architecture_svd_rcond": 0.0001,
+  "refinement_ridges": [
+    0.0,
+    1e-10,
+    1e-9,
+    1e-8,
+    1e-7,
+    1e-6,
+    1e-5,
+    0.0001
+  ],
+  "refinement_svd_rconds": [
+    1e-6,
+    1e-5,
+    3e-5,
+    0.0001,
+    0.0003,
+    0.001,
+    0.003,
+    0.01
+  ],
+  "max_real_multiplications_per_sample": 10000
+}

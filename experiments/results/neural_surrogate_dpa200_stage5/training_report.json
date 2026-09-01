@@ -1,0 +1,177 @@
+{
+  "claims_scope": {
+    "causal_deployed_evaluator": false,
+    "offline_frame_evaluator": true,
+    "test_split_accessed": false,
+    "train_val_only": true
+  },
+  "device": "cpu",
+  "elapsed_seconds": 18.26301130000502,
+  "final_val_nmse_db": -23.75176152396694,
+  "history": [
+    {
+      "epoch": 10,
+      "train_loss": 0.33092010021209717,
+      "val_nmse_db": -3.155824396991576
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.11070892214775085,
+      "val_nmse_db": -8.143450826032359
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.025578947737812996,
+      "val_nmse_db": -14.01098908404782
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.01218641921877861,
+      "val_nmse_db": -17.343765817216863
+    },
+    {
+      "epoch": 50,
+      "train_loss": 0.006006801500916481,
+      "val_nmse_db": -19.789045023853518
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.005894876085221767,
+      "val_nmse_db": -20.303576663438573
+    },
+    {
+      "epoch": 70,
+      "train_loss": 0.004844160750508308,
+      "val_nmse_db": -20.86751915636644
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.004249129444360733,
+      "val_nmse_db": -21.25555601115117
+    },
+    {
+      "epoch": 90,
+      "train_loss": 0.00431053014472127,
+      "val_nmse_db": -21.532786819660327
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.003938804380595684,
+      "val_nmse_db": -21.744655066808214
+    },
+    {
+      "epoch": 110,
+      "train_loss": 0.003961413633078337,
+      "val_nmse_db": -21.9273220283553
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.0037817240227013826,
+      "val_nmse_db": -22.07747828169009
+    },
+    {
+      "epoch": 130,
+      "train_loss": 0.00337109062820673,
+      "val_nmse_db": -22.22041385262
+    },
+    {
+      "epoch": 140,
+      "train_loss": 0.003482305910438299,
+      "val_nmse_db": -22.355015536322618
+    },
+    {
+      "epoch": 150,
+      "train_loss": 0.0036567896604537964,
+      "val_nmse_db": -22.484472584397675
+    },
+    {
+      "epoch": 160,
+      "train_loss": 0.003308373037725687,
+      "val_nmse_db": -22.600826051031987
+    },
+    {
+      "epoch": 170,
+      "train_loss": 0.0031686066649854183,
+      "val_nmse_db": -22.71047756927427
+    },
+    {
+      "epoch": 180,
+      "train_loss": 0.0029724843334406614,
+      "val_nmse_db": -22.81436708296826
+    },
+    {
+      "epoch": 190,
+      "train_loss": 0.0029555680230259895,
+      "val_nmse_db": -22.919237993269004
+    },
+    {
+      "epoch": 200,
+      "train_loss": 0.002914657350629568,
+      "val_nmse_db": -23.0140003813067
+    },
+    {
+      "epoch": 210,
+      "train_loss": 0.002747115446254611,
+      "val_nmse_db": -23.100904593917647
+    },
+    {
+      "epoch": 220,
+      "train_loss": 0.002942753955721855,
+      "val_nmse_db": -23.188861988601897
+    },
+    {
+      "epoch": 230,
+      "train_loss": 0.0028757676482200623,
+      "val_nmse_db": -23.2715367783633
+    },
+    {
+      "epoch": 240,
+      "train_loss": 0.002735141897574067,
+      "val_nmse_db": -23.346227028186803
+    },
+    {
+      "epoch": 250,
+      "train_loss": 0.0027729261200875044,
+      "val_nmse_db": -23.420083676495338
+    },
+    {
+      "epoch": 260,
+      "train_loss": 0.002668212167918682,
+      "val_nmse_db": -23.49161847146508
+    },
+    {
+      "epoch": 270,
+      "train_loss": 0.0026329702232033014,
+      "val_nmse_db": -23.560350569345275
+    },
+    {
+      "epoch": 280,
+      "train_loss": 0.0027855748776346445,
+      "val_nmse_db": -23.62936250861187
+    },
+    {
+      "epoch": 290,
+      "train_loss": 0.002607127418741584,
+      "val_nmse_db": -23.692842321086992
+    },
+    {
+      "epoch": 300,
+      "train_loss": 0.0027160015888512135,
+      "val_nmse_db": -23.75176152396694
+    }
+  ],
+  "input_scale": 1.0000000000338956,
+  "model": {
+    "hidden_size": 27,
+    "num_layers": 1,
+    "type": "tres_gru"
+  },
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "training": {
+    "batch_size": 64,
+    "epochs": 300,
+    "frame_length": 200,
+    "lr": 0.005,
+    "val_every": 10
+  }
+}

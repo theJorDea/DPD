@@ -1,0 +1,22 @@
+{
+  "task": "spline_capacity_research",
+  "dataset": "vendor/OpenDPD/datasets/APA_200MHz",
+  "primary_pa_npz": "experiments/results/pa_gmp_apa200_selection/selected_gmp_pa.npz",
+  "secondary_pa_npz": "experiments/results/pa_gmp_apa200_uncapped_selection/selected_gmp_pa.npz",
+  "branch_families": [
+    [[0, 0], [1, 0], [2, 0]],
+    [[0, 0], [1, 0], [2, 0], [3, 0]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
+    [[0, 0], [1, 0], [2, 0], [1, 1]],
+    [[0, 0], [1, 0], [2, 0], [2, 1]],
+    [[0, 0], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1]]
+  ],
+  "knot_counts": [24, 32, 48, 64, 96],
+  "ridges": [1e-8, 1e-6, 1e-4],
+  "knot_strategy": "quantile",
+  "fit_block": [0, 32768],
+  "advisor_block": [32768, 45056],
+  "selection_block": [45056, 58980],
+  "baseline_reference_nmse_db": -28.146,
+  "output_dir": "experiments/results/dpd_spline_capacity_apa200_research"
+}

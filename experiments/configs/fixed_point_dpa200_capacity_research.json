@@ -1,0 +1,10 @@
+{
+  "task": "frozen_dpd_fixed_point_research",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "model_npz": "experiments/results/dpd_direct_dpa200_capacity_research/direct_improved_model.npz",
+  "primary_pa_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "secondary_pa_npz": "experiments/results/pa_gmp_dpa200_uncapped_selection/selected_gmp_pa.npz",
+  "check_block": [16384, 23040],
+  "scale_guard_ratio": 1.001,
+  "output_dir": "experiments/results/dpd_fixed_point_dpa200_capacity_research"
+}

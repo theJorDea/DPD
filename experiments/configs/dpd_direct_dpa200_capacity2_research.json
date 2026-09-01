@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task": "direct_learning_spline_memory_dpd_research",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "baseline_dpd_npz": "experiments/results/dpd_spline_capacity2_dpa200_research/capacity_research_dpd.npz",
+  "pa_model_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "secondary_pa_model_npz": "experiments/results/pa_gmp_dpa200_uncapped_selection/selected_gmp_pa.npz",
+  "output_dir": "experiments/results/dpd_direct_dpa200_capacity2_research",
+  "minimum_warmup": 0,
+  "gauss_newton_schedule": [
+    { "fit": [0, 4096], "advisor": [8192, 12288] },
+    { "fit": [12288, 16384], "advisor": [4096, 8192] }
+  ],
+  "ridge_values": [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3],
+  "step_values": [0.0625, 0.125, 0.25, 0.5, 1.0],
+  "ilc": {
+    "enabled": false,
+    "block": [0, 8192],
+    "beta": 1.0,
+    "maximum_iterations": 6,
+    "refit_ridges": [1e-8, 1e-6, 1e-4]
+  },
+  "maximum_drive_growth": 0.02,
+  "selection_block": [16384, 23040]
+}

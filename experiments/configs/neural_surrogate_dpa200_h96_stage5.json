@@ -1,0 +1,19 @@
+{
+  "task": "opendpd_neural_pa_surrogate_stage5",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "seed": 0,
+  "model": {
+    "type": "tres_gru",
+    "hidden_size": 96,
+    "num_layers": 1
+  },
+  "training": {
+    "epochs": 400,
+    "batch_size": 64,
+    "lr": 0.005,
+    "lr_schedule": "cosine",
+    "frame_length": 200,
+    "val_every": 20
+  },
+  "output_dir": "experiments/results/neural_surrogate_dpa200_h96_stage5"
+}

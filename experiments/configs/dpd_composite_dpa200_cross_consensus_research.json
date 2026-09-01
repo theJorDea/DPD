@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task": "composite_spline_gmp_dpd_cross_research",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "baseline_dpd_npz": "experiments/results/spline_memory_dpa200/signal_delay_012.npz",
+  "pa_model_npz": "experiments/results/pa_gmp_dpa200_selection/selected_gmp_pa.npz",
+  "secondary_pa_model_npz": "experiments/results/pa_gmp_dpa200_uncapped_selection/selected_gmp_pa.npz",
+  "output_dir": "experiments/results/dpd_composite_dpa200_cross_consensus_research",
+  "consensus_target": true,
+  "minimum_warmup": 0,
+  "grid": {
+    "maximum_signal_delay": 8,
+    "maximum_envelope_delay": 8,
+    "maximum_exponent": 8
+  },
+  "member_budgets": [4, 8, 12, 16, 24, 32, 48, 64],
+  "ridge_values": [1e-8, 1e-7, 1e-5, 1e-3],
+  "fit_block": [0, 8192],
+  "advisor_block": [8192, 16384],
+  "gauss_newton_schedule": [
+    { "fit": [0, 4096], "advisor": [12288, 16384] },
+    { "fit": [8192, 12288], "advisor": [4096, 8192] }
+  ],
+  "gn_ridge_values": [1e-8, 1e-6, 1e-4, 1e-2],
+  "gn_step_values": [0.0625, 0.25, 1.0],
+  "maximum_drive_growth": 0.15,
+  "real_multiplication_budget": 1000,
+  "selection_block": [16384, 23040]
+}
