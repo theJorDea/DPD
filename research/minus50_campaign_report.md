@@ -205,6 +205,46 @@ fidelity −35.3. The −36 gate therefore requires a more expressive DPD
 class (neural), consistent with the GPU plan; for APA the judge
 agreement problem comes first.
 
+**Round-8 revision (external review conditions).** Every objection was
+tested and the picture is now closed:
+
+* GMP distillation after a full conditioning fix (unit-norm columns,
+  ridge sweep to 1e-10, condition numbers reported): fidelity to the
+  oracle drive stays **−20.8** — the "conditioning artifact" objection
+  is removed and the non-parametric conclusion stands.
+* Oracle convergence: L-BFGS (strong-Wolfe) reproduces the Adam
+  solution exactly (DPA A −34.42 / B −36.81) — the ceiling is real.
+* **Joint oracle (A+B stacked, APA): A −42.0 / B −39.9 at peak ×1.035**
+  — revising Round 7: the APA judges *agree* on a sensible drive down to
+  −39.9 worst-case; single-judge oracles were exploitation, not
+  ceilings. Ideal-drive ladder: DPA −34.4, APA −39.9.
+* **kNN unpredictability floor** (`research/run_knn_floor.py`:
+  phase-rotated history features, local linear fits, overlap guard):
+  DPA −34.3 (L=12), APA −36.9 (L=12); for L≥16 the estimate degenerates
+  (cyclic-prefix repeats make y near-deterministic). The frozen judges
+  (−35.3/−38.7) sit essentially at the model-free floor — little
+  predictable structure is left.
+* Envelope-resonance bank (PDN 0.3–40 MHz resonators Q=3/10, trap
+  kernels; additive and multiplicative): ≤ 0.071 dB on both judges —
+  the supply-network class is absent from these captures.
+* Tail knots (hybrid and additive variants) make the cascade *worse*
+  (−22.5…−22.6 vs −31.1); quantile placement stays optimal. A further
+  constraint discovered: the last knot must sit exactly on the
+  calibration maximum — stretching the last segment to max·1.15 costs
+  6.4 dB through judge B.
+* Peak-weighted judge refit: zero benefit — judge fidelity in the top
+  amplitude bin (−38.8) is already *better* than mid-band (−35.2), so
+  judges do not under-perform on peaks in the forward sense.
+* Spline-forward third judge: fidelity −31.3 (4 dB worse than GMP) — a
+  direct measurement of the DPD-class capacity as a forward model.
+
+Combined picture: shipped cascade −31.9 (DPA); free-variable drive
+−34.4 (DPA) / −39.9 (APA joint); kNN floor ≈ −34.3/−36.9; judge
+fidelity −35.3/−38.7. All cheap structural axes are closed; the
+remaining paths are the neural judge (expected −39…−41, bounded by the
+floor) and an NN-DPD teacher distilled through the judge (weighted by
+|∂P/∂u|), not by drive-space NMSE.
+
 Any claim beyond this requires the external program in §6. Numbers that
 cannot be grounded in a released test gate should be quoted with their
 evaluator identity and one-shot status — this report does so.

@@ -59,29 +59,29 @@ def main() -> None:
     columns = gmp_dictionary_columns(fit_x, members)
     print(f"design: {columns.shape}", flush=True)
 
-    report: dict[str, object] = {"members": len(members)}
-    for ridge in (1e-9, 1e-7, 1e-5, 1e-3):
-        gram = columns.conj().T @ columns
-        rhs = columns.conj().T @ drive
-        n = columns.shape[0]
-        scale = float(np.sqrt(n))
-        gram_n = gram / n
-        gram_n += ridge * np.eye(gram_n.shape[0], dtype=np.complex128)
-        coefficients = np.linalg.solve(gram_n, rhs / n)
+    # Conditioning fix: unit-norm columns, ridge sweep on the normalized
+    # Gram, SVD-based solve in float64.
+    col_norms = np.linalg.norm(columns, axis=0)
+    col_norms[col_norms == 0] = 1.0
+    design_n = columns / col_norms
+    gram_n = design_n.conj().T @ design_n / design_n.shape[0]
+    report: dict[str, object] = {
+        "members": len(members),
+        "gram_condition_number": float(np.linalg.cond(gram_n)),
+    }
+    for ridge in (1e-6, 1e-7, 1e-8, 1e-9, 1e-10):
+        gram_r = gram_n + ridge * np.eye(gram_n.shape[0], dtype=np.complex128)
+        rhs = design_n.conj().T @ drive / design_n.shape[0]
+        coefficients_unit = np.linalg.solve(gram_r, rhs)
+        coefficients = coefficients_unit / col_norms
         prediction = columns @ coefficients
         fidelity = float(nmse_db(prediction, drive, warm))
-        cascade_drive = prediction
-        n_a = float(nmse_db(pa_a.predict(cascade_drive), gain * fit_x, warm))
-        n_b = float(nmse_db(pa_b.predict(cascade_drive), gain * fit_x, warm))
-        # Out-of-sample: selection block drive through the fitted static model.
         sel_x = train_x[16384:23040]
         sel_pred = gmp_dictionary_columns(sel_x, members) @ coefficients
         s_a = float(nmse_db(pa_a.predict(sel_pred), gain * sel_x, warm))
         s_b = float(nmse_db(pa_b.predict(sel_pred), gain * sel_x, warm))
         report[f"ridge_{ridge:g}"] = {
             "drive_fidelity_nmse_db": fidelity,
-            "fitblock_cascade_a_db": n_a,
-            "fitblock_cascade_b_db": n_b,
             "selection_cascade_a_db": s_a,
             "selection_cascade_b_db": s_b,
             "selection_worst_case_db": max(s_a, s_b),

@@ -142,6 +142,8 @@ def main() -> None:
     parser.add_argument("--output", required=True)
     parser.add_argument("--iterations", type=int, default=3000)
     parser.add_argument("--lr", type=float, default=5e-4)
+    parser.add_argument("--optimizer", default="adam", choices=("adam", "lbfgs"))
+    parser.add_argument("--joint", action="store_true", help="optimize through judges A and B stacked")
     parser.add_argument("--block", default="val", choices=("val", "fit", "selection"))
     parser.add_argument("--subblock", default=None, help="lo,hi within the chosen block")
     parser.add_argument("--save-drive", default=None)
@@ -176,31 +178,60 @@ def main() -> None:
     ref_power = float(torch.mean(torch.abs(target) ** 2).item())
     cap = float(np.max(np.abs(block_x))) * 1.15
 
+    model_b_torch = TorchGMP(Path(args.pa_b).resolve())
+
     results: dict[str, object] = {"label": args.label, "gain": [gain.real, gain.imag]}
+    if args.joint:
+        results["joint"] = True
 
     for headroom, tag in ((0.15, "oracle_headroom_15"), (0.0, "oracle_no_headroom")):
         cap = float(np.max(np.abs(block_x))) * (1.0 + headroom)
         u = torch.as_tensor(block_x, dtype=torch.complex128).clone().requires_grad_(True)
-        opt = torch.optim.Adam([u], lr=args.lr)
-        penalty = 10.0
-        for iteration in range(args.iterations):
-            opt.zero_grad()
-            y_a = model(u)
-            residual = (y_a - target)[warm:]
-            loss = torch.mean(torch.abs(residual) ** 2) / ref_power
-            over = torch.relu(u.abs() - cap)
-            loss = loss + penalty * torch.mean(over**2) / ref_power
-            loss.backward()
-            opt.step()
-            if iteration in (999, 2999):
-                with torch.no_grad():
-                    current = float(
-                        10
-                        * np.log10(
-                            torch.mean(torch.abs(residual) ** 2).item() / ref_power
+        if args.optimizer == "lbfgs":
+            opt = torch.optim.LBFGS(
+                [u], lr=1.0, max_iter=args.iterations, history_size=60,
+                line_search_fn="strong_wolfe",
+            )
+
+            def closure() -> torch.Tensor:
+                opt.zero_grad()
+                res_a = (model(u) - target)[warm:]
+                loss = torch.mean(torch.abs(res_a) ** 2) / ref_power
+                if args.joint:
+                    res_b = (model_b_torch(u) - target)[warm:]
+                    loss = loss + torch.mean(torch.abs(res_b) ** 2) / ref_power
+                over = torch.relu(u.abs() - cap)
+                loss = loss + 10.0 * torch.mean(over**2) / ref_power
+                loss.backward()
+                return loss
+
+            opt.step(closure)
+            iterations_run = args.iterations
+        else:
+            opt = torch.optim.Adam([u], lr=args.lr)
+            penalty = 10.0
+            iterations_run = args.iterations
+            for iteration in range(args.iterations):
+                opt.zero_grad()
+                y_a = model(u)
+                residual = (y_a - target)[warm:]
+                loss = torch.mean(torch.abs(residual) ** 2) / ref_power
+                if args.joint:
+                    res_b = (model_b_torch(u) - target)[warm:]
+                    loss = loss + torch.mean(torch.abs(res_b) ** 2) / ref_power
+                over = torch.relu(u.abs() - cap)
+                loss = loss + penalty * torch.mean(over**2) / ref_power
+                loss.backward()
+                opt.step()
+                if iteration in (999, 2999):
+                    with torch.no_grad():
+                        current = float(
+                            10
+                            * np.log10(
+                                torch.mean(torch.abs(residual) ** 2).item() / ref_power
+                            )
                         )
-                    )
-                print(f"{tag} iter {iteration}: NMSE_A {current:.3f}", flush=True)
+                    print(f"{tag} iter {iteration}: NMSE_A {current:.3f}", flush=True)
         with torch.no_grad():
             u_np = u.detach().numpy()
             pred_a = model(u).numpy()
@@ -213,7 +244,7 @@ def main() -> None:
             f"{tag}: A {nmse_a:.3f} | B {nmse_b:.3f} | peak x{peak_growth:.3f}",
             flush=True,
         )
-        if args.save_drive and tag == "oracle_no_headroom":
+        if args.save_drive and (args.joint or tag == "oracle_no_headroom"):
             np.savez(
                 args.save_drive,
                 block_input=block_x,
@@ -225,6 +256,7 @@ def main() -> None:
             "nmse_through_a_db": nmse_a,
             "nmse_through_b_db": nmse_b,
             "peak_growth": peak_growth,
+            "optimizer": args.optimizer,
             "amplitude_bins": amplitude_bins(
                 u_np, block_x, gain, pred_a, pred_b
             ),
