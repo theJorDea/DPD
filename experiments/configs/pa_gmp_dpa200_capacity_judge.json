@@ -1,0 +1,16 @@
+{
+  "task": "gmp_capacity_judge_research",
+  "dataset": "vendor/OpenDPD/datasets/DPA_200MHz",
+  "segment_length": 2560,
+  "ridge": 1e-5,
+  "topologies": [
+    { "ka": 8, "la": 28, "kb": 5, "lb": 28, "mb": 1, "kc": 5, "lc": 28, "mc": 1 },
+    { "ka": 8, "la": 32, "kb": 5, "lb": 32, "mb": 2, "kc": 5, "lc": 32, "mc": 2 },
+    { "ka": 9, "la": 32, "kb": 6, "lb": 32, "mb": 2, "kc": 6, "lc": 32, "mc": 2 },
+    { "ka": 9, "la": 40, "kb": 6, "lb": 40, "mb": 2, "kc": 6, "lc": 40, "mc": 2 },
+    { "ka": 10, "la": 36, "kb": 6, "lb": 36, "mb": 2, "kc": 6, "lc": 36, "mc": 2 },
+    { "ka": 12, "la": 40, "kb": 8, "lb": 40, "mb": 2, "kc": 8, "lc": 40, "mc": 2 }
+  ],
+  "baseline_fidelity_val_db": -35.278,
+  "output_dir": "experiments/results/pa_gmp_dpa200_capacity_judge"
+}

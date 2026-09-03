@@ -1,0 +1,113 @@
+{
+ "task": "gmp_capacity_judge_research",
+ "dataset_label": "C:\\test\\DPD\\vendor\\OpenDPD\\datasets\\DPA_200MHz",
+ "ridge": 1e-05,
+ "trials": [
+  {
+   "topology": {
+    "ka": 8,
+    "la": 28,
+    "kb": 5,
+    "lb": 28,
+    "mb": 1,
+    "kc": 5,
+    "lc": 28,
+    "mc": 1
+   },
+   "coefficients": 499,
+   "train_nmse_db": -35.47420438662525,
+   "val_nmse_db": -35.27814674650737
+  },
+  {
+   "topology": {
+    "ka": 8,
+    "la": 32,
+    "kb": 5,
+    "lb": 32,
+    "mb": 2,
+    "kc": 5,
+    "lc": 32,
+    "mc": 2
+   },
+   "coefficients": 881,
+   "train_nmse_db": -35.54531304656795,
+   "val_nmse_db": -35.27196805582061
+  },
+  {
+   "topology": {
+    "ka": 9,
+    "la": 32,
+    "kb": 6,
+    "lb": 32,
+    "mb": 2,
+    "kc": 6,
+    "lc": 32,
+    "mc": 2
+   },
+   "coefficients": 1038,
+   "train_nmse_db": -35.557020713904485,
+   "val_nmse_db": -35.27191128825167
+  },
+  {
+   "topology": {
+    "ka": 9,
+    "la": 40,
+    "kb": 6,
+    "lb": 40,
+    "mb": 2,
+    "kc": 6,
+    "lc": 40,
+    "mc": 2
+   },
+   "coefficients": 1302,
+   "train_nmse_db": -35.59494973669071,
+   "val_nmse_db": -35.25146811197758
+  },
+  {
+   "topology": {
+    "ka": 10,
+    "la": 36,
+    "kb": 6,
+    "lb": 36,
+    "mb": 2,
+    "kc": 6,
+    "lc": 36,
+    "mc": 2
+   },
+   "coefficients": 1206,
+   "train_nmse_db": -35.578252211457645,
+   "val_nmse_db": -35.25799128453522
+  },
+  {
+   "topology": {
+    "ka": 12,
+    "la": 40,
+    "kb": 8,
+    "lb": 40,
+    "mb": 2,
+    "kc": 8,
+    "lc": 40,
+    "mc": 2
+   },
+   "coefficients": 1736,
+   "train_nmse_db": -35.612889662108685,
+   "val_nmse_db": -35.242651858560684
+  }
+ ],
+ "winner": {
+  "topology": {
+   "ka": 8,
+   "la": 28,
+   "kb": 5,
+   "lb": 28,
+   "mb": 1,
+   "kc": 5,
+   "lc": 28,
+   "mc": 1
+  },
+  "coefficients": 499,
+  "train_nmse_db": -35.47420438662525,
+  "val_nmse_db": -35.27814674650737
+ },
+ "refit_train_nmse_db": -35.47420438662525
+}
