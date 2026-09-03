@@ -136,6 +136,31 @@ Three independent measurements pin the ceiling on these captures:
   dependent, ±0.4 dB), wider dictionaries (HOLD), consensus composites
   on the final splines (HOLD).
 
+**Round-6 revision (residual diagnostics).** An external review
+challenged the noise-floor premise. Follow-up diagnostics
+(`research/run_residual_diagnostics.py`) partially overturn it:
+
+* Half-split refit agreement of the same GMP architecture: **−46.5 (DPA)
+  / −55.3 (APA)** — parameter-estimation error sits 11–16 dB below the
+  residual, so the captures support roughly −45…−50 evaluators *if the
+  missing structure is modelled*. The residual is **coloured**, not
+  white (DPA PSD max/median 4.6/7.9 dB, in-band signal-shaped; APA a
+  symmetric ±20 MHz low-frequency hump).
+* All cheap measurement-chain explanations were tested and **ruled
+  out**: fractional delay τ ≤ 0.0012 samples (phase correction changes
+  nothing), IQ imbalance (widely-linear extension: ±0.01 dB), gain
+  drift (−57…−72 dB), frame repeats (max ACF 0.027), DC (−33…−42 dB).
+* Simple GMP grid extensions (acausal, extra-lagging, two-envelope
+  terms) add ≤ 0.05 dB — the *grid* is exhausted, the architecture is
+  not.
+
+Consequently the evaluator ceiling is **model-capacity, not capture
+noise**; the −39/−40 figure is a cross-model convergence level, not a
+direct noise measurement. The cascade gate −36 (DPA) becomes a
+legitimate target behind a better judge (neural evaluator at the
+published −39…−40 level). The −50 target itself remains unsupported by
+any published fidelity on these datasets.
+
 Any claim beyond this requires the external program in §6. Numbers that
 cannot be grounded in a released test gate should be quoted with their
 evaluator identity and one-shot status — this report does so.
