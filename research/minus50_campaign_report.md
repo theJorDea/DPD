@@ -161,6 +161,50 @@ legitimate target behind a better judge (neural evaluator at the
 published −39…−40 level). The −50 target itself remains unsupported by
 any published fidelity on these datasets.
 
+**Round-7 attribution (hypothesis tests H1–H5 + oracle-DPD).** The five
+remaining residual-explanation classes were all tested and **killed**
+(`research/run_hypothesis_tests.py`): LO phase noise (Im/Re of
+`r·conj(ŷ)`: +0.25/+0.88 dB, PM dominance absent), RX even-order IMD2
+(`{|x[n−d]|²,|x[n−d]|⁴,1}` LS: ≤ 0.02 dB), long envelope memory
+(leaky-integrator bank: ≤ 0.14 dB), cross-lag 3rd-order Volterra
+(24 terms: ≤ 0.24 dB), sampling jitter (flat PSD-ratio profile). The
+residual is none of these.
+
+Amplitude-bin attribution of the judge divergence
+(`--label` reports): **DPA — 91.1 % of the A-vs-B divergence power sits
+in the top two amplitude bins** (top bin |u|>0.655, 2.3 % of samples:
+cascade error −20.5 dB vs −35.6 mid-band); **APA — divergence spread
+across all amplitudes** (top-2 share 0.29).
+
+Oracle drive experiment (`research/run_oracle_dpd.py`, torch judge
+forward matches numpy to 7e−15; target gain·x, disjoint selection):
+
+* **DPA** (fit subblock [0,16384], soft support penalty): drive
+  optimized through judge A scores **A −34.4 / B −36.8**, peak ×1.13 →
+  a *free-variable* cascade ceiling of **−34.4 worst-case, 2.5 dB above
+  the shipped −31.93**, with the judges *agreeing* on that drive. With
+  15 % headroom the drive stretches ×1.24 and B collapses (−25.5) —
+  the divergence lives in stretched peaks.
+* **APA**: the A-oracle drive reaches −52.6…−55.0 through A but −27.9…−28.8
+  through B (worse than the current cascade) at any headroom — the APA
+  evaluators fundamentally disagree where the oracle pushes the drive;
+  the 7.3 dB APA gap is judge-disagreement, not DPD capacity (judge A
+  invertibility itself is excellent).
+* Soft CFR of the drive: zero benefit on both datasets (any clipping
+  monotonically worsens worst-case).
+
+Distilling the oracle drive into parameteric classes
+(`experiments/run_oracle_distill_research.py`,
+`research/run_gmp_distill_probe.py`): spline 14+2×24 (384 coefficients)
+reproduces u* at −29.6 dB → cascade −31.2 (≈ shipped final); a 1152-member
+GMP dictionary only −20.8 → −20.4. **The oracle gain is non-parametric** —
+it lives in a signal-dependent deformation that static memory-nonlinearity
+classes do not express. Ladder for DPA: spline cascade −31.9 →
+parametric distillation −31.2 → free-variable drive −34.4 → judge
+fidelity −35.3. The −36 gate therefore requires a more expressive DPD
+class (neural), consistent with the GPU plan; for APA the judge
+agreement problem comes first.
+
 Any claim beyond this requires the external program in §6. Numbers that
 cannot be grounded in a released test gate should be quoted with their
 evaluator identity and one-shot status — this report does so.

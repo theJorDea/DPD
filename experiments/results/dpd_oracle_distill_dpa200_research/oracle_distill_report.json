@@ -1,0 +1,73 @@
+{
+ "block": "fit",
+ "fit_samples": 16384,
+ "blocks": {
+  "fit": [
+   0,
+   16384
+  ],
+  "advisor": [
+   8192,
+   12288
+  ],
+  "selection": [
+   16384,
+   23040
+  ]
+ },
+ "gain": [
+  3.1656092976318058,
+  1.1941506152272328e-05
+ ],
+ "trials": [
+  {
+   "name": "signal12_env2x24",
+   "coefficients": 336,
+   "mul_per_sample": 16,
+   "drive_fidelity_nmse_db": -28.94830403637755,
+   "advisor": {
+    "a": 1.5462308730001109,
+    "b": 16.9500927350659,
+    "worst_case": 16.9500927350659
+   },
+   "selection": {
+    "a": -25.550293591206028,
+    "b": -24.703000555842337,
+    "worst_case": -24.703000555842337
+   }
+  },
+  {
+   "name": "signal10_env1_env2x24",
+   "coefficients": 336,
+   "mul_per_sample": 18,
+   "drive_fidelity_nmse_db": -28.902040433340403,
+   "advisor": {
+    "a": -4.5196996396405895,
+    "b": 10.051217581601632,
+    "worst_case": 10.051217581601632
+   },
+   "selection": {
+    "a": -21.60301011835047,
+    "b": -16.312727893603267,
+    "worst_case": -16.312727893603267
+   }
+  },
+  {
+   "name": "signal14_env1x24",
+   "coefficients": 384,
+   "mul_per_sample": 18,
+   "drive_fidelity_nmse_db": -29.605139817998968,
+   "advisor": {
+    "a": -31.368298925425925,
+    "b": -31.45463751065851,
+    "worst_case": -31.368298925425925
+   },
+   "selection": {
+    "a": -32.7272380736518,
+    "b": -31.223143546498893,
+    "worst_case": -31.223143546498893
+   }
+  }
+ ],
+ "winner": "signal14_env1x24"
+}
